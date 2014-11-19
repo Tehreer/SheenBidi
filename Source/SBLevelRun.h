@@ -21,7 +21,7 @@
 #include <SBTypes.h>
 
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 
@@ -30,15 +30,15 @@ typedef struct __SBLevelRun _SBLevelRun;
 typedef _SBLevelRun *_SBLevelRunRef;
 
 struct __SBLevelRun {
-    _SBLevelRunRef next;            /**< Reference to the next sequence of run links */
-    _SBRunLinkRef firstLink;        /**< First link of the run. */
-    _SBRunLinkRef lastLink;         /**< Last link of the run. */
-    _SBRunLinkRef subsequentLink;   /**< Subsequent link of the run. */
+    _SBLevelRunRef next;             /**< Reference to the next sequence of run links. */
+    _SBBidiLinkRef firstLink;        /**< First link of the run. */
+    _SBBidiLinkRef lastLink;         /**< Last link of the run. */
+    _SBBidiLinkRef subsequentLink;   /**< Subsequent link of the run. */
     _SBRunExtrema extrema;
     _SBRunKind kind;
 };
 
-SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBRunLinkRef firstLink, _SBRunLinkRef lastLink, _SBCharType sor, _SBCharType eor);
+SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBBidiLinkRef firstLink, _SBBidiLinkRef lastLink, _SBCharType sor, _SBCharType eor);
 SB_INTERNAL SBLevel _SBLevelRunGetLevel(_SBLevelRunRef levelRun);
 SB_INTERNAL void _SBLevelRunAttach(_SBLevelRunRef levelRun, _SBLevelRunRef next);
 

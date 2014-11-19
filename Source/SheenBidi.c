@@ -18,6 +18,8 @@
 
 #ifdef SB_CONFIG_UNITY
 
+#include "SBLog.c"
+
 #include "SBCharTypeLookup.c"
 #include "SBPairingLookup.c"
 
@@ -25,12 +27,10 @@
 #include "SBRunQueue.c"
 #include "SBBracketQueue.c"
 
-#include "SBRunLink.c"
-#include "SBRunChain.c"
+#include "SBBidiLink.c"
+#include "SBBidiChain.c"
 #include "SBLevelRun.c"
 #include "SBIsolatingRun.c"
-
-#include "SBLog.c"
 
 #include "SBParagraph.c"
 #include "SBLine.c"

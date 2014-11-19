@@ -14,30 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef _SB_LINE_H
-#define _SB_LINE_H
+#ifndef _SB_RUN_CHAIN_H
+#define _SB_RUN_CHAIN_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
-#include <SBLine.h>
 
-struct __SBRun;
-typedef struct __SBRun _SBRun;
-typedef _SBRun *_SBRunRef;
+#include "SBBidiLink.h"
 
-struct __SBRun {
-    SBUInteger offset;
-    SBUInteger length;
-    SBLevel level;
+struct __SBBidiChain;
+typedef struct __SBBidiChain _SBBidiChain;
+typedef _SBBidiChain *_SBBidiChainRef;
+
+struct __SBBidiChain {
+    _SBBidiLink _dummy;
+    _SBBidiLinkRef rollerLink;
+    _SBBidiLinkRef lastLink;
 };
 
-struct __SBLine {
-    SBUInteger _retainCount;
-
-    _SBRun *fixedRuns;
-    SBUInteger runCount;
-    SBUInteger offset;
-    SBUInteger length;
-};
+SB_INTERNAL void _SBBidiChainInitialize(_SBBidiChainRef chain);
+SB_INTERNAL void _SBBidiChainAddLink(_SBBidiChainRef chain, _SBBidiLinkRef link);
 
 #endif

@@ -22,7 +22,7 @@
 
 #include "SBAssert.h"
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 #include "SBBracketQueue.h"
 
 static void __SBBracketQueueInvalidatePairs(_SBBracketQueueRef queue, __SBBracketQueueListRef list, SBUInteger top) {
@@ -61,7 +61,7 @@ SB_INTERNAL void _SBBracketQueueReset(_SBBracketQueueRef queue, _SBCharType dire
     queue->_direction = direction;
 }
 
-SB_INTERNAL void _SBBracketQueueEnqueue(_SBBracketQueueRef queue, _SBRunLinkRef priorStrongLink, _SBRunLinkRef openingLink, SBUnichar bracket) {
+SB_INTERNAL void _SBBracketQueueEnqueue(_SBBracketQueueRef queue, _SBBidiLinkRef priorStrongLink, _SBBidiLinkRef openingLink, SBUnichar bracket) {
     __SBBracketQueueListRef list;
     SBUInteger top;
 
@@ -138,7 +138,7 @@ SB_INTERNAL void _SBBracketQueueSetStrongType(_SBBracketQueueRef queue, _SBCharT
     };
 }
 
-SB_INTERNAL void _SBBracketQueueClosePair(_SBBracketQueueRef queue, _SBRunLinkRef closingLink, SBUnichar bracket) {
+SB_INTERNAL void _SBBracketQueueClosePair(_SBBracketQueueRef queue, _SBBidiLinkRef closingLink, SBUnichar bracket) {
     __SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
     SBUInteger limit = 0;
@@ -174,15 +174,15 @@ SB_INTERNAL SBBoolean _SBBracketQueueShouldDequeue(_SBBracketQueueRef queue) {
     return queue->shouldDequeue;
 }
 
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetPriorStrongLink(_SBBracketQueueRef queue) {
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetPriorStrongLink(_SBBracketQueueRef queue) {
     return queue->_frontList->priorStrongLink[queue->_frontTop];
 }
 
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetOpeningLink(_SBBracketQueueRef queue) {
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetOpeningLink(_SBBracketQueueRef queue) {
     return queue->_frontList->openingLink[queue->_frontTop];
 }
 
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetClosingLink(_SBBracketQueueRef queue) {
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetClosingLink(_SBBracketQueueRef queue) {
     return queue->_frontList->closingLink[queue->_frontTop];
 }
 

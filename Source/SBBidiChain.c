@@ -16,24 +16,20 @@
 
 #include <SBConfig.h>
 
-#include "SBRunLink.h"
-#include "SBRunChain.h"
+#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 
-SB_INTERNAL void _SBRunChainInitialize(_SBRunChainRef chain) {
+SB_INTERNAL void _SBBidiChainInitialize(_SBBidiChainRef chain) {
     chain->rollerLink = &chain->_dummy;
     chain->rollerLink->next = chain->rollerLink;
     chain->lastLink = chain->rollerLink;
 
-    _SBRunLinkMakeEmpty(chain->rollerLink);
+    _SBBidiLinkMakeEmpty(chain->rollerLink);
 }
 
-SB_INTERNAL void _SBRunChainAddLink(_SBRunChainRef chain, _SBRunLinkRef link) {
+SB_INTERNAL void _SBBidiChainAddLink(_SBBidiChainRef chain, _SBBidiLinkRef link) {
     link->next = chain->rollerLink;
 
     chain->lastLink->next = link;
     chain->lastLink = link;
-}
-
-SB_INTERNAL _SBRunLinkIter _SBRunChainGetIter(_SBRunChainRef chain) {
-    return _SBRunLinkIterMake(chain->_dummy.next, chain->lastLink);
 }

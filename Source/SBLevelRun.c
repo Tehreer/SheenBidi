@@ -19,12 +19,12 @@
 
 #include "SBAssert.h"
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
-SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBRunLinkRef firstLink, _SBRunLinkRef lastLink, _SBCharType sor, _SBCharType eor) {
+SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBBidiLinkRef firstLink, _SBBidiLinkRef lastLink, _SBCharType sor, _SBCharType eor) {
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;

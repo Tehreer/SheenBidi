@@ -19,8 +19,10 @@
 
 #include "SBTypes.h"
 #include "SBBaseDirection.h"
+
 #include "SBParagraph.h"
 #include "SBLine.h"
+
 #include "SBRunAdapter.h"
 #include "SBMirrorLocator.h"
 

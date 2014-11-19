@@ -21,7 +21,7 @@
 #include <SBTypes.h>
 
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 
 #define __SB_BRACKET_QUEUE_LIST__LENGTH     4
 #define __SB_BRACKET_QUEUE_LIST__MAX_INDEX  (__SB_BRACKET_QUEUE_LIST__LENGTH - 1)
@@ -40,9 +40,9 @@ struct __SBBracketQueueList {
     __SBBracketQueueListRef next;
 
     SBUnichar bracket[__SB_BRACKET_QUEUE_LIST__LENGTH];
-    _SBRunLinkRef priorStrongLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
-    _SBRunLinkRef openingLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
-    _SBRunLinkRef closingLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
+    _SBBidiLinkRef priorStrongLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
+    _SBBidiLinkRef openingLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
+    _SBBidiLinkRef closingLink[__SB_BRACKET_QUEUE_LIST__LENGTH];
     _SBCharType strongType[__SB_BRACKET_QUEUE_LIST__LENGTH];
 };
 
@@ -62,17 +62,17 @@ typedef struct _SBBracketQueue *_SBBracketQueueRef;
 SB_INTERNAL void _SBBracketQueueInitialize(_SBBracketQueueRef queue);
 SB_INTERNAL void _SBBracketQueueReset(_SBBracketQueueRef queue, _SBCharType direction);
 
-SB_INTERNAL void _SBBracketQueueEnqueue(_SBBracketQueueRef queue, _SBRunLinkRef priorStrongLink, _SBRunLinkRef openingLink, SBUnichar bracket);
+SB_INTERNAL void _SBBracketQueueEnqueue(_SBBracketQueueRef queue, _SBBidiLinkRef priorStrongLink, _SBBidiLinkRef openingLink, SBUnichar bracket);
 SB_INTERNAL void _SBBracketQueueDequeue(_SBBracketQueueRef queue);
 
 SB_INTERNAL void _SBBracketQueueSetStrongType(_SBBracketQueueRef queue, _SBCharType strongType);
-SB_INTERNAL void _SBBracketQueueClosePair(_SBBracketQueueRef queue, _SBRunLinkRef closingLink, SBUnichar bracket);
+SB_INTERNAL void _SBBracketQueueClosePair(_SBBracketQueueRef queue, _SBBidiLinkRef closingLink, SBUnichar bracket);
 
 SB_INTERNAL SBBoolean _SBBracketQueueShouldDequeue(_SBBracketQueueRef queue);
 
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetPriorStrongLink(_SBBracketQueueRef queue);
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetOpeningLink(_SBBracketQueueRef queue);
-SB_INTERNAL _SBRunLinkRef _SBBracketQueueGetClosingLink(_SBBracketQueueRef queue);
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetPriorStrongLink(_SBBracketQueueRef queue);
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetOpeningLink(_SBBracketQueueRef queue);
+SB_INTERNAL _SBBidiLinkRef _SBBracketQueueGetClosingLink(_SBBracketQueueRef queue);
 SB_INTERNAL _SBCharType _SBBracketQueueGetStrongType(_SBBracketQueueRef queue);
 
 SB_INTERNAL void _SBBracketQueueInvalidate(_SBBracketQueueRef queue);

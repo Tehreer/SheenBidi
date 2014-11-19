@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_CHAIN_H
-#define _SB_RUN_CHAIN_H
+#ifndef _SB_RUN_LINK_H
+#define _SB_RUN_LINK_H
 
 #include <SBConfig.h>
+#include <SBTypes.h>
 
-#include "SBRunLink.h"
+#include "SBCharType.h"
 
-struct __SBRunChain;
-typedef struct __SBRunChain _SBRunChain;
-typedef _SBRunChain *_SBRunChainRef;
+struct __SBBidiLink;
+typedef struct __SBBidiLink _SBBidiLink;
+typedef _SBBidiLink *_SBBidiLinkRef;
 
-struct __SBRunChain {
-    _SBRunLink _dummy;
-    _SBRunLinkRef rollerLink;
-    _SBRunLinkRef lastLink;
+struct __SBBidiLink {
+    _SBBidiLinkRef next;
+    SBUInteger offset;
+    SBUInteger length;
+    _SBCharType type;
+    SBLevel level;
 };
 
-SB_INTERNAL void _SBRunChainInitialize(_SBRunChainRef chain);
-SB_INTERNAL void _SBRunChainAddLink(_SBRunChainRef chain, _SBRunLinkRef link);
-SB_INTERNAL _SBRunLinkIter _SBRunChainGetIter(_SBRunChainRef chain);
+SB_INTERNAL void _SBBidiLinkMakeEmpty(_SBBidiLinkRef link);
+SB_INTERNAL void _SBBidiLinkAbandonNext(_SBBidiLinkRef link);
+SB_INTERNAL void _SBBidiLinkReplaceNext(_SBBidiLinkRef link, _SBBidiLinkRef next);
+SB_INTERNAL void _SBBidiLinkMergeNext(_SBBidiLinkRef link);
 
 #endif

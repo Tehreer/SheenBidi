@@ -18,9 +18,9 @@
 #include <SBConfig.h>
 
 #include "SBAssert.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 
-SB_INTERNAL void _SBRunLinkMakeEmpty(_SBRunLinkRef link) {
+SB_INTERNAL void _SBBidiLinkMakeEmpty(_SBBidiLinkRef link) {
     link->next = NULL;
     link->offset = SBInvalidIndex;
     link->length = 0;
@@ -28,39 +28,21 @@ SB_INTERNAL void _SBRunLinkMakeEmpty(_SBRunLinkRef link) {
     link->level = SBInvalidLevel;
 }
 
-SB_INTERNAL void _SBRunLinkAbandonNext(_SBRunLinkRef link) {
+SB_INTERNAL void _SBBidiLinkAbandonNext(_SBBidiLinkRef link) {
     link->next = link->next->next;
 }
 
-SB_INTERNAL void _SBRunLinkReplaceNext(_SBRunLinkRef link, _SBRunLinkRef next) {
+SB_INTERNAL void _SBBidiLinkReplaceNext(_SBBidiLinkRef link, _SBBidiLinkRef next) {
     link->next = next;
 }
 
-SB_INTERNAL void _SBRunLinkMergeNext(_SBRunLinkRef link) {
-    _SBRunLinkRef firstNext;
-    _SBRunLinkRef secondNext;
+SB_INTERNAL void _SBBidiLinkMergeNext(_SBBidiLinkRef link) {
+    _SBBidiLinkRef firstNext;
+    _SBBidiLinkRef secondNext;
 
     firstNext = link->next;
     secondNext = firstNext->next;
 
     link->next = secondNext;
     link->length += firstNext->length;
-}
-
-SB_INTERNAL _SBRunLinkIter _SBRunLinkIterMake(_SBRunLinkRef firstLink, _SBRunLinkRef lastLink) {
-    _SBRunLinkIter iter;
-    iter._first = firstLink;
-    iter._break = lastLink->next;
-    iter.current = NULL;
-
-    return iter;
-}
-
-SB_INTERNAL void _SBRunLinkIterReset(_SBRunLinkIterRef iter) {
-    iter->current = NULL;
-}
-
-SB_INTERNAL SBBoolean _SBRunLinkIterMoveNext(_SBRunLinkIterRef iter) {
-    _SBRunLinkRef current = iter->current;
-    return ((iter->current = (current ? current->next : iter->_first)) != iter->_break);
 }

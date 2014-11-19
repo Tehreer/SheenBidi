@@ -18,31 +18,31 @@
 #define _SB_ISOLATING_RUN_H
 
 #include <SBConfig.h>
+#include <SBTypes.h>
 
 #include "SBCharType.h"
+#include "SBBidiLink.h"
 #include "SBLevelRun.h"
-#include "SBRunChain.h"
-#include "SBRunLink.h"
+#include "SBBracketQueue.h"
 
 struct _SBIsolatingRun;
 typedef struct _SBIsolatingRun _SBIsolatingRun;
 typedef _SBIsolatingRun *_SBIsolatingRunRef;
 
 struct _SBIsolatingRun {
-    _SBRunChainRef _chain;      /**< Chain to be manipulated by isolating run. */
-    _SBLevelRunRef firstRun;    /**< First level run of the isolating run. */
-    _SBLevelRunRef lastRun;     /**< Last level run of the isolating run. */
-    _SBCharType sos;
-    _SBCharType eos;
+    SBUnichar *characters;
+    _SBLevelRunRef baseLevelRun;
+    _SBLevelRunRef _lastLevelRun;
+    _SBBracketQueue _bracketQueue;
+    _SBBidiLink _dummyLink;
+    _SBCharType _sos;
+    _SBCharType _eos;
+    SBLevel paragraphLevel;
 };
 
-SB_INTERNAL void _SBIsolatingRunInitialize(_SBIsolatingRunRef isolatingRun, _SBRunChainRef chain);
+SB_INTERNAL void _SBIsolatingRunInitialize(_SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void _SBIsolatingRunResolve(_SBIsolatingRunRef isolatingRun);
 
-SB_INTERNAL SBLevel _SBIsolatingRunGetLevel(_SBIsolatingRunRef isolatingRun);
-
-SB_INTERNAL void _SBIsolatingRunBuild(_SBIsolatingRunRef isolatingRun, _SBLevelRunRef levelRun, SBLevel baseLevel);
 SB_INTERNAL void _SBIsolatingRunInvalidate(_SBIsolatingRunRef isolatingRun);
-
-SB_INTERNAL _SBRunLinkIter _SBIsolatingRunGetIter(_SBIsolatingRunRef isolatingRun);
 
 #endif

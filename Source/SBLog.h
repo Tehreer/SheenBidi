@@ -27,7 +27,7 @@
 #include <SBBaseDirection.h>
 
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 #include "SBIsolatingRun.h"
 
 SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction);
@@ -37,10 +37,9 @@ SB_INTERNAL void _SBPrintCharactersArray(SBUnichar *characters, SBUInteger lengt
 SB_INTERNAL void _SBPrintCharTypesArray(_SBCharType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 
-SB_INTERNAL void _SBPrintLinkTypes(_SBRunLinkIter iter);
-SB_INTERNAL void _SBPrintLinkLevels(_SBRunLinkIter iter);
-
-SB_INTERNAL void _SBPrintIsolatingRunRange(_SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void _SBPrintLinkTypes(_SBBidiLinkRef roller);
+SB_INTERNAL void _SBPrintLinkLevels(_SBBidiLinkRef roller);
+SB_INTERNAL void _SBPrintRunRange(_SBBidiLinkRef roller);
 
 extern int __SBLogPosition;
 
@@ -120,14 +119,14 @@ _SBPrintCharTypesArray(a, l)
 #define _SB_LOG_LEVELS_ARRAY(a, l)      \
 _SBPrintLevelsArray(a, l)
 
-#define _SB_LOG_LINK_TYPES(c)           \
-_SBPrintLinkTypes(c)
+#define _SB_LOG_LINK_TYPES(r)           \
+_SBPrintLinkTypes(r)
 
-#define _SB_LOG_LINK_LEVELS(c)          \
-_SBPrintLinkLevels(c)
+#define _SB_LOG_LINK_LEVELS(r)          \
+_SBPrintLinkLevels(r)
 
-#define _SB_LOG_ISOLATING_RUN_RANGE(ir) \
-_SBPrintIsolatingRunRange(ir)
+#define _SB_LOG_RUN_RANGE(r)            \
+_SBPrintRunRange(r)
 
 #else
 
@@ -160,10 +159,10 @@ _SBPrintIsolatingRunRange(ir)
 #define _SB_LOG_CHAR_TYPES_ARRAY(a, l)  _SB_LOG_NONE()
 #define _SB_LOG_LEVELS_ARRAY(a, l)      _SB_LOG_NONE()
 
-#define _SB_LOG_LINK_TYPES(c)          _SB_LOG_NONE()
-#define _SB_LOG_LINK_LEVELS(c)         _SB_LOG_NONE()
+#define _SB_LOG_LINK_TYPES(r)           _SB_LOG_NONE()
+#define _SB_LOG_LINK_LEVELS(r)          _SB_LOG_NONE()
 
-#define _SB_LOG_ISOLATING_RUN_RANGE(ir) _SB_LOG_NONE()
+#define _SB_LOG_RUN_RANGE(r)            _SB_LOG_NONE()
 
 #endif
 

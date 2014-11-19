@@ -22,7 +22,7 @@
 #include <SBBaseDirection.h>
 
 #include "SBCharType.h"
-#include "SBRunLink.h"
+#include "SBBidiLink.h"
 #include "SBIsolatingRun.h"
 #include "SBLog.h"
 
@@ -174,16 +174,13 @@ SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
     }
 }
 
-SB_INTERNAL void _SBPrintIsolatingRunRange(_SBIsolatingRunRef isolatingRun) {
-    _SBRunLinkIter iter;
+SB_INTERNAL void _SBPrintRunRange(_SBBidiLinkRef roller) {
+    _SBBidiLinkRef link;
 
     SBUInteger offset = 0;
     SBUInteger length = 0;
 
-    iter = _SBIsolatingRunGetIter(isolatingRun);
-    while (_SBRunLinkIterMoveNext(&iter)) {
-        _SBRunLinkRef link = iter.current;
-
+    for (link = roller->next; link != roller; link = link->next) {
         if (length == 0) {
             offset = link->offset;
             length = link->length;
@@ -201,9 +198,10 @@ SB_INTERNAL void _SBPrintIsolatingRunRange(_SBIsolatingRunRef isolatingRun) {
     _SB_LOG_RANGE(offset, length);
 }
 
-SB_INTERNAL void _SBPrintLinkTypes(_SBRunLinkIter iter) {
-    while (_SBRunLinkIterMoveNext(&iter)) {
-        _SBRunLinkRef link = iter.current;
+SB_INTERNAL void _SBPrintLinkTypes(_SBBidiLinkRef roller) {
+    _SBBidiLinkRef link;
+
+    for (link = roller->next; link != roller; link = link->next) {
         _SBCharType type = link->type;
         SBUInteger length = link->length;
 
@@ -214,9 +212,10 @@ SB_INTERNAL void _SBPrintLinkTypes(_SBRunLinkIter iter) {
     }
 }
 
-SB_INTERNAL void _SBPrintLinkLevels(_SBRunLinkIter iter) {
-    while (_SBRunLinkIterMoveNext(&iter)) {
-        _SBRunLinkRef link = iter.current;
+SB_INTERNAL void _SBPrintLinkLevels(_SBBidiLinkRef roller) {
+    _SBBidiLinkRef link;
+
+    for (link = roller->next; link != roller; link = link->next) {
         SBLevel level = link->level;
         SBUInteger length = link->length;
 
