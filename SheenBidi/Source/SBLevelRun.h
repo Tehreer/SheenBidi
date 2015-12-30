@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_LEVEL_RUN_H
-#define _SB_LEVEL_RUN_H
+#ifndef _SB_INTERNAL_LEVEL_RUN_H
+#define _SB_INTERNAL_LEVEL_RUN_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
@@ -25,21 +25,21 @@
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 
-struct __SBLevelRun;
-typedef struct __SBLevelRun _SBLevelRun;
-typedef _SBLevelRun *_SBLevelRunRef;
+struct _SBLevelRun;
+typedef struct _SBLevelRun SBLevelRun;
+typedef SBLevelRun *SBLevelRunRef;
 
-struct __SBLevelRun {
-    _SBLevelRunRef next;             /**< Reference to the next sequence of run links. */
-    _SBBidiLinkRef firstLink;        /**< First link of the run. */
-    _SBBidiLinkRef lastLink;         /**< Last link of the run. */
-    _SBBidiLinkRef subsequentLink;   /**< Subsequent link of the run. */
-    _SBRunExtrema extrema;
-    _SBRunKind kind;
+struct _SBLevelRun {
+    SBLevelRunRef next;             /**< Reference to the next sequence of run links. */
+    SBBidiLinkRef firstLink;        /**< First link of the run. */
+    SBBidiLinkRef lastLink;         /**< Last link of the run. */
+    SBBidiLinkRef subsequentLink;   /**< Subsequent link of the run. */
+    SBRunExtrema extrema;
+    SBRunKind kind;
 };
 
-SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBBidiLinkRef firstLink, _SBBidiLinkRef lastLink, _SBCharType sor, _SBCharType eor);
-SB_INTERNAL SBLevel _SBLevelRunGetLevel(_SBLevelRunRef levelRun);
-SB_INTERNAL void _SBLevelRunAttach(_SBLevelRunRef levelRun, _SBLevelRunRef next);
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor);
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun);
+SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next);
 
 #endif

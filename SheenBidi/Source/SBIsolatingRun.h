@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_ISOLATING_RUN_H
-#define _SB_ISOLATING_RUN_H
+#ifndef _SB_INTERNAL_ISOLATING_RUN_H
+#define _SB_INTERNAL_ISOLATING_RUN_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
@@ -26,23 +26,23 @@
 #include "SBBracketQueue.h"
 
 struct _SBIsolatingRun;
-typedef struct _SBIsolatingRun _SBIsolatingRun;
-typedef _SBIsolatingRun *_SBIsolatingRunRef;
+typedef struct _SBIsolatingRun SBIsolatingRun;
+typedef SBIsolatingRun *SBIsolatingRunRef;
 
 struct _SBIsolatingRun {
     SBUnichar *characters;
-    _SBLevelRunRef baseLevelRun;
-    _SBLevelRunRef _lastLevelRun;
-    _SBBracketQueue _bracketQueue;
-    _SBBidiLink _dummyLink;
-    _SBCharType _sos;
-    _SBCharType _eos;
+    SBLevelRunRef baseLevelRun;
+    SBLevelRunRef _lastLevelRun;
+    SBBracketQueue _bracketQueue;
+    SBBidiLink _dummyLink;
+    SBCharType _sos;
+    SBCharType _eos;
     SBLevel paragraphLevel;
 };
 
-SB_INTERNAL void _SBIsolatingRunInitialize(_SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void _SBIsolatingRunResolve(_SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun);
 
-SB_INTERNAL void _SBIsolatingRunInvalidate(_SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun);
 
 #endif

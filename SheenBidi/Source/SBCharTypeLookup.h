@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef _SB_CHAR_TYPE_LOOKUP_H
-#define _SB_CHAR_TYPE_LOOKUP_H
+#ifndef _SB_INTERNAL_CHAR_TYPE_LOOKUP_H
+#define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 
 #include "SBCharType.h"
 
-SB_INTERNAL _SBCharType _SBCharTypeDetermineForUnicode(SBUnichar unicode);
+SB_INTERNAL SBCharType SBCharTypeDetermineForUnicode(SBUnichar unicode);
 
 #endif

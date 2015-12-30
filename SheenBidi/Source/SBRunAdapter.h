@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_ADAPTER_H
-#define _SB_RUN_ADAPTER_H
+#ifndef _SB_INTERNAL_RUN_ADAPTER_H
+#define _SB_INTERNAL_RUN_ADAPTER_H
 
 #include <SBTypes.h>
 #include <SBRunAdapter.h>
 
 #include "SBLine.h"
 
-struct __SBRunAdapter {
+struct _SBRunAdapter {
     SBUInteger _retainCount;
     SBLineRef _line;
     SBUInteger _index;

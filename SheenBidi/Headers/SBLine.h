@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SB_LINE_H
-#define SB_LINE_H
+#ifndef _SB_PUBLIC_LINE_H
+#define _SB_PUBLIC_LINE_H
 
 #include "SBTypes.h"
 #include "SBParagraph.h"
 
-struct __SBLine;
-typedef struct __SBLine SBLine;
+struct _SBLine;
+typedef struct _SBLine SBLine;
 typedef SBLine *SBLineRef;
 
 typedef enum {

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_CHAIN_H
-#define _SB_RUN_CHAIN_H
+#ifndef _SB_INTERNAL_RUN_CHAIN_H
+#define _SB_INTERNAL_RUN_CHAIN_H
 
 #include <SBConfig.h>
 
 #include "SBBidiLink.h"
 
-struct __SBBidiChain;
-typedef struct __SBBidiChain _SBBidiChain;
-typedef _SBBidiChain *_SBBidiChainRef;
+struct _SBBidiChain;
+typedef struct _SBBidiChain SBBidiChain;
+typedef SBBidiChain *SBBidiChainRef;
 
-struct __SBBidiChain {
-    _SBBidiLink _dummy;
-    _SBBidiLinkRef rollerLink;
-    _SBBidiLinkRef lastLink;
+struct _SBBidiChain {
+    SBBidiLink _dummy;
+    SBBidiLinkRef rollerLink;
+    SBBidiLinkRef lastLink;
 };
 
-SB_INTERNAL void _SBBidiChainInitialize(_SBBidiChainRef chain);
-SB_INTERNAL void _SBBidiChainAddLink(_SBBidiChainRef chain, _SBBidiLinkRef link);
+SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain);
+SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link);
 
 #endif

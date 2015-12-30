@@ -14,51 +14,51 @@
  * limitations under the License.
  */
 
-#ifndef _SB_STATUS_STACK_H
-#define _SB_STATUS_STACK_H
+#ifndef _SB_INTERNAL_STATUS_STACK_H
+#define _SB_INTERNAL_STATUS_STACK_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 
 #include "SBCharType.h"
 
-#define __SB_STATUS_STACK_LIST__LENGTH      16
-#define __SB_STATUS_STACK_LIST__MAX_INDEX   (__SB_STATUS_STACK_LIST__LENGTH - 1)
+#define _SB_STATUS_STACK_LIST__LENGTH      16
+#define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)
 
-struct __SBStatusStack;
-struct __SBStatusStackList;
+struct _SBStatusStack;
+struct _SBStatusStackList;
 
-typedef struct __SBStatusStack _SBStatusStack;
-typedef struct __SBStatusStackList __SBStatusStackList;
+typedef struct _SBStatusStack SBStatusStack;
+typedef struct _SBStatusStackList _SBStatusStackList;
 
-typedef _SBStatusStack *_SBStatusStackRef;
-typedef __SBStatusStackList *__SBStatusStackListRef;
+typedef SBStatusStack *SBStatusStackRef;
+typedef _SBStatusStackList *_SBStatusStackListRef;
 
-struct __SBStatusStackList {
-    __SBStatusStackListRef previous;
-    __SBStatusStackListRef next;
+struct _SBStatusStackList {
+    _SBStatusStackListRef previous;
+    _SBStatusStackListRef next;
 
-    SBBoolean isolateStatus[__SB_STATUS_STACK_LIST__LENGTH];
-    _SBCharType overrideStatus[__SB_STATUS_STACK_LIST__LENGTH];
-    SBLevel embeddingLevel[__SB_STATUS_STACK_LIST__LENGTH];
+    SBBoolean isolateStatus[_SB_STATUS_STACK_LIST__LENGTH];
+    SBCharType overrideStatus[_SB_STATUS_STACK_LIST__LENGTH];
+    SBLevel embeddingLevel[_SB_STATUS_STACK_LIST__LENGTH];
 };
 
-struct __SBStatusStack {
-    __SBStatusStackList _firstList;
-    __SBStatusStackListRef _peekList;
+struct _SBStatusStack {
+    _SBStatusStackList _firstList;
+    _SBStatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
 };
 
-SB_INTERNAL void _SBStatusStackInitialize(_SBStatusStackRef stack);
-SB_INTERNAL void _SBStatusStackInvalidate(_SBStatusStackRef stack);
+SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack);
+SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack);
 
-SB_INTERNAL void _SBStatusStackPush(_SBStatusStackRef stack, SBLevel embeddingLevel, _SBCharType overrideStatus, SBBoolean isolateStatus);
-SB_INTERNAL void _SBStatusStackPop(_SBStatusStackRef stack);
-SB_INTERNAL void _SBStatusStackSetEmpty(_SBStatusStackRef stack);
+SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus);
+SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack);
+SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack);
 
-SB_INTERNAL SBLevel _SBStatusStackGetEmbeddingLevel(_SBStatusStackRef stack);
-SB_INTERNAL _SBCharType _SBStatusStackGetOverrideStatus(_SBStatusStackRef stack);
-SB_INTERNAL SBBoolean _SBStatusStackGetIsolateStatus(_SBStatusStackRef stack);
+SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack);
+SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack);
+SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack);
 
 #endif

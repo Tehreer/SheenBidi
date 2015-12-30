@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SB_BASE_DIRECTION_H
-#define SB_BASE_DIRECTION_H
+#ifndef _SB_PUBLIC_BASE_DIRECTION_H
+#define _SB_PUBLIC_BASE_DIRECTION_H
 
 #include "SBTypes.h"
 
@@ -23,7 +23,7 @@ enum {
     SBBaseDirectionAutoLTR = 0x2000,
     SBBaseDirectionAutoRTL = 0x4000,
     SBBaseDirectionLTR     = 0x6000,
-    SBBaseDirectionRTL     = 0x8000,
+    SBBaseDirectionRTL     = 0x8000
 };
 typedef SBUInt32 SBBaseDirection;
 

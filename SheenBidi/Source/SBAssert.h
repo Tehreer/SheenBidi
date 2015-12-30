@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_ASSERT_H
-#define _SB_ASSERT_H
+#ifndef _SB_INTERNAL_ASSERT_H
+#define _SB_INTERNAL_ASSERT_H
 
 #include <assert.h>
 

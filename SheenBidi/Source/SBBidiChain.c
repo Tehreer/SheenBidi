@@ -19,15 +19,15 @@
 #include "SBBidiLink.h"
 #include "SBBidiChain.h"
 
-SB_INTERNAL void _SBBidiChainInitialize(_SBBidiChainRef chain) {
+SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain) {
     chain->rollerLink = &chain->_dummy;
     chain->rollerLink->next = chain->rollerLink;
     chain->lastLink = chain->rollerLink;
 
-    _SBBidiLinkMakeEmpty(chain->rollerLink);
+    SBBidiLinkMakeEmpty(chain->rollerLink);
 }
 
-SB_INTERNAL void _SBBidiChainAddLink(_SBBidiChainRef chain, _SBBidiLinkRef link) {
+SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link) {
     link->next = chain->rollerLink;
 
     chain->lastLink->next = link;

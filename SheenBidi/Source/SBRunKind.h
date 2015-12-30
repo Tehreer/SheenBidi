@@ -14,87 +14,87 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_KIND_H
-#define _SB_RUN_KIND_H
+#ifndef _SB_INTERNAL_RUN_KIND_H
+#define _SB_INTERNAL_RUN_KIND_H
 
 #include <SBTypes.h>
 
-#define _SB_RUN_KIND                        SBUInt8
+#define SB_RUN_KIND                         SBUInt8
 
-#define _SB_RUN_KIND__SIMPLE                0x0
+#define SB_RUN_KIND__SIMPLE                 0x0
 
-#define _SB_RUN_KIND__ISOLATE               0x1
-#define _SB_RUN_KIND__PARTIAL               0x2
-#define _SB_RUN_KIND__PARTIAL_ISOLATE       \
+#define SB_RUN_KIND__ISOLATE                0x1
+#define SB_RUN_KIND__PARTIAL                0x2
+#define SB_RUN_KIND__PARTIAL_ISOLATE        \
 (                                           \
-   _SB_RUN_KIND__ISOLATE                    \
- | _SB_RUN_KIND__PARTIAL                    \
+   SB_RUN_KIND__ISOLATE                     \
+ | SB_RUN_KIND__PARTIAL                     \
 )
 
-#define _SB_RUN_KIND__TERMINATING           0x4
-#define _SB_RUN_KIND__ATTACHED              0x8
-#define _SB_RUN_KIND__ATTACHED_TERMINATING  \
+#define SB_RUN_KIND__TERMINATING            0x4
+#define SB_RUN_KIND__ATTACHED               0x8
+#define SB_RUN_KIND__ATTACHED_TERMINATING   \
 (                                           \
-   _SB_RUN_KIND__TERMINATING                \
- | _SB_RUN_KIND__ATTACHED                   \
+   SB_RUN_KIND__TERMINATING                 \
+ | SB_RUN_KIND__ATTACHED                    \
 )
 
-#define _SB_RUN_KIND__MAKE(i, t)            \
+#define SB_RUN_KIND__MAKE(i, t)             \
 (                                           \
-   ((i) ? _SB_RUN_KIND__PARTIAL_ISOLATE : 0)\
- | ((t) ? _SB_RUN_KIND__TERMINATING : 0)    \
+   ((i) ? SB_RUN_KIND__PARTIAL_ISOLATE : 0) \
+ | ((t) ? SB_RUN_KIND__TERMINATING : 0)     \
 )
 
-#define _SB_RUN_KIND__MAKE_COMPLETE(t)      \
+#define SB_RUN_KIND__MAKE_COMPLETE(t)       \
 (                                           \
- (t) &= ~_SB_RUN_KIND__PARTIAL              \
+ (t) &= ~SB_RUN_KIND__PARTIAL               \
 )
 
-#define _SB_RUN_KIND__MAKE_ATTACHED(t)      \
+#define SB_RUN_KIND__MAKE_ATTACHED(t)       \
 (                                           \
- (t) |= _SB_RUN_KIND__ATTACHED              \
+ (t) |= SB_RUN_KIND__ATTACHED               \
 )
 
-#define _SB_RUN_KIND__IS_SIMPLE(t)          \
+#define SB_RUN_KIND__IS_SIMPLE(t)           \
 (                                           \
- (t) == _SB_RUN_KIND__SIMPLE                \
+ (t) == SB_RUN_KIND__SIMPLE                 \
 )
 
-#define _SB_RUN_KIND__IS_ISOLATE(t)         \
+#define SB_RUN_KIND__IS_ISOLATE(t)          \
 (                                           \
- (t) & _SB_RUN_KIND__ISOLATE                \
+ (t) & SB_RUN_KIND__ISOLATE                 \
 )
 
-#define _SB_RUN_KIND__IS_TERMINATING(t)     \
+#define SB_RUN_KIND__IS_TERMINATING(t)      \
 (                                           \
- (t) & _SB_RUN_KIND__TERMINATING            \
+ (t) & SB_RUN_KIND__TERMINATING             \
 )
 
-#define _SB_RUN_KIND__IS_PARTIAL_ISOLATE(t) \
+#define SB_RUN_KIND__IS_PARTIAL_ISOLATE(t)  \
 (                                           \
- ((t) & _SB_RUN_KIND__PARTIAL)              \
+ ((t) & SB_RUN_KIND__PARTIAL)               \
 )
 
-#define _SB_RUN_KIND__IS_COMPLETE_ISOLATE(t)\
+#define SB_RUN_KIND__IS_COMPLETE_ISOLATE(t) \
 (                                           \
-    ((t) & _SB_RUN_KIND__PARTIAL_ISOLATE)   \
- == _SB_RUN_KIND__ISOLATE                   \
+    ((t) & SB_RUN_KIND__PARTIAL_ISOLATE)    \
+ == SB_RUN_KIND__ISOLATE                    \
 )
 
-#define _SB_RUN_KIND__IS_ATTACHED_TERMINATING(t) \
+#define SB_RUN_KIND__IS_ATTACHED_TERMINATING(t) \
 (                                           \
- ((t) & _SB_RUN_KIND__ATTACHED)             \
+ ((t) & SB_RUN_KIND__ATTACHED)              \
 )
 
 enum {
-    _SBRunKindSimple      = _SB_RUN_KIND__SIMPLE,
+    SBRunKindSimple      = SB_RUN_KIND__SIMPLE,
 
-    _SBRunKindIsolate     = _SB_RUN_KIND__ISOLATE,
-    _SBRunKindPartial     = _SB_RUN_KIND__PARTIAL,
+    SBRunKindIsolate     = SB_RUN_KIND__ISOLATE,
+    SBRunKindPartial     = SB_RUN_KIND__PARTIAL,
     
-    _SBRunKindTerminating = _SB_RUN_KIND__TERMINATING,
-    _SBRunKindAttached    = _SB_RUN_KIND__ATTACHED,
+    SBRunKindTerminating = SB_RUN_KIND__TERMINATING,
+    SBRunKindAttached    = SB_RUN_KIND__ATTACHED
 };
-typedef _SB_RUN_KIND _SBRunKind;
+typedef SB_RUN_KIND SBRunKind;
 
 #endif

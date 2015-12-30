@@ -25,32 +25,32 @@
 #include "SBCharType.h"
 #include "SBCharTypeLookup.h"
 
-#define L       _SB_CHAR_TYPE__L
-#define R       _SB_CHAR_TYPE__R
-#define AL      _SB_CHAR_TYPE__AL
-#define EN      _SB_CHAR_TYPE__EN
-#define ES      _SB_CHAR_TYPE__ES
-#define ET      _SB_CHAR_TYPE__ET
-#define AN      _SB_CHAR_TYPE__AN
-#define CS      _SB_CHAR_TYPE__CS
-#define NSM     _SB_CHAR_TYPE__NSM
-#define BN      _SB_CHAR_TYPE__BN
-#define B       _SB_CHAR_TYPE__B
-#define S       _SB_CHAR_TYPE__S
-#define WS      _SB_CHAR_TYPE__WS
-#define ON      _SB_CHAR_TYPE__ON
-#define LRE     _SB_CHAR_TYPE__LRE
-#define RLE     _SB_CHAR_TYPE__RLE
-#define LRO     _SB_CHAR_TYPE__LRO
-#define RLO     _SB_CHAR_TYPE__RLO
-#define PDF     _SB_CHAR_TYPE__PDF
-#define LRI     _SB_CHAR_TYPE__LRI
-#define RLI     _SB_CHAR_TYPE__RLI
-#define FSI     _SB_CHAR_TYPE__FSI
-#define PDI     _SB_CHAR_TYPE__PDI
+#define L       SB_CHAR_TYPE__L
+#define R       SB_CHAR_TYPE__R
+#define AL      SB_CHAR_TYPE__AL
+#define EN      SB_CHAR_TYPE__EN
+#define ES      SB_CHAR_TYPE__ES
+#define ET      SB_CHAR_TYPE__ET
+#define AN      SB_CHAR_TYPE__AN
+#define CS      SB_CHAR_TYPE__CS
+#define NSM     SB_CHAR_TYPE__NSM
+#define BN      SB_CHAR_TYPE__BN
+#define B       SB_CHAR_TYPE__B
+#define S       SB_CHAR_TYPE__S
+#define WS      SB_CHAR_TYPE__WS
+#define ON      SB_CHAR_TYPE__ON
+#define LRE     SB_CHAR_TYPE__LRE
+#define RLE     SB_CHAR_TYPE__RLE
+#define LRO     SB_CHAR_TYPE__LRO
+#define RLO     SB_CHAR_TYPE__RLO
+#define PDF     SB_CHAR_TYPE__PDF
+#define LRI     SB_CHAR_TYPE__LRI
+#define RLI     SB_CHAR_TYPE__RLI
+#define FSI     SB_CHAR_TYPE__FSI
+#define PDI     SB_CHAR_TYPE__PDI
 
-static const SBUInt8 __SBCharTypePrimaryData[] = {
-#define __SBCharTypePrimaryData_0000 0x0000
+static const SBUInt8 _SBCharTypePrimaryData[] = {
+#define _SBCharTypePrimaryData_0000 0x0000
     BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  S,   B,   S,   WS,  B,   BN,
     BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  B,   B,
     B,   S,   WS,  ON,  ON,  ET,  ET,  ET,  ON,  ON,  ON,  ON,  ON,  ES,  CS,
@@ -69,7 +69,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   ON,  L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0100 0x0100
+#define _SBCharTypePrimaryData_0100 0x0100
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -88,7 +88,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0200 0x0200
+#define _SBCharTypePrimaryData_0200 0x0200
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -107,7 +107,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_0300 0x0300
+#define _SBCharTypePrimaryData_0300 0x0300
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
@@ -126,7 +126,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   ON,  L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0400 0x0400
+#define _SBCharTypePrimaryData_0400 0x0400
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -145,7 +145,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0500 0x0500
+#define _SBCharTypePrimaryData_0500 0x0500
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -164,7 +164,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   L,   L,   L,   L,   L,
     R,   R,   R,   R,   R,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0600 0x0600
+#define _SBCharTypePrimaryData_0600 0x0600
     AN,  AN,  AN,  AN,  AN,  AN,  ON,  ON,  AL,  ET,  ET,  AL,  CS,  AL,  ON,
     ON,  NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, AL,  AL,  L,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
@@ -183,7 +183,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, AL,  AL,  NSM, NSM, ON,  NSM, NSM, NSM, NSM, AL,  AL,
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  AL,  AL,  AL,  AL,  AL,
     AL,
-#define __SBCharTypePrimaryData_0700 0x0700
+#define _SBCharTypePrimaryData_0700 0x0700
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  L,
     AL,  AL,  NSM, AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
@@ -202,7 +202,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, R,   R,   ON,  ON,  ON,  ON,  R,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0800 0x0800
+#define _SBCharTypePrimaryData_0800 0x0800
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   NSM, NSM, NSM, NSM, R,   NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, R,   NSM, NSM, NSM, R,   NSM, NSM, NSM, NSM,
@@ -221,7 +221,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM,
-#define __SBCharTypePrimaryData_0900 0x0900
+#define _SBCharTypePrimaryData_0900 0x0900
     NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -240,7 +240,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   ET,  ET,  L,   L,   L,   L,   L,   L,   L,   ET,  L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0A00 0x0A00
+#define _SBCharTypePrimaryData_0A00 0x0A00
     L,   NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -259,7 +259,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   ET,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0B00 0x0B00
+#define _SBCharTypePrimaryData_0B00 0x0B00
     L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -278,7 +278,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,  ET,  ON,  L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0C00 0x0C00
+#define _SBCharTypePrimaryData_0C00 0x0C00
     NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -297,7 +297,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0D00 0x0D00
+#define _SBCharTypePrimaryData_0D00 0x0D00
     L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -316,7 +316,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0E00 0x0E00
+#define _SBCharTypePrimaryData_0E00 0x0E00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -335,7 +335,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_0F00 0x0F00
+#define _SBCharTypePrimaryData_0F00 0x0F00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -354,7 +354,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1000 0x1000
+#define _SBCharTypePrimaryData_1000 0x1000
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -373,7 +373,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1100 0x1100
+#define _SBCharTypePrimaryData_1100 0x1100
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -392,7 +392,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1200 0x1200
+#define _SBCharTypePrimaryData_1200 0x1200
     ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -411,7 +411,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1300 0x1300
+#define _SBCharTypePrimaryData_1300 0x1300
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -430,7 +430,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1400 0x1400
+#define _SBCharTypePrimaryData_1400 0x1400
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -449,7 +449,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1500 0x1500
+#define _SBCharTypePrimaryData_1500 0x1500
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  NSM, NSM, NSM, BN,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -468,7 +468,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1600 0x1600
+#define _SBCharTypePrimaryData_1600 0x1600
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   NSM, NSM, NSM, L,   L,   L,   L,   NSM, NSM, L,   L,   L,   L,
@@ -487,7 +487,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_1700 0x1700
+#define _SBCharTypePrimaryData_1700 0x1700
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, L,   L,   NSM, L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -506,7 +506,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1800 0x1800
+#define _SBCharTypePrimaryData_1800 0x1800
     NSM, NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -525,7 +525,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   NSM, L,   NSM, NSM, L,   L,   L,   NSM, L,   NSM,
     NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1900 0x1900
+#define _SBCharTypePrimaryData_1900 0x1900
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM,
@@ -544,7 +544,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   NSM, NSM, NSM, NSM, NSM, NSM, NSM, L,   L,   L,   L,   NSM, L,   L,
     L,   L,   L,   L,   NSM, L,   L,   L,   NSM, NSM, L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1A00 0x1A00
+#define _SBCharTypePrimaryData_1A00 0x1A00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -563,7 +563,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   NSM, NSM, NSM,
     NSM,
-#define __SBCharTypePrimaryData_1B00 0x1B00
+#define _SBCharTypePrimaryData_1B00 0x1B00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -582,7 +582,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  ON,  ON,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  ON,
     L,
-#define __SBCharTypePrimaryData_1C00 0x1C00
+#define _SBCharTypePrimaryData_1C00 0x1C00
     WS,  WS,  WS,  WS,  WS,  WS,  WS,  WS,  WS,  WS,  WS,  BN,  BN,  BN,  L,
     R,   ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  WS,  B,   LRE, RLE, PDF,
@@ -601,7 +601,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_1D00 0x1D00
+#define _SBCharTypePrimaryData_1D00 0x1D00
     ON,  ON,  L,   ON,  ON,  ON,  ON,  L,   ON,  ON,  L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   ON,  L,   ON,  ON,  ON,  L,   L,   L,   L,   L,
     ON,  ON,  ON,  ON,  ON,  ON,  L,   ON,  L,   ON,  L,   ON,  L,   L,   L,
@@ -620,7 +620,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_1E00 0x1E00
+#define _SBCharTypePrimaryData_1E00 0x1E00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ES,  ET,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -639,7 +639,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_1F00 0x1F00
+#define _SBCharTypePrimaryData_1F00 0x1F00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -658,7 +658,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2000 0x2000
+#define _SBCharTypePrimaryData_2000 0x2000
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,
@@ -677,7 +677,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_2100 0x2100
+#define _SBCharTypePrimaryData_2100 0x2100
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -696,7 +696,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_2200 0x2200
+#define _SBCharTypePrimaryData_2200 0x2200
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -715,7 +715,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_2300 0x2300
+#define _SBCharTypePrimaryData_2300 0x2300
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -734,7 +734,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2400 0x2400
+#define _SBCharTypePrimaryData_2400 0x2400
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -753,7 +753,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,   NSM,
     NSM, NSM, L,   L,   L,   L,   L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_2500 0x2500
+#define _SBCharTypePrimaryData_2500 0x2500
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -772,7 +772,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM,
-#define __SBCharTypePrimaryData_2600 0x2600
+#define _SBCharTypePrimaryData_2600 0x2600
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -791,7 +791,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2700 0x2700
+#define _SBCharTypePrimaryData_2700 0x2700
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -810,7 +810,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2800 0x2800
+#define _SBCharTypePrimaryData_2800 0x2800
     WS,  ON,  ON,  ON,  ON,  L,   L,   L,   ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, NSM,
@@ -829,7 +829,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2900 0x2900
+#define _SBCharTypePrimaryData_2900 0x2900
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -848,7 +848,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2A00 0x2A00
+#define _SBCharTypePrimaryData_2A00 0x2A00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,
     ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -867,7 +867,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2B00 0x2B00
+#define _SBCharTypePrimaryData_2B00 0x2B00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -886,7 +886,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     ON,
-#define __SBCharTypePrimaryData_2C00 0x2C00
+#define _SBCharTypePrimaryData_2C00 0x2C00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -905,7 +905,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_2D00 0x2D00
+#define _SBCharTypePrimaryData_2D00 0x2D00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -924,7 +924,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2E00 0x2E00
+#define _SBCharTypePrimaryData_2E00 0x2E00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  ON,
     ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -943,7 +943,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_2F00 0x2F00
+#define _SBCharTypePrimaryData_2F00 0x2F00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -962,7 +962,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3000 0x3000
+#define _SBCharTypePrimaryData_3000 0x3000
     L,   L,   NSM, L,   L,   L,   NSM, L,   L,   L,   L,   NSM, L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   NSM, NSM, L,   ON,  ON,  ON,  ON,  L,
@@ -981,7 +981,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3100 0x3100
+#define _SBCharTypePrimaryData_3100 0x3100
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, NSM, NSM, NSM, NSM, NSM,
@@ -1000,7 +1000,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3200 0x3200
+#define _SBCharTypePrimaryData_3200 0x3200
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, NSM, NSM,
@@ -1019,7 +1019,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, L,   L,
     L,   L,   L,   L,   L,   L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3300 0x3300
+#define _SBCharTypePrimaryData_3300 0x3300
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1038,7 +1038,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   NSM, L,   L,   NSM, L,   L,   L,   L,   NSM, L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3400 0x3400
+#define _SBCharTypePrimaryData_3400 0x3400
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   R,
     NSM, R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   ES,  R,   R,   R,
@@ -1057,7 +1057,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,
-#define __SBCharTypePrimaryData_3500 0x3500
+#define _SBCharTypePrimaryData_3500 0x3500
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
@@ -1076,7 +1076,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,
-#define __SBCharTypePrimaryData_3600 0x3600
+#define _SBCharTypePrimaryData_3600 0x3600
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
@@ -1095,7 +1095,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  ON,  L,
     L,
-#define __SBCharTypePrimaryData_3700 0x3700
+#define _SBCharTypePrimaryData_3700 0x3700
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,
     L,   L,   NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
@@ -1114,7 +1114,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  L,   L,
     BN,
-#define __SBCharTypePrimaryData_3800 0x3800
+#define _SBCharTypePrimaryData_3800 0x3800
     L,   ON,  ON,  ET,  ET,  ET,  ON,  ON,  ON,  ON,  ON,  ES,  CS,  ES,  CS,
     CS,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  CS,  ON,  ON,  ON,
     ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1133,7 +1133,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ET,  ON,  ON,  ON,  ET,  ET,  L,   ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   ON,  ON,  ON,  ON,  ON,  L,
     L,
-#define __SBCharTypePrimaryData_3900 0x3900
+#define _SBCharTypePrimaryData_3900 0x3900
     L,   ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1152,7 +1152,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, L,
     L,
-#define __SBCharTypePrimaryData_3A00 0x3A00
+#define _SBCharTypePrimaryData_3A00 0x3A00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1171,7 +1171,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3B00 0x3B00
+#define _SBCharTypePrimaryData_3B00 0x3B00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1190,7 +1190,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3C00 0x3C00
+#define _SBCharTypePrimaryData_3C00 0x3C00
     R,   R,   R,   R,   R,   R,   L,   L,   R,   L,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1209,7 +1209,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3D00 0x3D00
+#define _SBCharTypePrimaryData_3D00 0x3D00
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   L,   L,
     L,   ON,  R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1228,7 +1228,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3E00 0x3E00
+#define _SBCharTypePrimaryData_3E00 0x3E00
     R,   NSM, NSM, NSM, L,   NSM, NSM, L,   L,   L,   L,   L,   NSM, NSM, NSM,
     NSM, R,   R,   R,   R,   L,   R,   R,   R,   L,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1247,7 +1247,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     R,   R,   R,   R,   NSM, NSM, L,   L,   L,   L,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_3F00 0x3F00
+#define _SBCharTypePrimaryData_3F00 0x3F00
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1266,7 +1266,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4000 0x4000
+#define _SBCharTypePrimaryData_4000 0x4000
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1285,7 +1285,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4100 0x4100
+#define _SBCharTypePrimaryData_4100 0x4100
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1304,7 +1304,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4200 0x4200
+#define _SBCharTypePrimaryData_4200 0x4200
     L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1323,7 +1323,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4300 0x4300
+#define _SBCharTypePrimaryData_4300 0x4300
     NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   NSM, NSM, NSM, NSM, NSM, L,
@@ -1342,7 +1342,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4400 0x4400
+#define _SBCharTypePrimaryData_4400 0x4400
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1361,7 +1361,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4500 0x4500
+#define _SBCharTypePrimaryData_4500 0x4500
     L,   NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1380,7 +1380,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4600 0x4600
+#define _SBCharTypePrimaryData_4600 0x4600
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1399,7 +1399,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4700 0x4700
+#define _SBCharTypePrimaryData_4700 0x4700
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1418,7 +1418,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4800 0x4800
+#define _SBCharTypePrimaryData_4800 0x4800
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1437,7 +1437,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4900 0x4900
+#define _SBCharTypePrimaryData_4900 0x4900
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1456,7 +1456,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     NSM, NSM, NSM, NSM, NSM, L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4A00 0x4A00
+#define _SBCharTypePrimaryData_4A00 0x4A00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1475,7 +1475,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4B00 0x4B00
+#define _SBCharTypePrimaryData_4B00 0x4B00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1494,7 +1494,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4C00 0x4C00
+#define _SBCharTypePrimaryData_4C00 0x4C00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1513,7 +1513,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4D00 0x4D00
+#define _SBCharTypePrimaryData_4D00 0x4D00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1532,7 +1532,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4E00 0x4E00
+#define _SBCharTypePrimaryData_4E00 0x4E00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1551,7 +1551,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_4F00 0x4F00
+#define _SBCharTypePrimaryData_4F00 0x4F00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1570,7 +1570,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5000 0x5000
+#define _SBCharTypePrimaryData_5000 0x5000
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1589,7 +1589,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5100 0x5100
+#define _SBCharTypePrimaryData_5100 0x5100
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   ON,  L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1608,7 +1608,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,
     EN,
-#define __SBCharTypePrimaryData_5200 0x5200
+#define _SBCharTypePrimaryData_5200 0x5200
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
     R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,   R,
@@ -1627,7 +1627,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5300 0x5300
+#define _SBCharTypePrimaryData_5300 0x5300
     AL,  AL,  AL,  AL,  L,   AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,  AL,
     AL,  AL,  L,   AL,  AL,  L,   AL,  L,   L,   AL,  L,   AL,  AL,  AL,  AL,
@@ -1646,7 +1646,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5400 0x5400
+#define _SBCharTypePrimaryData_5400 0x5400
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,
@@ -1665,7 +1665,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5500 0x5500
+#define _SBCharTypePrimaryData_5500 0x5500
     EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  EN,  ON,  ON,  L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1684,7 +1684,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5600 0x5600
+#define _SBCharTypePrimaryData_5600 0x5600
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1703,7 +1703,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5700 0x5700
+#define _SBCharTypePrimaryData_5700 0x5700
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1722,7 +1722,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     L,
-#define __SBCharTypePrimaryData_5800 0x5800
+#define _SBCharTypePrimaryData_5800 0x5800
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1741,7 +1741,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,
-#define __SBCharTypePrimaryData_5900 0x5900
+#define _SBCharTypePrimaryData_5900 0x5900
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1760,7 +1760,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,
     ON,  ON,  ON,  ON,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5A00 0x5A00
+#define _SBCharTypePrimaryData_5A00 0x5A00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1779,7 +1779,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5B00 0x5B00
+#define _SBCharTypePrimaryData_5B00 0x5B00
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  L,   L,   L,
     L,   ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
     ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,  ON,
@@ -1798,7 +1798,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5C00 0x5C00
+#define _SBCharTypePrimaryData_5C00 0x5C00
     L,   BN,  L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,
@@ -1817,7 +1817,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5D00 0x5D00
+#define _SBCharTypePrimaryData_5D00 0x5D00
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
@@ -1836,7 +1836,7 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
     NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM, NSM,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,
-#define __SBCharTypePrimaryData_5E00 0x5E00
+#define _SBCharTypePrimaryData_5E00 0x5E00
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,
@@ -1880,533 +1880,533 @@ static const SBUInt8 __SBCharTypePrimaryData[] = {
 #undef FSI
 #undef PDI
 
-static const SBUInt16 __SBCharTypeMainIndexes[] = {
-#define __SBCharTypeMainIndexes_0000 0x0000
-    __SBCharTypePrimaryData_0000,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0200,
-    __SBCharTypePrimaryData_0300,
-    __SBCharTypePrimaryData_0400,
-    __SBCharTypePrimaryData_0500,
-    __SBCharTypePrimaryData_0600,
-    __SBCharTypePrimaryData_0700,
-    __SBCharTypePrimaryData_0800,
-    __SBCharTypePrimaryData_0900,
-    __SBCharTypePrimaryData_0A00,
-    __SBCharTypePrimaryData_0B00,
-    __SBCharTypePrimaryData_0C00,
-    __SBCharTypePrimaryData_0D00,
-    __SBCharTypePrimaryData_0E00,
-    __SBCharTypePrimaryData_0F00,
-    __SBCharTypePrimaryData_1000,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_1100,
-    __SBCharTypePrimaryData_1200,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_1300,
-    __SBCharTypePrimaryData_1400,
-    __SBCharTypePrimaryData_1500,
-    __SBCharTypePrimaryData_1600,
-    __SBCharTypePrimaryData_1700,
-    __SBCharTypePrimaryData_1800,
-    __SBCharTypePrimaryData_1900,
-    __SBCharTypePrimaryData_1A00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_1B00,
-    __SBCharTypePrimaryData_1C00,
-    __SBCharTypePrimaryData_1D00,
-    __SBCharTypePrimaryData_1E00,
-    __SBCharTypePrimaryData_1F00,
-    __SBCharTypePrimaryData_2000,
-    __SBCharTypePrimaryData_2100,
-    __SBCharTypePrimaryData_2200,
-    __SBCharTypePrimaryData_2100,
-#define __SBCharTypeMainIndexes_0028 0x0028
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_2100,
-    __SBCharTypePrimaryData_2100,
-    __SBCharTypePrimaryData_2300,
-    __SBCharTypePrimaryData_2400,
-    __SBCharTypePrimaryData_2500,
-    __SBCharTypePrimaryData_2600,
-    __SBCharTypePrimaryData_2700,
-    __SBCharTypePrimaryData_2800,
-    __SBCharTypePrimaryData_2900,
-    __SBCharTypePrimaryData_2A00,
-    __SBCharTypePrimaryData_2B00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_2C00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_0050 0x0050
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_0078 0x0078
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_2D00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_2E00,
-    __SBCharTypePrimaryData_2F00,
-    __SBCharTypePrimaryData_3000,
-    __SBCharTypePrimaryData_3100,
-    __SBCharTypePrimaryData_3200,
-    __SBCharTypePrimaryData_3300,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_00A0 0x00A0
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_3400,
-    __SBCharTypePrimaryData_3500,
-    __SBCharTypePrimaryData_3600,
-    __SBCharTypePrimaryData_3700,
-    __SBCharTypePrimaryData_3800,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_3900,
-    __SBCharTypePrimaryData_3A00,
-    __SBCharTypePrimaryData_3B00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_3C00,
-    __SBCharTypePrimaryData_3D00,
-    __SBCharTypePrimaryData_3E00,
-    __SBCharTypePrimaryData_3F00,
-    __SBCharTypePrimaryData_4000,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4200,
-    __SBCharTypePrimaryData_4300,
-    __SBCharTypePrimaryData_4400,
-    __SBCharTypePrimaryData_4500,
-    __SBCharTypePrimaryData_4600,
-    __SBCharTypePrimaryData_4700,
-    __SBCharTypePrimaryData_4800,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_00C8 0x00C8
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4900,
-    __SBCharTypePrimaryData_4A00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4B00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_00F0 0x00F0
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4C00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_4D00,
-    __SBCharTypePrimaryData_4E00,
-    __SBCharTypePrimaryData_4F00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5000,
-    __SBCharTypePrimaryData_5100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_0118 0x0118
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5200,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5300,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5400,
-    __SBCharTypePrimaryData_5500,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5600,
-    __SBCharTypePrimaryData_5700,
-    __SBCharTypePrimaryData_5800,
-    __SBCharTypePrimaryData_5900,
-    __SBCharTypePrimaryData_5A00,
-    __SBCharTypePrimaryData_5B00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_0140 0x0140
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5C00,
-    __SBCharTypePrimaryData_5D00,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-#define __SBCharTypeMainIndexes_0168 0x0168
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_0100,
-    __SBCharTypePrimaryData_5E00
+static const SBUInt16 _SBCharTypeMainIndexes[] = {
+#define _SBCharTypeMainIndexes_0000 0x0000
+    _SBCharTypePrimaryData_0000,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0200,
+    _SBCharTypePrimaryData_0300,
+    _SBCharTypePrimaryData_0400,
+    _SBCharTypePrimaryData_0500,
+    _SBCharTypePrimaryData_0600,
+    _SBCharTypePrimaryData_0700,
+    _SBCharTypePrimaryData_0800,
+    _SBCharTypePrimaryData_0900,
+    _SBCharTypePrimaryData_0A00,
+    _SBCharTypePrimaryData_0B00,
+    _SBCharTypePrimaryData_0C00,
+    _SBCharTypePrimaryData_0D00,
+    _SBCharTypePrimaryData_0E00,
+    _SBCharTypePrimaryData_0F00,
+    _SBCharTypePrimaryData_1000,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_1100,
+    _SBCharTypePrimaryData_1200,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_1300,
+    _SBCharTypePrimaryData_1400,
+    _SBCharTypePrimaryData_1500,
+    _SBCharTypePrimaryData_1600,
+    _SBCharTypePrimaryData_1700,
+    _SBCharTypePrimaryData_1800,
+    _SBCharTypePrimaryData_1900,
+    _SBCharTypePrimaryData_1A00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_1B00,
+    _SBCharTypePrimaryData_1C00,
+    _SBCharTypePrimaryData_1D00,
+    _SBCharTypePrimaryData_1E00,
+    _SBCharTypePrimaryData_1F00,
+    _SBCharTypePrimaryData_2000,
+    _SBCharTypePrimaryData_2100,
+    _SBCharTypePrimaryData_2200,
+    _SBCharTypePrimaryData_2100,
+#define _SBCharTypeMainIndexes_0028 0x0028
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_2100,
+    _SBCharTypePrimaryData_2100,
+    _SBCharTypePrimaryData_2300,
+    _SBCharTypePrimaryData_2400,
+    _SBCharTypePrimaryData_2500,
+    _SBCharTypePrimaryData_2600,
+    _SBCharTypePrimaryData_2700,
+    _SBCharTypePrimaryData_2800,
+    _SBCharTypePrimaryData_2900,
+    _SBCharTypePrimaryData_2A00,
+    _SBCharTypePrimaryData_2B00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_2C00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_0050 0x0050
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_0078 0x0078
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_2D00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_2E00,
+    _SBCharTypePrimaryData_2F00,
+    _SBCharTypePrimaryData_3000,
+    _SBCharTypePrimaryData_3100,
+    _SBCharTypePrimaryData_3200,
+    _SBCharTypePrimaryData_3300,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_00A0 0x00A0
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_3400,
+    _SBCharTypePrimaryData_3500,
+    _SBCharTypePrimaryData_3600,
+    _SBCharTypePrimaryData_3700,
+    _SBCharTypePrimaryData_3800,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_3900,
+    _SBCharTypePrimaryData_3A00,
+    _SBCharTypePrimaryData_3B00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_3C00,
+    _SBCharTypePrimaryData_3D00,
+    _SBCharTypePrimaryData_3E00,
+    _SBCharTypePrimaryData_3F00,
+    _SBCharTypePrimaryData_4000,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4200,
+    _SBCharTypePrimaryData_4300,
+    _SBCharTypePrimaryData_4400,
+    _SBCharTypePrimaryData_4500,
+    _SBCharTypePrimaryData_4600,
+    _SBCharTypePrimaryData_4700,
+    _SBCharTypePrimaryData_4800,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_00C8 0x00C8
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4900,
+    _SBCharTypePrimaryData_4A00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4B00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_00F0 0x00F0
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4C00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_4D00,
+    _SBCharTypePrimaryData_4E00,
+    _SBCharTypePrimaryData_4F00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5000,
+    _SBCharTypePrimaryData_5100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_0118 0x0118
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5200,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5300,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5400,
+    _SBCharTypePrimaryData_5500,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5600,
+    _SBCharTypePrimaryData_5700,
+    _SBCharTypePrimaryData_5800,
+    _SBCharTypePrimaryData_5900,
+    _SBCharTypePrimaryData_5A00,
+    _SBCharTypePrimaryData_5B00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_0140 0x0140
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5C00,
+    _SBCharTypePrimaryData_5D00,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+#define _SBCharTypeMainIndexes_0168 0x0168
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_0100,
+    _SBCharTypePrimaryData_5E00
 };
 
-static const SBUInt16 __SBCharTypeBranchIndexes[] = {
-    __SBCharTypeMainIndexes_0000,
-    __SBCharTypeMainIndexes_0028,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0078,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_00A0,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_00C8,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_00F0,
-    __SBCharTypeMainIndexes_0118,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0140,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0050,
-    __SBCharTypeMainIndexes_0168
+static const SBUInt16 _SBCharTypeBranchIndexes[] = {
+    _SBCharTypeMainIndexes_0000,
+    _SBCharTypeMainIndexes_0028,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0078,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_00A0,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_00C8,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_00F0,
+    _SBCharTypeMainIndexes_0118,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0140,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0050,
+    _SBCharTypeMainIndexes_0168
 };
 
-SB_INTERNAL _SBCharType _SBCharTypeDetermineForUnicode(SBUnichar unicode) {
+SB_INTERNAL SBCharType SBCharTypeDetermineForUnicode(SBUnichar unicode) {
     if (unicode <= 0x10FFFD) {
-        return __SBCharTypePrimaryData[
-                __SBCharTypeMainIndexes[
-                 __SBCharTypeBranchIndexes[
+        return _SBCharTypePrimaryData[
+                _SBCharTypeMainIndexes[
+                 _SBCharTypeBranchIndexes[
                       unicode / 0x2800
                  ] + (unicode % 0x2800) / 0x100
                 ] + unicode % 0x100
                ];
     }
 
-    return _SB_CHAR_TYPE__L;
+    return SB_CHAR_TYPE__L;
 }

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef _SB_LINE_H
-#define _SB_LINE_H
+#ifndef _SB_INTERNAL_LINE_H
+#define _SB_INTERNAL_LINE_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 #include <SBLine.h>
 
-struct __SBRun;
-typedef struct __SBRun _SBRun;
-typedef _SBRun *_SBRunRef;
+struct _SBRun;
+typedef struct _SBRun SBRun;
+typedef SBRun *SBRunRef;
 
-struct __SBRun {
+struct _SBRun {
     SBUInteger offset;
     SBUInteger length;
     SBLevel level;
 };
 
-struct __SBLine {
+struct _SBLine {
     SBUInteger _retainCount;
 
-    _SBRun *fixedRuns;
+    SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;
     SBUInteger length;

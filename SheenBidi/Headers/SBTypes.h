@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SB_TYPES_H
-#define SB_TYPES_H
+#ifndef _SB_PUBLIC_TYPES_H
+#define _SB_PUBLIC_TYPES_H
 
 #include <stdint.h>
 
@@ -68,9 +68,14 @@ typedef intptr_t        SBInteger;
 typedef uintptr_t       SBUInteger;
 
 /**
+ * An unsigned integer type which can hold any array index.
+ */
+typedef size_t          SBIndex;
+
+/**
  * A value that indicates an invalid unsigned index.
  */
-#define SBInvalidIndex  UINTPTR_MAX
+#define SBInvalidIndex  (SBIndex)(-1)
 
 /**
  * A type to represent a unicode character.

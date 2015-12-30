@@ -26,124 +26,124 @@
 #include "SBIsolatingRun.h"
 #include "SBLog.h"
 
-int __SBLogPosition = 0;
+int _SBLogPosition = 0;
 
 SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction) {
     switch (direction) {
         case SBBaseDirectionAutoLTR:
-            _SB_LOG_STRING("Auto-LTR");
+            SB_LOG_STRING("Auto-LTR");
             break;
 
         case SBBaseDirectionAutoRTL:
-            _SB_LOG_STRING("Auto-RTL");
+            SB_LOG_STRING("Auto-RTL");
             break;
 
         case SBBaseDirectionLTR:
-            _SB_LOG_STRING("LTR");
+            SB_LOG_STRING("LTR");
             break;
 
         case SBBaseDirectionRTL:
-            _SB_LOG_STRING("RTL");
+            SB_LOG_STRING("RTL");
             break;
     }
 }
 
-SB_INTERNAL void _SBPrintCharType(_SBCharType type) {
+SB_INTERNAL void _SBPrintCharType(SBCharType type) {
     switch (type) {
-        case _SBCharTypeNil:
-            _SB_LOG_STRING("Nil");
+        case SBCharTypeNil:
+            SB_LOG_STRING("Nil");
             break;
 
-        case _SBCharTypeL:
-            _SB_LOG_STRING("L");
+        case SBCharTypeL:
+            SB_LOG_STRING("L");
             break;
 
-        case _SBCharTypeR:
-            _SB_LOG_STRING("R");
+        case SBCharTypeR:
+            SB_LOG_STRING("R");
             break;
 
-        case _SBCharTypeAL:
-            _SB_LOG_STRING("AL");
+        case SBCharTypeAL:
+            SB_LOG_STRING("AL");
             break;
 
-        case _SBCharTypeEN:
-            _SB_LOG_STRING("EN");
+        case SBCharTypeEN:
+            SB_LOG_STRING("EN");
             break;
 
-        case _SBCharTypeES:
-            _SB_LOG_STRING("ES");
+        case SBCharTypeES:
+            SB_LOG_STRING("ES");
             break;
 
-        case _SBCharTypeET:
-            _SB_LOG_STRING("EN");
+        case SBCharTypeET:
+            SB_LOG_STRING("EN");
             break;
 
-        case _SBCharTypeAN:
-            _SB_LOG_STRING("AN");
+        case SBCharTypeAN:
+            SB_LOG_STRING("AN");
             break;
 
-        case _SBCharTypeCS:
-            _SB_LOG_STRING("CS");
+        case SBCharTypeCS:
+            SB_LOG_STRING("CS");
             break;
 
-        case _SBCharTypeNSM:
-            _SB_LOG_STRING("NSM");
+        case SBCharTypeNSM:
+            SB_LOG_STRING("NSM");
             break;
 
-        case _SBCharTypeBN:
-            _SB_LOG_STRING("BN");
+        case SBCharTypeBN:
+            SB_LOG_STRING("BN");
             break;
 
-        case _SBCharTypeB:
-            _SB_LOG_STRING("B");
+        case SBCharTypeB:
+            SB_LOG_STRING("B");
             break;
 
-        case _SBCharTypeS:
-            _SB_LOG_STRING("S");
+        case SBCharTypeS:
+            SB_LOG_STRING("S");
             break;
 
-        case _SBCharTypeWS:
-            _SB_LOG_STRING("WS");
+        case SBCharTypeWS:
+            SB_LOG_STRING("WS");
             break;
 
-        case _SBCharTypeON:
-            _SB_LOG_STRING("ON");
+        case SBCharTypeON:
+            SB_LOG_STRING("ON");
             break;
 
-        case _SBCharTypeLRE:
-            _SB_LOG_STRING("LRE");
+        case SBCharTypeLRE:
+            SB_LOG_STRING("LRE");
             break;
 
-        case _SBCharTypeRLE:
-            _SB_LOG_STRING("RLE");
+        case SBCharTypeRLE:
+            SB_LOG_STRING("RLE");
             break;
 
-        case _SBCharTypeLRO:
-            _SB_LOG_STRING("LRO");
+        case SBCharTypeLRO:
+            SB_LOG_STRING("LRO");
             break;
 
-        case _SBCharTypeRLO:
-            _SB_LOG_STRING("RLO");
+        case SBCharTypeRLO:
+            SB_LOG_STRING("RLO");
             break;
 
-        case _SBCharTypePDF:
-            _SB_LOG_STRING("PDF");
+        case SBCharTypePDF:
+            SB_LOG_STRING("PDF");
             break;
 
-        case _SBCharTypeLRI:
-            _SB_LOG_STRING("LRI");
+        case SBCharTypeLRI:
+            SB_LOG_STRING("LRI");
             break;
 
-        case _SBCharTypeRLI:
-            _SB_LOG_STRING("RLI");
+        case SBCharTypeRLI:
+            SB_LOG_STRING("RLI");
             break;
 
-        case _SBCharTypeFSI:
-            _SB_LOG_STRING("FSI");
+        case SBCharTypeFSI:
+            SB_LOG_STRING("FSI");
             break;
 
-        case _SBCharTypePDI:
-            _SB_LOG_STRING("PDI");
+        case SBCharTypePDI:
+            SB_LOG_STRING("PDI");
             break;
     }
 }
@@ -152,16 +152,16 @@ SB_INTERNAL void _SBPrintCharactersArray(SBUnichar *characters, SBUInteger lengt
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
-        _SB_LOG(("%04X ", characters[index]));
+        SB_LOG(("%04X ", characters[index]));
     }
 }
 
-SB_INTERNAL void _SBPrintCharTypesArray(_SBCharType *types, SBUInteger length) {
+SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length) {
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
-        _SB_LOG_CHAR_TYPE(types[index]);
-        _SB_LOG_DIVIDER(1);
+        SB_LOG_CHAR_TYPE(types[index]);
+        SB_LOG_DIVIDER(1);
     }
 }
 
@@ -169,13 +169,13 @@ SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
     SBUInteger index = 0;
 
     for (index = 0; index < length; ++index) {
-        _SB_LOG_LEVEL(levels[index]);
-        _SB_LOG_DIVIDER(1);
+        SB_LOG_LEVEL(levels[index]);
+        SB_LOG_DIVIDER(1);
     }
 }
 
-SB_INTERNAL void _SBPrintRunRange(_SBBidiLinkRef roller) {
-    _SBBidiLinkRef link;
+SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller) {
+    SBBidiLinkRef link;
 
     SBUInteger offset = 0;
     SBUInteger length = 0;
@@ -187,41 +187,41 @@ SB_INTERNAL void _SBPrintRunRange(_SBBidiLinkRef roller) {
         } else if (link->offset == (offset + length)) {
             length += link->length;
         } else {
-            _SB_LOG_RANGE(offset, length);
-            _SB_LOG_DIVIDER(1);
+            SB_LOG_RANGE(offset, length);
+            SB_LOG_DIVIDER(1);
 
             offset = link->offset;
             length = link->length;
         }
     }
 
-    _SB_LOG_RANGE(offset, length);
+    SB_LOG_RANGE(offset, length);
 }
 
-SB_INTERNAL void _SBPrintLinkTypes(_SBBidiLinkRef roller) {
-    _SBBidiLinkRef link;
+SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller) {
+    SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
-        _SBCharType type = link->type;
+        SBCharType type = link->type;
         SBUInteger length = link->length;
 
         while (length--) {
-            _SB_LOG_CHAR_TYPE(type);
-            _SB_LOG_DIVIDER(1);
+            SB_LOG_CHAR_TYPE(type);
+            SB_LOG_DIVIDER(1);
         }
     }
 }
 
-SB_INTERNAL void _SBPrintLinkLevels(_SBBidiLinkRef roller) {
-    _SBBidiLinkRef link;
+SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller) {
+    SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
         SBLevel level = link->level;
         SBUInteger length = link->length;
 
         while (length--) {
-            _SB_LOG_LEVEL(level);
-            _SB_LOG_DIVIDER(1);
+            SB_LOG_LEVEL(level);
+            SB_LOG_DIVIDER(1);
         }
     }
 }

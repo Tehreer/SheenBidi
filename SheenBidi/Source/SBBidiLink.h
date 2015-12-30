@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_LINK_H
-#define _SB_RUN_LINK_H
+#ifndef _SB_INTERNAL_RUN_LINK_H
+#define _SB_INTERNAL_RUN_LINK_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 
 #include "SBCharType.h"
 
-struct __SBBidiLink;
-typedef struct __SBBidiLink _SBBidiLink;
-typedef _SBBidiLink *_SBBidiLinkRef;
+struct _SBBidiLink;
+typedef struct _SBBidiLink SBBidiLink;
+typedef SBBidiLink *SBBidiLinkRef;
 
-struct __SBBidiLink {
-    _SBBidiLinkRef next;
+struct _SBBidiLink {
+    SBBidiLinkRef next;
     SBUInteger offset;
     SBUInteger length;
-    _SBCharType type;
+    SBCharType type;
     SBLevel level;
 };
 
-SB_INTERNAL void _SBBidiLinkMakeEmpty(_SBBidiLinkRef link);
-SB_INTERNAL void _SBBidiLinkAbandonNext(_SBBidiLinkRef link);
-SB_INTERNAL void _SBBidiLinkReplaceNext(_SBBidiLinkRef link, _SBBidiLinkRef next);
-SB_INTERNAL void _SBBidiLinkMergeNext(_SBBidiLinkRef link);
+SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link);
+SB_INTERNAL void SBBidiLinkAbandonNext(SBBidiLinkRef link);
+SB_INTERNAL void SBBidiLinkReplaceNext(SBBidiLinkRef link, SBBidiLinkRef next);
+SB_INTERNAL void SBBidiLinkMergeNext(SBBidiLinkRef link);
 
 #endif

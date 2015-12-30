@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SHEEN_BIDI_H
-#define SHEEN_BIDI_H
+#ifndef _SHEEN_BIDI_H
+#define _SHEEN_BIDI_H
 
 #include "SBTypes.h"
 #include "SBBaseDirection.h"

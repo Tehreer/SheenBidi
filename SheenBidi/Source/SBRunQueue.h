@@ -14,51 +14,51 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_QUEUE_H
-#define _SB_RUN_QUEUE_H
+#ifndef _SB_INTERNAL_RUN_QUEUE_H
+#define _SB_INTERNAL_RUN_QUEUE_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 
 #include "SBLevelRun.h"
 
-#define __SB_RUN_QUEUE_LIST__LENGTH     8
-#define __SB_RUN_QUEUE_LIST__MAX_INDEX  (__SB_RUN_QUEUE_LIST__LENGTH - 1)
+#define _SB_RUN_QUEUE_LIST__LENGTH     8
+#define _SB_RUN_QUEUE_LIST__MAX_INDEX  (_SB_RUN_QUEUE_LIST__LENGTH - 1)
 
-struct __SBRunQueue;
-struct __SBRunQueueList;
+struct _SBRunQueue;
+struct _SBRunQueueList;
 
-typedef struct __SBRunQueue _SBRunQueue;
-typedef struct __SBRunQueueList __SBRunQueueList;
+typedef struct _SBRunQueue SBRunQueue;
+typedef struct _SBRunQueueList _SBRunQueueList;
 
-typedef _SBRunQueue *_SBRunQueueRef;
-typedef __SBRunQueueList *__SBRunQueueListRef;
+typedef SBRunQueue *SBRunQueueRef;
+typedef _SBRunQueueList *_SBRunQueueListRef;
 
-struct __SBRunQueueList {
-    __SBRunQueueListRef previous;       /**< Reference to the previous list of queue elements */
-    __SBRunQueueListRef next;           /**< Reference to the next list of queue elements */
+struct _SBRunQueueList {
+    _SBRunQueueListRef previous;       /**< Reference to the previous list of queue elements */
+    _SBRunQueueListRef next;           /**< Reference to the next list of queue elements */
 
-    _SBLevelRun levelRuns[__SB_RUN_QUEUE_LIST__LENGTH];
+    SBLevelRun levelRuns[_SB_RUN_QUEUE_LIST__LENGTH];
 };
 
-struct __SBRunQueue {
-    __SBRunQueueList _firstList;        /**< First list of elements, which is part of the queue */
-    __SBRunQueueListRef _frontList;     /**< The list containing front element of the queue */
-    __SBRunQueueListRef _rearList;      /**< The list containing rear element of the queue */
-    __SBRunQueueListRef _partialList;   /**< The list containing latest partial isolating run */
+struct _SBRunQueue {
+    _SBRunQueueList _firstList;        /**< First list of elements, which is part of the queue */
+    _SBRunQueueListRef _frontList;     /**< The list containing front element of the queue */
+    _SBRunQueueListRef _rearList;      /**< The list containing rear element of the queue */
+    _SBRunQueueListRef _partialList;   /**< The list containing latest partial isolating run */
     SBUInteger _frontTop;               /**< Index of front element in front list */
     SBUInteger _rearTop;                /**< Index of rear element in rear list */
     SBUInteger _partialTop;             /**< Index of partial run in partial list */
-    _SBLevelRunRef peek;                /**< Peek element of the queue */
+    SBLevelRunRef peek;                /**< Peek element of the queue */
     SBUInteger count;                   /**< Number of elements the queue contains */
     SBBoolean shouldDequeue;
 };
 
-SB_INTERNAL void _SBRunQueueInitialize(_SBRunQueueRef queue);
+SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue);
 
-SB_INTERNAL void _SBRunQueueEnqueue(_SBRunQueueRef queue, _SBLevelRun levelRun);
-SB_INTERNAL void _SBRunQueueDequeue(_SBRunQueueRef queue);
+SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun);
+SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue);
 
-SB_INTERNAL void _SBRunQueueInvalidate(_SBRunQueueRef queue);
+SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue);
 
 #endif

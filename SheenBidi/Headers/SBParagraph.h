@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SB_PARAGRAPH_H
-#define SB_PARAGRAPH_H
+#ifndef _SB_PUBLIC_PARAGRAPH_H
+#define _SB_PUBLIC_PARAGRAPH_H
 
 #include "SBTypes.h"
 #include "SBBaseDirection.h"
 
-struct __SBParagraph;
-typedef struct __SBParagraph SBParagraph;
+struct _SBParagraph;
+typedef struct _SBParagraph SBParagraph;
 typedef SBParagraph *SBParagraphRef;
 
 typedef enum {

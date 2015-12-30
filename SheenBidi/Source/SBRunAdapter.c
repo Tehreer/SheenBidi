@@ -46,7 +46,7 @@ SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter) {
     SBLineRef line = adapter->_line;
 
     if (adapter->_index < line->runCount) {
-        _SBRunRef run = &line->fixedRuns[adapter->_index];
+        SBRunRef run = &line->fixedRuns[adapter->_index];
         adapter->agent.offset = run->offset;
         adapter->agent.length = run->length;
         adapter->agent.level = run->level;

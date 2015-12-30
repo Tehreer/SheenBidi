@@ -49,7 +49,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
     SBLineRef line = locator->_line;
 
     do {
-        _SBRunRef run = &line->fixedRuns[locator->_runIndex];
+        SBRunRef run = &line->fixedRuns[locator->_runIndex];
 
         if (run->level & 1) {
             SBUInteger index;
@@ -62,7 +62,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
             limit = run->offset + run->length;
 
             for (; index < limit; index++) {
-                SBUnichar mirror = _SBPairingDetermineMirror(characters[index]);
+                SBUnichar mirror = SBPairingDetermineMirror(characters[index]);
 
                 if (mirror) {
                     locator->_charIndex = index + 1;

@@ -24,15 +24,15 @@
 #include "SBCharType.h"
 #include "SBStatusStack.h"
 
-SB_INTERNAL void _SBStatusStackInitialize(_SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack) {
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
     
-    _SBStatusStackSetEmpty(stack);
+    SBStatusStackSetEmpty(stack);
 }
 
-SB_INTERNAL void _SBStatusStackPush(_SBStatusStackRef stack, SBLevel embeddingLevel, _SBCharType overrideStatus, SBBoolean isolateStatus) {
-    __SBStatusStackListRef list;
+SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus) {
+    _SBStatusStackListRef list;
     SBUInteger top;
 
     /*
@@ -40,17 +40,17 @@ SB_INTERNAL void _SBStatusStackPush(_SBStatusStackRef stack, SBLevel embeddingLe
      */
     SBAssert(stack->count <= 127);
 
-    if (stack->_peekTop != __SB_STATUS_STACK_LIST__MAX_INDEX) {
+    if (stack->_peekTop != _SB_STATUS_STACK_LIST__MAX_INDEX) {
         list = stack->_peekList;
         top = ++stack->_peekTop;
     } else {
-        __SBStatusStackListRef peekList;
+        _SBStatusStackListRef peekList;
 
         peekList = stack->_peekList;
         list = peekList->next;
 
         if (!list) {
-            list = malloc(sizeof(__SBStatusStackList));
+            list = malloc(sizeof(_SBStatusStackList));
             list->previous = peekList;
             list->next = NULL;
 
@@ -67,44 +67,42 @@ SB_INTERNAL void _SBStatusStackPush(_SBStatusStackRef stack, SBLevel embeddingLe
     list->isolateStatus[top]= isolateStatus;
 }
 
-SB_INTERNAL void _SBStatusStackPop(_SBStatusStackRef stack) {
-    /*
-     * The stack should not be empty.
-     */
+SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack) {
+    /* The stack should not be empty. */
     SBAssert(stack->count != 0);
 
     if (stack->_peekTop != 0) {
         --stack->_peekTop;
     } else {
         stack->_peekList = stack->_peekList->previous;
-        stack->_peekTop = __SB_STATUS_STACK_LIST__MAX_INDEX;
+        stack->_peekTop = _SB_STATUS_STACK_LIST__MAX_INDEX;
     }
     --stack->count;
 }
 
-SB_INTERNAL void _SBStatusStackSetEmpty(_SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack) {
     stack->_peekList = &stack->_firstList;
     stack->_peekTop = 0;
     stack->count = 0;
 }
 
-SB_INTERNAL SBLevel _SBStatusStackGetEmbeddingLevel(_SBStatusStackRef stack) {
+SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack) {
     return stack->_peekList->embeddingLevel[stack->_peekTop];
 }
 
-SB_INTERNAL _SBCharType _SBStatusStackGetOverrideStatus(_SBStatusStackRef stack) {
+SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack) {
     return stack->_peekList->overrideStatus[stack->_peekTop];
 }
 
-SB_INTERNAL SBBoolean _SBStatusStackGetIsolateStatus(_SBStatusStackRef stack) {
+SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack) {
     return stack->_peekList->isolateStatus[stack->_peekTop];
 }
 
-SB_INTERNAL void _SBStatusStackInvalidate(_SBStatusStackRef stack) {
-    __SBStatusStackListRef list = stack->_firstList.next;
+SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack) {
+    _SBStatusStackListRef list = stack->_firstList.next;
 
     while (list) {
-        __SBStatusStackListRef next = list->next;
+        _SBStatusStackListRef next = list->next;
         free(list);
         list = next;
     };

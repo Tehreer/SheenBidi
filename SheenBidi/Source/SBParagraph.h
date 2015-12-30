@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PARAGRAPH_H
-#define _SB_PARAGRAPH_H
+#ifndef _SB_INTERNAL_PARAGRAPH_H
+#define _SB_INTERNAL_PARAGRAPH_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>
@@ -23,10 +23,10 @@
 
 #include "SBCharType.h"
 
-struct __SBParagraph {
+struct _SBParagraph {
     SBUInteger _retainCount;
 
-    _SBCharType *fixedTypes;
+    SBCharType *fixedTypes;
     SBLevel *fixedLevels;
     SBUInteger length;
     SBLevel baseLevel;

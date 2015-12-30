@@ -24,51 +24,41 @@
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
-SB_INTERNAL void _SBLevelRunInitialize(_SBLevelRunRef levelRun, _SBBidiLinkRef firstLink, _SBBidiLinkRef lastLink, _SBCharType sor, _SBCharType eor) {
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor) {
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;
     levelRun->subsequentLink = lastLink->next;
-    levelRun->extrema = _SB_RUN_EXTREMA__MAKE(sor, eor);
-    levelRun->kind = _SB_RUN_KIND__MAKE
+    levelRun->extrema = SB_RUN_EXTREMA__MAKE(sor, eor);
+    levelRun->kind = SB_RUN_KIND__MAKE
                      (
-                        _SB_CHAR_TYPE__IS_ISOLATE_INITIATOR(lastLink->type),
-                        _SB_CHAR_TYPE__IS_ISOLATE_TERMINATOR(firstLink->type)
+                        SB_CHAR_TYPE__IS_ISOLATE_INITIATOR(lastLink->type),
+                        SB_CHAR_TYPE__IS_ISOLATE_TERMINATOR(firstLink->type)
                      );
 }
 
-SB_INTERNAL SBLevel _SBLevelRunGetLevel(_SBLevelRunRef levelRun) {
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun) {
     return levelRun->firstLink->level;
 }
 
-SB_INTERNAL void _SBLevelRunAttach(_SBLevelRunRef levelRun, _SBLevelRunRef next) {
-    /*
-     * Only the runs of same level can be attached.
-     */
-    SBAssert(_SBLevelRunGetLevel(levelRun) == _SBLevelRunGetLevel(next));
-    /*
-     * No other run can be attached with a simple run.
-     */
-    SBAssert(!_SB_RUN_KIND__IS_SIMPLE(levelRun->kind));
-    /*
-     * No other run can be attached with a complete isolating run.
-     */
-    SBAssert(!_SB_RUN_KIND__IS_COMPLETE_ISOLATE(levelRun->kind));
-    /*
-     * Only a terminating run can be attached with an isolating run.
-     */
-    SBAssert(_SB_RUN_KIND__IS_ISOLATE(levelRun->kind) && _SB_RUN_KIND__IS_TERMINATING(next->kind));
-    /*
-     * The next run must be unattached.
-     */
-    SBAssert(!_SB_RUN_KIND__IS_ATTACHED_TERMINATING(next->kind));
+SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next) {
+    /* Only the runs of same level can be attached. */
+    SBAssert(SBLevelRunGetLevel(levelRun) == SBLevelRunGetLevel(next));
+    /* No other run can be attached with a simple run. */
+    SBAssert(!SB_RUN_KIND__IS_SIMPLE(levelRun->kind));
+    /* No other run can be attached with a complete isolating run. */
+    SBAssert(!SB_RUN_KIND__IS_COMPLETE_ISOLATE(levelRun->kind));
+    /* Only a terminating run can be attached with an isolating run. */
+    SBAssert(SB_RUN_KIND__IS_ISOLATE(levelRun->kind) && SB_RUN_KIND__IS_TERMINATING(next->kind));
+    /* The next run must be unattached. */
+    SBAssert(!SB_RUN_KIND__IS_ATTACHED_TERMINATING(next->kind));
     
-    if (_SB_RUN_KIND__IS_TERMINATING(next->kind)) {
-        _SB_RUN_KIND__MAKE_ATTACHED(next->kind);
+    if (SB_RUN_KIND__IS_TERMINATING(next->kind)) {
+        SB_RUN_KIND__MAKE_ATTACHED(next->kind);
     }
     
-    if (_SB_RUN_KIND__IS_ISOLATE(levelRun->kind)) {
-        _SB_RUN_KIND__MAKE_COMPLETE(levelRun->kind);
+    if (SB_RUN_KIND__IS_ISOLATE(levelRun->kind)) {
+        SB_RUN_KIND__MAKE_COMPLETE(levelRun->kind);
     }
     
     levelRun->next = next;

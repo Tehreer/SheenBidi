@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SB_CONFIG_H
-#define SB_CONFIG_H
+#ifndef _SB_PUBLIC_CONFIG_H
+#define _SB_PUBLIC_CONFIG_H
 
 /* #define SB_CONFIG_LOG */
 /* #define SB_CONFIG_UNITY */

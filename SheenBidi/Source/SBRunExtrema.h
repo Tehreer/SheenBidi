@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 
-#ifndef _SB_RUN_EXTREMA_H
-#define _SB_RUN_EXTREMA_H
+#ifndef _SB_INTERNAL_RUN_EXTREMA_H
+#define _SB_INTERNAL_RUN_EXTREMA_H
 
 #include <SBTypes.h>
 
 #include "SBCharType.h"
 
-#define _SB_RUN_EXTREMA                     SBUInt8
+#define SB_RUN_EXTREMA                      SBUInt8
 
-#define _SB_RUN_EXTREMA__LEADING_L          (_SB_CHAR_TYPE__L << 0)
-#define _SB_RUN_EXTREMA__LEADING_R          (_SB_CHAR_TYPE__R << 0)
+#define SB_RUN_EXTREMA__LEADING_L           (SB_CHAR_TYPE__L << 0)
+#define SB_RUN_EXTREMA__LEADING_R           (SB_CHAR_TYPE__R << 0)
 
-#define _SB_RUN_EXTREMA__TRAILING_L         (_SB_CHAR_TYPE__L << 4)
-#define _SB_RUN_EXTREMA__TRAILING_R         (_SB_CHAR_TYPE__R << 4)
+#define SB_RUN_EXTREMA__TRAILING_L          (SB_CHAR_TYPE__L << 4)
+#define SB_RUN_EXTREMA__TRAILING_R          (SB_CHAR_TYPE__R << 4)
 
-#define _SB_RUN_EXTREMA__MAKE(sor, eor)     \
-(_SB_RUN_EXTREMA)                           \
+#define SB_RUN_EXTREMA__MAKE(sor, eor)      \
+(SB_RUN_EXTREMA)                            \
 (                                           \
    (sor << 0)                               \
  | (eor << 4)                               \
 )
 
-#define _SB_RUN_EXTREMA__GET_SOR(e)         \
+#define SB_RUN_EXTREMA__GET_SOR(e)          \
 (                                           \
  (e) & 0xF                                  \
 )
 
-#define _SB_RUN_EXTREMA__GET_EOR(e)         \
+#define SB_RUN_EXTREMA__GET_EOR(e)          \
 (                                           \
  (e) >> 4                                   \
 )
 
 enum {
-    _SBRunExtremaLeadingL  = _SB_RUN_EXTREMA__LEADING_L,
-    _SBRunExtremaLeadingR  = _SB_RUN_EXTREMA__LEADING_R,
+    SBRunExtremaLeadingL  = SB_RUN_EXTREMA__LEADING_L,
+    SBRunExtremaLeadingR  = SB_RUN_EXTREMA__LEADING_R,
     
-    _SBRunExtremaTrailingL = _SB_RUN_EXTREMA__TRAILING_L,
-    _SBRunExtremaTrailingR = _SB_RUN_EXTREMA__TRAILING_R,
+    SBRunExtremaTrailingL = SB_RUN_EXTREMA__TRAILING_L,
+    SBRunExtremaTrailingR = SB_RUN_EXTREMA__TRAILING_R
 };
-typedef _SB_RUN_EXTREMA _SBRunExtrema;
+typedef SB_RUN_EXTREMA SBRunExtrema;
 
 #endif

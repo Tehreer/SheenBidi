@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_LOG_H
-#define _SB_LOG_H
+#ifndef _SB_INTERNAL_LOG_H
+#define _SB_INTERNAL_LOG_H
 
 #include <SBConfig.h>
 
@@ -31,138 +31,138 @@
 #include "SBIsolatingRun.h"
 
 SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction);
-SB_INTERNAL void _SBPrintCharType(_SBCharType type);
+SB_INTERNAL void _SBPrintCharType(SBCharType type);
 
 SB_INTERNAL void _SBPrintCharactersArray(SBUnichar *characters, SBUInteger length);
-SB_INTERNAL void _SBPrintCharTypesArray(_SBCharType *types, SBUInteger length);
+SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 
-SB_INTERNAL void _SBPrintLinkTypes(_SBBidiLinkRef roller);
-SB_INTERNAL void _SBPrintLinkLevels(_SBBidiLinkRef roller);
-SB_INTERNAL void _SBPrintRunRange(_SBBidiLinkRef roller);
+SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller);
+SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller);
+SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller);
 
-extern int __SBLogPosition;
+extern int _SBLogPosition;
 
-#define _SB_LOG_BEGIN()                 (++__SBLogPosition)
-#define _SB_LOG_END()                   (--__SBLogPosition)
+#define SB_LOG_BEGIN()                  (++_SBLogPosition)
+#define SB_LOG_END()                    (--_SBLogPosition)
 
-#define _SB_LOG(s)                      printf s
+#define SB_LOG(s)                       printf s
 
-#define _SB_LOG_NUMBER(n)               \
-_SB_LOG(("%ld", (long)n))
+#define SB_LOG_NUMBER(n)                \
+SB_LOG(("%ld", (long)n))
 
-#define _SB_LOG_RANGE(o, l)             \
-_SB_LOG(("[%ld, %ld]", (long)o, (long)(o + l - 1)))
+#define SB_LOG_RANGE(o, l)              \
+SB_LOG(("[%ld, %ld]", (long)o, (long)(o + l - 1)))
 
-#define _SB_LOG_CHAR(c)                 \
+#define SB_LOG_CHAR(c)                  \
 SBLOG(("%c", c))
 
-#define _SB_LOG_STRING(s)               \
-_SB_LOG(("%s", s))
+#define SB_LOG_STRING(s)                \
+SB_LOG(("%s", s))
 
-#define _SB_LOG_LEVEL(l)                \
-_SB_LOG_NUMBER(l)
+#define SB_LOG_LEVEL(l)                 \
+SB_LOG_NUMBER(l)
 
-#define _SB_LOG_BREAKER()               \
-_SB_LOG(("\n"))
+#define SB_LOG_BREAKER()                \
+SB_LOG(("\n"))
 
-#define _SB_LOG_DIVIDER(n)              \
-_SB_LOG(("%.*s", n, "\t\t\t\t\t\t\t\t\t\t"))
+#define SB_LOG_DIVIDER(n)               \
+SB_LOG(("%.*s", n, "\t\t\t\t\t\t\t\t\t\t"))
 
-#define _SB_LOG_INITIATOR()             \
-_SB_LOG_DIVIDER(__SBLogPosition)
+#define SB_LOG_INITIATOR()              \
+SB_LOG_DIVIDER(_SBLogPosition)
 
-#define _SB_LOG_CAPTION(c)              \
-_SB_LOG((c":"))
+#define SB_LOG_CAPTION(c)               \
+SB_LOG((c":"))
 
-#define _SB_LOG_STATEMENT_TEXT(t)       \
+#define SB_LOG_STATEMENT_TEXT(t)        \
 (t)
 
-#define _SB_LOG_LINE(s)                 \
+#define SB_LOG_LINE(s)                  \
 do {                                    \
-    _SB_LOG(s);                         \
-    _SB_LOG_BREAKER();                  \
+    SB_LOG(s);                          \
+    SB_LOG_BREAKER();                   \
 } while (0)
 
-#define _SB_LOG_STATEMENT(c, d, t)      \
+#define SB_LOG_STATEMENT(c, d, t)       \
 do {                                    \
-    _SB_LOG_INITIATOR();                \
-    _SB_LOG_CAPTION(c);                 \
-    _SB_LOG_DIVIDER(d);                 \
-    _SB_LOG_STATEMENT_TEXT(t);          \
-    _SB_LOG_BREAKER();                  \
+    SB_LOG_INITIATOR();                 \
+    SB_LOG_CAPTION(c);                  \
+    SB_LOG_DIVIDER(d);                  \
+    SB_LOG_STATEMENT_TEXT(t);           \
+    SB_LOG_BREAKER();                   \
 } while (0)
 
-#define _SB_LOG_BLOCK_OPENER(c)         \
+#define SB_LOG_BLOCK_OPENER(c)          \
 do {                                    \
-    _SB_LOG_INITIATOR();                \
-    _SB_LOG_CAPTION(c);                 \
-    _SB_LOG_BREAKER();                  \
-    _SB_LOG_BEGIN();                    \
+    SB_LOG_INITIATOR();                 \
+    SB_LOG_CAPTION(c);                  \
+    SB_LOG_BREAKER();                   \
+    SB_LOG_BEGIN();                     \
 } while (0)
 
-#define _SB_LOG_BLOCK_CLOSER()          \
-_SB_LOG_END()
+#define SB_LOG_BLOCK_CLOSER()           \
+SB_LOG_END()
 
-#define _SB_LOG_BASE_DIRECTION(d)       \
+#define SB_LOG_BASE_DIRECTION(d)        \
 _SBPrintBaseDirection(d)
 
-#define _SB_LOG_CHAR_TYPE(t)            \
+#define SB_LOG_CHAR_TYPE(t)             \
 _SBPrintCharType(t)
 
-#define _SB_LOG_CHARACTERS_ARRAY(a, l)  \
+#define SB_LOG_CHARACTERS_ARRAY(a, l)   \
 _SBPrintCharactersArray(a, l)
 
-#define _SB_LOG_CHAR_TYPES_ARRAY(a, l)  \
+#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   \
 _SBPrintCharTypesArray(a, l)
 
-#define _SB_LOG_LEVELS_ARRAY(a, l)      \
+#define SB_LOG_LEVELS_ARRAY(a, l)       \
 _SBPrintLevelsArray(a, l)
 
-#define _SB_LOG_LINK_TYPES(r)           \
+#define SB_LOG_LINK_TYPES(r)            \
 _SBPrintLinkTypes(r)
 
-#define _SB_LOG_LINK_LEVELS(r)          \
+#define SB_LOG_LINK_LEVELS(r)           \
 _SBPrintLinkLevels(r)
 
-#define _SB_LOG_RUN_RANGE(r)            \
+#define SB_LOG_RUN_RANGE(r)             \
 _SBPrintRunRange(r)
 
 #else
 
-#define _SB_LOG_NONE()
+#define SB_LOG_NONE()
 
-#define _SB_LOG(s)                      _SB_LOG_NONE()
+#define SB_LOG(s)                       SB_LOG_NONE()
 
-#define _SB_LOG_NUMBER(n)               _SB_LOG_NONE()
-#define _SB_LOG_RANGE(o, l)             _SB_LOG_NONE()
-#define _SB_LOG_CHAR(c)                 _SB_LOG_NONE()
-#define _SB_LOG_STRING(s)               _SB_LOG_NONE()
-#define _SB_LOG_LEVEL(l)                _SB_LOG_NONE()
+#define SB_LOG_NUMBER(n)                SB_LOG_NONE()
+#define SB_LOG_RANGE(o, l)              SB_LOG_NONE()
+#define SB_LOG_CHAR(c)                  SB_LOG_NONE()
+#define SB_LOG_STRING(s)                SB_LOG_NONE()
+#define SB_LOG_LEVEL(l)                 SB_LOG_NONE()
 
-#define _SB_LOG_BREAKER()               _SB_LOG_NONE()
-#define _SB_LOG_DIVIDER(n)              _SB_LOG_NONE()
-#define _SB_LOG_INITIATOR()             _SB_LOG_NONE()
-#define _SB_LOG_CAPTION(c)              _SB_LOG_NONE()
-#define _SB_LOG_STATEMENT_TEXT(t)       _SB_LOG_NONE()
+#define SB_LOG_BREAKER()                SB_LOG_NONE()
+#define SB_LOG_DIVIDER(n)               SB_LOG_NONE()
+#define SB_LOG_INITIATOR()              SB_LOG_NONE()
+#define SB_LOG_CAPTION(c)               SB_LOG_NONE()
+#define SB_LOG_STATEMENT_TEXT(t)        SB_LOG_NONE()
 
-#define _SB_LOG_LINE(s)                 _SB_LOG_NONE()
-#define _SB_LOG_STATEMENT(c, d, t)      _SB_LOG_NONE()
+#define SB_LOG_LINE(s)                  SB_LOG_NONE()
+#define SB_LOG_STATEMENT(c, d, t)       SB_LOG_NONE()
 
-#define _SB_LOG_BLOCK_OPENER(c)         _SB_LOG_NONE()
-#define _SB_LOG_BLOCK_CLOSER()          _SB_LOG_NONE()
+#define SB_LOG_BLOCK_OPENER(c)          SB_LOG_NONE()
+#define SB_LOG_BLOCK_CLOSER()           SB_LOG_NONE()
 
-#define _SB_LOG_BASE_DIRECTION(d)       _SB_LOG_NONE()
-#define _SB_LOG_CHAR_TYPE(t)            _SB_LOG_NONE()
+#define SB_LOG_BASE_DIRECTION(d)        SB_LOG_NONE()
+#define SB_LOG_CHAR_TYPE(t)             SB_LOG_NONE()
 
-#define _SB_LOG_CHARACTERS_ARRAY(a, l)  _SB_LOG_NONE()
-#define _SB_LOG_CHAR_TYPES_ARRAY(a, l)  _SB_LOG_NONE()
-#define _SB_LOG_LEVELS_ARRAY(a, l)      _SB_LOG_NONE()
+#define SB_LOG_CHARACTERS_ARRAY(a, l)   SB_LOG_NONE()
+#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   SB_LOG_NONE()
+#define SB_LOG_LEVELS_ARRAY(a, l)       SB_LOG_NONE()
 
-#define _SB_LOG_LINK_TYPES(r)           _SB_LOG_NONE()
-#define _SB_LOG_LINK_LEVELS(r)          _SB_LOG_NONE()
+#define SB_LOG_LINK_TYPES(r)            SB_LOG_NONE()
+#define SB_LOG_LINK_LEVELS(r)           SB_LOG_NONE()
 
-#define _SB_LOG_RUN_RANGE(r)            _SB_LOG_NONE()
+#define SB_LOG_RUN_RANGE(r)             SB_LOG_NONE()
 
 #endif
 

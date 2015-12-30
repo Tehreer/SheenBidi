@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PAIRING_LOOKUP
-#define _SB_PAIRING_LOOKUP
+#ifndef _SB_INTERNAL_PAIRING_LOOKUP
+#define _SB_INTERNAL_PAIRING_LOOKUP
 
 #include <SBConfig.h>
 #include <SBTypes.h>
 
 #include "SBBracketType.h"
 
-SB_INTERNAL SBUnichar _SBPairingDetermineMirror(SBUnichar unicode);
-SB_INTERNAL SBUnichar _SBPairingDetermineBracketPair(SBUnichar unicode, _SBBracketType *bracketType);
+SB_INTERNAL SBUnichar SBPairingDetermineMirror(SBUnichar unicode);
+SB_INTERNAL SBUnichar SBPairingDetermineBracketPair(SBUnichar unicode, SBBracketType *bracketType);
 
 #endif

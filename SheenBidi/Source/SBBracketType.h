@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef _SB_BRACKET_TYPE_H
-#define _SB_BRACKET_TYPE_H
+#ifndef _SB_INTERNAL_BRACKET_TYPE_H
+#define _SB_INTERNAL_BRACKET_TYPE_H
 
 #include <SBTypes.h>
 
-#define _SB_BRACKET_TYPE                SBUInt8
-#define _SB_BRACKET_TYPE__NONE          0x00
-#define _SB_BRACKET_TYPE__OPEN          0x40
-#define _SB_BRACKET_TYPE__CLOSE         0x80
+#define SB_BRACKET_TYPE                 SBUInt8
+#define SB_BRACKET_TYPE__NONE           0x00
+#define SB_BRACKET_TYPE__OPEN           0x40
+#define SB_BRACKET_TYPE__CLOSE          0x80
 
-#define _SB_BRACKET_TYPE__PRIMARY_MASK  \
+#define SB_BRACKET_TYPE__PRIMARY_MASK   \
 (                                       \
-   _SB_BRACKET_TYPE__OPEN               \
- | _SB_BRACKET_TYPE__CLOSE              \
+   SB_BRACKET_TYPE__OPEN                \
+ | SB_BRACKET_TYPE__CLOSE               \
 )
 
-#define _SB_BRACKET_TYPE__INVERSE_MASK  \
+#define SB_BRACKET_TYPE__INVERSE_MASK   \
 (                                       \
- ~_SB_BRACKET_TYPE__PRIMARY_MASK        \
+ ~SB_BRACKET_TYPE__PRIMARY_MASK         \
 )
 
 enum {
-    _SBBracketTypeNone  = _SB_BRACKET_TYPE__NONE,
-    _SBBracketTypeOpen  = _SB_BRACKET_TYPE__OPEN,   /**< Opening paired bracket. */
-    _SBBracketTypeClose = _SB_BRACKET_TYPE__CLOSE   /**< Closing paired bracket. */
+    SBBracketTypeNone  = SB_BRACKET_TYPE__NONE,
+    SBBracketTypeOpen  = SB_BRACKET_TYPE__OPEN,     /**< Opening paired bracket. */
+    SBBracketTypeClose = SB_BRACKET_TYPE__CLOSE     /**< Closing paired bracket. */
 };
-typedef _SB_BRACKET_TYPE _SBBracketType;
+typedef SB_BRACKET_TYPE SBBracketType;
 
 #endif

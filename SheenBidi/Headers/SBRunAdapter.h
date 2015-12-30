@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SB_RUN_ADAPTER_H
-#define SB_RUN_ADAPTER_H
+#ifndef _SB_PUBLIC_RUN_ADAPTER_H
+#define _SB_PUBLIC_RUN_ADAPTER_H
 
 #include "SBTypes.h"
 #include "SBLine.h"
 
-struct __SBRunAdapter;
-typedef struct __SBRunAdapter SBRunAdapter;
+struct _SBRunAdapter;
+typedef struct _SBRunAdapter SBRunAdapter;
 typedef SBRunAdapter *SBRunAdapterRef;
 
 /**

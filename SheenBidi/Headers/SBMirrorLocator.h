@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SB_MIRROR_LOCATOR_H
-#define SB_MIRROR_LOCATOR_H
+#ifndef _SB_PUBLIC_MIRROR_LOCATOR_H
+#define _SB_PUBLIC_MIRROR_LOCATOR_H
 
 #include "SBTypes.h"
 #include "SBLine.h"
 
-struct __SBMirrorLocator;
-typedef struct __SBMirrorLocator SBMirrorLocator;
+struct _SBMirrorLocator;
+typedef struct _SBMirrorLocator SBMirrorLocator;
 typedef SBMirrorLocator *SBMirrorLocatorRef;
 
 /**

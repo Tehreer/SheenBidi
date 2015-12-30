@@ -46,46 +46,46 @@
 
 #define SB_LEVEL_TO_TYPE(l)             \
 (                                       \
- ((l) & 1)                              \
- ? _SB_CHAR_TYPE__R                     \
- : _SB_CHAR_TYPE__L                     \
+   ((l) & 1)                            \
+ ? SB_CHAR_TYPE__R                      \
+ : SB_CHAR_TYPE__L                      \
 )
 
-struct __SBParagraphSupport;
-typedef struct __SBParagraphSupport __SBParagraphSupport;
-typedef __SBParagraphSupport *__SBParagraphSupportRef;
+struct _SBParagraphSupport;
+typedef struct _SBParagraphSupport _SBParagraphSupport;
+typedef _SBParagraphSupport *_SBParagraphSupportRef;
 
-struct __SBParagraphSupport {
+struct _SBParagraphSupport {
     SBUnichar *refCharacters;
-    _SBCharType *refTypes;
+    SBCharType *refTypes;
     SBLevel *refLevels;
-    _SBBidiLink *fixedLinks;
-    _SBBidiChain bidiChain;
-    _SBStatusStack statusStack;
-    _SBRunQueue runQueue;
-    _SBIsolatingRun isolatingRun;
+    SBBidiLink *fixedLinks;
+    SBBidiChain bidiChain;
+    SBStatusStack statusStack;
+    SBRunQueue runQueue;
+    SBIsolatingRun isolatingRun;
 };
 
-static __SBParagraphSupportRef __SBParagraphSupportAllocate(SBUInteger linkCount);
-static void __SBParagraphSupportInitialize(__SBParagraphSupportRef support, SBUnichar *characters, _SBCharType *types, SBLevel *levels, SBUInteger length);
-static void __SBParagraphSupportDeallocate(__SBParagraphSupportRef support);
+static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount);
+static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBUnichar *characters, SBCharType *types, SBLevel *levels, SBUInteger length);
+static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support);
 
-static SBParagraphRef __SBParagraphAllocate(SBUInteger length);
+static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
 
-static SBUInteger __SBDetermineCharTypes(SBUnichar *characters, _SBCharType *types, SBUInteger length);
-static void __SBPopulateBidiChain(_SBBidiChainRef chain, _SBBidiLink *links, _SBCharType *types, SBUInteger length);
+static SBUInteger _SBDetermineCharTypes(SBUnichar *characters, SBCharType *types, SBUInteger length);
+static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length);
 
-static _SBBidiLinkRef __SBSkipIsolatingRun(_SBBidiLinkRef skipLink, _SBBidiLinkRef breakLink);
-static SBLevel __SBDetermineBaseLevel(_SBBidiLinkRef skipLink, _SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate);
-static SBLevel __SBDetermineParagraphLevel(_SBBidiChainRef chain, SBBaseDirection baseDirection);
+static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink);
+static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate);
+static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection);
 
-static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLevel);
-static void __SBProcessRun(__SBParagraphSupportRef support, _SBLevelRun levelRun, SBBoolean forceFinish);
-static void __SBSaveLevels(_SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel);
+static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel);
+static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
+static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel);
 
-static __SBParagraphSupportRef __SBParagraphSupportAllocate(SBUInteger linkCount) {
-    const SBUInteger sizeSupport = sizeof(__SBParagraphSupport);
-    const SBUInteger sizeLinks   = sizeof(_SBBidiLink) * (linkCount + 1);
+static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount) {
+    const SBUInteger sizeSupport = sizeof(_SBParagraphSupport);
+    const SBUInteger sizeLinks   = sizeof(SBBidiLink) * (linkCount + 1);
 
     const SBUInteger sizeMemory  = sizeSupport
                                  + sizeLinks;
@@ -93,37 +93,37 @@ static __SBParagraphSupportRef __SBParagraphSupportAllocate(SBUInteger linkCount
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
 
     SBUInteger offset = 0;
-    __SBParagraphSupportRef support = (__SBParagraphSupportRef)(memory + offset);
+    _SBParagraphSupportRef support = (_SBParagraphSupportRef)(memory + offset);
 
     offset += sizeSupport;
-    support->fixedLinks = (_SBBidiLink *)(memory + offset);
+    support->fixedLinks = (SBBidiLink *)(memory + offset);
 
     return support;
 }
 
-static void __SBParagraphSupportInitialize(__SBParagraphSupportRef support, SBUnichar *characters, _SBCharType *types, SBLevel *levels, SBUInteger length) {
+static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBUnichar *characters, SBCharType *types, SBLevel *levels, SBUInteger length) {
     support->refCharacters = characters;
     support->refTypes = types;
     support->refLevels = levels;
 
-    _SBBidiChainInitialize(&support->bidiChain);
-    _SBStatusStackInitialize(&support->statusStack);
-    _SBRunQueueInitialize(&support->runQueue);
-    _SBIsolatingRunInitialize(&support->isolatingRun);
+    SBBidiChainInitialize(&support->bidiChain);
+    SBStatusStackInitialize(&support->statusStack);
+    SBRunQueueInitialize(&support->runQueue);
+    SBIsolatingRunInitialize(&support->isolatingRun);
 
-    __SBPopulateBidiChain(&support->bidiChain, support->fixedLinks, types, length);
+    _SBPopulateBidiChain(&support->bidiChain, support->fixedLinks, types, length);
 }
 
-static void __SBParagraphSupportDeallocate(__SBParagraphSupportRef support) {
-    _SBStatusStackInvalidate(&support->statusStack);
-    _SBRunQueueInvalidate(&support->runQueue);
-    _SBIsolatingRunInvalidate(&support->isolatingRun);
+static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support) {
+    SBStatusStackFinalize(&support->statusStack);
+    SBRunQueueFinalize(&support->runQueue);
+    SBIsolatingRunFinalize(&support->isolatingRun);
     free(support);
 }
 
-static SBParagraphRef __SBParagraphAllocate(SBUInteger length) {
+static SBParagraphRef _SBParagraphAllocate(SBUInteger length) {
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
-    const SBUInteger sizeTypes     = sizeof(_SBCharType) * length;
+    const SBUInteger sizeTypes     = sizeof(SBCharType) * length;
     const SBUInteger sizeLevels    = sizeof(SBLevel)     * length;
 
     const SBUInteger sizeMemory    = sizeParagraph
@@ -136,7 +136,7 @@ static SBParagraphRef __SBParagraphAllocate(SBUInteger length) {
     SBParagraphRef paragraph = (SBParagraphRef)(memory + offset);
 
     offset += sizeParagraph;
-    paragraph->fixedTypes = (_SBCharType *)(memory + offset);
+    paragraph->fixedTypes = (SBCharType *)(memory + offset);
 
     offset += sizeTypes;
     paragraph->fixedLevels = (SBLevel *)(memory + offset);
@@ -144,23 +144,23 @@ static SBParagraphRef __SBParagraphAllocate(SBUInteger length) {
     return paragraph;
 }
 
-static SBUInteger __SBDetermineCharTypes(SBUnichar *characters, _SBCharType *types, SBUInteger length) {
+static SBUInteger _SBDetermineCharTypes(SBUnichar *characters, SBCharType *types, SBUInteger length) {
     SBUInteger linkCount;
-    _SBCharType newType;
+    SBCharType newType;
     SBUInteger index;
 
     linkCount = 0;
-    newType = _SB_CHAR_TYPE__NIL;
+    newType = SB_CHAR_TYPE__NIL;
 
     for (index = 0; index < length; ++index) {
         SBUnichar character = characters[index];
-        _SBCharType priorType = newType;
+        SBCharType priorType = newType;
 
-        newType = _SBCharTypeDetermineForUnicode(character);
+        newType = SBCharTypeDetermineForUnicode(character);
 
         switch (newType) {
-        case _SB_CHAR_TYPE__ON:
-        case _SB_CHAR_TYPE__FORMAT_CASE:
+        case SB_CHAR_TYPE__ON:
+        case SB_CHAR_TYPE__FORMAT_CASE:
             ++linkCount;
             break;
 
@@ -177,15 +177,15 @@ static SBUInteger __SBDetermineCharTypes(SBUnichar *characters, _SBCharType *typ
     return linkCount;
 }
 
-static void __SBPopulateBidiChain(_SBBidiChainRef chain, _SBBidiLink *links, _SBCharType *types, SBUInteger length) {
-    _SBBidiLinkRef priorLink;
-    _SBBidiLinkRef newLink;
-    _SBCharType type;
+static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length) {
+    SBBidiLinkRef priorLink;
+    SBBidiLinkRef newLink;
+    SBCharType type;
     SBUInteger index;
 
     priorLink = links;
     newLink = links;
-    type = _SB_CHAR_TYPE__NIL;
+    type = SB_CHAR_TYPE__NIL;
 
 #define _SB_ADD_CONSECUTIVE_LINK(t)                     \
 {                                                       \
@@ -195,16 +195,16 @@ static void __SBPopulateBidiChain(_SBBidiChainRef chain, _SBBidiLink *links, _SB
     newLink->offset = index;                            \
     newLink->type = t;                                  \
                                                         \
-    _SBBidiChainAddLink(chain, newLink++);              \
+    SBBidiChainAddLink(chain, newLink++);               \
 }
 
     for (index = 0; index < length; index++) {
-        _SBCharType priorType = type;
+        SBCharType priorType = type;
         type = types[index];
 
         switch (type) {
-        case _SB_CHAR_TYPE__ON:
-        case _SB_CHAR_TYPE__FORMAT_CASE:
+        case SB_CHAR_TYPE__ON:
+        case SB_CHAR_TYPE__FORMAT_CASE:
             _SB_ADD_CONSECUTIVE_LINK(type);
             break;
 
@@ -216,24 +216,24 @@ static void __SBPopulateBidiChain(_SBBidiChainRef chain, _SBBidiLink *links, _SB
         }
     }
 
-    _SB_ADD_CONSECUTIVE_LINK(_SB_CHAR_TYPE__NIL);
+    _SB_ADD_CONSECUTIVE_LINK(SB_CHAR_TYPE__NIL);
 
 #undef _SB_ADD_CONSECUTIVE_LINK
 }
 
-static _SBBidiLinkRef __SBSkipIsolatingRun(_SBBidiLinkRef skipLink, _SBBidiLinkRef breakLink) {
-    _SBBidiLinkRef link;
+static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink) {
+    SBBidiLinkRef link;
     SBUInteger depth = 1;
 
     for (link = skipLink->next; link != breakLink; link = link->next) {
-        _SBCharType type = link->type;
+        SBCharType type = link->type;
 
         switch (type) {
-        case _SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE:
+        case SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE:
             ++depth;
             break;
 
-        case _SB_CHAR_TYPE__PDI:
+        case SB_CHAR_TYPE__PDI:
             if (--depth == 0) {
                 return link;
             }
@@ -244,29 +244,29 @@ static _SBBidiLinkRef __SBSkipIsolatingRun(_SBBidiLinkRef skipLink, _SBBidiLinkR
     return NULL;
 }
 
-static SBLevel __SBDetermineBaseLevel(_SBBidiLinkRef skipLink, _SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate) {
-    _SBBidiLinkRef link;
+static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate) {
+    SBBidiLinkRef link;
 
     /* Rules P2, P3 */
     for (link = skipLink->next; link != breakLink; link = link->next) {
-        _SBCharType type = link->type;
+        SBCharType type = link->type;
 
         switch (type) {
-        case _SB_CHAR_TYPE__L:
+        case SB_CHAR_TYPE__L:
             return 0;
 
-        case _SB_CHAR_TYPE__AL:
-        case _SB_CHAR_TYPE__R:
+        case SB_CHAR_TYPE__AL:
+        case SB_CHAR_TYPE__R:
             return 1;
 
-        case _SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE:
-            link = __SBSkipIsolatingRun(link, breakLink);
+        case SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE:
+            link = _SBSkipIsolatingRun(link, breakLink);
             if (!link) {
                 goto Default;
             }
             break;
 
-        case _SB_CHAR_TYPE__PDI:
+        case SB_CHAR_TYPE__PDI:
             if (isIsolate) {
                 /*
                  * In case of isolating run, the PDI will be the last character.
@@ -283,7 +283,7 @@ Default:
     return defaultLevel;
 }
 
-static SBLevel __SBDetermineParagraphLevel(_SBBidiChainRef chain, SBBaseDirection baseDirection) {
+static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection) {
     SBLevel level;
 
     switch (baseDirection) {
@@ -296,28 +296,28 @@ static SBLevel __SBDetermineParagraphLevel(_SBBidiChainRef chain, SBBaseDirectio
         break;
 
     default:
-        level = __SBDetermineBaseLevel(chain->rollerLink, chain->rollerLink,
-                                       baseDirection == SBBaseDirectionAutoLTR ? 0 : 1,
-                                       SBFalse);
+        level = _SBDetermineBaseLevel(chain->rollerLink, chain->rollerLink,
+                                      baseDirection == SBBaseDirectionAutoLTR ? 0 : 1,
+                                      SBFalse);
         break;
     }
 
     return level;
 }
 
-static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLevel) {
-    _SBBidiChainRef chain = &support->bidiChain;
-    _SBStatusStackRef stack = &support->statusStack;
-    _SBBidiLinkRef roller = chain->rollerLink;
-    _SBBidiLinkRef link;
+static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel) {
+    SBBidiChainRef chain = &support->bidiChain;
+    SBStatusStackRef stack = &support->statusStack;
+    SBBidiLinkRef roller = chain->rollerLink;
+    SBBidiLinkRef link;
 
-    _SBBidiLinkRef priorLink;
-    _SBBidiLinkRef firstLink;
-    _SBBidiLinkRef lastLink;
+    SBBidiLinkRef priorLink;
+    SBBidiLinkRef firstLink;
+    SBBidiLinkRef lastLink;
 
     SBLevel priorLevel;
-    _SBCharType sor;
-    _SBCharType eor;
+    SBCharType sor;
+    SBCharType eor;
 
     SBUInteger overIsolate;
     SBUInteger overEmbedding;
@@ -328,20 +328,20 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
     lastLink = NULL;
 
     priorLevel = baseLevel;
-    sor = _SB_CHAR_TYPE__NIL;
+    sor = SB_CHAR_TYPE__NIL;
 
     /* Rule X1 */
     overIsolate = 0;
     overEmbedding = 0;
     validIsolate = 0;
 
-    _SBStatusStackPush(stack, baseLevel, _SB_CHAR_TYPE__ON, SBFalse);
+    SBStatusStackPush(stack, baseLevel, SB_CHAR_TYPE__ON, SBFalse);
 
     for (link = roller->next; link != roller; link = link->next) {
         SBBoolean forceFinish;
         SBBoolean bnEquivalent;
 
-        _SBCharType type;
+        SBCharType type;
 
         forceFinish = SBFalse;
         bnEquivalent = SBFalse;
@@ -350,12 +350,12 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
 
 #define SB_LEAST_GREATER_ODD_LEVEL()                                        \
 (                                                                           \
-        (_SBStatusStackGetEmbeddingLevel(stack) + 1) | 1                    \
+        (SBStatusStackGetEmbeddingLevel(stack) + 1) | 1                     \
 )
 
 #define SB_LEAST_GREATER_EVEN_LEVEL()                                       \
 (                                                                           \
-        (_SBStatusStackGetEmbeddingLevel(stack) + 2) & ~1                   \
+        (SBStatusStackGetEmbeddingLevel(stack) + 2) & ~1                    \
 )
 
 #define SB_PUSH_EMBEDDING(l, o)                                             \
@@ -366,7 +366,7 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
         newLevel = l;                                                       \
                                                                             \
         if (newLevel <= SB_LEVEL_MAX && !overIsolate && !overEmbedding) {   \
-            _SBStatusStackPush(stack, newLevel, o, SBFalse);                \
+            SBStatusStackPush(stack, newLevel, o, SBFalse);                 \
         } else {                                                            \
             if (!overIsolate) {                                             \
                 ++overEmbedding;                                            \
@@ -378,12 +378,12 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
 {                                                                           \
         SBLevel newLevel;                                                   \
                                                                             \
-        link->level = _SBStatusStackGetEmbeddingLevel(stack);               \
+        link->level = SBStatusStackGetEmbeddingLevel(stack);                \
         newLevel = l;                                                       \
                                                                             \
         if (newLevel <= SB_LEVEL_MAX && !overIsolate && !overEmbedding) {   \
             ++validIsolate;                                                 \
-            _SBStatusStackPush(stack, newLevel, o, SBTrue);                 \
+            SBStatusStackPush(stack, newLevel, o, SBTrue);                  \
         } else {                                                            \
             ++overIsolate;                                                  \
         }                                                                   \
@@ -391,52 +391,52 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
 
         switch (type) {
         /* Rule X2 */
-        case _SB_CHAR_TYPE__RLE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), _SB_CHAR_TYPE__ON);
+        case SB_CHAR_TYPE__RLE:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SB_CHAR_TYPE__ON);
             break;
 
         /* Rule X3 */
-        case _SB_CHAR_TYPE__LRE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), _SB_CHAR_TYPE__ON);
+        case SB_CHAR_TYPE__LRE:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SB_CHAR_TYPE__ON);
             break;
 
         /* Rule X4 */
-        case _SB_CHAR_TYPE__RLO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), _SB_CHAR_TYPE__R);
+        case SB_CHAR_TYPE__RLO:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SB_CHAR_TYPE__R);
             break;
 
         /* Rule X5 */
-        case _SB_CHAR_TYPE__LRO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), _SB_CHAR_TYPE__L);
+        case SB_CHAR_TYPE__LRO:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SB_CHAR_TYPE__L);
             break;
 
         /* Rule X5a */
-        case _SB_CHAR_TYPE__RLI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_ODD_LEVEL(), _SB_CHAR_TYPE__ON);
+        case SB_CHAR_TYPE__RLI:
+            SB_PUSH_ISOLATE(SB_LEAST_GREATER_ODD_LEVEL(), SB_CHAR_TYPE__ON);
             break;
 
         /* Rule X5b */
-        case _SB_CHAR_TYPE__LRI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_EVEN_LEVEL(), _SB_CHAR_TYPE__ON);
+        case SB_CHAR_TYPE__LRI:
+            SB_PUSH_ISOLATE(SB_LEAST_GREATER_EVEN_LEVEL(), SB_CHAR_TYPE__ON);
             break;
 
         /* Rule X5c */
-        case _SB_CHAR_TYPE__FSI:
+        case SB_CHAR_TYPE__FSI:
         {
-            SBBoolean isRTL = (__SBDetermineBaseLevel(link, roller, 0, SBTrue) == 1);
+            SBBoolean isRTL = (_SBDetermineBaseLevel(link, roller, 0, SBTrue) == 1);
             SB_PUSH_ISOLATE(isRTL
                              ? SB_LEAST_GREATER_ODD_LEVEL()
                              : SB_LEAST_GREATER_EVEN_LEVEL(),
-                            _SB_CHAR_TYPE__ON);
+                            SB_CHAR_TYPE__ON);
             break;
         }
 
         /* Rule X6 */
         default:
-            link->level = _SBStatusStackGetEmbeddingLevel(stack);
+            link->level = SBStatusStackGetEmbeddingLevel(stack);
 
-            if (_SBStatusStackGetOverrideStatus(stack) != _SB_CHAR_TYPE__ON) {
-                link->type = _SBStatusStackGetOverrideStatus(stack);
+            if (SBStatusStackGetOverrideStatus(stack) != SB_CHAR_TYPE__ON) {
+                link->type = SBStatusStackGetOverrideStatus(stack);
 
                 if (priorLink->type == link->type
                     && priorLink->level == link->level) {
@@ -444,14 +444,14 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
                      * Properties of this link are same as previous link,
                      * therefore merge it and continue the loop.
                      */
-                    _SBBidiLinkMergeNext(priorLink);
+                    SBBidiLinkMergeNext(priorLink);
                     continue;
                 }
             }
             break;
 
         /* Rule X6a */
-        case _SB_CHAR_TYPE__PDI:
+        case SB_CHAR_TYPE__PDI:
             if (overIsolate != 0) {
                 --overIsolate;
             } else if (validIsolate == 0) {
@@ -459,36 +459,36 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
             } else {
                 overEmbedding = 0;
 
-                while (!_SBStatusStackGetIsolateStatus(stack)) {
-                    _SBStatusStackPop(stack);
+                while (!SBStatusStackGetIsolateStatus(stack)) {
+                    SBStatusStackPop(stack);
                 };
-                _SBStatusStackPop(stack);
+                SBStatusStackPop(stack);
 
                 --validIsolate;
             }
 
-            link->level = _SBStatusStackGetEmbeddingLevel(stack);
+            link->level = SBStatusStackGetEmbeddingLevel(stack);
             break;
 
         /* Rule X7 */
-        case _SB_CHAR_TYPE__PDF:
+        case SB_CHAR_TYPE__PDF:
             bnEquivalent = SBTrue;
 
             if (overIsolate != 0) {
                 /* do nothing */
             } else if (overEmbedding != 0) {
                 --overEmbedding;
-            } else if (!_SBStatusStackGetIsolateStatus(stack) && stack->count >= 2) {
-                _SBStatusStackPop(stack);
+            } else if (!SBStatusStackGetIsolateStatus(stack) && stack->count >= 2) {
+                SBStatusStackPop(stack);
             }
             break;
 
         /* Rule X8 */
-        case _SB_CHAR_TYPE__B:
+        case SB_CHAR_TYPE__B:
             /* These values are reset for clarity, in this implementation B
              * can only occur as the last code in the array.
              */
-            _SBStatusStackSetEmpty(stack);
+            SBStatusStackSetEmpty(stack);
 
             overIsolate = 0;
             overEmbedding = 0;
@@ -497,11 +497,11 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
             link->level = baseLevel;
             break;
 
-        case _SB_CHAR_TYPE__BN:
+        case SB_CHAR_TYPE__BN:
             bnEquivalent = SBTrue;
             break;
 
-        case _SB_CHAR_TYPE__NIL:
+        case SB_CHAR_TYPE__NIL:
             forceFinish = SBTrue;
             link->level = baseLevel;
             break;
@@ -513,16 +513,16 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
              * The type of this link is BN equivalent, so abandon it and
              * continue the loop.
              */
-            _SBBidiLinkAbandonNext(priorLink);
+            SBBidiLinkAbandonNext(priorLink);
             continue;
         }
 
-        if (sor == _SB_CHAR_TYPE__NIL) {
+        if (sor == SB_CHAR_TYPE__NIL) {
             sor = SB_LEVEL_TO_TYPE(SB_MAX(baseLevel, link->level));
             firstLink = link;
             priorLevel = link->level;
         } else if (priorLevel != link->level || forceFinish) {
-            _SBLevelRun levelRun;
+            SBLevelRun levelRun;
             SBLevel currentLevel;
 
             /*
@@ -544,8 +544,8 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
              */
             eor = SB_LEVEL_TO_TYPE(SB_MAX(priorLevel, currentLevel));
 
-            _SBLevelRunInitialize(&levelRun, firstLink, lastLink, sor, eor);
-            __SBProcessRun(support, levelRun, forceFinish);
+            SBLevelRunInitialize(&levelRun, firstLink, lastLink, sor, eor);
+            _SBProcessRun(support, levelRun, forceFinish);
 
             /*
              * The sor of next run (if any) should be technically equal to eor
@@ -564,30 +564,30 @@ static void __SBDetermineLevels(__SBParagraphSupportRef support, SBLevel baseLev
     };
 }
 
-static void __SBProcessRun(__SBParagraphSupportRef support, _SBLevelRun levelRun, SBBoolean forceFinish) {
-    _SBRunQueueRef queue = &support->runQueue;
-    _SBRunQueueEnqueue(queue, levelRun);
+static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish) {
+    SBRunQueueRef queue = &support->runQueue;
+    SBRunQueueEnqueue(queue, levelRun);
 
     if (queue->shouldDequeue || forceFinish) {
-        _SBIsolatingRunRef isolatingRun = &support->isolatingRun;
-        _SBLevelRunRef peek;
+        SBIsolatingRunRef isolatingRun = &support->isolatingRun;
+        SBLevelRunRef peek;
 
         /* Rule X10 */
-        for (; queue->count != 0; _SBRunQueueDequeue(queue)) {
+        for (; queue->count != 0; SBRunQueueDequeue(queue)) {
             peek = queue->peek;
-            if (_SB_RUN_KIND__IS_ATTACHED_TERMINATING(peek->kind)) {
+            if (SB_RUN_KIND__IS_ATTACHED_TERMINATING(peek->kind)) {
                 continue;
             }
 
             isolatingRun->baseLevelRun = peek;
-            _SBIsolatingRunResolve(isolatingRun);
+            SBIsolatingRunResolve(isolatingRun);
         }
     }
 }
 
-static void __SBSaveLevels(_SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel) {
-    _SBBidiLinkRef roller = chain->rollerLink;
-    _SBBidiLinkRef link;
+static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel) {
+    SBBidiLinkRef roller = chain->rollerLink;
+    SBBidiLinkRef link;
 
     SBUInteger index = 0;
     SBLevel level = baseLevel;
@@ -608,47 +608,47 @@ SBParagraphRef SBParagraphCreateWithUnicodeCharacters(SBUnichar *characters, SBU
         SBUInteger runCount;
         
         SBParagraphRef paragraph;
-        __SBParagraphSupportRef support;
+        _SBParagraphSupportRef support;
         SBLevel baseLevel;
         
-        _SB_LOG_BLOCK_OPENER("Input");
-        _SB_LOG_STATEMENT("Characters", 1, _SB_LOG_CHARACTERS_ARRAY(characters, length));
-        _SB_LOG_STATEMENT("Direction",  1, _SB_LOG_BASE_DIRECTION(direction));
-        _SB_LOG_BLOCK_CLOSER();
+        SB_LOG_BLOCK_OPENER("Input");
+        SB_LOG_STATEMENT("Characters", 1, SB_LOG_CHARACTERS_ARRAY(characters, length));
+        SB_LOG_STATEMENT("Direction",  1, SB_LOG_BASE_DIRECTION(direction));
+        SB_LOG_BLOCK_CLOSER();
         
-        paragraph = __SBParagraphAllocate(length);
-        runCount = __SBDetermineCharTypes(characters, paragraph->fixedTypes, length);
+        paragraph = _SBParagraphAllocate(length);
+        runCount = _SBDetermineCharTypes(characters, paragraph->fixedTypes, length);
         
-        _SB_LOG_BLOCK_OPENER("Determined Types");
-        _SB_LOG_STATEMENT("Types",  1, _SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, length));
-        _SB_LOG_BLOCK_CLOSER();
+        SB_LOG_BLOCK_OPENER("Determined Types");
+        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, length));
+        SB_LOG_BLOCK_CLOSER();
         
-        support = __SBParagraphSupportAllocate(runCount + 1);
-        __SBParagraphSupportInitialize(support, characters, paragraph->fixedTypes, paragraph->fixedLevels, length);
+        support = _SBParagraphSupportAllocate(runCount + 1);
+        _SBParagraphSupportInitialize(support, characters, paragraph->fixedTypes, paragraph->fixedLevels, length);
         
-        baseLevel = __SBDetermineParagraphLevel(&support->bidiChain, direction);
+        baseLevel = _SBDetermineParagraphLevel(&support->bidiChain, direction);
         
-        _SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
-        _SB_LOG_STATEMENT("Level", 1, _SB_LOG_LEVEL(baseLevel));
-        _SB_LOG_BLOCK_CLOSER();
+        SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
+        SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(baseLevel));
+        SB_LOG_BLOCK_CLOSER();
 
         support->isolatingRun.characters = characters;
         support->isolatingRun.paragraphLevel = baseLevel;
         
-        __SBDetermineLevels(support, baseLevel);
-        __SBSaveLevels(&support->bidiChain, support->refLevels, baseLevel);
+        _SBDetermineLevels(support, baseLevel);
+        _SBSaveLevels(&support->bidiChain, support->refLevels, baseLevel);
         
-        _SB_LOG_BLOCK_OPENER("Determined Levels");
-        _SB_LOG_STATEMENT("Levels",  1, _SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
-        _SB_LOG_BLOCK_CLOSER();
+        SB_LOG_BLOCK_OPENER("Determined Levels");
+        SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
+        SB_LOG_BLOCK_CLOSER();
         
         paragraph->length = length;
         paragraph->baseLevel = baseLevel;
         paragraph->_retainCount = 1;
         
-        __SBParagraphSupportDeallocate(support);
+        _SBParagraphSupportDeallocate(support);
         
-        _SB_LOG_BREAKER();
+        SB_LOG_BREAKER();
         
         return paragraph;
     }

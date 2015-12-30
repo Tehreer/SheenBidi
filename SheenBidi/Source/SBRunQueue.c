@@ -24,16 +24,16 @@
 #include "SBLevelRun.h"
 #include "SBRunQueue.h"
 
-static void __SBRunQueueFindPreviousPartialRun(_SBRunQueueRef queue) {
-    __SBRunQueueListRef list = queue->_partialList;
+static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue) {
+    _SBRunQueueListRef list = queue->_partialList;
     SBUInteger top = queue->_partialTop;
 
     do {
         SBUInteger limit = (list == queue->_frontList ? queue->_frontTop : 0);
 
         do {
-            _SBLevelRunRef levelRun = &list->levelRuns[top];
-            if (_SB_RUN_KIND__IS_PARTIAL_ISOLATE(levelRun->kind)) {
+            SBLevelRunRef levelRun = &list->levelRuns[top];
+            if (SB_RUN_KIND__IS_PARTIAL_ISOLATE(levelRun->kind)) {
                 queue->_partialList = list;
                 queue->_partialTop = top;
                 return;
@@ -41,7 +41,7 @@ static void __SBRunQueueFindPreviousPartialRun(_SBRunQueueRef queue) {
         } while (top-- > limit);
 
         list = list->previous;
-        top = __SB_RUN_QUEUE_LIST__MAX_INDEX;
+        top = _SB_RUN_QUEUE_LIST__MAX_INDEX;
     } while (list);
 
     queue->_partialList = NULL;
@@ -49,43 +49,43 @@ static void __SBRunQueueFindPreviousPartialRun(_SBRunQueueRef queue) {
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void _SBRunQueueInitialize(_SBRunQueueRef queue) {
-    /* Initialize first list */
+SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue) {
+    /* Initialize first list. */
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
 
-    /* Initialize front and rear lists with first list */
+    /* Initialize front and rear lists with first list. */
     queue->_frontList = &queue->_firstList;
     queue->_rearList = &queue->_firstList;
     queue->_partialList = NULL;
 
-    /* Initialize list indexes */
+    /* Initialize list indexes. */
     queue->_frontTop = 0;
     queue->_rearTop = SBInvalidIndex;
     queue->_partialTop = SBInvalidIndex;
 
-    /* Initialize rest of the elements */
+    /* Initialize rest of the elements. */
     queue->count = 0;
     queue->peek = &queue->_frontList->levelRuns[queue->_frontTop];
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void _SBRunQueueEnqueue(_SBRunQueueRef queue, _SBLevelRun levelRun) {
-    _SBLevelRunRef current;
-    __SBRunQueueListRef list;
+SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun) {
+    SBLevelRunRef current;
+    _SBRunQueueListRef list;
     SBUInteger top;
 
-    if (queue->_rearTop != __SB_RUN_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_rearTop != _SB_RUN_QUEUE_LIST__MAX_INDEX) {
         list = queue->_rearList;
         top = ++queue->_rearTop;
     } else {
-        __SBRunQueueListRef rearList;
+        _SBRunQueueListRef rearList;
 
         rearList = queue->_rearList;
         list = rearList->next;
 
         if (!list) {
-            list = malloc(sizeof(__SBRunQueueList));
+            list = malloc(sizeof(_SBRunQueueList));
             list->previous = rearList;
             list->next = NULL;
 
@@ -101,29 +101,27 @@ SB_INTERNAL void _SBRunQueueEnqueue(_SBRunQueueRef queue, _SBLevelRun levelRun) 
     *current = levelRun;
 
     /* Complete the latest isolating run with this terminating run */
-    if (queue->_partialTop != SBInvalidIndex && _SB_RUN_KIND__IS_TERMINATING(current->kind)) {
-        _SBLevelRunRef incompleteRun = &queue->_partialList->levelRuns[queue->_partialTop];
-        _SBLevelRunAttach(incompleteRun, current);
-        __SBRunQueueFindPreviousPartialRun(queue);
+    if (queue->_partialTop != SBInvalidIndex && SB_RUN_KIND__IS_TERMINATING(current->kind)) {
+        SBLevelRunRef incompleteRun = &queue->_partialList->levelRuns[queue->_partialTop];
+        SBLevelRunAttach(incompleteRun, current);
+        _SBRunQueueFindPreviousPartialRun(queue);
     }
 
     /* Save the location of the isolating run */
-    if (_SB_RUN_KIND__IS_ISOLATE(current->kind)) {
+    if (SB_RUN_KIND__IS_ISOLATE(current->kind)) {
         queue->_partialList = list;
         queue->_partialTop = top;
     }
 }
 
-SB_INTERNAL void _SBRunQueueDequeue(_SBRunQueueRef queue) {
-    /*
-     * The queue should not be empty.
-     */
+SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue) {
+    /* The queue should not be empty. */
     SBAssert(queue->count != 0);
 
-    if (queue->_frontTop != __SB_RUN_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_frontTop != _SB_RUN_QUEUE_LIST__MAX_INDEX) {
         ++queue->_frontTop;
     } else {
-        __SBRunQueueListRef frontList = queue->_frontList;
+        _SBRunQueueListRef frontList = queue->_frontList;
         if (frontList == queue->_rearList) {
             queue->_rearTop = SBInvalidIndex;
         } else {
@@ -137,11 +135,11 @@ SB_INTERNAL void _SBRunQueueDequeue(_SBRunQueueRef queue) {
     queue->peek = &queue->_frontList->levelRuns[queue->_frontTop];
 }
 
-SB_INTERNAL void _SBRunQueueInvalidate(_SBRunQueueRef queue) {
-    __SBRunQueueListRef list = queue->_firstList.next;
+SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue) {
+    _SBRunQueueListRef list = queue->_firstList.next;
 
     while (list) {
-        __SBRunQueueListRef next = list->next;
+        _SBRunQueueListRef next = list->next;
         free(list);
         list = next;
     };
