@@ -125,10 +125,10 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
     SBBidiLinkReplaceNext(current->lastLink, &isolatingRun->_dummyLink);
 
     isolatingRun->_lastLevelRun = current;
-    isolatingRun->_sos = SB_RUN_EXTREMA__GET_SOR(baseLevelRun->extrema);
+    isolatingRun->_sos = SBRunExtrema_SOR(baseLevelRun->extrema);
 
     if (!SB_RUN_KIND__IS_PARTIAL_ISOLATE(baseLevelRun->kind)) {
-        isolatingRun->_eos = SB_RUN_EXTREMA__GET_EOR(current->extrema);
+        isolatingRun->_eos = SBRunExtrema_EOR(current->extrema);
     } else {
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;
         SBLevel runLevel = SBLevelRunGetLevel(baseLevelRun);

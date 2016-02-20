@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,41 +18,34 @@
 #define _SB_INTERNAL_RUN_EXTREMA_H
 
 #include <SBTypes.h>
-
 #include "SBCharType.h"
 
-#define SB_RUN_EXTREMA                      SBUInt8
+enum {
+    SBRunExtremaLeadingL  = SBCharTypeL << 0,
+    SBRunExtremaLeadingR  = SBCharTypeR << 0,
+    
+    SBRunExtremaTrailingL = SBCharTypeL << 4,
+    SBRunExtremaTrailingR = SBCharTypeR << 4
+};
+typedef SBUInt8 SBRunExtrema;
 
-#define SB_RUN_EXTREMA__LEADING_L           (SBCharTypeL << 0)
-#define SB_RUN_EXTREMA__LEADING_R           (SBCharTypeR << 0)
-
-#define SB_RUN_EXTREMA__TRAILING_L          (SBCharTypeL << 4)
-#define SB_RUN_EXTREMA__TRAILING_R          (SBCharTypeR << 4)
-
-#define SB_RUN_EXTREMA__MAKE(sor, eor)      \
-(SB_RUN_EXTREMA)                            \
+#define SBRunExtremaMake(sor, eor)          \
+(SBRunExtrema)                              \
 (                                           \
-   (sor << 0)                               \
- | (eor << 4)                               \
+   ((sor) << 0)                             \
+ | ((eor) << 4)                             \
 )
 
-#define SB_RUN_EXTREMA__GET_SOR(e)          \
+#define SBRunExtrema_SOR(e)                 \
+(SBRunExtrema)                              \
 (                                           \
  (e) & 0xF                                  \
 )
 
-#define SB_RUN_EXTREMA__GET_EOR(e)          \
+#define SBRunExtrema_EOR(e)                 \
+(SBRunExtrema)                              \
 (                                           \
  (e) >> 4                                   \
 )
-
-enum {
-    SBRunExtremaLeadingL  = SB_RUN_EXTREMA__LEADING_L,
-    SBRunExtremaLeadingR  = SB_RUN_EXTREMA__LEADING_R,
-    
-    SBRunExtremaTrailingL = SB_RUN_EXTREMA__TRAILING_L,
-    SBRunExtremaTrailingR = SB_RUN_EXTREMA__TRAILING_R
-};
-typedef SB_RUN_EXTREMA SBRunExtrema;
 
 #endif

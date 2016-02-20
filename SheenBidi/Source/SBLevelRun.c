@@ -29,7 +29,7 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firs
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;
     levelRun->subsequentLink = lastLink->next;
-    levelRun->extrema = SB_RUN_EXTREMA__MAKE(sor, eor);
+    levelRun->extrema = SBRunExtremaMake(sor, eor);
     levelRun->kind = SB_RUN_KIND__MAKE
                      (
                         SBCharTypeIsIsolateInitiator(lastLink->type),
