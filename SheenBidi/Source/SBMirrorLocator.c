@@ -23,7 +23,8 @@
 #include "SBPairingLookup.h"
 #include "SBMirrorLocator.h"
 
-SBMirrorLocatorRef SBMirrorLocatorCreate(void) {
+SBMirrorLocatorRef SBMirrorLocatorCreate(void)
+{
     SBMirrorLocatorRef locator;
 
     locator = malloc(sizeof(SBMirrorLocator));
@@ -35,18 +36,21 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void) {
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source) {
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source)
+{
     SBLineRelease(locator->_line);
 
     locator->_refSource = source;
     locator->_line = SBLineRetain(line);
 }
 
-const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator) {
+const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
+{
     return &locator->agent;
 }
 
-SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
+SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
+{
     SBCodepoint *codepoints = locator->_refSource;
     SBLineRef line = locator->_line;
 
@@ -84,14 +88,16 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
     return SBFalse;
 }
 
-void SBMirrorLocatorReset(SBMirrorLocatorRef locator) {
+void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
+{
     locator->_runIndex = 0;
     locator->_charIndex = SBInvalidIndex;
     locator->agent.index = SBInvalidIndex;
     locator->agent.mirror = 0;
 }
 
-SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator) {
+SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator)
+{
     if (locator) {
         ++locator->_retainCount;
     }
@@ -99,7 +105,8 @@ SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator) {
     return locator;
 }
 
-void SBMirrorLocatorRelease(SBMirrorLocatorRef locator) {
+void SBMirrorLocatorRelease(SBMirrorLocatorRef locator)
+{
     if (locator && --locator->_retainCount == 0) {
         SBLineRelease(locator->_line);
         free(locator);

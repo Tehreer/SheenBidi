@@ -43,8 +43,8 @@
 #define SB_LEVEL_TO_TYPE(l)             \
 (                                       \
    ((l) & 1)                            \
- ? SBCharTypeR                      \
- : SBCharTypeL                      \
+ ? SBCharTypeR                          \
+ : SBCharTypeL                          \
 )
 
 struct _SBParagraphSupport;
@@ -79,7 +79,8 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
 static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel);
 
-static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount) {
+static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount)
+{
     const SBUInteger sizeSupport = sizeof(_SBParagraphSupport);
     const SBUInteger sizeLinks   = sizeof(SBBidiLink) * (linkCount + 1);
 
@@ -97,7 +98,8 @@ static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount) 
     return support;
 }
 
-static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCodepoint *codepoints, SBCharType *types, SBLevel *levels, SBUInteger length) {
+static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCodepoint *codepoints, SBCharType *types, SBLevel *levels, SBUInteger length)
+{
     support->refCodepoints = codepoints;
     support->refTypes = types;
     support->refLevels = levels;
@@ -110,14 +112,16 @@ static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCode
     _SBPopulateBidiChain(&support->bidiChain, support->fixedLinks, types, length);
 }
 
-static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support) {
+static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support)
+{
     SBStatusStackFinalize(&support->statusStack);
     SBRunQueueFinalize(&support->runQueue);
     SBIsolatingRunFinalize(&support->isolatingRun);
     free(support);
 }
 
-static SBParagraphRef _SBParagraphAllocate(SBUInteger length) {
+static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
+{
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
     const SBUInteger sizeTypes     = sizeof(SBCharType) * length;
     const SBUInteger sizeLevels    = sizeof(SBLevel)     * length;
@@ -140,7 +144,8 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length) {
     return paragraph;
 }
 
-static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length) {
+static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length)
+{
     SBUInteger linkCount;
     SBCharType newType;
     SBUInteger index;
@@ -181,7 +186,8 @@ static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *typ
     return linkCount;
 }
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length) {
+static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length)
+{
     SBBidiLinkRef priorLink;
     SBBidiLinkRef newLink;
     SBCharType type;
@@ -233,7 +239,8 @@ static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBChar
 #undef _SB_ADD_CONSECUTIVE_LINK
 }
 
-static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink) {
+static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink)
+{
     SBBidiLinkRef link;
     SBUInteger depth = 1;
 
@@ -258,7 +265,8 @@ static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef b
     return NULL;
 }
 
-static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate) {
+static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate)
+{
     SBBidiLinkRef link;
 
     /* Rules P2, P3 */
@@ -299,7 +307,8 @@ Default:
     return defaultLevel;
 }
 
-static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection) {
+static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection)
+{
     SBLevel level;
 
     switch (baseDirection) {
@@ -321,7 +330,8 @@ static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection 
     return level;
 }
 
-static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel) {
+static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel)
+{
     SBBidiChainRef chain = &support->bidiChain;
     SBStatusStackRef stack = &support->statusStack;
     SBBidiLinkRef roller = chain->rollerLink;
@@ -580,7 +590,8 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     };
 }
 
-static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish) {
+static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish)
+{
     SBRunQueueRef queue = &support->runQueue;
     SBRunQueueEnqueue(queue, levelRun);
 
@@ -601,7 +612,8 @@ static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, S
     }
 }
 
-static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel) {
+static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
+{
     SBBidiLinkRef roller = chain->rollerLink;
     SBBidiLinkRef link;
 
@@ -619,7 +631,8 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
     }
 }
 
-SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options) {
+SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options)
+{
     if (codepoints && length) {
         SBUInteger runCount;
         
@@ -672,11 +685,13 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
     return NULL;
 }
 
-SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph) {
+SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph)
+{
     return paragraph->baseLevel;
 }
 
-SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph) {
+SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
+{
     if (paragraph) {
         ++paragraph->_retainCount;
     }
@@ -684,7 +699,8 @@ SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph) {
     return paragraph;
 }
 
-void SBParagraphRelease(SBParagraphRef paragraph) {
+void SBParagraphRelease(SBParagraphRef paragraph)
+{
     if (paragraph && --paragraph->_retainCount == 0) {
         free(paragraph);
     }

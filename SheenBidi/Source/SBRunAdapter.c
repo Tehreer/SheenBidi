@@ -22,7 +22,8 @@
 #include "SBLine.h"
 #include "SBRunAdapter.h"
 
-SBRunAdapterRef SBRunAdapterCreate(void) {
+SBRunAdapterRef SBRunAdapterCreate(void)
+{
     SBRunAdapterRef adapter;
 
     adapter = malloc(sizeof(SBRunAdapter));
@@ -33,16 +34,19 @@ SBRunAdapterRef SBRunAdapterCreate(void) {
     return adapter;
 }
 
-void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line) {
+void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line)
+{
     SBLineRelease(adapter->_line);
     adapter->_line = SBLineRetain(line);
 }
 
-const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter) {
+const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter)
+{
     return &adapter->agent;
 }
 
-SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter) {
+SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter)
+{
     SBLineRef line = adapter->_line;
 
     if (adapter->_index < line->runCount) {
@@ -60,14 +64,16 @@ SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter) {
     return SBFalse;
 }
 
-void SBRunAdapterReset(SBRunAdapterRef adapter) {
+void SBRunAdapterReset(SBRunAdapterRef adapter)
+{
     adapter->_index = 0;
     adapter->agent.offset = SBInvalidLevel;
     adapter->agent.length = 0;
     adapter->agent.level = SBInvalidLevel;
 }
 
-SBRunAdapterRef SBRunAdapterRetain(SBRunAdapterRef adapter) {
+SBRunAdapterRef SBRunAdapterRetain(SBRunAdapterRef adapter)
+{
     if (adapter) {
         ++adapter->_retainCount;
     }
@@ -75,7 +81,8 @@ SBRunAdapterRef SBRunAdapterRetain(SBRunAdapterRef adapter) {
     return adapter;
 }
 
-void SBRunAdapterRelease(SBRunAdapterRef adapter) {
+void SBRunAdapterRelease(SBRunAdapterRef adapter)
+{
     if (adapter && --adapter->_retainCount == 0) {
         SBLineRelease(adapter->_line);
         free(adapter);

@@ -27,7 +27,8 @@
 
 int _SBLogPosition = 0;
 
-SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction) {
+SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction)
+{
     switch (direction) {
     case SBBaseDirectionAutoLTR:
         SB_LOG_STRING("Auto-LTR");
@@ -47,7 +48,8 @@ SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction) {
     }
 }
 
-SB_INTERNAL void _SBPrintCharType(SBCharType type) {
+SB_INTERNAL void _SBPrintCharType(SBCharType type)
+{
     switch (type) {
     case SBCharTypeNil:
         SB_LOG_STRING("Nil");
@@ -147,7 +149,8 @@ SB_INTERNAL void _SBPrintCharType(SBCharType type) {
     }
 }
 
-SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger length) {
+SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger length)
+{
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
@@ -155,7 +158,8 @@ SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger len
     }
 }
 
-SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length) {
+SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length)
+{
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
@@ -164,8 +168,9 @@ SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length) {
     }
 }
 
-SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
-    SBUInteger index = 0;
+SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length)
+{
+    SBUInteger index;
 
     for (index = 0; index < length; ++index) {
         SB_LOG_LEVEL(levels[index]);
@@ -173,11 +178,11 @@ SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
     }
 }
 
-SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller) {
-    SBBidiLinkRef link;
-
+SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller)
+{
     SBUInteger offset = 0;
     SBUInteger length = 0;
+    SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
         if (length == 0) {
@@ -197,7 +202,8 @@ SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller) {
     SB_LOG_RANGE(offset, length);
 }
 
-SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller) {
+SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller)
+{
     SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
@@ -211,7 +217,8 @@ SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller) {
     }
 }
 
-SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller) {
+SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller)
+{
     SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {

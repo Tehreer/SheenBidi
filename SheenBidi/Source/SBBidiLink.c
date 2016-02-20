@@ -20,7 +20,8 @@
 #include "SBAssert.h"
 #include "SBBidiLink.h"
 
-SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link) {
+SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link)
+{
     link->next = NULL;
     link->offset = SBInvalidIndex;
     link->length = 0;
@@ -28,15 +29,18 @@ SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link) {
     link->level = SBInvalidLevel;
 }
 
-SB_INTERNAL void SBBidiLinkAbandonNext(SBBidiLinkRef link) {
+SB_INTERNAL void SBBidiLinkAbandonNext(SBBidiLinkRef link)
+{
     link->next = link->next->next;
 }
 
-SB_INTERNAL void SBBidiLinkReplaceNext(SBBidiLinkRef link, SBBidiLinkRef next) {
+SB_INTERNAL void SBBidiLinkReplaceNext(SBBidiLinkRef link, SBBidiLinkRef next)
+{
     link->next = next;
 }
 
-SB_INTERNAL void SBBidiLinkMergeNext(SBBidiLinkRef link) {
+SB_INTERNAL void SBBidiLinkMergeNext(SBBidiLinkRef link)
+{
     SBBidiLinkRef firstNext;
     SBBidiLinkRef secondNext;
 

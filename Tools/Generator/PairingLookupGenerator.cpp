@@ -276,7 +276,8 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     string maxCodePoint = "0x" + Converter::toHex(m_lastCodePoint, 4);
     string segmentSize = "0x" + Converter::toHex(m_segmentSize, 3);
     mirror.append("").newLine();
-    mirror.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint) {").newLine();
+    mirror.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint)").newLine();
+    mirror.append("{").newLine();
     mirror.appendTabs(1).append("if (codepoint <= " + maxCodePoint + ") {").newLine();
     mirror.appendTabs(2).append("SBInt16 diff = _SBPairDifferences[").newLine();
     mirror.appendTabs(2).append("                _SBPairData[").newLine();
@@ -295,7 +296,8 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     mirror.append("}").newLine();
 
     TextBuilder bracket;
-    bracket.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *type) {").newLine();
+    bracket.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *type)").newLine();
+    bracket.append("{").newLine();
     bracket.appendTabs(1).append("if (codepoint <= " + maxCodePoint + ") {").newLine();
     bracket.appendTabs(2).append("SBUInt8 data = _SBPairData[").newLine();
     bracket.appendTabs(2).append("                _SBPairIndexes[").newLine();

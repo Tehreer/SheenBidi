@@ -50,7 +50,8 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
 static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel, SBLineOptions options);
 
-static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount) {
+static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
+{
     SBLevel lastLevel = SBInvalidLevel;
     SBLevel maxLevel = 0;
     SBUInteger totalRuns = 0;
@@ -73,7 +74,8 @@ static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger c
     return maxLevel;
 }
 
-static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount) {
+static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
+{
     const SBUInteger sizeSupport = sizeof(_SBLineSupport);
     const SBUInteger sizeLevels  = sizeof(SBLevel) * charCount;
 
@@ -91,7 +93,8 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount) {
     return support;
 }
 
-static void _SBLineSupportInitialize(_SBLineSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger charCount) {
+static void _SBLineSupportInitialize(_SBLineSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger charCount)
+{
     SBLevel maxLevel;
     SBUInteger runCount;
 
@@ -102,11 +105,13 @@ static void _SBLineSupportInitialize(_SBLineSupportRef support, SBCharType *type
     support->maxLevel = maxLevel;
 }
 
-static void _SBLineSupportDeallocate(_SBLineSupportRef support) {
+static void _SBLineSupportDeallocate(_SBLineSupportRef support)
+{
     free(support);
 }
 
-static SBLineRef _SBLineAllocate(SBUInteger runCount) {
+static SBLineRef _SBLineAllocate(SBUInteger runCount)
+{
     const SBUInteger sizeLine = sizeof(SBLine);
     const SBUInteger sizeRuns = sizeof(SBRun) * runCount;
 
@@ -124,7 +129,8 @@ static SBLineRef _SBLineAllocate(SBUInteger runCount) {
     return line;
 }
 
-static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel) {
+static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
+{
     SBUInteger index = length;
 
     while (index--) {
@@ -132,7 +138,8 @@ static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
     }
 }
 
-static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount) {
+static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
+{
     SBCharType *types = support->refTypes;
     SBLevel *levels = support->fixedLevels;
     SBUInteger index;
@@ -185,7 +192,8 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
     }
 }
 
-static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length) {
+static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length)
+{
     SBUInteger index;
     SBUInteger runCount = 1;
 
@@ -211,7 +219,8 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger len
     return runCount;
 }
 
-static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount) {
+static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount)
+{
     SBUInteger halfCount;
     SBUInteger finalIndex;
     SBUInteger index;
@@ -231,7 +240,8 @@ static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount) {
     }
 }
 
-static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel) {
+static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
+{
     SBLevel newLevel;
 
     for (newLevel = maxLevel; newLevel; --newLevel) {
@@ -251,7 +261,8 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel) {
     }
 }
 
-static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel, SBLineOptions options) {
+static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel, SBLineOptions options)
+{
     _SBLineSupportRef support;
     SBLineRef line;
 
@@ -273,7 +284,8 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options) {
+SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options)
+{
     SBParagraphRef paragraph;
     SBLineRef line;
 
@@ -285,7 +297,8 @@ SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length,
     return line;
 }
 
-SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options) {
+SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options)
+{
     return _SBLineCreate(paragraph->fixedTypes,
                          paragraph->fixedLevels,
                          offset, length,
@@ -293,15 +306,18 @@ SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset,
                          options);
 }
 
-SBUInteger SBLineGetOffset(SBLineRef line) {
+SBUInteger SBLineGetOffset(SBLineRef line)
+{
     return line->offset;
 }
 
-SBUInteger SBLineGetLength(SBLineRef line) {
+SBUInteger SBLineGetLength(SBLineRef line)
+{
     return line->length;
 }
 
-SBLineRef SBLineRetain(SBLineRef line) {
+SBLineRef SBLineRetain(SBLineRef line)
+{
     if (line) {
         ++line->_retainCount;
     }
@@ -309,7 +325,8 @@ SBLineRef SBLineRetain(SBLineRef line) {
     return line;
 }
 
-void SBLineRelease(SBLineRef line) {
+void SBLineRelease(SBLineRef line)
+{
     if (line && --line->_retainCount == 0) {
         free(line);
     }

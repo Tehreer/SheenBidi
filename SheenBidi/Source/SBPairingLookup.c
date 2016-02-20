@@ -682,7 +682,8 @@ static const SBUInt16 _SBPairIndexes[] = {
     _SBPairData_900             /**< %FF00..FF63*/
 };
 
-SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint) {
+SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint)
+{
     if (codepoint <= 0xFF63) {
         SBInt16 diff = _SBPairDifferences[
                         _SBPairData[
@@ -700,7 +701,8 @@ SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint) {
     return 0;
 }
 
-SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *type) {
+SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *type)
+{
     if (codepoint <= 0xFF63) {
         SBUInt8 data = _SBPairData[
                         _SBPairIndexes[

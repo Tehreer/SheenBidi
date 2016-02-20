@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_RUN_CHAIN_H
-#define _SB_INTERNAL_RUN_CHAIN_H
+#ifndef _SB_INTERNAL_BIDI_CHAIN_H
+#define _SB_INTERNAL_BIDI_CHAIN_H
 
 #include <SBConfig.h>
 #include "SBBidiLink.h"

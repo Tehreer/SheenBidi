@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_RUN_LINK_H
-#define _SB_INTERNAL_RUN_LINK_H
+#ifndef _SB_INTERNAL_BIDI_LINK_H
+#define _SB_INTERNAL_BIDI_LINK_H
 
 #include <SBConfig.h>
 #include <SBTypes.h>

@@ -1993,7 +1993,8 @@ static const SBUInt16 _SBCharTypeBranchIndexes[] = {
     _SBCharTypeMainIndexes_0168
 };
 
-SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint) {
+SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint)
+{
     if (codepoint <= 0x10FFFD) {
         return _SBCharTypePrimaryData[
                 _SBCharTypeMainIndexes[

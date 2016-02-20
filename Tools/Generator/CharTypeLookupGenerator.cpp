@@ -353,7 +353,8 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     string maxUnicode = "0x" + Converter::toHex(m_lastCodePoint, 6);
     string mainDivider = "0x" + Converter::toHex(m_mainSegmentSize, 4);
     string branchDivider = "0x" + Converter::toHex(m_mainSegmentSize * m_branchSegmentSize, 4);
-    lookupFunction.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint) {").newLine();
+    lookupFunction.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint)").newLine();
+    lookupFunction.append("{").newLine();
     lookupFunction.appendTabs(1).append("if (codepoint <= " + maxUnicode + ") {").newLine();
     lookupFunction.appendTabs(2).append("return _SBCharTypePrimaryData[").newLine();
     lookupFunction.appendTabs(2).append("        _SBCharTypeMainIndexes[").newLine();

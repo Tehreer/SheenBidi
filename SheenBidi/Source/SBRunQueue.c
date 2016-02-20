@@ -24,7 +24,10 @@
 #include "SBLevelRun.h"
 #include "SBRunQueue.h"
 
-static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue) {
+static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue);
+
+static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue)
+{
     _SBRunQueueListRef list = queue->_partialList;
     SBUInteger top = queue->_partialTop;
 
@@ -49,7 +52,8 @@ static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue) {
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue) {
+SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue)
+{
     /* Initialize first list. */
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
@@ -70,7 +74,8 @@ SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue) {
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun) {
+SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun)
+{
     SBLevelRunRef current;
     _SBRunQueueListRef list;
     SBUInteger top;
@@ -114,7 +119,8 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun) {
     }
 }
 
-SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue) {
+SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
+{
     /* The queue should not be empty. */
     SBAssert(queue->count != 0);
 
@@ -135,7 +141,8 @@ SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue) {
     queue->peek = &queue->_frontList->levelRuns[queue->_frontTop];
 }
 
-SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue) {
+SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue)
+{
     _SBRunQueueListRef list = queue->_firstList.next;
 
     while (list) {

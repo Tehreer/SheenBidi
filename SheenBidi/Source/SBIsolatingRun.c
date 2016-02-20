@@ -32,15 +32,15 @@
 #define SB_LEVEL_TO_EXACT_TYPE(l)       \
 (                                       \
    ((l) & 1)                            \
- ? SBCharTypeR                      \
- : SBCharTypeL                      \
+ ? SBCharTypeR                          \
+ : SBCharTypeL                          \
 )
 
 #define SB_LEVEL_TO_OPPOSITE_TYPE(l)    \
 (                                       \
  ((l) & 1)                              \
- ? SBCharTypeL                      \
- : SBCharTypeR                      \
+ ? SBCharTypeL                          \
+ : SBCharTypeR                          \
 )
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
@@ -52,12 +52,14 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
 static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun);
 static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun);
 
-SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkMakeEmpty(&isolatingRun->_dummyLink);
     SBBracketQueueInitialize(&isolatingRun->_bracketQueue);
 }
 
-SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef lastLink;
     SBBidiLinkRef subsequentLink;
 
@@ -106,11 +108,13 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun) {
     SB_LOG_BLOCK_CLOSER();
 }
 
-SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun)
+{
     SBBracketQueueFinalize(&isolatingRun->_bracketQueue);
 }
 
-static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
+static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
+{
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef current;
     SBLevelRunRef next;
@@ -137,7 +141,8 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun) {
+static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun)
+{
     SBLevelRunRef current;
 
     /* Iterate over level runs and attach original subsequent links. */
@@ -146,7 +151,8 @@ static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
+static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 
@@ -274,7 +280,8 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
     return priorLink;
 }
 
-static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
+{
     SBCodepoint *codepoints = isolatingRun->codepoints;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
@@ -337,7 +344,8 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
     _SBResolveAvailableBracketPairs(isolatingRun);
 }
 
-static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
+{
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
 
     SBLevel runLevel;
@@ -416,7 +424,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 
@@ -483,7 +492,8 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@
 #include "SBBidiLink.h"
 #include "SBBidiChain.h"
 
-SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain) {
+SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain)
+{
     chain->rollerLink = &chain->_dummy;
     chain->rollerLink->next = chain->rollerLink;
     chain->lastLink = chain->rollerLink;
@@ -27,7 +28,8 @@ SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain) {
     SBBidiLinkMakeEmpty(chain->rollerLink);
 }
 
-SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link) {
+SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link)
+{
     link->next = chain->rollerLink;
 
     chain->lastLink->next = link;

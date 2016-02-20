@@ -24,7 +24,8 @@
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
-SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor) {
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor)
+{
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;
@@ -37,11 +38,13 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firs
                      );
 }
 
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun) {
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun)
+{
     return levelRun->firstLink->level;
 }
 
-SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next) {
+SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next)
+{
     /* Only the runs of same level can be attached. */
     SBAssert(SBLevelRunGetLevel(levelRun) == SBLevelRunGetLevel(next));
     /* No other run can be attached with a simple run. */
