@@ -30,7 +30,7 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firs
     levelRun->lastLink = lastLink;
     levelRun->subsequentLink = lastLink->next;
     levelRun->extrema = SBRunExtremaMake(sor, eor);
-    levelRun->kind = SB_RUN_KIND__MAKE
+    levelRun->kind = SBRunKindMake
                      (
                         SBCharTypeIsIsolateInitiator(lastLink->type),
                         SBCharTypeIsIsolateTerminator(firstLink->type)
@@ -45,20 +45,20 @@ SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next) {
     /* Only the runs of same level can be attached. */
     SBAssert(SBLevelRunGetLevel(levelRun) == SBLevelRunGetLevel(next));
     /* No other run can be attached with a simple run. */
-    SBAssert(!SB_RUN_KIND__IS_SIMPLE(levelRun->kind));
+    SBAssert(!SBRunKindIsSimple(levelRun->kind));
     /* No other run can be attached with a complete isolating run. */
-    SBAssert(!SB_RUN_KIND__IS_COMPLETE_ISOLATE(levelRun->kind));
+    SBAssert(!SBRunKindIsCompleteIsolate(levelRun->kind));
     /* Only a terminating run can be attached with an isolating run. */
-    SBAssert(SB_RUN_KIND__IS_ISOLATE(levelRun->kind) && SB_RUN_KIND__IS_TERMINATING(next->kind));
+    SBAssert(SBRunKindIsIsolate(levelRun->kind) && SBRunKindIsTerminating(next->kind));
     /* The next run must be unattached. */
-    SBAssert(!SB_RUN_KIND__IS_ATTACHED_TERMINATING(next->kind));
+    SBAssert(!SBRunKindIsAttachedTerminating(next->kind));
     
-    if (SB_RUN_KIND__IS_TERMINATING(next->kind)) {
-        SB_RUN_KIND__MAKE_ATTACHED(next->kind);
+    if (SBRunKindIsTerminating(next->kind)) {
+        SBRunKindMakeAttached(next->kind);
     }
     
-    if (SB_RUN_KIND__IS_ISOLATE(levelRun->kind)) {
-        SB_RUN_KIND__MAKE_COMPLETE(levelRun->kind);
+    if (SBRunKindIsIsolate(levelRun->kind)) {
+        SBRunKindMakeComplete(levelRun->kind);
     }
     
     levelRun->next = next;

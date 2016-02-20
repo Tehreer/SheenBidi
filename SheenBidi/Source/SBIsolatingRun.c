@@ -127,7 +127,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
     isolatingRun->_lastLevelRun = current;
     isolatingRun->_sos = SBRunExtrema_SOR(baseLevelRun->extrema);
 
-    if (!SB_RUN_KIND__IS_PARTIAL_ISOLATE(baseLevelRun->kind)) {
+    if (!SBRunKindIsPartialIsolate(baseLevelRun->kind)) {
         isolatingRun->_eos = SBRunExtrema_EOR(current->extrema);
     } else {
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;

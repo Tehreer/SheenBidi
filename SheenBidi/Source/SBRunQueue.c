@@ -33,7 +33,7 @@ static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue) {
 
         do {
             SBLevelRunRef levelRun = &list->levelRuns[top];
-            if (SB_RUN_KIND__IS_PARTIAL_ISOLATE(levelRun->kind)) {
+            if (SBRunKindIsPartialIsolate(levelRun->kind)) {
                 queue->_partialList = list;
                 queue->_partialTop = top;
                 return;
@@ -101,14 +101,14 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun) {
     *current = levelRun;
 
     /* Complete the latest isolating run with this terminating run */
-    if (queue->_partialTop != SBInvalidIndex && SB_RUN_KIND__IS_TERMINATING(current->kind)) {
+    if (queue->_partialTop != SBInvalidIndex && SBRunKindIsTerminating(current->kind)) {
         SBLevelRunRef incompleteRun = &queue->_partialList->levelRuns[queue->_partialTop];
         SBLevelRunAttach(incompleteRun, current);
         _SBRunQueueFindPreviousPartialRun(queue);
     }
 
     /* Save the location of the isolating run */
-    if (SB_RUN_KIND__IS_ISOLATE(current->kind)) {
+    if (SBRunKindIsIsolate(current->kind)) {
         queue->_partialList = list;
         queue->_partialTop = top;
     }

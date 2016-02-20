@@ -591,7 +591,7 @@ static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, S
         /* Rule X10 */
         for (; queue->count != 0; SBRunQueueDequeue(queue)) {
             peek = queue->peek;
-            if (SB_RUN_KIND__IS_ATTACHED_TERMINATING(peek->kind)) {
+            if (SBRunKindIsAttachedTerminating(peek->kind)) {
                 continue;
             }
 
