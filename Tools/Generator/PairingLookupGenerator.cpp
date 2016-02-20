@@ -283,7 +283,7 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     mirror.appendTabs(2).append("                 _SBPairIndexes[").newLine();
     mirror.appendTabs(2).append("                      codepoint / " + segmentSize).newLine();
     mirror.appendTabs(2).append("                 ] + (codepoint % " + segmentSize + ")").newLine();
-    mirror.appendTabs(2).append("                ] & SB_BRACKET_TYPE__INVERSE_MASK").newLine();
+    mirror.appendTabs(2).append("                ] & SBBracketTypeInverseMask").newLine();
     mirror.appendTabs(2).append("               ];").newLine();
     mirror.newLine();
     mirror.appendTabs(2).append("if (diff != 0) {").newLine();
@@ -302,16 +302,16 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     bracket.appendTabs(2).append("                     codepoint / " + segmentSize).newLine();
     bracket.appendTabs(2).append("                ] + (codepoint % " + segmentSize + ")").newLine();
     bracket.appendTabs(2).append("               ];").newLine();
-    bracket.appendTabs(2).append("*type = (data & SB_BRACKET_TYPE__PRIMARY_MASK);").newLine();
+    bracket.appendTabs(2).append("*type = (data & SBBracketTypePrimaryMask);").newLine();
     bracket.newLine();
     bracket.appendTabs(2).append("if (*type != 0) {").newLine();
     bracket.appendTabs(3).append("SBInt16 diff = _SBPairDifferences[").newLine();
-    bracket.appendTabs(3).append("                data & SB_BRACKET_TYPE__INVERSE_MASK").newLine();
+    bracket.appendTabs(3).append("                data & SBBracketTypeInverseMask").newLine();
     bracket.appendTabs(3).append("               ];").newLine();
     bracket.appendTabs(3).append("return (codepoint + diff);").newLine();
     bracket.appendTabs(2).append("}").newLine();
     bracket.appendTabs(1).append("} else {").newLine();
-    bracket.appendTabs(2).append("*type = SB_BRACKET_TYPE__NONE;").newLine();
+    bracket.appendTabs(2).append("*type = SBBracketTypeNone;").newLine();
     bracket.appendTabs(1).append("}").newLine();
     bracket.newLine();
     bracket.appendTabs(1).append("return 0;").newLine();
