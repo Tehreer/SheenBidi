@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ private:
     SBRunAdapterRef m_runAdapter;
     SBMirrorLocatorRef m_mirrorLocator;
 
-    SBUnichar m_genChars[128];
+    SBCodepoint m_genChars[128];
     SBUInteger m_charCount;
 
     SBBaseDirection m_paragraphDirection;

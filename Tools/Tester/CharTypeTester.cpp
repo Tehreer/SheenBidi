@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 extern "C" {
-#include <Headers/SBConfig.h>
+#include <SBConfig.h>
 #include <Source/SBCharType.h>
 #include <Source/SBCharTypeLookup.h>
 }
@@ -56,7 +56,7 @@ void CharTypeTester::test() {
         const string &uniClass = m_unicodeData.bidiClassForCodePoint(codePoint);
         const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
 
-        _SBCharType charType = _SBCharTypeDetermineForUnicode(codePoint);
+        SBCharType charType = SBCharTypeDetermine(codePoint);
         const string &genClass = Converter::toString(charType);
 
         if (expClass != genClass) {

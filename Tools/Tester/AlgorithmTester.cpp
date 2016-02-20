@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,9 @@ void AlgorithmTester::test() {
     if (m_bidiTest || m_bidiCharacterTest) {
         cout << "Running algorithm tester." << endl;
 
+        testCounter = 0;
+        failCounter = 0;
+
         if (m_bidiTest) {
             analyzeBidiTest();
         }
@@ -75,7 +78,7 @@ void AlgorithmTester::test() {
 }
 
 void AlgorithmTester::loadCharacters(const vector<string> &types) {
-    SBUnichar *chars = m_genChars;
+    SBCodepoint *chars = m_genChars;
 
     for (auto &t : types) {
         *(chars++) = Converter::toCodePoint(t);
@@ -85,7 +88,7 @@ void AlgorithmTester::loadCharacters(const vector<string> &types) {
 }
 
 void AlgorithmTester::loadCharacters(const vector<uint32_t> &codePoints) {
-    SBUnichar *chars = m_genChars;
+    SBCodepoint *chars = m_genChars;
 
     for (auto c : codePoints) {
         *(chars++) = c;
@@ -275,7 +278,7 @@ bool AlgorithmTester::testMirrors() const {
 bool AlgorithmTester::conductTest() {
     bool passed = true;
 
-    SBParagraphRef paragraph = SBParagraphCreateWithUnicodeCharacters((SBUnichar *)m_genChars, m_charCount, m_paragraphDirection, SBParagraphOptionsNone);
+    SBParagraphRef paragraph = SBParagraphCreateWithCodepoints((SBCodepoint *)m_genChars, m_charCount, m_paragraphDirection, SBParagraphOptionsNone);
     SBLevel paragraphlevel = SBParagraphGetBaseLevel(paragraph);
     if (m_paragraphLevel == LEVEL_X) {
         m_paragraphLevel = paragraphlevel;

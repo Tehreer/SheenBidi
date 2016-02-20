@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,11 @@
 #ifndef _SHEEN_BIDI_H
 #define _SHEEN_BIDI_H
 
-#include "SBTypes.h"
 #include "SBBaseDirection.h"
-
-#include "SBParagraph.h"
 #include "SBLine.h"
-
-#include "SBRunAdapter.h"
 #include "SBMirrorLocator.h"
+#include "SBParagraph.h"
+#include "SBRunAdapter.h"
+#include "SBTypes.h"
 
 #endif

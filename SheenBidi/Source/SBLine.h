@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 #define _SB_INTERNAL_LINE_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 #include <SBLine.h>
+#include <SBTypes.h>
 
 struct _SBRun;
 typedef struct _SBRun SBRun;

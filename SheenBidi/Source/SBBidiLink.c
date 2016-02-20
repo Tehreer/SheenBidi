@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <stddef.h>
 #include <SBConfig.h>
+#include <stddef.h>
 
 #include "SBAssert.h"
 #include "SBBidiLink.h"
@@ -24,7 +24,7 @@ SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link) {
     link->next = NULL;
     link->offset = SBInvalidIndex;
     link->length = 0;
-    link->type = SB_CHAR_TYPE__NIL;
+    link->type = SBCharTypeNil;
     link->level = SBInvalidLevel;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#include <stdlib.h>
 #include <SBTypes.h>
+
+#include <stddef.h>
+#include <stdlib.h>
 
 #include "SBLine.h"
 #include "SBPairingLookup.h"
@@ -26,17 +28,17 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void) {
 
     locator = malloc(sizeof(SBMirrorLocator));
     locator->_retainCount = 1;
-    locator->_refCharacters = NULL;
+    locator->_refSource = NULL;
     locator->_line = NULL;
     SBMirrorLocatorReset(locator);
 
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *characters) {
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source) {
     SBLineRelease(locator->_line);
 
-    locator->_refCharacters = characters;
+    locator->_refSource = source;
     locator->_line = SBLineRetain(line);
 }
 
@@ -45,7 +47,7 @@ const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator) {
 }
 
 SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
-    SBUnichar *characters = locator->_refCharacters;
+    SBCodepoint *codepoints = locator->_refSource;
     SBLineRef line = locator->_line;
 
     do {
@@ -62,7 +64,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
             limit = run->offset + run->length;
 
             for (; index < limit; index++) {
-                SBUnichar mirror = SBPairingDetermineMirror(characters[index]);
+                SBCodepoint mirror = SBPairingDetermineMirror(codepoints[index]);
 
                 if (mirror) {
                     locator->_charIndex = index + 1;

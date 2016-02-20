@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #ifndef _SB_INTERNAL_RUN_ADAPTER_H
 #define _SB_INTERNAL_RUN_ADAPTER_H
 
-#include <SBTypes.h>
 #include <SBRunAdapter.h>
+#include <SBTypes.h>
 
 #include "SBLine.h"
 

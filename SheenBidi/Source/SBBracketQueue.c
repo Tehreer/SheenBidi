@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include <stddef.h>
-#include <stdlib.h>
-
 #include <SBConfig.h>
 #include <SBTypes.h>
 
+#include <stddef.h>
+#include <stdlib.h>
+
 #include "SBAssert.h"
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
 #include "SBBracketQueue.h"
 
 static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top) {
@@ -61,7 +61,7 @@ SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType directi
     queue->_direction = direction;
 }
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBUnichar bracket) {
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBCodepoint bracket) {
     _SBBracketQueueListRef list;
     SBUInteger top;
 
@@ -91,12 +91,12 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef pr
     list->openingLink[top] = openingLink;
     list->closingLink[top] = NULL;
     list->bracket[top] = bracket;
-    list->strongType[top] = SB_CHAR_TYPE__NIL;
+    list->strongType[top] = SBCharTypeNil;
 }
 
 SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue) {
     /*
-     * The queue should not be empty.
+     * The queue must NOT be empty.
      */
     SBAssert(queue->count != 0);
 
@@ -138,7 +138,7 @@ SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType
     };
 }
 
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBUnichar bracket) {
+SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBCodepoint bracket) {
     _SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
     SBUInteger limit = 0;

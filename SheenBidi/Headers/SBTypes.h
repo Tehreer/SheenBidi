@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef _SB_PUBLIC_TYPES_H
 #define _SB_PUBLIC_TYPES_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 /**
@@ -78,9 +79,9 @@ typedef size_t          SBIndex;
 #define SBInvalidIndex  (SBIndex)(-1)
 
 /**
- * A type to represent a unicode character.
+ * A type to represent a unicode code point.
  */
-typedef SBUInt32        SBUnichar;
+typedef SBUInt32        SBCodepoint;
 
 /**
  * A type to represent a bidi level.

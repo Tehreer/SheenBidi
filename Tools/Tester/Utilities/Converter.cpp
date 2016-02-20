@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,32 +27,32 @@ extern "C" {
 using namespace std;
 using namespace SheenBidi::Tester::Utilities;
 
-static map<_SBCharType, string> createStringMap() {
-    map<_SBCharType, string> map;
-    map[_SBCharTypeNil] = "Nil";
-    map[_SBCharTypeL]   = "L";
-    map[_SBCharTypeR]   = "R";
-    map[_SBCharTypeAL]  = "AL";
-    map[_SBCharTypeEN]  = "EN";
-    map[_SBCharTypeES]  = "ES";
-    map[_SBCharTypeET]  = "ET";
-    map[_SBCharTypeAN]  = "AN";
-    map[_SBCharTypeCS]  = "CS";
-    map[_SBCharTypeNSM] = "NSM";
-    map[_SBCharTypeBN]  = "BN";
-    map[_SBCharTypeB]   = "B";
-    map[_SBCharTypeS]   = "S";
-    map[_SBCharTypeWS]  = "WS";
-    map[_SBCharTypeON]  = "ON";
-    map[_SBCharTypeLRE] = "LRE";
-    map[_SBCharTypeRLE] = "RLE";
-    map[_SBCharTypeLRO] = "LRO";
-    map[_SBCharTypeRLO] = "RLO";
-    map[_SBCharTypePDF] = "PDF";
-    map[_SBCharTypeLRI] = "LRI";
-    map[_SBCharTypeRLI] = "RLI";
-    map[_SBCharTypeFSI] = "FSI";
-    map[_SBCharTypePDI] = "PDI";
+static map<SBCharType, string> createStringMap() {
+    map<SBCharType, string> map;
+    map[SBCharTypeNil] = "Nil";
+    map[SBCharTypeL]   = "L";
+    map[SBCharTypeR]   = "R";
+    map[SBCharTypeAL]  = "AL";
+    map[SBCharTypeEN]  = "EN";
+    map[SBCharTypeES]  = "ES";
+    map[SBCharTypeET]  = "ET";
+    map[SBCharTypeAN]  = "AN";
+    map[SBCharTypeCS]  = "CS";
+    map[SBCharTypeNSM] = "NSM";
+    map[SBCharTypeBN]  = "BN";
+    map[SBCharTypeB]   = "B";
+    map[SBCharTypeS]   = "S";
+    map[SBCharTypeWS]  = "WS";
+    map[SBCharTypeON]  = "ON";
+    map[SBCharTypeLRE] = "LRE";
+    map[SBCharTypeRLE] = "RLE";
+    map[SBCharTypeLRO] = "LRO";
+    map[SBCharTypeRLO] = "RLO";
+    map[SBCharTypePDF] = "PDF";
+    map[SBCharTypeLRI] = "LRI";
+    map[SBCharTypeRLI] = "RLI";
+    map[SBCharTypeFSI] = "FSI";
+    map[SBCharTypePDI] = "PDI";
 
     return map;
 }
@@ -86,10 +86,10 @@ static map<string, uint32_t> createCodePointMap() {
     return map;
 }
 
-static map<_SBCharType, string> MAP_CHAR_TYPE_TO_STRING = createStringMap();
+static map<SBCharType, string> MAP_CHAR_TYPE_TO_STRING = createStringMap();
 static map<string, uint32_t> MAP_CHAR_TYPE_TO_CODE_POINT = createCodePointMap();
 
-const string &Converter::toString(_SBCharType charType) {
+const string &Converter::toString(SBCharType charType) {
     return MAP_CHAR_TYPE_TO_STRING[charType];
 }
 

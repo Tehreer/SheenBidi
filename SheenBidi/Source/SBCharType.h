@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,57 +122,6 @@
 #define SB_CHAR_TYPE__LRO                       0x15
 #define SB_CHAR_TYPE__RLO                       0x16
 #define SB_CHAR_TYPE__PDF                       0x17
-
-#define SB_CHAR_TYPE__NUMBER_CASE               \
-     SB_CHAR_TYPE__EN:                          \
-case SB_CHAR_TYPE__AN
-
-#define SB_CHAR_TYPE__NEUTRAL_CASE              \
-     SB_CHAR_TYPE__B:                           \
-case SB_CHAR_TYPE__S:                           \
-case SB_CHAR_TYPE__WS:                          \
-case SB_CHAR_TYPE__ON
-
-#define SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE    \
-     SB_CHAR_TYPE__LRI:                         \
-case SB_CHAR_TYPE__RLI:                         \
-case SB_CHAR_TYPE__FSI
-
-#define SB_CHAR_TYPE__ISOLATE_CASE              \
-     SB_CHAR_TYPE__ISOLATE_INITIATOR_CASE:      \
-case SB_CHAR_TYPE__PDI
-
-#define SB_CHAR_TYPE__ISOLATE_OR_NEUTRAL_CASE   \
-     SB_CHAR_TYPE__NEUTRAL_CASE:                \
-case SB_CHAR_TYPE__ISOLATE_CASE
-
-#define SB_CHAR_TYPE__WHITESPACE_OR_ISOLATE_CASE\
-     SB_CHAR_TYPE__WS:                          \
-case SB_CHAR_TYPE__ISOLATE_CASE
-
-#define SB_CHAR_TYPE__EMBEDDING_CASE            \
-     SB_CHAR_TYPE__LRE:                         \
-case SB_CHAR_TYPE__RLE
-
-#define SB_CHAR_TYPE__OVERRIDE_CASE             \
-     SB_CHAR_TYPE__LRO:                         \
-case SB_CHAR_TYPE__RLO
-
-#define SB_CHAR_TYPE__EXPLICIT_INITIATOR_CASE   \
-     SB_CHAR_TYPE__EMBEDDING_CASE:              \
-case SB_CHAR_TYPE__OVERRIDE_CASE
-
-#define SB_CHAR_TYPE__EXPLICIT_CASE             \
-     SB_CHAR_TYPE__EXPLICIT_INITIATOR_CASE:     \
-case SB_CHAR_TYPE__PDF
-
-#define SB_CHAR_TYPE__BN_EQUIVALENT_CASE        \
-     SB_CHAR_TYPE__EXPLICIT_CASE:               \
-case SB_CHAR_TYPE__BN
-
-#define SB_CHAR_TYPE__FORMAT_CASE               \
-     SB_CHAR_TYPE__ISOLATE_CASE:                \
-case SB_CHAR_TYPE__EXPLICIT_CASE
 
 #define SB_CHAR_TYPE__IS_STRONG(t)              \
 (                                               \

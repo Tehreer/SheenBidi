@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace Utilities {
 
 class Converter {
 public:
-    static const std::string &toString(_SBCharType charType);
+    static const std::string &toString(SBCharType charType);
     static uint32_t toCodePoint(const std::string &charType);
 };
 

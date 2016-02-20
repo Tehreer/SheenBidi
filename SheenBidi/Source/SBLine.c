@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include <stdlib.h>
-
 #include <SBConfig.h>
 #include <SBTypes.h>
 
+#include <stdlib.h>
+
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
-
 #include "SBLine.h"
 
 struct _SBLineSupport;
@@ -136,7 +135,6 @@ static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount) {
     SBCharType *types = support->refTypes;
     SBLevel *levels = support->fixedLevels;
-
     SBUInteger index;
     SBUInteger length;
     SBBoolean reset;
@@ -149,20 +147,28 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
         SBCharType type = types[index];
 
         switch (type) {
-        case SB_CHAR_TYPE__B:
-        case SB_CHAR_TYPE__S:
+        case SBCharTypeB:
+        case SBCharTypeS:
             _SBSetNewLevel(levels + index, length + 1, baseLevel);
             length = 0;
             reset = SBTrue;
-
             ++support->runCount;
             break;
 
-        case SB_CHAR_TYPE__BN_EQUIVALENT_CASE:
+        case SBCharTypeLRE:
+        case SBCharTypeRLE:
+        case SBCharTypeLRO:
+        case SBCharTypeRLO:
+        case SBCharTypePDF:
+        case SBCharTypeBN:
             ++length;
             break;
 
-        case SB_CHAR_TYPE__WHITESPACE_OR_ISOLATE_CASE:
+        case SBCharTypeWS:
+        case SBCharTypeLRI:
+        case SBCharTypeRLI:
+        case SBCharTypeFSI:
+        case SBCharTypePDI:
             if (reset) {
                 _SBSetNewLevel(levels + index, length + 1, baseLevel);
                 length = 0;
@@ -267,11 +273,11 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithUnicodeCharacters(SBUnichar *characters, SBUInteger length, SBBaseDirection direction, SBLineOptions options) {
+SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options) {
     SBParagraphRef paragraph;
     SBLineRef line;
 
-    paragraph = SBParagraphCreateWithUnicodeCharacters(characters, length, direction, SBParagraphOptionsNone);
+    paragraph = SBParagraphCreateWithCodepoints(codepoints, length, direction, SBParagraphOptionsNone);
     line = SBLineCreateWithParagraph(paragraph, 0, length, options);
 
     SBParagraphRelease(paragraph);
@@ -281,10 +287,10 @@ SBLineRef SBLineCreateWithUnicodeCharacters(SBUnichar *characters, SBUInteger le
 
 SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options) {
     return _SBLineCreate(paragraph->fixedTypes,
-                          paragraph->fixedLevels,
-                          offset, length,
-                          paragraph->baseLevel,
-                          options);
+                         paragraph->fixedLevels,
+                         offset, length,
+                         paragraph->baseLevel,
+                         options);
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line) {

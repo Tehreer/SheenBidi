@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 #include <SBConfig.h>
 #include <SBTypes.h>
 
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
 
 #define _SB_BRACKET_QUEUE_LIST__LENGTH      4
 #define _SB_BRACKET_QUEUE_LIST__MAX_INDEX   (_SB_BRACKET_QUEUE_LIST__LENGTH - 1)
@@ -39,7 +39,7 @@ struct _SBBracketQueueList {
     _SBBracketQueueListRef previous;
     _SBBracketQueueListRef next;
 
-    SBUnichar bracket[_SB_BRACKET_QUEUE_LIST__LENGTH];
+    SBCodepoint bracket[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBBidiLinkRef priorStrongLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBBidiLinkRef openingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBBidiLinkRef closingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
@@ -56,17 +56,16 @@ struct SBBracketQueue {
     SBBoolean shouldDequeue;
     SBCharType _direction;
 };
-
 typedef struct SBBracketQueue *SBBracketQueueRef;
 
 SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue);
 SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction);
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBUnichar bracket);
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBCodepoint bracket);
 SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue);
 
 SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType strongType);
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBUnichar bracket);
+SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBCodepoint bracket);
 
 SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue);
 
