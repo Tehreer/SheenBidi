@@ -118,9 +118,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
     baseLevelRun = isolatingRun->baseLevelRun;
     SBBidiLinkReplaceNext(&isolatingRun->_dummyLink, baseLevelRun->firstLink);
 
-    /*
-     * Iterate over level runs and attach their links to form an isolating run.
-     */
+    /* Iterate over level runs and attach their links to form an isolating run. */
     for (current = baseLevelRun; (next = current->next); current = next) {
         SBBidiLinkReplaceNext(current->lastLink, next->firstLink);
     }
@@ -142,9 +140,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
 static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun) {
     SBLevelRunRef current;
 
-    /*
-     * Iterate over level runs and attach original subsequent links.
-     */
+    /* Iterate over level runs and attach original subsequent links. */
     for (current = isolatingRun->baseLevelRun; current; current = current->next) {
         SBBidiLinkReplaceNext(current->lastLink, current->subsequentLink);
     }
@@ -174,14 +170,8 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
 
         /* Rule W1 */
         if (type == SBCharTypeNSM) {
-            /*
-             * Change the 'type' variable as well because it can be EN on which
-             * W2 depends.
-             */
-            link->type = type = (SB_CHAR_TYPE__IS_ISOLATE(w1PriorType)
-                                 ? SBCharTypeON
-                                 : w1PriorType
-                                );
+            /* Change the 'type' variable as well because it can be EN on which W2 depends. */
+            link->type = type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
         }
         w1PriorType = type;
 
@@ -193,18 +183,15 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
         }
         /*
          * Rule W3
-         * Note: It is safe to apply W3 in 'else-if' statement because it only
-         *       depends on type AL. Even if W2 changes EN to AN, there won't
-         *       be any harm.
+         * NOTE: It is safe to apply W3 in 'else-if' statement because it only depends on type AL.
+         *       Even if W2 changes EN to AN, there won't be any harm.
          */
         else if (type == SBCharTypeAL) {
             link->type = SBCharTypeR;
         }
 
-        if (SB_CHAR_TYPE__IS_STRONG(type)) {
-            /*
-             * Save the strong type as it is checked in W2.
-             */
+        if (SBCharTypeIsStrong(type)) {
+            /* Save the strong type as it is checked in W2. */
             w2StrongType = type;
         }
 
@@ -226,27 +213,19 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
 
         /* Rule W4 */
         if (link->length == 1
-            && (type == SBCharTypeES || type == SBCharTypeCS)
-            && SB_CHAR_TYPE__IS_NUMBER(w4PriorType)
+            && SBCharTypeIsNumberSeparator(type)
+            && SBCharTypeIsNumber(w4PriorType)
             && (w4PriorType == nextType)
             && (w4PriorType == SBCharTypeEN || type == SBCharTypeCS))
         {
-            /*
-             * Change the current type as well because it can be EN on which W5
-             * depends.
-             */
+            /* Change the current type as well because it can be EN on which W5 depends. */
             link->type = type = w4PriorType;
         }
         w4PriorType = type;
 
         /* Rule W5 */
-        if (type == SBCharTypeET
-            && (w5PriorType == SBCharTypeEN || nextType == SBCharTypeEN))
-        {
-            /*
-             * Change the current type as well because it is EN on which W7
-             * depends.
-             */
+        if (type == SBCharTypeET && (w5PriorType == SBCharTypeEN || nextType == SBCharTypeEN)) {
+            /* Change the current type as well because it is EN on which W7 depends. */
             link->type = type = SBCharTypeEN;
         }
         w5PriorType = type;
@@ -261,10 +240,9 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
 
         /*
          * Rule W7
-         * Note: W7 is expected to be applied after W6. However this is not the
-         *       case here. The reason is that W6 can only create the type ON
-         *       which is not tested in W7 by any means. So it won't affect the
-         *       algorithm.
+         * NOTE: W7 is expected to be applied after W6. However this is not the case here. The
+         *       reason is that W6 can only create the type ON which is not tested in W7 by any
+         *       means. So it won't affect the algorithm.
          */
         case SBCharTypeEN:
             if (w7StrongType == SBCharTypeL) {
@@ -274,12 +252,11 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
 
         /*
          * Save the strong type for W7.
-         * Note: The strong type is expected to be saved after applying W7
-         *       because W7 itself creates a strong type. However the strong type
-         *       being saved here is based on the type after W5.
-         *       This won't effect the algorithm because a single link contains
-         *       all consecutive EN types. This means that even if W7 creates a
-         *       strong type, it will be saved in next iteration.
+         * NOTE: The strong type is expected to be saved after applying W7 because W7 itself creates
+         *       a strong type. However the strong type being saved here is based on the type after
+         *       W5. This won't effect the algorithm because a single link contains all consecutive
+         *       EN types. This means that even if W7 creates a strong type, it will be saved in
+         *       next iteration.
          */
         case SBCharTypeL:
         case SBCharTypeR:
@@ -396,7 +373,7 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
                     SBBidiLinkRef link;
 
                     priorStrongType = priorStrongLink->type;
-                    if (SB_CHAR_TYPE__IS_NUMBER(priorStrongType)) {
+                    if (SBCharTypeIsNumber(priorStrongType)) {
                         priorStrongType = SBCharTypeR;
                     }
 
@@ -455,7 +432,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
         SBCharType type = link->type;
         SBCharType nextType;
 
-        SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type) || SB_CHAR_TYPE__IS_NEUTRAL_OR_ISOLATE(type));
+        SBAssert(SBCharTypeIsStrongOrNumber(type) || SBCharTypeIsNeutralOrIsolate(type));
 
         switch (type) {
         case SBCharTypeL:
@@ -481,13 +458,13 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
             }
 
             nextType = link->next->type;
-            if (SB_CHAR_TYPE__IS_NUMBER(nextType)) {
+            if (SBCharTypeIsNumber(nextType)) {
                 nextType = SBCharTypeR;
             } else if (nextType == SBCharTypeNil) {
                 nextType = isolatingRun->_eos;
             }
 
-            if (SB_CHAR_TYPE__IS_STRONG(nextType)) {
+            if (SBCharTypeIsStrong(nextType)) {
                 /* Rules N1, N2 */
                 SBCharType resolvedType = (strongType == nextType
                                             ? strongType
@@ -516,7 +493,7 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
         for (link = roller->next; link != roller; link = link->next) {
             SBCharType type = link->type;
             
-            SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type));
+            SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I1 */
             if (type == SBCharTypeR) {
@@ -529,7 +506,7 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
         for (link = roller->next; link != roller; link = link->next) {
             SBCharType type = link->type;
             
-            SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type));
+            SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I2 */
             if (type != SBCharTypeR) {

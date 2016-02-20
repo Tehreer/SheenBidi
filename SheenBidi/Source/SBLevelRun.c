@@ -32,8 +32,8 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firs
     levelRun->extrema = SB_RUN_EXTREMA__MAKE(sor, eor);
     levelRun->kind = SB_RUN_KIND__MAKE
                      (
-                        SB_CHAR_TYPE__IS_ISOLATE_INITIATOR(lastLink->type),
-                        SB_CHAR_TYPE__IS_ISOLATE_TERMINATOR(firstLink->type)
+                        SBCharTypeIsIsolateInitiator(lastLink->type),
+                        SBCharTypeIsIsolateTerminator(firstLink->type)
                      );
 }
 

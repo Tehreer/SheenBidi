@@ -364,7 +364,7 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     lookupFunction.appendTabs(2).append("       ];").newLine();
     lookupFunction.appendTabs(1).append("}").newLine();
     lookupFunction.newLine();
-    lookupFunction.appendTabs(1).append("return SB_CHAR_TYPE__L;").newLine();
+    lookupFunction.appendTabs(1).append("return SBCharTypeL;").newLine();
     lookupFunction.append("}").newLine();
 
     FileBuilder header(directory + "/SBCharTypeLookup.h");

@@ -19,200 +19,63 @@
 
 #include <SBTypes.h>
 
-#define SB_CHAR_TYPE                            SBUInt8
-
-#define SB_CHAR_TYPE__NIL                       0x00
-
-#define SB_CHAR_TYPE__L                         0x01
-#define SB_CHAR_TYPE__R                         0x02
-#define SB_CHAR_TYPE__AL                        0x03
-
-#define SB_CHAR_TYPE__STRONG_TOP                SB_CHAR_TYPE__L
-#define SB_CHAR_TYPE__STRONG_END                SB_CHAR_TYPE__AL
-#define SB_CHAR_TYPE__STRONG_LIMIT              \
-(                                               \
-   SB_CHAR_TYPE__STRONG_END                     \
- - SB_CHAR_TYPE__STRONG_TOP                     \
-)
-
-#define SB_CHAR_TYPE__EN                        0x04
-#define SB_CHAR_TYPE__AN                        0x05
-#define SB_CHAR_TYPE__ET                        0x06
-#define SB_CHAR_TYPE__NSM                       0x07
-#define SB_CHAR_TYPE__BN                        0x08
-#define SB_CHAR_TYPE__CS                        0x09
-#define SB_CHAR_TYPE__ES                        0x0A
-
-#define SB_CHAR_TYPE__NUMBER_TOP                SB_CHAR_TYPE__EN
-#define SB_CHAR_TYPE__NUMBER_END                SB_CHAR_TYPE__AN
-#define SB_CHAR_TYPE__NUMBER_LIMIT              \
-(                                               \
-   SB_CHAR_TYPE__NUMBER_END                     \
- - SB_CHAR_TYPE__NUMBER_TOP                     \
-)
-
-#define SB_CHAR_TYPE__STRONG_OR_NUMBER_TOP      SB_CHAR_TYPE__STRONG_TOP
-#define SB_CHAR_TYPE__STRONG_OR_NUMBER_END      SB_CHAR_TYPE__NUMBER_END
-#define SB_CHAR_TYPE__STRONG_OR_NUMBER_LIMIT    \
-(                                               \
-  SB_CHAR_TYPE__STRONG_OR_NUMBER_END            \
-- SB_CHAR_TYPE__STRONG_OR_NUMBER_TOP            \
-)
-
-#define SB_CHAR_TYPE__WEAK_TOP                  SB_CHAR_TYPE__EN
-#define SB_CHAR_TYPE__WEAK_END                  SB_CHAR_TYPE__ES
-#define SB_CHAR_TYPE__WEAK_LIMIT                \
-(                                               \
-   SB_CHAR_TYPE__WEAK_END                       \
- - SB_CHAR_TYPE__WEAK_TOP                       \
-)
-
-#define SB_CHAR_TYPE__B                         0x0B
-#define SB_CHAR_TYPE__S                         0x0C
-#define SB_CHAR_TYPE__ON                        0x0D
-#define SB_CHAR_TYPE__WS                        0x0E
-
-#define SB_CHAR_TYPE__SEPARATOR_TOP             SB_CHAR_TYPE__CS
-#define SB_CHAR_TYPE__SEPARATOR_END             SB_CHAR_TYPE__S
-#define SB_CHAR_TYPE__SEPARATOR_LIMIT           \
-(                                               \
-   SB_CHAR_TYPE__SEPARATOR_END                  \
- - SB_CHAR_TYPE__SEPARATOR_TOP                  \
-)
-
-#define SB_CHAR_TYPE__NEUTRAL_TOP               SB_CHAR_TYPE__B
-#define SB_CHAR_TYPE__NEUTRAL_END               SB_CHAR_TYPE__WS
-#define SB_CHAR_TYPE__NEUTRAL_LIMIT             \
-(                                               \
-   SB_CHAR_TYPE__NEUTRAL_END                    \
- - SB_CHAR_TYPE__NEUTRAL_TOP                    \
-)
-
-#define SB_CHAR_TYPE__LRI                       0x0F
-#define SB_CHAR_TYPE__RLI                       0x10
-#define SB_CHAR_TYPE__FSI                       0x11
-#define SB_CHAR_TYPE__PDI                       0x12
-
-#define SB_CHAR_TYPE__ISO_INIT_TOP              SB_CHAR_TYPE__LRI
-#define SB_CHAR_TYPE__ISO_INIT_END              SB_CHAR_TYPE__FSI
-#define SB_CHAR_TYPE__ISO_INIT_LIMIT            \
-(                                               \
-   SB_CHAR_TYPE__ISO_INIT_END                   \
- - SB_CHAR_TYPE__ISO_INIT_TOP                   \
-)
-
-#define SB_CHAR_TYPE__ISOLATE_TOP               SB_CHAR_TYPE__ISO_INIT_TOP
-#define SB_CHAR_TYPE__ISOLATE_END               SB_CHAR_TYPE__PDI
-#define SB_CHAR_TYPE__ISOLATE_LIMIT             \
-(                                               \
-   SB_CHAR_TYPE__ISOLATE_END                    \
- - SB_CHAR_TYPE__ISOLATE_TOP                    \
-)
-
-#define SB_CHAR_TYPE__NTRL_ISO_TOP              SB_CHAR_TYPE__NEUTRAL_TOP
-#define SB_CHAR_TYPE__NTRL_ISO_END              SB_CHAR_TYPE__ISOLATE_END
-#define SB_CHAR_TYPE__NTRL_ISO_LIMIT            \
-(                                               \
-   SB_CHAR_TYPE__NTRL_ISO_END                   \
- - SB_CHAR_TYPE__NTRL_ISO_TOP                   \
-)
-
-#define SB_CHAR_TYPE__LRE                       0x13
-#define SB_CHAR_TYPE__RLE                       0x14
-#define SB_CHAR_TYPE__LRO                       0x15
-#define SB_CHAR_TYPE__RLO                       0x16
-#define SB_CHAR_TYPE__PDF                       0x17
-
-#define SB_CHAR_TYPE__IS_STRONG(t)              \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__STRONG_TOP)               \
-        <= SB_CHAR_TYPE__STRONG_LIMIT           \
-)
-
-#define SB_CHAR_TYPE__IS_NUMBER(t)              \
-(                                               \
-    (t) == SB_CHAR_TYPE__EN                     \
- || (t) == SB_CHAR_TYPE__AN                     \
-)
-
-#define SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(t)    \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__STRONG_OR_NUMBER_TOP)     \
-        <= SB_CHAR_TYPE__STRONG_OR_NUMBER_LIMIT \
-)
-
-#define SB_CHAR_TYPE__IS_SEPARATOR(t)           \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__SEPARATOR_TOP)            \
-        <= SB_CHAR_TYPE__SEPARATOR_LIMIT        \
-)
-
-#define SB_CHAR_TYPE__IS_NEUTRAL(t)             \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__NEUTRAL_TOP)              \
-        <= SB_CHAR_TYPE__NEUTRAL_LIMIT          \
-)
-
-#define SB_CHAR_TYPE__IS_ISOLATE_INITIATOR(t)   \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__ISO_INIT_TOP)             \
-        <= SB_CHAR_TYPE__ISO_INIT_LIMIT         \
-)
-
-#define SB_CHAR_TYPE__IS_ISOLATE_TERMINATOR(t)  \
-(                                               \
- (t) == SB_CHAR_TYPE__PDI                       \
-)
-
-#define SB_CHAR_TYPE__IS_ISOLATE(t)             \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__ISOLATE_TOP)              \
-        <= SB_CHAR_TYPE__ISOLATE_LIMIT          \
-)
-
-#define SB_CHAR_TYPE__IS_NEUTRAL_OR_ISOLATE(t)  \
-(                                               \
- (SBUInteger)                                   \
- ((t) - SB_CHAR_TYPE__NTRL_ISO_TOP)             \
-        <= SB_CHAR_TYPE__NTRL_ISO_LIMIT         \
-)
-
 enum {
-    SBCharTypeNil = SB_CHAR_TYPE__NIL,
+    SBCharTypeNil = 0x00,
 
-    SBCharTypeL   = SB_CHAR_TYPE__L,        /**< strong: left-to-right */
-    SBCharTypeR   = SB_CHAR_TYPE__R,        /**< strong: right-to-left */
-    SBCharTypeAL  = SB_CHAR_TYPE__AL,       /**< strong: right-to-left Arabic */
+    SBCharTypeL   = 0x01,   /**< Strong: Left-to-Right */
+    SBCharTypeR   = 0x02,   /**< Strong: Right-to-Left */
+    SBCharTypeAL  = 0x03,   /**< Strong: Right-to-Left Arabic */
 
-    SBCharTypeEN  = SB_CHAR_TYPE__EN,       /**< weak: European Number */
-    SBCharTypeES  = SB_CHAR_TYPE__ES,       /**< weak: European Number Separator */
-    SBCharTypeET  = SB_CHAR_TYPE__ET,       /**< weak: European Number Terminator */
-    SBCharTypeAN  = SB_CHAR_TYPE__AN,       /**< weak: Arabic Number */
-    SBCharTypeCS  = SB_CHAR_TYPE__CS,       /**< weak: Common Number Separator */
-    SBCharTypeNSM = SB_CHAR_TYPE__NSM,      /**< weak: non-spacing mark */
-    SBCharTypeBN  = SB_CHAR_TYPE__BN,       /**< weak: boundary neutral */
+    SBCharTypeEN  = 0x04,   /**< Weak: European Number */
+    SBCharTypeAN  = 0x05,   /**< Weak: Arabic Number */
+    SBCharTypeET  = 0x06,   /**< Weak: European Number Terminator */
+    SBCharTypeNSM = 0x07,   /**< Weak: Non-Spacing Mark */
+    SBCharTypeBN  = 0x08,   /**< Weak: Boundary Neutral */
+    SBCharTypeCS  = 0x09,   /**< Weak: Common Number Separator */
+    SBCharTypeES  = 0x0A,   /**< Weak: European Number Separator */
 
-    SBCharTypeB   = SB_CHAR_TYPE__B,        /**< neutral: Paragraph Separator */
-    SBCharTypeS   = SB_CHAR_TYPE__S,        /**< neutral: Segment Separator */
-    SBCharTypeWS  = SB_CHAR_TYPE__WS,       /**< neutral: White Space */
-    SBCharTypeON  = SB_CHAR_TYPE__ON,       /**< neutral: Other Neutral */
+    SBCharTypeB   = 0x0B,   /**< Neutral: Paragraph Separator */
+    SBCharTypeS   = 0x0C,   /**< Neutral: Segment Separator */
+    SBCharTypeWS  = 0x0D,   /**< Neutral: White Space */
+    SBCharTypeON  = 0x0E,   /**< Neutral: Other Neutral */
 
-    SBCharTypeLRE = SB_CHAR_TYPE__LRE,      /**< format: left-to-right embedding */
-    SBCharTypeRLE = SB_CHAR_TYPE__RLE,      /**< format: right-to-left embedding */
-    SBCharTypeLRO = SB_CHAR_TYPE__LRO,      /**< format: left-to-right override */
-    SBCharTypeRLO = SB_CHAR_TYPE__RLO,      /**< format: right-to-left override */
-    SBCharTypePDF = SB_CHAR_TYPE__PDF,      /**< format: pop directional formatting */
-    SBCharTypeLRI = SB_CHAR_TYPE__LRI,      /**< format: left-to-right isolate */
-    SBCharTypeRLI = SB_CHAR_TYPE__RLI,      /**< format: right-to-left isolate */
-    SBCharTypeFSI = SB_CHAR_TYPE__FSI,      /**< format: first strong isolate */
-    SBCharTypePDI = SB_CHAR_TYPE__PDI       /**< format: pop directional isolate */
+    SBCharTypeLRI = 0x0F,   /**< Format: Left-to-Right Isolate */
+    SBCharTypeRLI = 0x10,   /**< Format: Right-to-Left Isolate */
+    SBCharTypeFSI = 0x11,   /**< Format: First Strong Isolate */
+    SBCharTypePDI = 0x12,   /**< Format: Pop Directional Isolate */
+    SBCharTypeLRE = 0x13,   /**< Format: Left-to-Right Embedding */
+    SBCharTypeRLE = 0x14,   /**< Format: Right-to-Left Embedding */
+    SBCharTypeLRO = 0x15,   /**< Format: Left-to-Right Override */
+    SBCharTypeRLO = 0x16,   /**< Format: Right-to-Left Override */
+    SBCharTypePDF = 0x17    /**< Format: Pop Directional Formatting */
+
 };
-typedef SB_CHAR_TYPE SBCharType;
+typedef SBUInt8 SBCharType;
+
+#define _SBCharTypeIsEqual(t1, t2)          \
+(                                           \
+ (t1) == (t2)                               \
+)
+
+#define _SBCharTypeInRange(t, s, e)         \
+(                                           \
+    (SBCharType)((t) - (s))                 \
+ <= (SBCharType)((e) - (s))                 \
+)
+
+#define SBCharTypeIsStrong(t)               _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAL)
+#define SBCharTypeIsWeak(t)                 _SBCharTypeInRange(t, SBCharTypeEN, SBCharTypeES)
+#define SBCharTypeIsNeutral(t)              _SBCharTypeInRange(t, SBCharTypeB, SBCharTypeON)
+#define SBCharTypeIsFormat(t)               _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDF)
+
+#define SBCharTypeIsNumber(t)               _SBCharTypeInRange(t, SBCharTypeEN, SBCharTypeAN)
+#define SBCharTypeIsSeparator(t)            _SBCharTypeInRange(t, SBCharTypeCS, SBCharTypeS)
+#define SBCharTypeIsIsolate(t)              _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDI)
+
+#define SBCharTypeIsStrongOrNumber(t)       _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAN)
+#define SBCharTypeIsNumberSeparator(t)      _SBCharTypeInRange(t, SBCharTypeCS, SBCharTypeES)
+#define SBCharTypeIsIsolateInitiator(t)     _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypeFSI)
+#define SBCharTypeIsIsolateTerminator(t)    _SBCharTypeIsEqual(t, SBCharTypePDI)
+#define SBCharTypeIsNeutralOrIsolate(t)     _SBCharTypeInRange(t, SBCharTypeB, SBCharTypePDI)
 
 #endif

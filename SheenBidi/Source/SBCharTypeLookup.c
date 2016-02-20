@@ -2004,7 +2004,7 @@ SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint) {
                ];
     }
 
-    return SB_CHAR_TYPE__L;
+    return SBCharTypeL;
 }
 
 #undef AL

@@ -23,11 +23,11 @@
 
 #define SB_RUN_EXTREMA                      SBUInt8
 
-#define SB_RUN_EXTREMA__LEADING_L           (SB_CHAR_TYPE__L << 0)
-#define SB_RUN_EXTREMA__LEADING_R           (SB_CHAR_TYPE__R << 0)
+#define SB_RUN_EXTREMA__LEADING_L           (SBCharTypeL << 0)
+#define SB_RUN_EXTREMA__LEADING_R           (SBCharTypeR << 0)
 
-#define SB_RUN_EXTREMA__TRAILING_L          (SB_CHAR_TYPE__L << 4)
-#define SB_RUN_EXTREMA__TRAILING_R          (SB_CHAR_TYPE__R << 4)
+#define SB_RUN_EXTREMA__TRAILING_L          (SBCharTypeL << 4)
+#define SB_RUN_EXTREMA__TRAILING_R          (SBCharTypeR << 4)
 
 #define SB_RUN_EXTREMA__MAKE(sor, eor)      \
 (SB_RUN_EXTREMA)                            \
