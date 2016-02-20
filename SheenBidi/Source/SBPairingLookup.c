@@ -689,7 +689,7 @@ SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint) {
                          _SBPairIndexes[
                               codepoint / 0x080
                          ] + (codepoint % 0x080)
-                        ] & SB_BRACKET_TYPE__INVERSE_MASK
+                        ] & SBBracketTypeInverseMask
                        ];
 
         if (diff != 0) {
@@ -707,16 +707,16 @@ SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBB
                              codepoint / 0x080
                         ] + (codepoint % 0x080)
                        ];
-        *type = (data & SB_BRACKET_TYPE__PRIMARY_MASK);
+        *type = (data & SBBracketTypePrimaryMask);
 
         if (*type != 0) {
             SBInt16 diff = _SBPairDifferences[
-                            data & SB_BRACKET_TYPE__INVERSE_MASK
+                            data & SBBracketTypeInverseMask
                            ];
             return (codepoint + diff);
         }
     } else {
-        *type = SB_BRACKET_TYPE__NONE;
+        *type = SBBracketTypeNone;
     }
 
     return 0;
