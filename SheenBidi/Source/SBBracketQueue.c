@@ -69,6 +69,9 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef pr
     _SBBracketQueueListRef list;
     SBUInteger top;
 
+    /* The queue can only take a maximum of 63 elements. */
+    SBAssert(queue->count < SBBracketQueueGetMaxCapacity());
+
     if (queue->_rearTop != _SB_BRACKET_QUEUE_LIST__MAX_INDEX) {
         list = queue->_rearList;
         top = ++queue->_rearTop;

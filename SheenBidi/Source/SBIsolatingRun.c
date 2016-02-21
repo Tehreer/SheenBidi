@@ -311,7 +311,11 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
             switch (bracketType) {
             case SBBracketTypeOpen:
-                SBBracketQueueEnqueue(queue, priorStrongLink, link, ch);
+                if (queue->count < SBBracketQueueGetMaxCapacity()) {
+                    SBBracketQueueEnqueue(queue, priorStrongLink, link, ch);
+                } else {
+                    goto Resolve;
+                }
                 break;
 
             case SBBracketTypeClose:
@@ -341,6 +345,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
         }
     }
 
+Resolve:
     _SBResolveAvailableBracketPairs(isolatingRun);
 }
 
@@ -477,8 +482,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
                 /* Rules N1, N2 */
                 SBCharType resolvedType = (strongType == nextType
                                             ? strongType
-                                            : SB_LEVEL_TO_EXACT_TYPE(runLevel)
-                                            );
+                                            : SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
                 do {
                     neutralLink->type = resolvedType;

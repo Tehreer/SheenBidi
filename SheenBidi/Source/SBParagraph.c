@@ -294,8 +294,8 @@ static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef break
             if (isIsolate) {
                 /*
                  * In case of isolating run, the PDI will be the last code point.
-                 * Note: The inner isolating runs will be skipped by the case
-                 *       above this one.
+                 * NOTE:
+                 *      The inner isolating runs will be skipped by the case above this one.
                  */
                 goto Default;
             }
@@ -364,13 +364,9 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     SBStatusStackPush(stack, baseLevel, SBCharTypeON, SBFalse);
 
     for (link = roller->next; link != roller; link = link->next) {
-        SBBoolean forceFinish;
-        SBBoolean bnEquivalent;
-
+        SBBoolean forceFinish = SBFalse;
+        SBBoolean bnEquivalent = SBFalse;
         SBCharType type;
-
-        forceFinish = SBFalse;
-        bnEquivalent = SBFalse;
 
         type = link->type;
 
@@ -467,8 +463,8 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
                 if (priorLink->type == link->type
                     && priorLink->level == link->level) {
                     /*
-                     * Properties of this link are same as previous link,
-                     * therefore merge it and continue the loop.
+                     * Properties of this link are same as previous link, therefore merge it and
+                     * continue the loop.
                      */
                     SBBidiLinkMergeNext(priorLink);
                     continue;
@@ -511,8 +507,9 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
         /* Rule X8 */
         case SBCharTypeB:
-            /* These values are reset for clarity, in this implementation B
-             * can only occur as the last code in the array.
+            /*
+             * These values are reset for clarity, in this implementation B can only occur as the
+             * last code in the array.
              */
             SBStatusStackSetEmpty(stack);
 
@@ -535,10 +532,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
         /* Rule X9 */
         if (bnEquivalent) {
-            /*
-             * The type of this link is BN equivalent, so abandon it and
-             * continue the loop.
-             */
+            /* The type of this link is BN equivalent, so abandon it and continue the loop. */
             SBBidiLinkAbandonNext(priorLink);
             continue;
         }
@@ -551,36 +545,25 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             SBLevelRun levelRun;
             SBLevel currentLevel;
 
-            /*
-             * Since the level has changed at this link, therefore the run must
-             * end at prior link.
-             */
+            /* Since the level has changed at this link, therefore the run must end at prior link. */
             lastLink = priorLink;
 
-            /*
-             * Save the current level i.e. level of the next run.
-             */
+            /* Save the current level i.e. level of the next run. */
             currentLevel = link->level;
             /*
-             * Now we have both the prior level and the current level i.e.
-             * unchanged levels of both the current run and the next run.
-             * So, identify eor of the current run.
-             * Note:
-             *     sor of the run has been already determined at this stage.
+             * Now we have both the prior level and the current level i.e. unchanged levels of both
+             * the current run and the next run. So, identify eor of the current run.
+             * NOTE:
+             *      sor of the run has been already determined at this stage.
              */
             eor = SB_LEVEL_TO_TYPE(SB_MAX(priorLevel, currentLevel));
 
             SBLevelRunInitialize(&levelRun, firstLink, lastLink, sor, eor);
             _SBProcessRun(support, levelRun, forceFinish);
 
-            /*
-             * The sor of next run (if any) should be technically equal to eor
-             * of this run.
-             */
+            /* The sor of next run (if any) should be technically equal to eor of this run. */
             sor = eor;
-            /*
-             * The next run (if any) will start from this index.
-             */
+            /* The next run (if any) will start from this index. */
             firstLink = link;
 
             priorLevel = currentLevel;

@@ -23,16 +23,11 @@
 #include "SBBidiLink.h"
 #include "SBCharType.h"
 
-#define _SB_BRACKET_QUEUE_LIST__LENGTH      4
+#define _SB_BRACKET_QUEUE_LIST__LENGTH      8
 #define _SB_BRACKET_QUEUE_LIST__MAX_INDEX   (_SB_BRACKET_QUEUE_LIST__LENGTH - 1)
 
-struct SBBracketQueue;
 struct _SBBracketQueueList;
-
-typedef struct SBBracketQueue SBBracketQueue;
 typedef struct _SBBracketQueueList _SBBracketQueueList;
-
-typedef SBBracketQueue *SBBracketQueueRef;
 typedef _SBBracketQueueList *_SBBracketQueueListRef;
 
 struct _SBBracketQueueList {
@@ -46,7 +41,7 @@ struct _SBBracketQueueList {
     SBCharType strongType[_SB_BRACKET_QUEUE_LIST__LENGTH];
 };
 
-struct SBBracketQueue {
+typedef struct _SBBracketQueue {
     _SBBracketQueueList _firstList;
     _SBBracketQueueListRef _frontList;
     _SBBracketQueueListRef _rearList;
@@ -55,8 +50,9 @@ struct SBBracketQueue {
     SBUInteger count;
     SBBoolean shouldDequeue;
     SBCharType _direction;
-};
-typedef struct SBBracketQueue *SBBracketQueueRef;
+} SBBracketQueue, *SBBracketQueueRef;
+
+#define SBBracketQueueGetMaxCapacity()      63
 
 SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue);
 SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction);
