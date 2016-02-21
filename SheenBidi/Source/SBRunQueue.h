@@ -25,13 +25,8 @@
 #define _SB_RUN_QUEUE_LIST__LENGTH     8
 #define _SB_RUN_QUEUE_LIST__MAX_INDEX  (_SB_RUN_QUEUE_LIST__LENGTH - 1)
 
-struct _SBRunQueue;
 struct _SBRunQueueList;
-
-typedef struct _SBRunQueue SBRunQueue;
 typedef struct _SBRunQueueList _SBRunQueueList;
-
-typedef SBRunQueue *SBRunQueueRef;
 typedef _SBRunQueueList *_SBRunQueueListRef;
 
 struct _SBRunQueueList {
@@ -41,7 +36,7 @@ struct _SBRunQueueList {
     SBLevelRun levelRuns[_SB_RUN_QUEUE_LIST__LENGTH];
 };
 
-struct _SBRunQueue {
+typedef struct _SBRunQueue {
     _SBRunQueueList _firstList;         /**< First list of elements, which is part of the queue */
     _SBRunQueueListRef _frontList;      /**< The list containing front element of the queue */
     _SBRunQueueListRef _rearList;       /**< The list containing rear element of the queue */
@@ -52,7 +47,7 @@ struct _SBRunQueue {
     SBLevelRunRef peek;                 /**< Peek element of the queue */
     SBUInteger count;                   /**< Number of elements the queue contains */
     SBBoolean shouldDequeue;
-};
+} SBRunQueue, *SBRunQueueRef;
 
 SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue);
 

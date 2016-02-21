@@ -25,13 +25,8 @@
 #define _SB_STATUS_STACK_LIST__LENGTH      16
 #define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)
 
-struct _SBStatusStack;
 struct _SBStatusStackList;
-
-typedef struct _SBStatusStack SBStatusStack;
 typedef struct _SBStatusStackList _SBStatusStackList;
-
-typedef SBStatusStack *SBStatusStackRef;
 typedef _SBStatusStackList *_SBStatusStackListRef;
 
 struct _SBStatusStackList {
@@ -43,12 +38,12 @@ struct _SBStatusStackList {
     SBLevel embeddingLevel[_SB_STATUS_STACK_LIST__LENGTH];
 };
 
-struct _SBStatusStack {
+typedef struct _SBStatusStack {
     _SBStatusStackList _firstList;
     _SBStatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
-};
+} SBStatusStack, *SBStatusStackRef;
 
 SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack);
 SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack);

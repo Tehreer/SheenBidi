@@ -21,15 +21,11 @@
 #include <SBLine.h>
 #include <SBTypes.h>
 
-struct _SBRun;
-typedef struct _SBRun SBRun;
-typedef SBRun *SBRunRef;
-
-struct _SBRun {
+typedef struct _SBRun {
     SBUInteger offset;
     SBUInteger length;
     SBLevel level;
-};
+} SBRun, *SBRunRef;
 
 struct _SBLine {
     SBUInteger _retainCount;

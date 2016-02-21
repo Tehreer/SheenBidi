@@ -25,11 +25,7 @@
 #include "SBCharType.h"
 #include "SBLevelRun.h"
 
-struct _SBIsolatingRun;
-typedef struct _SBIsolatingRun SBIsolatingRun;
-typedef SBIsolatingRun *SBIsolatingRunRef;
-
-struct _SBIsolatingRun {
+typedef struct _SBIsolatingRun {
     SBCodepoint *codepoints;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
@@ -38,7 +34,7 @@ struct _SBIsolatingRun {
     SBCharType _sos;
     SBCharType _eos;
     SBLevel paragraphLevel;
-};
+} SBIsolatingRun, *SBIsolatingRunRef;
 
 SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun);
 SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun);

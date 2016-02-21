@@ -20,15 +20,11 @@
 #include <SBConfig.h>
 #include "SBBidiLink.h"
 
-struct _SBBidiChain;
-typedef struct _SBBidiChain SBBidiChain;
-typedef SBBidiChain *SBBidiChainRef;
-
-struct _SBBidiChain {
+typedef struct _SBBidiChain {
     SBBidiLink _dummy;
     SBBidiLinkRef rollerLink;
     SBBidiLinkRef lastLink;
-};
+} SBBidiChain, *SBBidiChainRef;
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain);
 SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link);
