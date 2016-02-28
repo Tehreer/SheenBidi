@@ -51,15 +51,6 @@ typedef uint16_t        SBUInt16;
 typedef uint32_t        SBUInt32;
 
 /**
- * A type to represent a boolean value.
- */
-enum {
-    SBFalse = 0, /**< A value representing the false state. */
-    SBTrue  = 1  /**< A value representing the true state. */
-};
-typedef SBUInt8         SBBoolean;
-
-/**
  * A signed integer type whose width is equal to the width of the machine word.
  */
 typedef intptr_t        SBInteger;
@@ -70,6 +61,15 @@ typedef intptr_t        SBInteger;
 typedef uintptr_t       SBUInteger;
 
 /**
+ * A type to represent a boolean value.
+ */
+enum {
+    SBFalse = 0, /**< A value representing the false state. */
+    SBTrue  = 1  /**< A value representing the true state. */
+};
+typedef SBUInt8         SBBoolean;
+
+/**
  * A type to represent a unicode code point.
  */
 typedef SBUInt32        SBCodepoint;
@@ -78,16 +78,6 @@ typedef SBUInt32        SBCodepoint;
  * A type to represent a bidi level.
  */
 typedef SBUInt8         SBLevel;
-
-/**
- * A value that indicates an invalid unsigned index.
- */
-#define SBInvalidIndex  (SBUInteger)(-1)
-
-/**
- * A value that indicates an invalid bidi level.
- */
-#define SBInvalidLevel  (SBLevel)(-1)
 
 /**
  * Finds the mirror of the provided code point.

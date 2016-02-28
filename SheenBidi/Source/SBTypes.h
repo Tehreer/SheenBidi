@@ -19,4 +19,14 @@
 
 #include <SBTypes.h>
 
+/**
+ * A value that indicates an invalid unsigned index.
+ */
+#define SBInvalidIndex  (SBUInteger)(-1)
+
+/**
+ * A value that indicates an invalid bidi level.
+ */
+#define SBInvalidLevel  (SBLevel)(-1)
+
 #endif
