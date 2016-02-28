@@ -30,7 +30,7 @@ typedef enum {
 } SBLineOptions;
 
 /**
- * Creates a line object.
+ * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
  * @param codepoints
  *      The unicode code points for which the line will be created.
  * @param length
@@ -43,8 +43,9 @@ typedef enum {
  *      A reference to a line object if the call was successful, NULL otherwise.
  */
 SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options);
+
 /**
- * Creates a line object.
+ * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
  * @param paragraph
  *      The paragraph for which the line will be created.
  * @param offset
@@ -66,6 +67,7 @@ SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset,
  *      The offset of the line passed in.
  */
 SBUInteger SBLineGetOffset(SBLineRef line);
+
 /**
  * Provides the length of the line.
  * @param line

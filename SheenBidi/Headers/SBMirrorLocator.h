@@ -34,11 +34,12 @@ typedef struct {
 typedef SBMirrorAgent *SBMirrorAgentRef;
 
 /**
- * Creates a mirror locator object.
+ * Creates a mirror locator object which can be used to find mirrors in a line.
  * @return
  *      A reference to a mirror locator object.
  */
 SBMirrorLocatorRef SBMirrorLocatorCreate(void);
+
 /**
  * Loads a line in the locator so that its mirror can be located.
  * @param locator
@@ -56,6 +57,7 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *s
  *      The locator whose agent you want to obtain.
  */
 const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
+
 /**
  * Instructs the locator to find next mirror in the loaded line.
  * @param locator
@@ -66,6 +68,7 @@ const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
  *      The locator will be reset after locating last mirror.
  */
 SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator);
+
 /**
  * Instructs the locator to reset itself so that mirrors of the loaded line can be obatained from
  * the beginning.

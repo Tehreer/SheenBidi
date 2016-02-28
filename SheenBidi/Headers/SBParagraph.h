@@ -17,8 +17,8 @@
 #ifndef _SB_PUBLIC_PARAGRAPH_H
 #define _SB_PUBLIC_PARAGRAPH_H
 
-#include "SBTypes.h"
 #include "SBBaseDirection.h"
+#include "SBTypes.h"
 
 struct _SBParagraph;
 typedef struct _SBParagraph SBParagraph;
@@ -30,7 +30,7 @@ typedef enum {
 } SBParagraphOptions;
 
 /**
- * Creates a paragraph object.
+ * Creates a paragraph object which implements rules P2 to I2 of unicode bidirectional algorithm.
  * @param codepoints
  *      The unicode code points for which the paragraph will be created.
  * @param length

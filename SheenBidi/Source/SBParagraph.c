@@ -322,7 +322,7 @@ static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection 
 
     default:
         level = _SBDetermineBaseLevel(chain->rollerLink, chain->rollerLink,
-                                      baseDirection == SBBaseDirectionAutoLTR ? 0 : 1,
+                                      baseDirection != SBBaseDirectionAutoRTL ? 0 : 1,
                                       SBFalse);
         break;
     }
