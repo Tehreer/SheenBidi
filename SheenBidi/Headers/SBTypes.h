@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,8 @@
 #ifndef _SB_PUBLIC_TYPES_H
 #define _SB_PUBLIC_TYPES_H
 
+#include <stddef.h>
 #include <stdint.h>
-
-/**
- * A type to represent a boolean value.
- */
-typedef enum {
-    SBFalse = 0, /**< A value representing the false state. */
-    SBTrue  = 1  /**< A value representing the true state. */
-} SBBoolean;
 
 /**
  * A type to represent an 8-bit signed integer.
@@ -68,19 +61,18 @@ typedef intptr_t        SBInteger;
 typedef uintptr_t       SBUInteger;
 
 /**
- * An unsigned integer type which can hold any array index.
+ * A type to represent a boolean value.
  */
-typedef size_t          SBIndex;
+enum {
+    SBFalse = 0, /**< A value representing the false state. */
+    SBTrue  = 1  /**< A value representing the true state. */
+};
+typedef SBUInt8         SBBoolean;
 
 /**
- * A value that indicates an invalid unsigned index.
+ * A type to represent a unicode code point.
  */
-#define SBInvalidIndex  (SBIndex)(-1)
-
-/**
- * A type to represent a unicode character.
- */
-typedef SBUInt32        SBUnichar;
+typedef SBUInt32        SBCodepoint;
 
 /**
  * A type to represent a bidi level.
@@ -88,8 +80,12 @@ typedef SBUInt32        SBUnichar;
 typedef SBUInt8         SBLevel;
 
 /**
- * A value that indicates an invalid bidi level.
+ * Finds the mirror of the provided code point.
+ * @param codepoint
+ *      The code point whose mirror you want to find.
+ * @return
+ *      The mirror of the provided code point if available, 0 otherwise.
  */
-#define SBInvalidLevel  UINT8_MAX
+SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
 
 #endif

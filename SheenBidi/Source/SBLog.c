@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,149 +14,152 @@
  * limitations under the License.
  */
 
+#include <SBBaseDirection.h>
 #include <SBConfig.h>
 
 #ifdef SB_CONFIG_LOG
 
-#include <SBTypes.h>
-#include <SBBaseDirection.h>
-
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
 #include "SBIsolatingRun.h"
+#include "SBTypes.h"
 #include "SBLog.h"
 
 int _SBLogPosition = 0;
 
-SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction) {
+SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction)
+{
     switch (direction) {
-        case SBBaseDirectionAutoLTR:
-            SB_LOG_STRING("Auto-LTR");
-            break;
+    case SBBaseDirectionAutoLTR:
+        SB_LOG_STRING("Auto-LTR");
+        break;
 
-        case SBBaseDirectionAutoRTL:
-            SB_LOG_STRING("Auto-RTL");
-            break;
+    case SBBaseDirectionAutoRTL:
+        SB_LOG_STRING("Auto-RTL");
+        break;
 
-        case SBBaseDirectionLTR:
-            SB_LOG_STRING("LTR");
-            break;
+    case SBBaseDirectionLTR:
+        SB_LOG_STRING("LTR");
+        break;
 
-        case SBBaseDirectionRTL:
-            SB_LOG_STRING("RTL");
-            break;
+    case SBBaseDirectionRTL:
+        SB_LOG_STRING("RTL");
+        break;
     }
 }
 
-SB_INTERNAL void _SBPrintCharType(SBCharType type) {
+SB_INTERNAL void _SBPrintCharType(SBCharType type)
+{
     switch (type) {
-        case SBCharTypeNil:
-            SB_LOG_STRING("Nil");
-            break;
+    case SBCharTypeNil:
+        SB_LOG_STRING("Nil");
+        break;
 
-        case SBCharTypeL:
-            SB_LOG_STRING("L");
-            break;
+    case SBCharTypeL:
+        SB_LOG_STRING("L");
+        break;
 
-        case SBCharTypeR:
-            SB_LOG_STRING("R");
-            break;
+    case SBCharTypeR:
+        SB_LOG_STRING("R");
+        break;
 
-        case SBCharTypeAL:
-            SB_LOG_STRING("AL");
-            break;
+    case SBCharTypeAL:
+        SB_LOG_STRING("AL");
+        break;
 
-        case SBCharTypeEN:
-            SB_LOG_STRING("EN");
-            break;
+    case SBCharTypeEN:
+        SB_LOG_STRING("EN");
+        break;
 
-        case SBCharTypeES:
-            SB_LOG_STRING("ES");
-            break;
+    case SBCharTypeES:
+        SB_LOG_STRING("ES");
+        break;
 
-        case SBCharTypeET:
-            SB_LOG_STRING("EN");
-            break;
+    case SBCharTypeET:
+        SB_LOG_STRING("EN");
+        break;
 
-        case SBCharTypeAN:
-            SB_LOG_STRING("AN");
-            break;
+    case SBCharTypeAN:
+        SB_LOG_STRING("AN");
+        break;
 
-        case SBCharTypeCS:
-            SB_LOG_STRING("CS");
-            break;
+    case SBCharTypeCS:
+        SB_LOG_STRING("CS");
+        break;
 
-        case SBCharTypeNSM:
-            SB_LOG_STRING("NSM");
-            break;
+    case SBCharTypeNSM:
+        SB_LOG_STRING("NSM");
+        break;
 
-        case SBCharTypeBN:
-            SB_LOG_STRING("BN");
-            break;
+    case SBCharTypeBN:
+        SB_LOG_STRING("BN");
+        break;
 
-        case SBCharTypeB:
-            SB_LOG_STRING("B");
-            break;
+    case SBCharTypeB:
+        SB_LOG_STRING("B");
+        break;
 
-        case SBCharTypeS:
-            SB_LOG_STRING("S");
-            break;
+    case SBCharTypeS:
+        SB_LOG_STRING("S");
+        break;
 
-        case SBCharTypeWS:
-            SB_LOG_STRING("WS");
-            break;
+    case SBCharTypeWS:
+        SB_LOG_STRING("WS");
+        break;
 
-        case SBCharTypeON:
-            SB_LOG_STRING("ON");
-            break;
+    case SBCharTypeON:
+        SB_LOG_STRING("ON");
+        break;
 
-        case SBCharTypeLRE:
-            SB_LOG_STRING("LRE");
-            break;
+    case SBCharTypeLRE:
+        SB_LOG_STRING("LRE");
+        break;
 
-        case SBCharTypeRLE:
-            SB_LOG_STRING("RLE");
-            break;
+    case SBCharTypeRLE:
+        SB_LOG_STRING("RLE");
+        break;
 
-        case SBCharTypeLRO:
-            SB_LOG_STRING("LRO");
-            break;
+    case SBCharTypeLRO:
+        SB_LOG_STRING("LRO");
+        break;
 
-        case SBCharTypeRLO:
-            SB_LOG_STRING("RLO");
-            break;
+    case SBCharTypeRLO:
+        SB_LOG_STRING("RLO");
+        break;
 
-        case SBCharTypePDF:
-            SB_LOG_STRING("PDF");
-            break;
+    case SBCharTypePDF:
+        SB_LOG_STRING("PDF");
+        break;
 
-        case SBCharTypeLRI:
-            SB_LOG_STRING("LRI");
-            break;
+    case SBCharTypeLRI:
+        SB_LOG_STRING("LRI");
+        break;
 
-        case SBCharTypeRLI:
-            SB_LOG_STRING("RLI");
-            break;
+    case SBCharTypeRLI:
+        SB_LOG_STRING("RLI");
+        break;
 
-        case SBCharTypeFSI:
-            SB_LOG_STRING("FSI");
-            break;
+    case SBCharTypeFSI:
+        SB_LOG_STRING("FSI");
+        break;
 
-        case SBCharTypePDI:
-            SB_LOG_STRING("PDI");
-            break;
+    case SBCharTypePDI:
+        SB_LOG_STRING("PDI");
+        break;
     }
 }
 
-SB_INTERNAL void _SBPrintCharactersArray(SBUnichar *characters, SBUInteger length) {
+SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger length)
+{
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
-        SB_LOG(("%04X ", characters[index]));
+        SB_LOG(("%04X ", codepoints[index]));
     }
 }
 
-SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length) {
+SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length)
+{
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
@@ -165,8 +168,9 @@ SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length) {
     }
 }
 
-SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
-    SBUInteger index = 0;
+SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length)
+{
+    SBUInteger index;
 
     for (index = 0; index < length; ++index) {
         SB_LOG_LEVEL(levels[index]);
@@ -174,11 +178,11 @@ SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length) {
     }
 }
 
-SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller) {
-    SBBidiLinkRef link;
-
+SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller)
+{
     SBUInteger offset = 0;
     SBUInteger length = 0;
+    SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
         if (length == 0) {
@@ -198,7 +202,8 @@ SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller) {
     SB_LOG_RANGE(offset, length);
 }
 
-SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller) {
+SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller)
+{
     SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {
@@ -212,7 +217,8 @@ SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller) {
     }
 }
 
-SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller) {
+SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller)
+{
     SBBidiLinkRef link;
 
     for (link = roller->next; link != roller; link = link->next) {

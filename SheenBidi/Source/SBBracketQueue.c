@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
+#include <SBConfig.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <SBConfig.h>
-#include <SBTypes.h>
-
 #include "SBAssert.h"
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
+#include "SBTypes.h"
 #include "SBBracketQueue.h"
 
-static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top) {
+static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top)
+{
     SBUInteger limit = 0;
 
     do {
@@ -42,7 +42,8 @@ static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueu
     } while (list);
 }
 
-SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue) {
+SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue)
+{
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
     queue->_frontList = NULL;
@@ -51,7 +52,8 @@ SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue) {
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction) {
+SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction)
+{
     queue->_frontList = &queue->_firstList;
     queue->_rearList = &queue->_firstList;
     queue->_frontTop = 0;
@@ -61,9 +63,13 @@ SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType directi
     queue->_direction = direction;
 }
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBUnichar bracket) {
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBCodepoint bracket)
+{
     _SBBracketQueueListRef list;
     SBUInteger top;
+
+    /* The queue can only take a maximum of 63 elements. */
+    SBAssert(queue->count < SBBracketQueueGetMaxCapacity());
 
     if (queue->_rearTop != _SB_BRACKET_QUEUE_LIST__MAX_INDEX) {
         list = queue->_rearList;
@@ -91,13 +97,12 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef pr
     list->openingLink[top] = openingLink;
     list->closingLink[top] = NULL;
     list->bracket[top] = bracket;
-    list->strongType[top] = SB_CHAR_TYPE__NIL;
+    list->strongType[top] = SBCharTypeNil;
 }
 
-SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue) {
-    /*
-     * The queue should not be empty.
-     */
+SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue)
+{
+    /* The queue must NOT be empty. */
     SBAssert(queue->count != 0);
 
     if (queue->_frontTop != _SB_BRACKET_QUEUE_LIST__MAX_INDEX) {
@@ -115,7 +120,8 @@ SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue) {
     --queue->count;
 }
 
-SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType strongType) {
+SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType strongType)
+{
     _SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
     SBUInteger limit = 0;
@@ -138,7 +144,8 @@ SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType
     };
 }
 
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBUnichar bracket) {
+SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBCodepoint bracket)
+{
     _SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
     SBUInteger limit = 0;
@@ -170,27 +177,33 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef 
     };
 }
 
-SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue) {
+SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue)
+{
     return queue->shouldDequeue;
 }
 
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetPriorStrongLink(SBBracketQueueRef queue) {
+SB_INTERNAL SBBidiLinkRef SBBracketQueueGetPriorStrongLink(SBBracketQueueRef queue)
+{
     return queue->_frontList->priorStrongLink[queue->_frontTop];
 }
 
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetOpeningLink(SBBracketQueueRef queue) {
+SB_INTERNAL SBBidiLinkRef SBBracketQueueGetOpeningLink(SBBracketQueueRef queue)
+{
     return queue->_frontList->openingLink[queue->_frontTop];
 }
 
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetClosingLink(SBBracketQueueRef queue) {
+SB_INTERNAL SBBidiLinkRef SBBracketQueueGetClosingLink(SBBracketQueueRef queue)
+{
     return queue->_frontList->closingLink[queue->_frontTop];
 }
 
-SB_INTERNAL SBCharType SBBracketQueueGetStrongType(SBBracketQueueRef queue) {
+SB_INTERNAL SBCharType SBBracketQueueGetStrongType(SBBracketQueueRef queue)
+{
     return queue->_frontList->strongType[queue->_frontTop];
 }
 
-SB_INTERNAL void SBBracketQueueFinalize(SBBracketQueueRef queue) {
+SB_INTERNAL void SBBracketQueueFinalize(SBBracketQueueRef queue)
+{
     _SBBracketQueueListRef list = queue->_firstList.next;
     
     while (list) {

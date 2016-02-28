@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,16 @@
 #ifndef _SB_INTERNAL_BRACKET_TYPE_H
 #define _SB_INTERNAL_BRACKET_TYPE_H
 
-#include <SBTypes.h>
-
-#define SB_BRACKET_TYPE                 SBUInt8
-#define SB_BRACKET_TYPE__NONE           0x00
-#define SB_BRACKET_TYPE__OPEN           0x40
-#define SB_BRACKET_TYPE__CLOSE          0x80
-
-#define SB_BRACKET_TYPE__PRIMARY_MASK   \
-(                                       \
-   SB_BRACKET_TYPE__OPEN                \
- | SB_BRACKET_TYPE__CLOSE               \
-)
-
-#define SB_BRACKET_TYPE__INVERSE_MASK   \
-(                                       \
- ~SB_BRACKET_TYPE__PRIMARY_MASK         \
-)
+#include "SBTypes.h"
 
 enum {
-    SBBracketTypeNone  = SB_BRACKET_TYPE__NONE,
-    SBBracketTypeOpen  = SB_BRACKET_TYPE__OPEN,     /**< Opening paired bracket. */
-    SBBracketTypeClose = SB_BRACKET_TYPE__CLOSE     /**< Closing paired bracket. */
+    SBBracketTypeNone  = 0x00,
+    SBBracketTypeOpen  = 0x40,  /**< Opening paired bracket. */
+    SBBracketTypeClose = 0x80,  /**< Closing paired bracket. */
+
+    SBBracketTypePrimaryMask = SBBracketTypeOpen | SBBracketTypeClose,
+    SBBracketTypeInverseMask = ~SBBracketTypePrimaryMask
 };
-typedef SB_BRACKET_TYPE SBBracketType;
+typedef SBUInt8 SBBracketType;
 
 #endif

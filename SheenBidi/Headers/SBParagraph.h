@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #ifndef _SB_PUBLIC_PARAGRAPH_H
 #define _SB_PUBLIC_PARAGRAPH_H
 
-#include "SBTypes.h"
 #include "SBBaseDirection.h"
+#include "SBTypes.h"
 
 struct _SBParagraph;
 typedef struct _SBParagraph SBParagraph;
@@ -30,20 +30,19 @@ typedef enum {
 } SBParagraphOptions;
 
 /**
- * Creates a paragraph object.
- * @param characters
- *      The unicode characters for which the paragraph will be created.
+ * Creates a paragraph object which implements rules P2 to I2 of unicode bidirectional algorithm.
+ * @param codepoints
+ *      The unicode code points for which the paragraph will be created.
  * @param length
- *      The length of the characters defining the end of the paragraph.
+ *      The length of the code points defining the end of the paragraph.
  * @param direction
  *      The base direction on which paragraph will be based.
  * @param options
  *      Desired options for the paragraph.
  * @return
- *      A reference to a paragraph object if the call was successful, NULL
- *      otherwise.
+ *      A reference to a paragraph object if the call was successful, NULL otherwise.
  */
-SBParagraphRef SBParagraphCreateWithUnicodeCharacters(SBUnichar *characters, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options);
+SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options);
 
 /**
  * Provides the base level of the paragraph.

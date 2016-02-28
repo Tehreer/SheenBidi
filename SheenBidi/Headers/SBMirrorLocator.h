@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,40 +25,41 @@ typedef struct _SBMirrorLocator SBMirrorLocator;
 typedef SBMirrorLocator *SBMirrorLocatorRef;
 
 /**
- * A structure containing the information about a character having Bidi_Mirrored
- * property.
+ * A structure containing the information about a code point having Bidi_Mirrored property.
  */
 typedef struct {
-    SBUInteger index;   /**< The absolute index of a character. */
-    SBUnichar mirror;   /**< The mirrored character of an actual character. */
+    SBUInteger index;   /**< The absolute index of the code point. */
+    SBCodepoint mirror; /**< The mirrored of the code point. */
 } SBMirrorAgent;
 typedef SBMirrorAgent *SBMirrorAgentRef;
 
 /**
- * Creates a mirror locator object.
+ * Creates a mirror locator object which can be used to find mirrors in a line.
  * @return
  *      A reference to a mirror locator object.
  */
 SBMirrorLocatorRef SBMirrorLocatorCreate(void);
+
 /**
  * Loads a line in the locator so that its mirror can be located.
  * @param locator
  *      The locator in which the line will be loaded.
  * @param line
  *      The line which will be loaded in the locator.
- * @param characters
- *      The pointer to the characters from which the line/paragraph was created.
+ * @param source
+ *      The pointer to the codepoints from which the line/paragraph was created.
  */
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *characters);
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source);
 
 /**
  * Provides the agent containing the information of current located mirror.
  * @param locator
  *      The locator whose agent you want to obtain.
  */
-const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
+SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
+
 /**
- * Instructs the locator to locate next mirror in the loaded line.
+ * Instructs the locator to find next mirror in the loaded line.
  * @param locator
  *      The locator whom you want to instruct.
  * @return
@@ -67,9 +68,10 @@ const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
  *      The locator will be reset after locating last mirror.
  */
 SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator);
+
 /**
- * Instructs the locator to reset itself so that mirrors of the loaded line can
- * be obatained from the beginning.
+ * Instructs the locator to reset itself so that mirrors of the loaded line can be obatained from
+ * the beginning.
  * @param locator
  *      The locator whom you want to reset.
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@ typedef struct {
 typedef SBRunAgent *SBRunAgentRef;
 
 /**
- * Creates a run adapter object.
+ * Creates a run adapter object which can be used to find the runs of a line.
  * @return
  *      A reference to a run adapter object.
  */
 SBRunAdapterRef SBRunAdapterCreate(void);
+
 /**
  * Loads a line in the adapter so that its runs can be obtained.
  * @param adapter
@@ -54,7 +55,8 @@ void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line);
  * @param adapter
  *      The adapter whose agent you want to obtain.
  */
-const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
+SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
+
 /**
  * Instructs the adapter to fetch information of next run from the loaded line.
  * @param adapter
@@ -65,6 +67,7 @@ const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
  *      The adapter will be reset after fetching information of last run.
  */
 SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter);
+
 /**
  * Instructs the adapter to reset itself so that runs of the loaded line can be
  * obatained from the beginning.

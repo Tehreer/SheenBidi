@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
+#ifndef _SB_INTERNAL_TYPES_H
+#define _SB_INTERNAL_TYPES_H
 
-#ifdef SB_CONFIG_UNITY
+#include <SBTypes.h>
 
-#include "SBBidiChain.c"
-#include "SBBidiLink.c"
-#include "SBBracketQueue.c"
-#include "SBCharTypeLookup.c"
-#include "SBIsolatingRun.c"
-#include "SBLevelRun.c"
-#include "SBLine.c"
-#include "SBLog.c"
-#include "SBMirrorLocator.c"
-#include "SBPairingLookup.c"
-#include "SBParagraph.c"
-#include "SBRunAdapter.c"
-#include "SBRunQueue.c"
-#include "SBStatusStack.c"
-#include "SBTypes.h"
+/**
+ * A value that indicates an invalid unsigned index.
+ */
+#define SBInvalidIndex  (SBUInteger)(-1)
+
+/**
+ * A value that indicates an invalid bidi level.
+ */
+#define SBInvalidLevel  (SBLevel)(-1)
 
 #endif

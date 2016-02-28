@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,33 @@
  * limitations under the License.
  */
 
+#include <SBConfig.h>
+
 #include <stddef.h>
 
-#include <SBConfig.h>
-#include <SBTypes.h>
-
 #include "SBAssert.h"
-#include "SBLog.h"
-
-#include "SBCharType.h"
-#include "SBBracketType.h"
-#include "SBPairingLookup.h"
-
 #include "SBBidiLink.h"
-#include "SBLevelRun.h"
-
 #include "SBBracketQueue.h"
+#include "SBBracketType.h"
+#include "SBCharType.h"
+#include "SBLevelRun.h"
+#include "SBLog.h"
+#include "SBPairingLookup.h"
+#include "SBTypes.h"
 #include "SBIsolatingRun.h"
 
 #define SB_LEVEL_TO_EXACT_TYPE(l)       \
 (                                       \
    ((l) & 1)                            \
- ? SB_CHAR_TYPE__R                      \
- : SB_CHAR_TYPE__L                      \
+ ? SBCharTypeR                          \
+ : SBCharTypeL                          \
 )
 
 #define SB_LEVEL_TO_OPPOSITE_TYPE(l)    \
 (                                       \
  ((l) & 1)                              \
- ? SB_CHAR_TYPE__L                      \
- : SB_CHAR_TYPE__R                      \
+ ? SBCharTypeL                          \
+ : SBCharTypeR                          \
 )
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
@@ -55,12 +52,14 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
 static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun);
 static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun);
 
-SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkMakeEmpty(&isolatingRun->_dummyLink);
     SBBracketQueueInitialize(&isolatingRun->_bracketQueue);
 }
 
-SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef lastLink;
     SBBidiLinkRef subsequentLink;
 
@@ -109,11 +108,13 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun) {
     SB_LOG_BLOCK_CLOSER();
 }
 
-SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun) {
+SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun)
+{
     SBBracketQueueFinalize(&isolatingRun->_bracketQueue);
 }
 
-static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
+static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
+{
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef current;
     SBLevelRunRef next;
@@ -121,39 +122,37 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun) {
     baseLevelRun = isolatingRun->baseLevelRun;
     SBBidiLinkReplaceNext(&isolatingRun->_dummyLink, baseLevelRun->firstLink);
 
-    /*
-     * Iterate over level runs and attach their links to form an isolating run.
-     */
+    /* Iterate over level runs and attach their links to form an isolating run. */
     for (current = baseLevelRun; (next = current->next); current = next) {
         SBBidiLinkReplaceNext(current->lastLink, next->firstLink);
     }
     SBBidiLinkReplaceNext(current->lastLink, &isolatingRun->_dummyLink);
 
     isolatingRun->_lastLevelRun = current;
-    isolatingRun->_sos = SB_RUN_EXTREMA__GET_SOR(baseLevelRun->extrema);
+    isolatingRun->_sos = SBRunExtrema_SOR(baseLevelRun->extrema);
 
-    if (!SB_RUN_KIND__IS_PARTIAL_ISOLATE(baseLevelRun->kind)) {
-        isolatingRun->_eos = SB_RUN_EXTREMA__GET_EOR(current->extrema);
+    if (!SBRunKindIsPartialIsolate(baseLevelRun->kind)) {
+        isolatingRun->_eos = SBRunExtrema_EOR(current->extrema);
     } else {
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;
         SBLevel runLevel = SBLevelRunGetLevel(baseLevelRun);
         SBLevel eosLevel = (runLevel > paragraphLevel ? runLevel : paragraphLevel);
-        isolatingRun->_eos = ((eosLevel & 1) ? SB_CHAR_TYPE__R : SB_CHAR_TYPE__L);
+        isolatingRun->_eos = ((eosLevel & 1) ? SBCharTypeR : SBCharTypeL);
     }
 }
 
-static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun) {
+static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun)
+{
     SBLevelRunRef current;
 
-    /*
-     * Iterate over level runs and attach original subsequent links.
-     */
+    /* Iterate over level runs and attach original subsequent links. */
     for (current = isolatingRun->baseLevelRun; current; current = current->next) {
         SBBidiLinkReplaceNext(current->lastLink, current->subsequentLink);
     }
 }
 
-static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
+static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 
@@ -176,42 +175,33 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
         SBCharType type = link->type;
 
         /* Rule W1 */
-        if (type == SB_CHAR_TYPE__NSM) {
-            /*
-             * Change the 'type' variable as well because it can be EN on which
-             * W2 depends.
-             */
-            link->type = type = (SB_CHAR_TYPE__IS_ISOLATE(w1PriorType)
-                                 ? SB_CHAR_TYPE__ON
-                                 : w1PriorType
-                                );
+        if (type == SBCharTypeNSM) {
+            /* Change the 'type' variable as well because it can be EN on which W2 depends. */
+            link->type = type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
         }
         w1PriorType = type;
 
         /* Rule W2 */
-        if (type == SB_CHAR_TYPE__EN) {
-            if (w2StrongType == SB_CHAR_TYPE__AL) {
-                link->type = SB_CHAR_TYPE__AN;
+        if (type == SBCharTypeEN) {
+            if (w2StrongType == SBCharTypeAL) {
+                link->type = SBCharTypeAN;
             }
         }
         /*
          * Rule W3
-         * Note: It is safe to apply W3 in 'else-if' statement because it only
-         *       depends on type AL. Even if W2 changes EN to AN, there won't
-         *       be any harm.
+         * NOTE: It is safe to apply W3 in 'else-if' statement because it only depends on type AL.
+         *       Even if W2 changes EN to AN, there won't be any harm.
          */
-        else if (type == SB_CHAR_TYPE__AL) {
-            link->type = SB_CHAR_TYPE__R;
+        else if (type == SBCharTypeAL) {
+            link->type = SBCharTypeR;
         }
 
-        if (SB_CHAR_TYPE__IS_STRONG(type)) {
-            /*
-             * Save the strong type as it is checked in W2.
-             */
+        if (SBCharTypeIsStrong(type)) {
+            /* Save the strong type as it is checked in W2. */
             w2StrongType = type;
         }
 
-        if (type != SB_CHAR_TYPE__ON && priorLink->type == type) {
+        if (type != SBCharTypeON && priorLink->type == type) {
             SBBidiLinkMergeNext(priorLink);
         } else {
             priorLink = link;
@@ -229,68 +219,58 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
 
         /* Rule W4 */
         if (link->length == 1
-            && (type == SB_CHAR_TYPE__ES || type == SB_CHAR_TYPE__CS)
-            && SB_CHAR_TYPE__IS_NUMBER(w4PriorType)
+            && SBCharTypeIsNumberSeparator(type)
+            && SBCharTypeIsNumber(w4PriorType)
             && (w4PriorType == nextType)
-            && (w4PriorType == SB_CHAR_TYPE__EN || type == SB_CHAR_TYPE__CS))
+            && (w4PriorType == SBCharTypeEN || type == SBCharTypeCS))
         {
-            /*
-             * Change the current type as well because it can be EN on which W5
-             * depends.
-             */
+            /* Change the current type as well because it can be EN on which W5 depends. */
             link->type = type = w4PriorType;
         }
         w4PriorType = type;
 
         /* Rule W5 */
-        if (type == SB_CHAR_TYPE__ET
-            && (w5PriorType == SB_CHAR_TYPE__EN || nextType == SB_CHAR_TYPE__EN))
-        {
-            /*
-             * Change the current type as well because it is EN on which W7
-             * depends.
-             */
-            link->type = type = SB_CHAR_TYPE__EN;
+        if (type == SBCharTypeET && (w5PriorType == SBCharTypeEN || nextType == SBCharTypeEN)) {
+            /* Change the current type as well because it is EN on which W7 depends. */
+            link->type = type = SBCharTypeEN;
         }
         w5PriorType = type;
 
         switch (type) {
         /* Rule W6 */
-        case SB_CHAR_TYPE__ET:
-        case SB_CHAR_TYPE__CS:
-        case SB_CHAR_TYPE__ES:
-            link->type = SB_CHAR_TYPE__ON;
+        case SBCharTypeET:
+        case SBCharTypeCS:
+        case SBCharTypeES:
+            link->type = SBCharTypeON;
             break;
 
         /*
          * Rule W7
-         * Note: W7 is expected to be applied after W6. However this is not the
-         *       case here. The reason is that W6 can only create the type ON
-         *       which is not tested in W7 by any means. So it won't affect the
-         *       algorithm.
+         * NOTE: W7 is expected to be applied after W6. However this is not the case here. The
+         *       reason is that W6 can only create the type ON which is not tested in W7 by any
+         *       means. So it won't affect the algorithm.
          */
-        case SB_CHAR_TYPE__EN:
-            if (w7StrongType == SB_CHAR_TYPE__L) {
-                link->type = SB_CHAR_TYPE__L;
+        case SBCharTypeEN:
+            if (w7StrongType == SBCharTypeL) {
+                link->type = SBCharTypeL;
             }
             break;
 
         /*
          * Save the strong type for W7.
-         * Note: The strong type is expected to be saved after applying W7
-         *       because W7 itself creates a strong type. However the strong type
-         *       being saved here is based on the type after W5.
-         *       This won't effect the algorithm because a single link contains
-         *       all consecutive EN types. This means that even if W7 creates a
-         *       strong type, it will be saved in next iteration.
+         * NOTE: The strong type is expected to be saved after applying W7 because W7 itself creates
+         *       a strong type. However the strong type being saved here is based on the type after
+         *       W5. This won't effect the algorithm because a single link contains all consecutive
+         *       EN types. This means that even if W7 creates a strong type, it will be saved in
+         *       next iteration.
          */
-        case SB_CHAR_TYPE__L:
-        case SB_CHAR_TYPE__R:
+        case SBCharTypeL:
+        case SBCharTypeR:
             w7StrongType = type;
             break;
         }
 
-        if (type != SB_CHAR_TYPE__ON && priorLink->type == type) {
+        if (type != SBCharTypeON && priorLink->type == type) {
             SBBidiLinkMergeNext(priorLink);
         } else {
             priorLink = link;
@@ -300,8 +280,9 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun) {
     return priorLink;
 }
 
-static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
-    SBUnichar *characters = isolatingRun->characters;
+static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
+{
+    SBCodepoint *codepoints = isolatingRun->codepoints;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
@@ -315,25 +296,29 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
     for (link = roller->next; link != roller; link = link->next) {
-        SBUnichar ch;
+        SBCodepoint ch;
         SBCharType type;
 
-        SBUnichar bracketValue;
+        SBCodepoint bracketValue;
         SBBracketType bracketType;
 
         type = link->type;
 
         switch (type) {
-        case SB_CHAR_TYPE__ON:
-            ch = characters[link->offset];
+        case SBCharTypeON:
+            ch = codepoints[link->offset];
             bracketValue = SBPairingDetermineBracketPair(ch, &bracketType);
 
             switch (bracketType) {
-            case SB_BRACKET_TYPE__OPEN:
-                SBBracketQueueEnqueue(queue, priorStrongLink, link, ch);
+            case SBBracketTypeOpen:
+                if (queue->count < SBBracketQueueGetMaxCapacity()) {
+                    SBBracketQueueEnqueue(queue, priorStrongLink, link, ch);
+                } else {
+                    goto Resolve;
+                }
                 break;
 
-            case SB_BRACKET_TYPE__CLOSE:
+            case SBBracketTypeClose:
                 if (queue->count != 0) {
                     SBBracketQueueClosePair(queue, link, bracketValue);
 
@@ -345,11 +330,12 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
             }
             break;
 
-        case SB_CHAR_TYPE__NUMBER_CASE:
-            type = SB_CHAR_TYPE__R;
+        case SBCharTypeEN:
+        case SBCharTypeAN:
+            type = SBCharTypeR;
 
-        case SB_CHAR_TYPE__R:
-        case SB_CHAR_TYPE__L:
+        case SBCharTypeR:
+        case SBCharTypeL:
             if (queue->count != 0) {
                 SBBracketQueueSetStrongType(queue, type);
             }
@@ -359,10 +345,12 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun) {
         }
     }
 
+Resolve:
     _SBResolveAvailableBracketPairs(isolatingRun);
 }
 
-static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
+{
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
 
     SBLevel runLevel;
@@ -398,15 +386,15 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
                     SBBidiLinkRef link;
 
                     priorStrongType = priorStrongLink->type;
-                    if (SB_CHAR_TYPE__IS_NUMBER(priorStrongType)) {
-                        priorStrongType = SB_CHAR_TYPE__R;
+                    if (SBCharTypeIsNumber(priorStrongType)) {
+                        priorStrongType = SBCharTypeR;
                     }
 
                     link = priorStrongLink->next;
 
                     while (link != openingLink) {
                         SBCharType type = link->type;
-                        if (type == SB_CHAR_TYPE__L || type == SB_CHAR_TYPE__R) {
+                        if (type == SBCharTypeL || type == SBCharTypeR) {
                             priorStrongType = type;
                         }
 
@@ -427,10 +415,10 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
             }
             /* Rule: N0.d */
             else {
-                pairType = SB_CHAR_TYPE__NIL;
+                pairType = SBCharTypeNil;
             }
 
-            if (pairType != SB_CHAR_TYPE__NIL) {
+            if (pairType != SBCharTypeNil) {
                 /* Do the substitution */
                 openingLink->type = pairType;
                 closingLink->type = pairType;
@@ -441,7 +429,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 
@@ -457,37 +446,43 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
         SBCharType type = link->type;
         SBCharType nextType;
 
-        SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type) || SB_CHAR_TYPE__IS_NEUTRAL_OR_ISOLATE(type));
+        SBAssert(SBCharTypeIsStrongOrNumber(type) || SBCharTypeIsNeutralOrIsolate(type));
 
         switch (type) {
-        case SB_CHAR_TYPE__L:
-            strongType = SB_CHAR_TYPE__L;
+        case SBCharTypeL:
+            strongType = SBCharTypeL;
             break;
 
-        case SB_CHAR_TYPE__R:
-        case SB_CHAR_TYPE__NUMBER_CASE:
-            strongType = SB_CHAR_TYPE__R;
+        case SBCharTypeR:
+        case SBCharTypeEN:
+        case SBCharTypeAN:
+            strongType = SBCharTypeR;
             break;
 
-        case SB_CHAR_TYPE__NEUTRAL_CASE:
-        case SB_CHAR_TYPE__ISOLATE_CASE:
+        case SBCharTypeB:                           
+        case SBCharTypeS:
+        case SBCharTypeWS:
+        case SBCharTypeON:
+        case SBCharTypeLRI:
+        case SBCharTypeRLI:                         
+        case SBCharTypeFSI:
+        case SBCharTypePDI:
             if (!neutralLink) {
                 neutralLink = link;
             }
 
             nextType = link->next->type;
-            if (SB_CHAR_TYPE__IS_NUMBER(nextType)) {
-                nextType = SB_CHAR_TYPE__R;
-            } else if (nextType == SB_CHAR_TYPE__NIL) {
+            if (SBCharTypeIsNumber(nextType)) {
+                nextType = SBCharTypeR;
+            } else if (nextType == SBCharTypeNil) {
                 nextType = isolatingRun->_eos;
             }
 
-            if (SB_CHAR_TYPE__IS_STRONG(nextType)) {
+            if (SBCharTypeIsStrong(nextType)) {
                 /* Rules N1, N2 */
                 SBCharType resolvedType = (strongType == nextType
                                             ? strongType
-                                            : SB_LEVEL_TO_EXACT_TYPE(runLevel)
-                                            );
+                                            : SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
                 do {
                     neutralLink->type = resolvedType;
@@ -501,7 +496,8 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun) {
     }
 }
 
-static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
+static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
+{
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
 
@@ -511,12 +507,12 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
         for (link = roller->next; link != roller; link = link->next) {
             SBCharType type = link->type;
             
-            SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type));
+            SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I1 */
-            if (type == SB_CHAR_TYPE__R) {
+            if (type == SBCharTypeR) {
                 link->level += 1;
-            } else if (type != SB_CHAR_TYPE__L) {
+            } else if (type != SBCharTypeL) {
                 link->level += 2;
             }
         }
@@ -524,10 +520,10 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun) {
         for (link = roller->next; link != roller; link = link->next) {
             SBCharType type = link->type;
             
-            SBAssert(SB_CHAR_TYPE__IS_STRONG_OR_NUMBER(type));
+            SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I2 */
-            if (type != SB_CHAR_TYPE__R) {
+            if (type != SBCharTypeR) {
                 link->level += 1;
             }
         }

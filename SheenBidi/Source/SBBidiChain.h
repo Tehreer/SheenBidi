@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_RUN_CHAIN_H
-#define _SB_INTERNAL_RUN_CHAIN_H
+#ifndef _SB_INTERNAL_BIDI_CHAIN_H
+#define _SB_INTERNAL_BIDI_CHAIN_H
 
 #include <SBConfig.h>
-
 #include "SBBidiLink.h"
 
-struct _SBBidiChain;
-typedef struct _SBBidiChain SBBidiChain;
-typedef SBBidiChain *SBBidiChainRef;
-
-struct _SBBidiChain {
+typedef struct _SBBidiChain {
     SBBidiLink _dummy;
     SBBidiLinkRef rollerLink;
     SBBidiLinkRef lastLink;
-};
+} SBBidiChain, *SBBidiChainRef;
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain);
 SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link);

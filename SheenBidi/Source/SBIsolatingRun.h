@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,15 @@
 #define _SB_INTERNAL_ISOLATING_RUN_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
-#include "SBCharType.h"
 #include "SBBidiLink.h"
-#include "SBLevelRun.h"
 #include "SBBracketQueue.h"
+#include "SBCharType.h"
+#include "SBLevelRun.h"
+#include "SBTypes.h"
 
-struct _SBIsolatingRun;
-typedef struct _SBIsolatingRun SBIsolatingRun;
-typedef SBIsolatingRun *SBIsolatingRunRef;
-
-struct _SBIsolatingRun {
-    SBUnichar *characters;
+typedef struct _SBIsolatingRun {
+    SBCodepoint *codepoints;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;
@@ -38,7 +34,7 @@ struct _SBIsolatingRun {
     SBCharType _sos;
     SBCharType _eos;
     SBLevel paragraphLevel;
-};
+} SBIsolatingRun, *SBIsolatingRunRef;
 
 SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun);
 SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun);

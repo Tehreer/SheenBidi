@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,51 +14,54 @@
  * limitations under the License.
  */
 
-#include <stddef.h>
 #include <SBConfig.h>
+#include <stddef.h>
 
 #include "SBAssert.h"
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
-SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor) {
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor)
+{
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;
     levelRun->subsequentLink = lastLink->next;
-    levelRun->extrema = SB_RUN_EXTREMA__MAKE(sor, eor);
-    levelRun->kind = SB_RUN_KIND__MAKE
+    levelRun->extrema = SBRunExtremaMake(sor, eor);
+    levelRun->kind = SBRunKindMake
                      (
-                        SB_CHAR_TYPE__IS_ISOLATE_INITIATOR(lastLink->type),
-                        SB_CHAR_TYPE__IS_ISOLATE_TERMINATOR(firstLink->type)
+                        SBCharTypeIsIsolateInitiator(lastLink->type),
+                        SBCharTypeIsIsolateTerminator(firstLink->type)
                      );
 }
 
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun) {
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun)
+{
     return levelRun->firstLink->level;
 }
 
-SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next) {
+SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next)
+{
     /* Only the runs of same level can be attached. */
     SBAssert(SBLevelRunGetLevel(levelRun) == SBLevelRunGetLevel(next));
     /* No other run can be attached with a simple run. */
-    SBAssert(!SB_RUN_KIND__IS_SIMPLE(levelRun->kind));
+    SBAssert(!SBRunKindIsSimple(levelRun->kind));
     /* No other run can be attached with a complete isolating run. */
-    SBAssert(!SB_RUN_KIND__IS_COMPLETE_ISOLATE(levelRun->kind));
+    SBAssert(!SBRunKindIsCompleteIsolate(levelRun->kind));
     /* Only a terminating run can be attached with an isolating run. */
-    SBAssert(SB_RUN_KIND__IS_ISOLATE(levelRun->kind) && SB_RUN_KIND__IS_TERMINATING(next->kind));
+    SBAssert(SBRunKindIsIsolate(levelRun->kind) && SBRunKindIsTerminating(next->kind));
     /* The next run must be unattached. */
-    SBAssert(!SB_RUN_KIND__IS_ATTACHED_TERMINATING(next->kind));
+    SBAssert(!SBRunKindIsAttachedTerminating(next->kind));
     
-    if (SB_RUN_KIND__IS_TERMINATING(next->kind)) {
-        SB_RUN_KIND__MAKE_ATTACHED(next->kind);
+    if (SBRunKindIsTerminating(next->kind)) {
+        SBRunKindMakeAttached(next->kind);
     }
     
-    if (SB_RUN_KIND__IS_ISOLATE(levelRun->kind)) {
-        SB_RUN_KIND__MAKE_COMPLETE(levelRun->kind);
+    if (SBRunKindIsIsolate(levelRun->kind)) {
+        SBRunKindMakeComplete(levelRun->kind);
     }
     
     levelRun->next = next;

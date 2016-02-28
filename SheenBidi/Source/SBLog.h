@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,22 @@
 #ifndef _SB_INTERNAL_LOG_H
 #define _SB_INTERNAL_LOG_H
 
+#include <SBBaseDirection.h>
 #include <SBConfig.h>
 
 #ifdef SB_CONFIG_LOG
 
 #include <stdio.h>
 
-#include <SBTypes.h>
-#include <SBBaseDirection.h>
-
-#include "SBCharType.h"
 #include "SBBidiLink.h"
+#include "SBCharType.h"
 #include "SBIsolatingRun.h"
+#include "SBTypes.h"
 
 SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction);
 SB_INTERNAL void _SBPrintCharType(SBCharType type);
 
-SB_INTERNAL void _SBPrintCharactersArray(SBUnichar *characters, SBUInteger length);
+SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger length);
 SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 
@@ -101,32 +100,19 @@ do {                                    \
     SB_LOG_BEGIN();                     \
 } while (0)
 
-#define SB_LOG_BLOCK_CLOSER()           \
-SB_LOG_END()
+#define SB_LOG_BLOCK_CLOSER()           SB_LOG_END()
 
-#define SB_LOG_BASE_DIRECTION(d)        \
-_SBPrintBaseDirection(d)
+#define SB_LOG_BASE_DIRECTION(d)        _SBPrintBaseDirection(d)
+#define SB_LOG_CHAR_TYPE(t)             _SBPrintCharType(t)
 
-#define SB_LOG_CHAR_TYPE(t)             \
-_SBPrintCharType(t)
+#define SB_LOG_CODEPOINTS_ARRAY(a, l)   _SBPrintCodepointsArray(a, l)
+#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   _SBPrintCharTypesArray(a, l)
+#define SB_LOG_LEVELS_ARRAY(a, l)       _SBPrintLevelsArray(a, l)
 
-#define SB_LOG_CHARACTERS_ARRAY(a, l)   \
-_SBPrintCharactersArray(a, l)
+#define SB_LOG_LINK_TYPES(r)            _SBPrintLinkTypes(r)
+#define SB_LOG_LINK_LEVELS(r)           _SBPrintLinkLevels(r)
 
-#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   \
-_SBPrintCharTypesArray(a, l)
-
-#define SB_LOG_LEVELS_ARRAY(a, l)       \
-_SBPrintLevelsArray(a, l)
-
-#define SB_LOG_LINK_TYPES(r)            \
-_SBPrintLinkTypes(r)
-
-#define SB_LOG_LINK_LEVELS(r)           \
-_SBPrintLinkLevels(r)
-
-#define SB_LOG_RUN_RANGE(r)             \
-_SBPrintRunRange(r)
+#define SB_LOG_RUN_RANGE(r)             _SBPrintRunRange(r)
 
 #else
 
@@ -155,7 +141,7 @@ _SBPrintRunRange(r)
 #define SB_LOG_BASE_DIRECTION(d)        SB_LOG_NONE()
 #define SB_LOG_CHAR_TYPE(t)             SB_LOG_NONE()
 
-#define SB_LOG_CHARACTERS_ARRAY(a, l)   SB_LOG_NONE()
+#define SB_LOG_CODEPOINTS_ARRAY(a, l)   SB_LOG_NONE()
 #define SB_LOG_CHAR_TYPES_ARRAY(a, l)   SB_LOG_NONE()
 #define SB_LOG_LEVELS_ARRAY(a, l)       SB_LOG_NONE()
 

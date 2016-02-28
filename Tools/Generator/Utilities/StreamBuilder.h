@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ namespace Utilities {
 
 class StreamBuilder {
 public:
-    void append(const std::string &);
-    void append(const StreamBuilder &);
+    StreamBuilder &append(const std::string &);
+    StreamBuilder &append(const StreamBuilder &);
 
-    void appendTab();
-    void appendTabs(size_t);
+    StreamBuilder &appendTab();
+    StreamBuilder &appendTabs(size_t);
 
-    void newLine();
+    StreamBuilder &newLine();
 
 protected:
     static const size_t TAB_LENGTH;

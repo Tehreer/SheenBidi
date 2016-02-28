@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,43 @@
  * limitations under the License.
  */
 
+#include <stddef.h>
 #include <stdlib.h>
-#include <SBTypes.h>
 
 #include "SBLine.h"
 #include "SBPairingLookup.h"
 #include "SBMirrorLocator.h"
+#include "SBTypes.h"
 
-SBMirrorLocatorRef SBMirrorLocatorCreate(void) {
+SBMirrorLocatorRef SBMirrorLocatorCreate(void)
+{
     SBMirrorLocatorRef locator;
 
     locator = malloc(sizeof(SBMirrorLocator));
     locator->_retainCount = 1;
-    locator->_refCharacters = NULL;
+    locator->_refSource = NULL;
     locator->_line = NULL;
     SBMirrorLocatorReset(locator);
 
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *characters) {
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source)
+{
     SBLineRelease(locator->_line);
 
-    locator->_refCharacters = characters;
+    locator->_refSource = source;
     locator->_line = SBLineRetain(line);
 }
 
-const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator) {
+SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
+{
     return &locator->agent;
 }
 
-SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
-    SBUnichar *characters = locator->_refCharacters;
+SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
+{
+    SBCodepoint *codepoints = locator->_refSource;
     SBLineRef line = locator->_line;
 
     do {
@@ -62,7 +67,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
             limit = run->offset + run->length;
 
             for (; index < limit; index++) {
-                SBUnichar mirror = SBPairingDetermineMirror(characters[index]);
+                SBCodepoint mirror = SBPairingDetermineMirror(codepoints[index]);
 
                 if (mirror) {
                     locator->_charIndex = index + 1;
@@ -82,14 +87,16 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator) {
     return SBFalse;
 }
 
-void SBMirrorLocatorReset(SBMirrorLocatorRef locator) {
+void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
+{
     locator->_runIndex = 0;
     locator->_charIndex = SBInvalidIndex;
     locator->agent.index = SBInvalidIndex;
     locator->agent.mirror = 0;
 }
 
-SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator) {
+SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator)
+{
     if (locator) {
         ++locator->_retainCount;
     }
@@ -97,7 +104,8 @@ SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator) {
     return locator;
 }
 
-void SBMirrorLocatorRelease(SBMirrorLocatorRef locator) {
+void SBMirrorLocatorRelease(SBMirrorLocatorRef locator)
+{
     if (locator && --locator->_retainCount == 0) {
         SBLineRelease(locator->_line);
         free(locator);

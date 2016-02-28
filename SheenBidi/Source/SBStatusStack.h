@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,15 @@
 #define _SB_INTERNAL_STATUS_STACK_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBCharType.h"
+#include "SBTypes.h"
 
 #define _SB_STATUS_STACK_LIST__LENGTH      16
 #define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)
 
-struct _SBStatusStack;
 struct _SBStatusStackList;
-
-typedef struct _SBStatusStack SBStatusStack;
 typedef struct _SBStatusStackList _SBStatusStackList;
-
-typedef SBStatusStack *SBStatusStackRef;
 typedef _SBStatusStackList *_SBStatusStackListRef;
 
 struct _SBStatusStackList {
@@ -43,12 +38,12 @@ struct _SBStatusStackList {
     SBLevel embeddingLevel[_SB_STATUS_STACK_LIST__LENGTH];
 };
 
-struct _SBStatusStack {
+typedef struct _SBStatusStack {
     _SBStatusStackList _firstList;
     _SBStatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
-};
+} SBStatusStack, *SBStatusStackRef;
 
 SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack);
 SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
+#include <SBConfig.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <SBConfig.h>
-#include <SBTypes.h>
-
 #include "SBAssert.h"
 #include "SBCharType.h"
+#include "SBTypes.h"
 #include "SBStatusStack.h"
 
-SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack)
+{
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
     
     SBStatusStackSetEmpty(stack);
 }
 
-SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus) {
+SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus)
+{
     _SBStatusStackListRef list;
     SBUInteger top;
 
-    /*
-     * The stack can hold upto 127 elements.
-     */
+    /* The stack can hold upto 127 elements. */
     SBAssert(stack->count <= 127);
 
     if (stack->_peekTop != _SB_STATUS_STACK_LIST__MAX_INDEX) {
@@ -67,7 +66,8 @@ SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLeve
     list->isolateStatus[top]= isolateStatus;
 }
 
-SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack)
+{
     /* The stack should not be empty. */
     SBAssert(stack->count != 0);
 
@@ -80,25 +80,30 @@ SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack) {
     --stack->count;
 }
 
-SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack)
+{
     stack->_peekList = &stack->_firstList;
     stack->_peekTop = 0;
     stack->count = 0;
 }
 
-SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack) {
+SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack)
+{
     return stack->_peekList->embeddingLevel[stack->_peekTop];
 }
 
-SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack) {
+SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack)
+{
     return stack->_peekList->overrideStatus[stack->_peekTop];
 }
 
-SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack) {
+SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack)
+{
     return stack->_peekList->isolateStatus[stack->_peekTop];
 }
 
-SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack) {
+SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack)
+{
     _SBStatusStackListRef list = stack->_firstList.next;
 
     while (list) {
