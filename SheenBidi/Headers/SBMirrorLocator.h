@@ -56,7 +56,7 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *s
  * @param locator
  *      The locator whose agent you want to obtain.
  */
-const SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
+SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
 
 /**
  * Instructs the locator to find next mirror in the loaded line.

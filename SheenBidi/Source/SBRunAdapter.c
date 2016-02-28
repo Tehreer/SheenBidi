@@ -39,7 +39,7 @@ void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line)
     adapter->_line = SBLineRetain(line);
 }
 
-const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter)
+SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter)
 {
     return &adapter->agent;
 }

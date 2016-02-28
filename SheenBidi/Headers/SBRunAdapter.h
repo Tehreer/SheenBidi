@@ -55,7 +55,7 @@ void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line);
  * @param adapter
  *      The adapter whose agent you want to obtain.
  */
-const SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
+SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
 
 /**
  * Instructs the adapter to fetch information of next run from the loaded line.
