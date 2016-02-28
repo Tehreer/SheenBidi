@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-#include <SBTypes.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
 #include "SBLine.h"
+#include "SBTypes.h"
 #include "SBRunAdapter.h"
 
 SBRunAdapterRef SBRunAdapterCreate(void)

@@ -18,12 +18,12 @@
 #define _SB_INTERNAL_ISOLATING_RUN_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBBidiLink.h"
 #include "SBBracketQueue.h"
 #include "SBCharType.h"
 #include "SBLevelRun.h"
+#include "SBTypes.h"
 
 typedef struct _SBIsolatingRun {
     SBCodepoint *codepoints;

@@ -18,7 +18,6 @@
 #define _SB_INTERNAL_LEVEL_RUN_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBBidiLink.h"
 #include "SBCharType.h"

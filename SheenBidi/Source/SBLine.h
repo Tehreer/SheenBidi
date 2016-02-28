@@ -19,7 +19,8 @@
 
 #include <SBConfig.h>
 #include <SBLine.h>
-#include <SBTypes.h>
+
+#include "SBTypes.h"
 
 typedef struct _SBRun {
     SBUInteger offset;

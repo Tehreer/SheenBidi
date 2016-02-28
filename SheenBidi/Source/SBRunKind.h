@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_RUN_KIND_H
 #define _SB_INTERNAL_RUN_KIND_H
 
-#include <SBTypes.h>
+#include "SBTypes.h"
 
 enum {
     SBRunKindSimple         = 0x00,

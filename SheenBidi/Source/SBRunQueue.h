@@ -18,9 +18,9 @@
 #define _SB_INTERNAL_RUN_QUEUE_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBLevelRun.h"
+#include "SBTypes.h"
 
 #define _SB_RUN_QUEUE_LIST__LENGTH     8
 #define _SB_RUN_QUEUE_LIST__MAX_INDEX  (_SB_RUN_QUEUE_LIST__LENGTH - 1)

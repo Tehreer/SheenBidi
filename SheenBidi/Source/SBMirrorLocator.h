@@ -18,9 +18,9 @@
 #define _SB_INTERNAL_MIRROR_LOCATOR_H
 
 #include <SBMirrorLocator.h>
-#include <SBTypes.h>
 
 #include "SBLine.h"
+#include "SBTypes.h"
 
 struct _SBMirrorLocator {
     SBUInteger _retainCount;

@@ -16,13 +16,13 @@
 
 #include <SBBaseDirection.h>
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #ifdef SB_CONFIG_LOG
 
 #include "SBBidiLink.h"
 #include "SBCharType.h"
 #include "SBIsolatingRun.h"
+#include "SBTypes.h"
 #include "SBLog.h"
 
 int _SBLogPosition = 0;

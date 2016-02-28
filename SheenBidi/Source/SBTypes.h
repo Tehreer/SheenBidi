@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
+#ifndef _SB_INTERNAL_TYPES_H
+#define _SB_INTERNAL_TYPES_H
 
-#ifdef SB_CONFIG_UNITY
-
-#include "SBBidiChain.c"
-#include "SBBidiLink.c"
-#include "SBBracketQueue.c"
-#include "SBCharTypeLookup.c"
-#include "SBIsolatingRun.c"
-#include "SBLevelRun.c"
-#include "SBLine.c"
-#include "SBLog.c"
-#include "SBMirrorLocator.c"
-#include "SBPairingLookup.c"
-#include "SBParagraph.c"
-#include "SBRunAdapter.c"
-#include "SBRunQueue.c"
-#include "SBStatusStack.c"
-#include "SBTypes.h"
+#include <SBTypes.h>
 
 #endif

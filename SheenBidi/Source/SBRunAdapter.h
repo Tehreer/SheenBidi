@@ -18,9 +18,9 @@
 #define _SB_INTERNAL_RUN_ADAPTER_H
 
 #include <SBRunAdapter.h>
-#include <SBTypes.h>
 
 #include "SBLine.h"
+#include "SBTypes.h"
 
 struct _SBRunAdapter {
     SBUInteger _retainCount;

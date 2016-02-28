@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_CHAR_TYPE_H
 #define _SB_INTERNAL_CHAR_TYPE_H
 
-#include <SBTypes.h>
+#include "SBTypes.h"
 
 enum {
     SBCharTypeNil = 0x00,
@@ -26,13 +26,13 @@ enum {
     SBCharTypeR   = 0x02,   /**< Strong: Right-to-Left */
     SBCharTypeAL  = 0x03,   /**< Strong: Right-to-Left Arabic */
 
-    SBCharTypeEN  = 0x04,   /**< Weak: European Number */
-    SBCharTypeAN  = 0x05,   /**< Weak: Arabic Number */
-    SBCharTypeET  = 0x06,   /**< Weak: European Number Terminator */
-    SBCharTypeNSM = 0x07,   /**< Weak: Non-Spacing Mark */
-    SBCharTypeBN  = 0x08,   /**< Weak: Boundary Neutral */
-    SBCharTypeCS  = 0x09,   /**< Weak: Common Number Separator */
-    SBCharTypeES  = 0x0A,   /**< Weak: European Number Separator */
+    SBCharTypeBN  = 0x04,   /**< Weak: Boundary Neutral */
+    SBCharTypeNSM = 0x05,   /**< Weak: Non-Spacing Mark */
+    SBCharTypeAN  = 0x06,   /**< Weak: Arabic Number */
+    SBCharTypeEN  = 0x07,   /**< Weak: European Number */
+    SBCharTypeET  = 0x08,   /**< Weak: European Number Terminator */
+    SBCharTypeES  = 0x09,   /**< Weak: European Number Separator */
+    SBCharTypeCS  = 0x0A,   /**< Weak: Common Number Separator */
 
     SBCharTypeB   = 0x0B,   /**< Neutral: Paragraph Separator */
     SBCharTypeS   = 0x0C,   /**< Neutral: Segment Separator */
@@ -64,16 +64,16 @@ typedef SBUInt8 SBCharType;
 )
 
 #define SBCharTypeIsStrong(t)               _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAL)
-#define SBCharTypeIsWeak(t)                 _SBCharTypeInRange(t, SBCharTypeEN, SBCharTypeES)
+#define SBCharTypeIsWeak(t)                 _SBCharTypeInRange(t, SBCharTypeBN, SBCharTypeCS)
 #define SBCharTypeIsNeutral(t)              _SBCharTypeInRange(t, SBCharTypeB, SBCharTypeON)
 #define SBCharTypeIsFormat(t)               _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDF)
 
-#define SBCharTypeIsNumber(t)               _SBCharTypeInRange(t, SBCharTypeEN, SBCharTypeAN)
-#define SBCharTypeIsSeparator(t)            _SBCharTypeInRange(t, SBCharTypeCS, SBCharTypeS)
+#define SBCharTypeIsNumber(t)               _SBCharTypeInRange(t, SBCharTypeAN, SBCharTypeEN)
+#define SBCharTypeIsSeparator(t)            _SBCharTypeInRange(t, SBCharTypeES, SBCharTypeS)
 #define SBCharTypeIsIsolate(t)              _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDI)
 
-#define SBCharTypeIsStrongOrNumber(t)       _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAN)
-#define SBCharTypeIsNumberSeparator(t)      _SBCharTypeInRange(t, SBCharTypeCS, SBCharTypeES)
+#define SBCharTypeIsStrongOrNumber(t)       (SBCharTypeIsStrong(t) || SBCharTypeIsNumber(t))
+#define SBCharTypeIsNumberSeparator(t)      _SBCharTypeInRange(t, SBCharTypeES, SBCharTypeCS)
 #define SBCharTypeIsIsolateInitiator(t)     _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypeFSI)
 #define SBCharTypeIsIsolateTerminator(t)    _SBCharTypeIsEqual(t, SBCharTypePDI)
 #define SBCharTypeIsNeutralOrIsolate(t)     _SBCharTypeInRange(t, SBCharTypeB, SBCharTypePDI)

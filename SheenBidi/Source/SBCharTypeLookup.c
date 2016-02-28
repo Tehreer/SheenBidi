@@ -3,10 +3,6 @@
  * DO NOT EDIT!!
  */
 
-#include <SBConfig.h>
-#include <SBTypes.h>
-
-#include "SBCharType.h"
 #include "SBCharTypeLookup.h"
 
 #define AL      SBCharTypeAL 

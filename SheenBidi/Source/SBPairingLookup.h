@@ -3,13 +3,13 @@
  * DO NOT EDIT!!
  */
 
-#ifndef _SB_INTERNAL_CHAR_TYPE_LOOKUP_H
-#define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H
+#ifndef _SB_INTERNAL_PAIRING_LOOKUP_H
+#define _SB_INTERNAL_PAIRING_LOOKUP_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBBracketType.h"
+#include "SBTypes.h"
 
 SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);
 SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *bracketType);

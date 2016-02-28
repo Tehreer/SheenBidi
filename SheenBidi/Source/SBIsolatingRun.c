@@ -15,7 +15,6 @@
  */
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include <stddef.h>
 
@@ -27,6 +26,7 @@
 #include "SBLevelRun.h"
 #include "SBLog.h"
 #include "SBPairingLookup.h"
+#include "SBTypes.h"
 #include "SBIsolatingRun.h"
 
 #define SB_LEVEL_TO_EXACT_TYPE(l)       \

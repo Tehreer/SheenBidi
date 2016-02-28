@@ -7,9 +7,9 @@
 #define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBCharType.h"
+#include "SBTypes.h"
 
 SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint);
 

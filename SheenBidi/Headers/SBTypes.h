@@ -21,14 +21,6 @@
 #include <stdint.h>
 
 /**
- * A type to represent a boolean value.
- */
-typedef enum {
-    SBFalse = 0, /**< A value representing the false state. */
-    SBTrue  = 1  /**< A value representing the true state. */
-} SBBoolean;
-
-/**
  * A type to represent an 8-bit signed integer.
  */
 typedef int8_t          SBInt8;
@@ -59,6 +51,15 @@ typedef uint16_t        SBUInt16;
 typedef uint32_t        SBUInt32;
 
 /**
+ * A type to represent a boolean value.
+ */
+enum {
+    SBFalse = 0, /**< A value representing the false state. */
+    SBTrue  = 1  /**< A value representing the true state. */
+};
+typedef SBUInt8         SBBoolean;
+
+/**
  * A signed integer type whose width is equal to the width of the machine word.
  */
 typedef intptr_t        SBInteger;
@@ -67,16 +68,6 @@ typedef intptr_t        SBInteger;
  * An unsigned integer type whose width is equal to the width of the machine word.
  */
 typedef uintptr_t       SBUInteger;
-
-/**
- * An unsigned integer type which can hold any array index.
- */
-typedef size_t          SBIndex;
-
-/**
- * A value that indicates an invalid unsigned index.
- */
-#define SBInvalidIndex  (SBIndex)(-1)
 
 /**
  * A type to represent a unicode code point.
@@ -89,8 +80,22 @@ typedef SBUInt32        SBCodepoint;
 typedef SBUInt8         SBLevel;
 
 /**
+ * A value that indicates an invalid unsigned index.
+ */
+#define SBInvalidIndex  (SBUInteger)(-1)
+
+/**
  * A value that indicates an invalid bidi level.
  */
-#define SBInvalidLevel  UINT8_MAX
+#define SBInvalidLevel  (SBLevel)(-1)
+
+/**
+ * Finds the mirror of the provided code point.
+ * @param codepoint
+ *      The code point whose mirror you want to find.
+ * @return
+ *      The mirror of the provided code point if available, 0 otherwise.
+ */
+SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
 
 #endif

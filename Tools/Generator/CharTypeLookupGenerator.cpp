@@ -378,9 +378,9 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     header.append("#define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H").newLine();
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
-    header.append("#include <SBTypes.h>").newLine();
     header.newLine();
     header.append("#include \"SBCharType.h\"").newLine();
+    header.append("#include \"SBTypes.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint);").newLine();
     header.newLine();
@@ -392,10 +392,6 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     source.append(" * DO NOT EDIT!!").newLine();
     source.append(" */").newLine();
     source.newLine();
-    source.append("#include <SBConfig.h>").newLine();
-    source.append("#include <SBTypes.h>").newLine();
-    source.newLine();
-    source.append("#include \"SBCharType.h\"").newLine();
     source.append("#include \"SBCharTypeLookup.h\"").newLine();
     source.newLine();
     for (auto ct : charTypes) {

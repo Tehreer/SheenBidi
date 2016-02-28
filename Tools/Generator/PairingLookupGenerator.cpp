@@ -325,13 +325,13 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     header.append(" * DO NOT EDIT!!").newLine();
     header.append(" */").newLine();
     header.newLine();
-    header.append("#ifndef _SB_INTERNAL_CHAR_TYPE_LOOKUP_H").newLine();
-    header.append("#define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H").newLine();
+    header.append("#ifndef _SB_INTERNAL_PAIRING_LOOKUP_H").newLine();
+    header.append("#define _SB_INTERNAL_PAIRING_LOOKUP_H").newLine();
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
-    header.append("#include <SBTypes.h>").newLine();
     header.newLine();
     header.append("#include \"SBBracketType.h\"").newLine();
+    header.append("#include \"SBTypes.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);").newLine();
     header.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *bracketType);").newLine();
@@ -344,10 +344,6 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     source.append(" * DO NOT EDIT!!").newLine();
     source.append(" */").newLine();
     source.newLine();
-    source.append("#include <SBConfig.h>").newLine();
-    source.append("#include <SBTypes.h>").newLine();
-    source.newLine();
-    source.append("#include \"SBBracketType.h\"").newLine();
     source.append("#include \"SBPairingLookup.h\"").newLine();
     source.newLine();
     source.append(arrDifferences);

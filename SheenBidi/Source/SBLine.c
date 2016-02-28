@@ -15,12 +15,11 @@
  */
 
 #include <SBConfig.h>
-#include <SBTypes.h>
-
 #include <stdlib.h>
 
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
+#include "SBTypes.h"
 #include "SBLine.h"
 
 struct _SBLineSupport;

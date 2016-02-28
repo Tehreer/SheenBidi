@@ -19,7 +19,6 @@
 
 #include <SBBaseDirection.h>
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #ifdef SB_CONFIG_LOG
 
@@ -28,6 +27,7 @@
 #include "SBBidiLink.h"
 #include "SBCharType.h"
 #include "SBIsolatingRun.h"
+#include "SBTypes.h"
 
 SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction);
 SB_INTERNAL void _SBPrintCharType(SBCharType type);

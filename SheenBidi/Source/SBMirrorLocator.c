@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include <SBTypes.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
 #include "SBLine.h"
 #include "SBPairingLookup.h"
 #include "SBMirrorLocator.h"
+#include "SBTypes.h"
 
 SBMirrorLocatorRef SBMirrorLocatorCreate(void)
 {

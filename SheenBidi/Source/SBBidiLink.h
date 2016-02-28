@@ -18,9 +18,9 @@
 #define _SB_INTERNAL_BIDI_LINK_H
 
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include "SBCharType.h"
+#include "SBTypes.h"
 
 struct _SBBidiLink;
 typedef struct _SBBidiLink SBBidiLink;

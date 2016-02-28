@@ -16,7 +16,6 @@
 
 #include <SBBaseDirection.h>
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -31,6 +30,7 @@
 #include "SBLog.h"
 #include "SBRunQueue.h"
 #include "SBStatusStack.h"
+#include "SBTypes.h"
 #include "SBParagraph.h"
 
 #define SB_MAX(a, b)                    \

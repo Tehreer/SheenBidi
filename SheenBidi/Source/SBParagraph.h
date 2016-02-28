@@ -19,9 +19,9 @@
 
 #include <SBConfig.h>
 #include <SBParagraph.h>
-#include <SBTypes.h>
 
 #include "SBCharType.h"
+#include "SBTypes.h"
 
 struct _SBParagraph {
     SBUInteger _retainCount;

@@ -3,10 +3,6 @@
  * DO NOT EDIT!!
  */
 
-#include <SBConfig.h>
-#include <SBTypes.h>
-
-#include "SBBracketType.h"
 #include "SBPairingLookup.h"
 
 static const SBInt16 _SBPairDifferences[] = {
