@@ -1,0 +1,336 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6E9CA0D31C783180001B7BAC /* CharTypeLookupGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0BF1C783180001B7BAC /* CharTypeLookupGenerator.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D41C783180001B7BAC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0C11C783180001B7BAC /* main.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D51C783180001B7BAC /* PairingLookupGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0C21C783180001B7BAC /* PairingLookupGenerator.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D61C783180001B7BAC /* ArrayBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0C51C783180001B7BAC /* ArrayBuilder.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D71C783180001B7BAC /* BidiClassDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0C71C783180001B7BAC /* BidiClassDetector.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D81C783180001B7BAC /* Converter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0C91C783180001B7BAC /* Converter.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0D91C783180001B7BAC /* FileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0CB1C783180001B7BAC /* FileBuilder.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0DA1C783180001B7BAC /* Math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0CD1C783180001B7BAC /* Math.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0DB1C783180001B7BAC /* StreamBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0CF1C783180001B7BAC /* StreamBuilder.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0DC1C783180001B7BAC /* TextBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E9CA0D11C783180001B7BAC /* TextBuilder.cpp */; settings = {ASSET_TAGS = (); }; };
+		6E9CA0DE1C7831A8001B7BAC /* libSheenBidiParser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E9CA0DD1C7831A8001B7BAC /* libSheenBidiParser.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6E5346A01C2E9A8900C23837 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		6E5346A21C2E9A8900C23837 /* SheenBidiGenerator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SheenBidiGenerator; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E9CA0BF1C783180001B7BAC /* CharTypeLookupGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CharTypeLookupGenerator.cpp; sourceTree = "<group>"; };
+		6E9CA0C01C783180001B7BAC /* CharTypeLookupGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CharTypeLookupGenerator.h; sourceTree = "<group>"; };
+		6E9CA0C11C783180001B7BAC /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		6E9CA0C21C783180001B7BAC /* PairingLookupGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PairingLookupGenerator.cpp; sourceTree = "<group>"; };
+		6E9CA0C31C783180001B7BAC /* PairingLookupGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PairingLookupGenerator.h; sourceTree = "<group>"; };
+		6E9CA0C51C783180001B7BAC /* ArrayBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArrayBuilder.cpp; sourceTree = "<group>"; };
+		6E9CA0C61C783180001B7BAC /* ArrayBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayBuilder.h; sourceTree = "<group>"; };
+		6E9CA0C71C783180001B7BAC /* BidiClassDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BidiClassDetector.cpp; sourceTree = "<group>"; };
+		6E9CA0C81C783180001B7BAC /* BidiClassDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BidiClassDetector.h; sourceTree = "<group>"; };
+		6E9CA0C91C783180001B7BAC /* Converter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Converter.cpp; sourceTree = "<group>"; };
+		6E9CA0CA1C783180001B7BAC /* Converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Converter.h; sourceTree = "<group>"; };
+		6E9CA0CB1C783180001B7BAC /* FileBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileBuilder.cpp; sourceTree = "<group>"; };
+		6E9CA0CC1C783180001B7BAC /* FileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBuilder.h; sourceTree = "<group>"; };
+		6E9CA0CD1C783180001B7BAC /* Math.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Math.cpp; sourceTree = "<group>"; };
+		6E9CA0CE1C783180001B7BAC /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
+		6E9CA0CF1C783180001B7BAC /* StreamBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StreamBuilder.cpp; sourceTree = "<group>"; };
+		6E9CA0D01C783180001B7BAC /* StreamBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamBuilder.h; sourceTree = "<group>"; };
+		6E9CA0D11C783180001B7BAC /* TextBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextBuilder.cpp; sourceTree = "<group>"; };
+		6E9CA0D21C783180001B7BAC /* TextBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextBuilder.h; sourceTree = "<group>"; };
+		6E9CA0DD1C7831A8001B7BAC /* libSheenBidiParser.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSheenBidiParser.a; path = build/Debug/libSheenBidiParser.a; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6E53469F1C2E9A8900C23837 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E9CA0DE1C7831A8001B7BAC /* libSheenBidiParser.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6E5346991C2E9A8900C23837 = {
+			isa = PBXGroup;
+			children = (
+				6E5346AC1C2E9AC000C23837 /* Generator */,
+				6E5346CD1C2E9B1600C23837 /* Libraries */,
+				6E5346A31C2E9A8900C23837 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6E5346A31C2E9A8900C23837 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6E5346A21C2E9A8900C23837 /* SheenBidiGenerator */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6E5346AC1C2E9AC000C23837 /* Generator */ = {
+			isa = PBXGroup;
+			children = (
+				6E9CA0C41C783180001B7BAC /* Utilities */,
+				6E9CA0BF1C783180001B7BAC /* CharTypeLookupGenerator.cpp */,
+				6E9CA0C01C783180001B7BAC /* CharTypeLookupGenerator.h */,
+				6E9CA0C11C783180001B7BAC /* main.cpp */,
+				6E9CA0C21C783180001B7BAC /* PairingLookupGenerator.cpp */,
+				6E9CA0C31C783180001B7BAC /* PairingLookupGenerator.h */,
+			);
+			name = Generator;
+			path = Tools/Generator;
+			sourceTree = "<group>";
+		};
+		6E5346CD1C2E9B1600C23837 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				6E9CA0DD1C7831A8001B7BAC /* libSheenBidiParser.a */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		6E9CA0C41C783180001B7BAC /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				6E9CA0C51C783180001B7BAC /* ArrayBuilder.cpp */,
+				6E9CA0C61C783180001B7BAC /* ArrayBuilder.h */,
+				6E9CA0C71C783180001B7BAC /* BidiClassDetector.cpp */,
+				6E9CA0C81C783180001B7BAC /* BidiClassDetector.h */,
+				6E9CA0C91C783180001B7BAC /* Converter.cpp */,
+				6E9CA0CA1C783180001B7BAC /* Converter.h */,
+				6E9CA0CB1C783180001B7BAC /* FileBuilder.cpp */,
+				6E9CA0CC1C783180001B7BAC /* FileBuilder.h */,
+				6E9CA0CD1C783180001B7BAC /* Math.cpp */,
+				6E9CA0CE1C783180001B7BAC /* Math.h */,
+				6E9CA0CF1C783180001B7BAC /* StreamBuilder.cpp */,
+				6E9CA0D01C783180001B7BAC /* StreamBuilder.h */,
+				6E9CA0D11C783180001B7BAC /* TextBuilder.cpp */,
+				6E9CA0D21C783180001B7BAC /* TextBuilder.h */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6E5346A11C2E9A8900C23837 /* SheenBidiGenerator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6E5346A91C2E9A8900C23837 /* Build configuration list for PBXNativeTarget "SheenBidiGenerator" */;
+			buildPhases = (
+				6E53469E1C2E9A8900C23837 /* Sources */,
+				6E53469F1C2E9A8900C23837 /* Frameworks */,
+				6E5346A01C2E9A8900C23837 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SheenBidiGenerator;
+			productName = SheenFigureGenerator;
+			productReference = 6E5346A21C2E9A8900C23837 /* SheenBidiGenerator */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6E53469A1C2E9A8900C23837 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Muhammad Tayyab Akram";
+				TargetAttributes = {
+					6E5346A11C2E9A8900C23837 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+				};
+			};
+			buildConfigurationList = 6E53469D1C2E9A8900C23837 /* Build configuration list for PBXProject "SheenBidiGenerator" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6E5346991C2E9A8900C23837;
+			productRefGroup = 6E5346A31C2E9A8900C23837 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6E5346A11C2E9A8900C23837 /* SheenBidiGenerator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6E53469E1C2E9A8900C23837 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E9CA0DC1C783180001B7BAC /* TextBuilder.cpp in Sources */,
+				6E9CA0D51C783180001B7BAC /* PairingLookupGenerator.cpp in Sources */,
+				6E9CA0DB1C783180001B7BAC /* StreamBuilder.cpp in Sources */,
+				6E9CA0D41C783180001B7BAC /* main.cpp in Sources */,
+				6E9CA0D31C783180001B7BAC /* CharTypeLookupGenerator.cpp in Sources */,
+				6E9CA0DA1C783180001B7BAC /* Math.cpp in Sources */,
+				6E9CA0D71C783180001B7BAC /* BidiClassDetector.cpp in Sources */,
+				6E9CA0D81C783180001B7BAC /* Converter.cpp in Sources */,
+				6E9CA0D91C783180001B7BAC /* FileBuilder.cpp in Sources */,
+				6E9CA0D61C783180001B7BAC /* ArrayBuilder.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6E5346A71C2E9A8900C23837 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)/SheenBidi",
+					"$(PROJECT_DIR)/SheenBidi/Headers",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6E5346A81C2E9A8900C23837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)/SheenBidi",
+					"$(PROJECT_DIR)/SheenBidi/Headers",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6E5346AA1C2E9A8900C23837 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug",
+				);
+				PRODUCT_NAME = SheenBidiGenerator;
+			};
+			name = Debug;
+		};
+		6E5346AB1C2E9A8900C23837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug",
+				);
+				PRODUCT_NAME = SheenBidiGenerator;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6E53469D1C2E9A8900C23837 /* Build configuration list for PBXProject "SheenBidiGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E5346A71C2E9A8900C23837 /* Debug */,
+				6E5346A81C2E9A8900C23837 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6E5346A91C2E9A8900C23837 /* Build configuration list for PBXNativeTarget "SheenBidiGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E5346AA1C2E9A8900C23837 /* Debug */,
+				6E5346AB1C2E9A8900C23837 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6E53469A1C2E9A8900C23837 /* Project object */;
+}
