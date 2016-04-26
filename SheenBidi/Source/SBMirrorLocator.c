@@ -41,6 +41,8 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *s
 
     locator->_refSource = source;
     locator->_line = SBLineRetain(line);
+
+    SBMirrorLocatorReset(locator);
 }
 
 SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
@@ -53,36 +55,38 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
     SBCodepoint *codepoints = locator->_refSource;
     SBLineRef line = locator->_line;
 
-    do {
-        SBRunRef run = &line->fixedRuns[locator->_runIndex];
+    if (line && codepoints) {
+        do {
+            SBRunRef run = &line->fixedRuns[locator->_runIndex];
 
-        if (run->level & 1) {
-            SBUInteger index;
-            SBUInteger limit;
+            if (run->level & 1) {
+                SBUInteger index;
+                SBUInteger limit;
 
-            index = locator->_charIndex;
-            if (index == SBInvalidIndex) {
-                index = run->offset;
-            }
-            limit = run->offset + run->length;
+                index = locator->_charIndex;
+                if (index == SBInvalidIndex) {
+                    index = run->offset;
+                }
+                limit = run->offset + run->length;
 
-            for (; index < limit; index++) {
-                SBCodepoint mirror = SBPairingDetermineMirror(codepoints[index]);
+                for (; index < limit; index++) {
+                    SBCodepoint mirror = SBPairingDetermineMirror(codepoints[index]);
 
-                if (mirror) {
-                    locator->_charIndex = index + 1;
-                    locator->agent.index = index;
-                    locator->agent.mirror = mirror;
-                    
-                    return SBTrue;
+                    if (mirror) {
+                        locator->_charIndex = index + 1;
+                        locator->agent.index = index;
+                        locator->agent.mirror = mirror;
+
+                        return SBTrue;
+                    }
                 }
             }
-        }
-
-        locator->_charIndex = SBInvalidIndex;
-    } while (++locator->_runIndex < line->runCount);
-
-    SBMirrorLocatorReset(locator);
+            
+            locator->_charIndex = SBInvalidIndex;
+        } while (++locator->_runIndex < line->runCount);
+        
+        SBMirrorLocatorReset(locator);
+    }
     
     return SBFalse;
 }

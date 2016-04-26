@@ -42,7 +42,25 @@ typedef enum {
  * @return
  *      A reference to a paragraph object if the call was successful, NULL otherwise.
  */
-SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options);
+SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options);
+
+/**
+ * Provides the offset of the paragraph in original code point array.
+ * @param paragraph
+ *      The paragraph whose offset you want to obtain.
+ * @return
+ *      The offset of the paragraph passed in.
+ */
+SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph);
+
+/**
+ * Provides the length of the paragraph in original code point array.
+ * @param paragraph
+ *      The paragraph whose length you want to obtain.
+ * @return
+ *      The length of the paragraph passed in.
+ */
+SBUInteger SBParagraphGetLength(SBParagraphRef paragraph);
 
 /**
  * Provides the base level of the paragraph.

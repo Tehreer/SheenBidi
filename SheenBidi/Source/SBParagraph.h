@@ -28,6 +28,7 @@ struct _SBParagraph {
 
     SBCharType *fixedTypes;
     SBLevel *fixedLevels;
+    SBUInteger offset;
     SBUInteger length;
     SBLevel baseLevel;
 };

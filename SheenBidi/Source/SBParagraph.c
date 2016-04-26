@@ -614,9 +614,11 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
     }
 }
 
-SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options)
+SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options)
 {
-    if (codepoints && length) {
+    SBUInteger maxOffset = offset + length;
+
+    if (codepoints && length > 0 && maxOffset <= length && offset <= maxOffset) {
         SBUInteger runCount;
         
         SBParagraphRef paragraph;
@@ -627,7 +629,8 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
         SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINTS_ARRAY(codepoints, length));
         SB_LOG_STATEMENT("Direction",  1, SB_LOG_BASE_DIRECTION(direction));
         SB_LOG_BLOCK_CLOSER();
-        
+
+        codepoints += offset;
         paragraph = _SBParagraphAllocate(length);
         runCount = _SBDetermineCharTypes(codepoints, paragraph->fixedTypes, length);
         
@@ -653,7 +656,8 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
         SB_LOG_BLOCK_OPENER("Determined Levels");
         SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
         SB_LOG_BLOCK_CLOSER();
-        
+
+        paragraph->offset = offset;
         paragraph->length = length;
         paragraph->baseLevel = baseLevel;
         paragraph->_retainCount = 1;
@@ -666,6 +670,16 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
     }
     
     return NULL;
+}
+
+SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph)
+{
+    return paragraph->offset;
+}
+
+SBUInteger SBParagraphGetLength(SBParagraphRef paragraph)
+{
+    return paragraph->length;
 }
 
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph)

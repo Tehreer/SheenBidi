@@ -283,26 +283,41 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options)
+SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBLineOptions options)
 {
-    SBParagraphRef paragraph;
-    SBLineRef line;
+    if (codepoints && length) {
+        SBParagraphRef paragraph;
+        SBLineRef line;
 
-    paragraph = SBParagraphCreateWithCodepoints(codepoints, length, direction, SBParagraphOptionsNone);
-    line = SBLineCreateWithParagraph(paragraph, 0, length, options);
+        paragraph = SBParagraphCreateWithCodepoints(codepoints, 0, length, direction, SBParagraphOptionsDefault);
+        line = SBLineCreateWithParagraph(paragraph, 0, length, options);
 
-    SBParagraphRelease(paragraph);
+        SBParagraphRelease(paragraph);
 
-    return line;
+        return line;
+    }
+
+    return NULL;
 }
 
 SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options)
 {
-    return _SBLineCreate(paragraph->fixedTypes,
-                         paragraph->fixedLevels,
-                         offset, length,
-                         paragraph->baseLevel,
-                         options);
+    SBUInteger paragraphOffset = paragraph->offset;
+    SBUInteger paragraphLength = paragraph->length;
+    SBUInteger maxParagraphOffset = paragraphOffset + paragraphLength;
+    SBUInteger maxLineOffset = offset + length;
+
+    if (paragraph && length > 0 && offset >= paragraphOffset && maxLineOffset <= maxParagraphOffset) {
+        SBUInteger innerOffset = offset - paragraphOffset;
+
+        return _SBLineCreate(paragraph->fixedTypes + innerOffset,
+                             paragraph->fixedLevels + innerOffset,
+                             offset, length,
+                             paragraph->baseLevel,
+                             options);
+    }
+
+    return NULL;
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line)

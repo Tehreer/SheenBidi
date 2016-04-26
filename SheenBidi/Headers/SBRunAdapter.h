@@ -31,8 +31,7 @@ typedef struct {
     SBUInteger offset;  /**< The offset of a run from the start of a paragraph. */
     SBUInteger length;  /**< The length of a run. */
     SBLevel level;      /**< The bidi level of a run. */
-} SBRunAgent;
-typedef SBRunAgent *SBRunAgentRef;
+} SBRunAgent, *SBRunAgentRef;
 
 /**
  * Creates a run adapter object which can be used to find the runs of a line.
@@ -40,6 +39,15 @@ typedef SBRunAgent *SBRunAgentRef;
  *      A reference to a run adapter object.
  */
 SBRunAdapterRef SBRunAdapterCreate(void);
+
+/**
+ * Loads a paragraph in the adapter so that its runs can be obtained.
+ * @param adapter
+ *      The adapter in which the paragraph will be loaded.
+ * @param paragraph
+ *      The paragraph which will be loaded in the adapter.
+ */
+void SBRunAdapterLoadParagraph(SBRunAdapterRef adapter, SBParagraphRef paragraph);
 
 /**
  * Loads a line in the adapter so that its runs can be obtained.
@@ -58,7 +66,7 @@ void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line);
 SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter);
 
 /**
- * Instructs the adapter to fetch information of next run from the loaded line.
+ * Instructs the adapter to fetch information of next run from the loaded paragraph or line.
  * @param adapter
  *      The adapter whom you want to instruct.
  * @return

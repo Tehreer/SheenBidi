@@ -42,7 +42,7 @@ typedef enum {
  * @return
  *      A reference to a line object if the call was successful, NULL otherwise.
  */
-SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger length, SBBaseDirection direction, SBLineOptions options);
+SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBLineOptions options);
 
 /**
  * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.

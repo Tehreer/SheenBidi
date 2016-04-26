@@ -19,14 +19,24 @@
 
 #include <SBRunAdapter.h>
 
+#include "SBParagraph.h"
 #include "SBLine.h"
 #include "SBTypes.h"
 
+enum {
+    _SBRunAdapterTypeNone = 0,
+    _SBRunAdapterTypeParagraph = 1,
+    _SBRunAdapterTypeLine = 2
+};
+typedef SBUInteger _SBRunAdapterType;
+
 struct _SBRunAdapter {
-    SBUInteger _retainCount;
+    SBParagraphRef _paragraph;
     SBLineRef _line;
+    _SBRunAdapterType _type;
     SBUInteger _index;
     SBRunAgent agent;
+    SBUInteger _retainCount;
 };
 
 #endif

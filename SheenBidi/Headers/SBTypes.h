@@ -70,14 +70,14 @@ enum {
 typedef SBUInt8         SBBoolean;
 
 /**
- * A type to represent a unicode code point.
- */
-typedef SBUInt32        SBCodepoint;
-
-/**
  * A type to represent a bidi level.
  */
 typedef SBUInt8         SBLevel;
+
+/**
+ * A type to represent a unicode code point.
+ */
+typedef SBUInt32        SBCodepoint;
 
 /**
  * Finds the mirror of the provided code point.
