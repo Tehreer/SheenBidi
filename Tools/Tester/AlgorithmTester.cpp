@@ -278,7 +278,7 @@ bool AlgorithmTester::testMirrors() const {
 bool AlgorithmTester::conductTest() {
     bool passed = true;
 
-    SBParagraphRef paragraph = SBParagraphCreateWithCodepoints((SBCodepoint *)m_genChars, m_charCount, m_paragraphDirection, SBParagraphOptionsNone);
+    SBParagraphRef paragraph = SBParagraphCreateWithCodepoints((SBCodepoint *)m_genChars, 0, m_charCount, m_paragraphDirection, SBParagraphOptionsNone);
     SBLevel paragraphlevel = SBParagraphGetBaseLevel(paragraph);
     if (m_paragraphLevel == LEVEL_X) {
         m_paragraphLevel = paragraphlevel;

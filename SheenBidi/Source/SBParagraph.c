@@ -68,7 +68,7 @@ static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support);
 
 static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
 
-static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length);
+static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length, SBUInteger *outLinkCount);
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length);
 
 static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink);
@@ -144,11 +144,14 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
     return paragraph;
 }
 
-static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length)
+static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length, SBUInteger *outLinkCount)
 {
     SBUInteger linkCount;
     SBCharType newType;
     SBUInteger index;
+
+    /* The parameter 'outLinkCount' must NOT be null. */
+    SBAssert(outLinkCount != NULL);
 
     linkCount = 0;
     newType = SBCharTypeNil;
@@ -173,6 +176,12 @@ static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *typ
             ++linkCount;
             break;
 
+        case SBCharTypeB:
+            /* No need to proceed further as the paragraph ends here. */
+            ++linkCount;
+            length = index;
+            break;
+
         default:
             if (newType != priorType) {
                 ++linkCount;
@@ -183,7 +192,9 @@ static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *typ
         types[index] = newType;
     }
 
-    return linkCount;
+    *outLinkCount = linkCount;
+
+    return index;
 }
 
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length)
@@ -619,9 +630,10 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
     SBUInteger maxOffset = offset + length;
 
     if (codepoints && length > 0 && maxOffset <= length && offset <= maxOffset) {
-        SBUInteger runCount;
-        
         SBParagraphRef paragraph;
+        SBUInteger actualLength;
+        SBUInteger runCount;
+
         _SBParagraphSupportRef support;
         SBLevel baseLevel;
         
@@ -632,14 +644,14 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
 
         codepoints += offset;
         paragraph = _SBParagraphAllocate(length);
-        runCount = _SBDetermineCharTypes(codepoints, paragraph->fixedTypes, length);
+        actualLength = _SBDetermineCharTypes(codepoints, paragraph->fixedTypes, length, &runCount);
         
         SB_LOG_BLOCK_OPENER("Determined Types");
-        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, length));
+        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, actualLength));
         SB_LOG_BLOCK_CLOSER();
         
         support = _SBParagraphSupportAllocate(runCount + 1);
-        _SBParagraphSupportInitialize(support, codepoints, paragraph->fixedTypes, paragraph->fixedLevels, length);
+        _SBParagraphSupportInitialize(support, codepoints, paragraph->fixedTypes, paragraph->fixedLevels, actualLength);
         
         baseLevel = _SBDetermineParagraphLevel(&support->bidiChain, direction);
         
@@ -654,11 +666,11 @@ SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteg
         _SBSaveLevels(&support->bidiChain, support->refLevels, baseLevel);
         
         SB_LOG_BLOCK_OPENER("Determined Levels");
-        SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
+        SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
         SB_LOG_BLOCK_CLOSER();
 
         paragraph->offset = offset;
-        paragraph->length = length;
+        paragraph->length = actualLength;
         paragraph->baseLevel = baseLevel;
         paragraph->_retainCount = 1;
         
