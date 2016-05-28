@@ -282,7 +282,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 
 static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 {
-    SBCodepoint *codepoints = isolatingRun->codepoints;
+    SBCodepointSequenceRef sequence = isolatingRun->codepointSequence;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;
@@ -296,7 +296,8 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
     for (link = roller->next; link != roller; link = link->next) {
-        SBCodepoint ch;
+        SBUInteger bufferIndex;
+        SBCodepoint codepoint;
         SBCharType type;
 
         SBCodepoint bracketValue;
@@ -306,13 +307,14 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
         switch (type) {
         case SBCharTypeON:
-            ch = codepoints[link->offset];
-            bracketValue = SBPairingDetermineBracketPair(ch, &bracketType);
+            bufferIndex = link->offset;
+            codepoint = SBCodepointSequenceGetCodepointAt(sequence, &bufferIndex);
+            bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
 
             switch (bracketType) {
             case SBBracketTypeOpen:
                 if (queue->count < SBBracketQueueGetMaxCapacity()) {
-                    SBBracketQueueEnqueue(queue, priorStrongLink, link, ch);
+                    SBBracketQueueEnqueue(queue, priorStrongLink, link, codepoint);
                 } else {
                     goto Resolve;
                 }

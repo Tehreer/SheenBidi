@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Muhammad Tayyab Akram
+ * Copyright (C) 2016 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_BASE_DIRECTION_H
-#define _SB_PUBLIC_BASE_DIRECTION_H
+#ifndef _SB_INTERNAL_CODEPOINT_SEQUENCE_H
+#define _SB_INTERNAL_CODEPOINT_SEQUENCE_H
+
+#include <SBConfig.h>
+#include <SBCodepointSequence.h>
 
 #include "SBTypes.h"
 
 enum {
-    SBBaseDirectionAutoLTR = 0x2000,
-    SBBaseDirectionAutoRTL = 0x4000,
-    SBBaseDirectionLTR     = 0x6000,
-    SBBaseDirectionRTL     = 0x8000
+    SBEncodingUnknown = 0,
+    SBEncodingUTF8 = 1,
+    SBEncodingUTF16 = 2,
+    SBEncodingUTF32 = 3
 };
-typedef SBUInt32 SBBaseDirection;
+typedef SBUInt32 SBEncoding;
+
+struct _SBCodepointSequence {
+    SBEncoding _encoding;
+    void *buffer;
+    SBUInteger length;
+    SBUInteger _retainCount;
+};
+
+SB_INTERNAL void SBCodepointSequenceInitialize(SBCodepointSequenceRef codepointSequence);
 
 #endif

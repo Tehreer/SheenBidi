@@ -22,6 +22,7 @@
 #include "SBBidiLink.c"
 #include "SBBracketQueue.c"
 #include "SBCharTypeLookup.c"
+#include "SBCodepointSequence.c"
 #include "SBIsolatingRun.c"
 #include "SBLevelRun.c"
 #include "SBLine.c"

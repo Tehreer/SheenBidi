@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#include <SBBaseDirection.h>
 #include <SBConfig.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -25,6 +23,7 @@
 #include "SBBidiLink.h"
 #include "SBCharType.h"
 #include "SBCharTypeLookup.h"
+#include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
 #include "SBLevelRun.h"
 #include "SBLog.h"
@@ -38,8 +37,6 @@
  (a) > (b) ? (a) : (b)                  \
 )
 
-#define SB_LEVEL_MAX                    125
-
 #define SB_LEVEL_TO_TYPE(l)             \
 (                                       \
    ((l) & 1)                            \
@@ -52,7 +49,6 @@ typedef struct _SBParagraphSupport _SBParagraphSupport;
 typedef _SBParagraphSupport *_SBParagraphSupportRef;
 
 struct _SBParagraphSupport {
-    SBCodepoint *refCodepoints;
     SBCharType *refTypes;
     SBLevel *refLevels;
     SBBidiLink *fixedLinks;
@@ -63,17 +59,17 @@ struct _SBParagraphSupport {
 };
 
 static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount);
-static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCodepoint *codepoints, SBCharType *types, SBLevel *levels, SBUInteger length);
+static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger length);
 static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support);
 
 static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
 
-static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length, SBUInteger *outLinkCount);
+static SBUInteger _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *types, SBUInteger *outLinkCount);
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length);
 
 static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink);
 static SBLevel _SBDetermineBaseLevel(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink, SBLevel defaultLevel, SBBoolean isIsolate);
-static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection);
+static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBLevel baseLevel);
 
 static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel);
 static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
@@ -98,9 +94,8 @@ static _SBParagraphSupportRef _SBParagraphSupportAllocate(SBUInteger linkCount)
     return support;
 }
 
-static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCodepoint *codepoints, SBCharType *types, SBLevel *levels, SBUInteger length)
+static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger length)
 {
-    support->refCodepoints = codepoints;
     support->refTypes = types;
     support->refLevels = levels;
 
@@ -144,21 +139,38 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
     return paragraph;
 }
 
-static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *types, SBUInteger length, SBUInteger *outLinkCount)
+static SBUInteger _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *types, SBUInteger *outLinkCount)
 {
     SBUInteger linkCount;
+    SBCodepoint codepoint;
     SBCharType newType;
-    SBUInteger index;
+    SBUInteger bufferIndex;
+    SBUInteger firstIndex;
 
     /* The parameter 'outLinkCount' must NOT be null. */
     SBAssert(outLinkCount != NULL);
 
     linkCount = 0;
     newType = SBCharTypeNil;
+    firstIndex = bufferIndex = 0;
 
-    for (index = 0; index < length; ++index) {
-        SBCodepoint codepoint = codepoints[index];
+    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &bufferIndex)) != SBCodepointInvalid) {
+        SBUInteger lastIndex = bufferIndex - 1;
         SBCharType priorType = newType;
+
+        /* Previous code units get 'BN' type. */
+        if (firstIndex < lastIndex) {
+            newType = SBCharTypeBN;
+            if (priorType != newType) {
+                ++linkCount;
+            }
+
+            do {
+                types[firstIndex] = newType;
+            } while (++firstIndex < lastIndex);
+
+            priorType = newType;
+        }
 
         newType = SBCharTypeDetermine(codepoint);
 
@@ -176,12 +188,6 @@ static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *typ
             ++linkCount;
             break;
 
-        case SBCharTypeB:
-            /* No need to proceed further as the paragraph ends here. */
-            ++linkCount;
-            length = index;
-            break;
-
         default:
             if (newType != priorType) {
                 ++linkCount;
@@ -189,12 +195,13 @@ static SBUInteger _SBDetermineCharTypes(SBCodepoint *codepoints, SBCharType *typ
             break;
         }
 
-        types[index] = newType;
+        types[firstIndex] = newType;
+        firstIndex = bufferIndex;
     }
 
     *outLinkCount = linkCount;
 
-    return index;
+    return bufferIndex;
 }
 
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length)
@@ -318,27 +325,15 @@ Default:
     return defaultLevel;
 }
 
-static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBBaseDirection baseDirection)
+static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBLevel baseLevel)
 {
-    SBLevel level;
-
-    switch (baseDirection) {
-    case SBBaseDirectionLTR:
-        level = 0;
-        break;
-
-    case SBBaseDirectionRTL:
-        level = 1;
-        break;
-
-    default:
-        level = _SBDetermineBaseLevel(chain->rollerLink, chain->rollerLink,
-                                      baseDirection != SBBaseDirectionAutoRTL ? 0 : 1,
-                                      SBFalse);
-        break;
+    if (baseLevel >= SBLevelMax) {
+        return _SBDetermineBaseLevel(chain->rollerLink, chain->rollerLink,
+                                    (baseLevel != SBLevelDefaultRTL ? 0 : 1),
+                                    SBFalse);
     }
 
-    return level;
+    return baseLevel;
 }
 
 static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel)
@@ -398,7 +393,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         bnEquivalent = SBTrue;                                              \
         newLevel = l;                                                       \
                                                                             \
-        if (newLevel <= SB_LEVEL_MAX && !overIsolate && !overEmbedding) {   \
+        if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
             SBStatusStackPush(stack, newLevel, o, SBFalse);                 \
         } else {                                                            \
             if (!overIsolate) {                                             \
@@ -414,7 +409,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         link->level = SBStatusStackGetEmbeddingLevel(stack);                \
         newLevel = l;                                                       \
                                                                             \
-        if (newLevel <= SB_LEVEL_MAX && !overIsolate && !overEmbedding) {   \
+        if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
             ++validIsolate;                                                 \
             SBStatusStackPush(stack, newLevel, o, SBTrue);                  \
         } else {                                                            \
@@ -523,6 +518,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
              * last code in the array.
              */
             SBStatusStackSetEmpty(stack);
+            SBStatusStackPush(stack, baseLevel, SBCharTypeON, SBFalse);
 
             overIsolate = 0;
             overEmbedding = 0;
@@ -625,53 +621,52 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
     }
 }
 
-SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options)
+SBParagraphRef SBParagraphCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel)
 {
-    SBUInteger maxOffset = offset + length;
+    SBUInteger length = codepointSequence->length;
 
-    if (codepoints && length > 0 && maxOffset <= length && offset <= maxOffset) {
+    if (length > 0) {
         SBParagraphRef paragraph;
         SBUInteger actualLength;
         SBUInteger runCount;
 
         _SBParagraphSupportRef support;
-        SBLevel baseLevel;
+        SBLevel resolvedLevel;
         
-        SB_LOG_BLOCK_OPENER("Input");
-        SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINTS_ARRAY(codepoints, length));
-        SB_LOG_STATEMENT("Direction",  1, SB_LOG_BASE_DIRECTION(direction));
+        SB_LOG_BLOCK_OPENER("Paragraph Input");
+        SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
+        SB_LOG_STATEMENT("Direction",  1, SB_LOG_BASE_LEVEL(baseLevel));
         SB_LOG_BLOCK_CLOSER();
 
-        codepoints += offset;
         paragraph = _SBParagraphAllocate(length);
-        actualLength = _SBDetermineCharTypes(codepoints, paragraph->fixedTypes, length, &runCount);
+        actualLength = _SBDetermineCharTypes(codepointSequence, paragraph->fixedTypes, &runCount);
         
         SB_LOG_BLOCK_OPENER("Determined Types");
         SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, actualLength));
         SB_LOG_BLOCK_CLOSER();
         
         support = _SBParagraphSupportAllocate(runCount + 1);
-        _SBParagraphSupportInitialize(support, codepoints, paragraph->fixedTypes, paragraph->fixedLevels, actualLength);
+        _SBParagraphSupportInitialize(support, paragraph->fixedTypes, paragraph->fixedLevels, actualLength);
         
-        baseLevel = _SBDetermineParagraphLevel(&support->bidiChain, direction);
+        resolvedLevel = _SBDetermineParagraphLevel(&support->bidiChain, baseLevel);
         
         SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
-        SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(baseLevel));
+        SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(resolvedLevel));
         SB_LOG_BLOCK_CLOSER();
 
-        support->isolatingRun.codepoints = codepoints;
-        support->isolatingRun.paragraphLevel = baseLevel;
+        support->isolatingRun.codepointSequence = codepointSequence;
+        support->isolatingRun.paragraphLevel = resolvedLevel;
         
-        _SBDetermineLevels(support, baseLevel);
-        _SBSaveLevels(&support->bidiChain, support->refLevels, baseLevel);
+        _SBDetermineLevels(support, resolvedLevel);
+        _SBSaveLevels(&support->bidiChain, support->refLevels, resolvedLevel);
         
         SB_LOG_BLOCK_OPENER("Determined Levels");
         SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
         SB_LOG_BLOCK_CLOSER();
 
-        paragraph->offset = offset;
+        paragraph->offset = 0;
         paragraph->length = actualLength;
-        paragraph->baseLevel = baseLevel;
+        paragraph->baseLevel = resolvedLevel;
         paragraph->_retainCount = 1;
         
         _SBParagraphSupportDeallocate(support);

@@ -17,6 +17,7 @@
 #ifndef _SB_PUBLIC_LINE_H
 #define _SB_PUBLIC_LINE_H
 
+#include "SBCodepointSequence.h"
 #include "SBTypes.h"
 #include "SBParagraph.h"
 
@@ -24,25 +25,16 @@ struct _SBLine;
 typedef struct _SBLine SBLine;
 typedef SBLine *SBLineRef;
 
-typedef enum {
-    SBLineOptionsNone = 0,
-    SBLineOptionsDefault = SBLineOptionsNone
-} SBLineOptions;
-
 /**
  * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
- * @param codepoints
- *      The unicode code points for which the line will be created.
- * @param length
- *      The length of the code points defining the end of the line.
- * @param direction
- *      The base direction on which the line will be based.
- * @param options
- *      Desired options for the line.
+ * @param codepointSequence
+ *      An SBCodepointSequence object, describing the line text.
+ * @param baseLevel
+ *      The desired base level of the line.
  * @return
  *      A reference to a line object if the call was successful, NULL otherwise.
  */
-SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBLineOptions options);
+SBLineRef SBLineCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel);
 
 /**
  * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
@@ -52,12 +44,10 @@ SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset,
  *      The starting index of the line inside the paragraph.
  * @param length
  *      The length of the line.
- * @param options
- *      Desired options for the line.
  * @return
  *      A reference to a line object if the call was successful, Null otherwise.
  */
-SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options);
+SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length);
 
 /**
  * Provides the offset of the line.

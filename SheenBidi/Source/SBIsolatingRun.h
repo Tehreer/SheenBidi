@@ -22,11 +22,12 @@
 #include "SBBidiLink.h"
 #include "SBBracketQueue.h"
 #include "SBCharType.h"
+#include "SBCodepointSequence.h"
 #include "SBLevelRun.h"
 #include "SBTypes.h"
 
 typedef struct _SBIsolatingRun {
-    SBCodepoint *codepoints;
+    SBCodepointSequenceRef codepointSequence;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;

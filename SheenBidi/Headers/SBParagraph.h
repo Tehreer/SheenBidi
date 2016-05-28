@@ -17,32 +17,23 @@
 #ifndef _SB_PUBLIC_PARAGRAPH_H
 #define _SB_PUBLIC_PARAGRAPH_H
 
-#include "SBBaseDirection.h"
+#include "SBCodepointSequence.h"
 #include "SBTypes.h"
 
 struct _SBParagraph;
 typedef struct _SBParagraph SBParagraph;
 typedef SBParagraph *SBParagraphRef;
 
-typedef enum {
-    SBParagraphOptionsNone = 0,
-    SBParagraphOptionsDefault = SBParagraphOptionsNone
-} SBParagraphOptions;
-
 /**
  * Creates a paragraph object which implements rules P2 to I2 of unicode bidirectional algorithm.
- * @param codepoints
- *      The unicode code points for which the paragraph will be created.
- * @param length
- *      The length of the code points defining the end of the paragraph.
- * @param direction
- *      The base direction on which paragraph will be based.
- * @param options
- *      Desired options for the paragraph.
+ * @param codepointSequence
+ *      An SBCodepointSequence object, describing the paragraph text.
+ * @param baseLevel
+ *      The desired base level of the paragraph.
  * @return
  *      A reference to a paragraph object if the call was successful, NULL otherwise.
  */
-SBParagraphRef SBParagraphCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBParagraphOptions options);
+SBParagraphRef SBParagraphCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel);
 
 /**
  * Provides the offset of the paragraph in original code point array.

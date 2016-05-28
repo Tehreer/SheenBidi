@@ -46,13 +46,14 @@ private:
     size_t testCounter;
     size_t failCounter;
 
+    SBCodepointSequenceRef m_codepointSequence;
     SBRunAdapterRef m_runAdapter;
     SBMirrorLocatorRef m_mirrorLocator;
 
     SBCodepoint m_genChars[128];
     SBUInteger m_charCount;
 
-    SBBaseDirection m_paragraphDirection;
+    SBLevel m_inputLevel;
     uint8_t m_paragraphLevel;
 
     uint32_t m_genMirrors[128];

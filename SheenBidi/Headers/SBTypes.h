@@ -23,42 +23,42 @@
 /**
  * A type to represent an 8-bit signed integer.
  */
-typedef int8_t          SBInt8;
+typedef int8_t                      SBInt8;
 
 /**
  * A type to represent a 16-bit signed integer.
  */
-typedef int16_t         SBInt16;
+typedef int16_t                     SBInt16;
 
 /**
  * A type to represent a 32-bit signed integer.
  */
-typedef int32_t         SBInt32;
+typedef int32_t                     SBInt32;
 
 /**
  * A type to represent an 8-bit unsigned integer.
  */
-typedef uint8_t         SBUInt8;
+typedef uint8_t                     SBUInt8;
 
 /**
  * A type to represent a 16-bit unsigned integer.
  */
-typedef uint16_t        SBUInt16;
+typedef uint16_t                    SBUInt16;
 
 /**
  * A type to represent a 32-bit unsigned integer.
  */
-typedef uint32_t        SBUInt32;
+typedef uint32_t                    SBUInt32;
 
 /**
  * A signed integer type whose width is equal to the width of the machine word.
  */
-typedef intptr_t        SBInteger;
+typedef intptr_t                    SBInteger;
 
 /**
  * An unsigned integer type whose width is equal to the width of the machine word.
  */
-typedef uintptr_t       SBUInteger;
+typedef uintptr_t                   SBUInteger;
 
 /**
  * A type to represent a boolean value.
@@ -67,17 +67,47 @@ enum {
     SBFalse = 0, /**< A value representing the false state. */
     SBTrue  = 1  /**< A value representing the true state. */
 };
-typedef SBUInt8         SBBoolean;
+typedef SBUInt8                     SBBoolean;
 
 /**
  * A type to represent a bidi level.
  */
-typedef SBUInt8         SBLevel;
+typedef SBUInt8                     SBLevel;
+
+/**
+ * A value representing an invalid bidi level.
+ */
+#define SBLevelInvalid              0xFF
+
+/**
+ * A value representing maximum explicit embedding level.
+ */
+#define SBLevelMax                  125
+
+/**
+ * A value defaulting base level to zero (left-to-right) if there is no strong character.
+ */
+#define SBLevelDefaultLTR           0xFE
+
+/**
+ * A value defaulting base level to one (right-to-left) if there is no strong character.
+ */
+#define SBLevelDefaultRTL           0xFD
 
 /**
  * A type to represent a unicode code point.
  */
-typedef SBUInt32        SBCodepoint;
+typedef SBUInt32                    SBCodepoint;
+
+/**
+ * A value representing an invalid code point.
+ */
+#define SBCodepointInvalid          UINT32_MAX
+
+/**
+ * A value representing a faulty code point, used as a replacement by the decoder.
+ */
+#define SBCodepointFaulty           0xFFFD
 
 /**
  * Finds the mirror of the provided code point.

@@ -17,6 +17,7 @@
 #include <SBConfig.h>
 #include <stdlib.h>
 
+#include "SBCodepointSequence.h"
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
 #include "SBTypes.h"
@@ -47,11 +48,11 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger len
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
 static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
-static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel, SBLineOptions options);
+static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
 
 static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
-    SBLevel lastLevel = SBInvalidLevel;
+    SBLevel lastLevel = SBLevelInvalid;
     SBLevel maxLevel = 0;
     SBUInteger totalRuns = 0;
 
@@ -260,7 +261,7 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
     }
 }
 
-static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel, SBLineOptions options)
+static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     _SBLineSupportRef support;
     SBLineRef line;
@@ -283,24 +284,21 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithCodepoints(SBCodepoint *codepoints, SBUInteger offset, SBUInteger length, SBBaseDirection direction, SBLineOptions options)
+SBLineRef SBLineCreateWithCodepoints(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel)
 {
-    if (codepoints && length) {
-        SBParagraphRef paragraph;
-        SBLineRef line;
+    SBParagraphRef paragraph = SBParagraphCreate(codepointSequence, baseLevel);
+    SBLineRef line = NULL;
 
-        paragraph = SBParagraphCreateWithCodepoints(codepoints, 0, length, direction, SBParagraphOptionsDefault);
-        line = SBLineCreateWithParagraph(paragraph, 0, length, options);
+    if (paragraph) {
+        line = SBLineCreateWithParagraph(paragraph, paragraph->offset, paragraph->length);
 
         SBParagraphRelease(paragraph);
-
-        return line;
     }
 
-    return NULL;
+    return line;
 }
 
-SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length, SBLineOptions options)
+SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length)
 {
     SBUInteger paragraphOffset = paragraph->offset;
     SBUInteger paragraphLength = paragraph->length;
@@ -313,8 +311,7 @@ SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset,
         return _SBLineCreate(paragraph->fixedTypes + innerOffset,
                              paragraph->fixedLevels + innerOffset,
                              offset, length,
-                             paragraph->baseLevel,
-                             options);
+                             paragraph->baseLevel);
     }
 
     return NULL;

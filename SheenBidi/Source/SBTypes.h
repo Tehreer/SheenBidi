@@ -24,9 +24,24 @@
  */
 #define SBInvalidIndex  (SBUInteger)(-1)
 
-/**
- * A value that indicates an invalid bidi level.
- */
-#define SBInvalidLevel  (SBLevel)(-1)
+#define SBUInt8InRange(v, s, e)     \
+(                                   \
+    (SBUInt8)((v) - (s))            \
+ <= (SBUInt8)((e) - (s))            \
+)
+
+#define SBUInt16InRange(v, s, e)    \
+(                                   \
+    (SBUInt16)((v) - (s))           \
+ <= (SBUInt16)((e) - (s))           \
+)
+
+#define SBUInt32InRange(v, s, e)    \
+(                                   \
+    (SBUInt32)((v) - (s))           \
+ <= (SBUInt32)((e) - (s))           \
+)
+
+#define SBCodepointInRange(v, s, e) SBUInt32InRange(v, s, e)
 
 #endif

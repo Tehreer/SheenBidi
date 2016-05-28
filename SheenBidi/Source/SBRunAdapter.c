@@ -44,14 +44,17 @@ static void _SBRunAdapterUnload(SBRunAdapterRef adapter)
 
     adapter->_paragraph = NULL;
     adapter->_line = NULL;
+    adapter->_type = _SBRunAdapterTypeNone;
 }
 
 void SBRunAdapterLoadParagraph(SBRunAdapterRef adapter, SBParagraphRef paragraph)
 {
     _SBRunAdapterUnload(adapter);
 
-    adapter->_paragraph = SBParagraphRetain(paragraph);
-    adapter->_type = _SBRunAdapterTypeParagraph;
+    if (paragraph) {
+        adapter->_paragraph = SBParagraphRetain(paragraph);
+        adapter->_type = _SBRunAdapterTypeParagraph;
+    }
 
     SBRunAdapterReset(adapter);
 }
@@ -60,8 +63,10 @@ void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line)
 {
     _SBRunAdapterUnload(adapter);
 
-    adapter->_line = SBLineRetain(line);
-    adapter->_type = _SBRunAdapterTypeLine;
+    if (line) {
+        adapter->_line = SBLineRetain(line);
+        adapter->_type = _SBRunAdapterTypeLine;
+    }
 
     SBRunAdapterReset(adapter);
 }
@@ -128,7 +133,7 @@ void SBRunAdapterReset(SBRunAdapterRef adapter)
     adapter->_index = 0;
     adapter->agent.offset = SBInvalidIndex;
     adapter->agent.length = 0;
-    adapter->agent.level = SBInvalidLevel;
+    adapter->agent.level = SBLevelInvalid;
 }
 
 SBRunAdapterRef SBRunAdapterRetain(SBRunAdapterRef adapter)

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <SBBaseDirection.h>
 #include <SBConfig.h>
 
 #ifdef SB_CONFIG_LOG
@@ -27,23 +26,27 @@
 
 int _SBLogPosition = 0;
 
-SB_INTERNAL void _SBPrintBaseDirection(SBBaseDirection direction)
+SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel)
 {
-    switch (direction) {
-    case SBBaseDirectionAutoLTR:
+    switch (baseLevel) {
+    case SBLevelDefaultLTR:
         SB_LOG_STRING("Auto-LTR");
         break;
 
-    case SBBaseDirectionAutoRTL:
+    case SBLevelDefaultRTL:
         SB_LOG_STRING("Auto-RTL");
         break;
 
-    case SBBaseDirectionLTR:
+    case 0:
         SB_LOG_STRING("LTR");
         break;
 
-    case SBBaseDirectionRTL:
+    case 1:
         SB_LOG_STRING("RTL");
+        break;
+
+    default:
+        SB_LOG(("Level - %d", baseLevel));
         break;
     }
 }
@@ -149,12 +152,13 @@ SB_INTERNAL void _SBPrintCharType(SBCharType type)
     }
 }
 
-SB_INTERNAL void _SBPrintCodepointsArray(SBCodepoint *codepoints, SBUInteger length)
+SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequenceRef codepointSequence)
 {
-    SBUInteger index;
+    SBUInteger bufferIndex = 0;
+    SBCodepoint codepoint;
 
-    for (index = 0; index < length; ++index) {
-        SB_LOG(("%04X ", codepoints[index]));
+    while ((codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &bufferIndex)) != SBCodepointInvalid) {
+        SB_LOG(("%04X ", codepoint));
     }
 }
 

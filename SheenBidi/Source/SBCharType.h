@@ -57,11 +57,7 @@ typedef SBUInt8 SBCharType;
  (t1) == (t2)                               \
 )
 
-#define _SBCharTypeInRange(t, s, e)         \
-(                                           \
-    (SBCharType)((t) - (s))                 \
- <= (SBCharType)((e) - (s))                 \
-)
+#define _SBCharTypeInRange(t, s, e)         SBUInt8InRange(t, s, e)
 
 #define SBCharTypeIsStrong(t)               _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAL)
 #define SBCharTypeIsWeak(t)                 _SBCharTypeInRange(t, SBCharTypeBN, SBCharTypeCS)

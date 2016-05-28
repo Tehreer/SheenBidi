@@ -44,12 +44,14 @@ AlgorithmTester::AlgorithmTester(BidiTest *bidiTest, BidiCharacterTest *bidiChar
     : m_bidiTest(bidiTest)
     , m_bidiCharacterTest(bidiCharacterTest)
     , m_bidiMirroring(bidiMirroring)
+    , m_codepointSequence(SBCodepointSequenceCreate())
     , m_runAdapter(SBRunAdapterCreate())
     , m_mirrorLocator(SBMirrorLocatorCreate())
 {
 }
 
 AlgorithmTester::~AlgorithmTester() {
+    SBCodepointSequenceRelease(m_codepointSequence);
     SBRunAdapterRelease(m_runAdapter);
     SBMirrorLocatorRelease(m_mirrorLocator);
 }
@@ -278,14 +280,16 @@ bool AlgorithmTester::testMirrors() const {
 bool AlgorithmTester::conductTest() {
     bool passed = true;
 
-    SBParagraphRef paragraph = SBParagraphCreateWithCodepoints((SBCodepoint *)m_genChars, 0, m_charCount, m_paragraphDirection, SBParagraphOptionsNone);
+    SBCodepointSequenceLoadUTF32Buffer(m_codepointSequence, m_genChars, m_charCount);
+
+    SBParagraphRef paragraph = SBParagraphCreate(m_codepointSequence, m_inputLevel);
     SBLevel paragraphlevel = SBParagraphGetBaseLevel(paragraph);
     if (m_paragraphLevel == LEVEL_X) {
         m_paragraphLevel = paragraphlevel;
     }
 
     if (paragraphlevel == m_paragraphLevel) {
-        SBLineRef line = SBLineCreateWithParagraph(paragraph, 0, m_charCount, SBLineOptionsDefault);
+        SBLineRef line = SBLineCreateWithParagraph(paragraph, 0, m_charCount);
         SBRunAdapterLoadLine(m_runAdapter, line);
 
         passed &= testLevels();
@@ -430,20 +434,20 @@ void AlgorithmTester::analyzeBidiTest() {
         loadCharacters(testCase.types);
 
         if (testCase.directions & BidiTest::ParagraphDirection::Auto) {
-            m_paragraphDirection = SBBaseDirectionAutoLTR;
+            m_inputLevel = SBLevelDefaultLTR;
             m_paragraphLevel = LEVEL_X;
             passed &= conductTest();
         }
 
         if (testCase.directions & BidiTest::ParagraphDirection::LTR) {
             loadMirrors();
-            m_paragraphDirection = SBBaseDirectionLTR;
+            m_inputLevel = 0;
             m_paragraphLevel = LEVEL_X;
             passed &= conductTest();
         }
 
         if (testCase.directions & BidiTest::ParagraphDirection::RTL) {
-            m_paragraphDirection = SBBaseDirectionRTL;
+            m_inputLevel = 1;
             m_paragraphLevel = LEVEL_X;
             passed &= conductTest();
         }
@@ -469,15 +473,15 @@ void AlgorithmTester::analyzeBidiCharacterTest() {
 
         switch (testCase.paragraphDirection) {
             case BidiCharacterTest::ParagraphDirection::LTR:
-                m_paragraphDirection = SBBaseDirectionLTR;
+                m_inputLevel = 0;
                 break;
 
             case BidiCharacterTest::ParagraphDirection::RTL:
-                m_paragraphDirection = SBBaseDirectionRTL;
+                m_inputLevel = 1;
                 break;
 
             default:
-                m_paragraphDirection = SBBaseDirectionAutoLTR;
+                m_inputLevel = SBLevelDefaultLTR;
                 break;
         }
         

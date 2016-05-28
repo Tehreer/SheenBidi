@@ -26,7 +26,7 @@ SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link)
     link->offset = SBInvalidIndex;
     link->length = 0;
     link->type = SBCharTypeNil;
-    link->level = SBInvalidLevel;
+    link->level = SBLevelInvalid;
 }
 
 SB_INTERNAL void SBBidiLinkAbandonNext(SBBidiLinkRef link)

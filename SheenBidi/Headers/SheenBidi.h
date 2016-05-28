@@ -17,7 +17,7 @@
 #ifndef _SHEEN_BIDI_H
 #define _SHEEN_BIDI_H
 
-#include "SBBaseDirection.h"
+#include "SBCodepointSequence.h"
 #include "SBLine.h"
 #include "SBMirrorLocator.h"
 #include "SBParagraph.h"
