@@ -17,6 +17,7 @@
 #ifndef _SB_INTERNAL_TYPES_H
 #define _SB_INTERNAL_TYPES_H
 
+#include <SBConfig.h>
 #include <SBTypes.h>
 
 /**
@@ -41,6 +42,9 @@
     (SBUInt32)((v) - (s))           \
  <= (SBUInt32)((e) - (s))           \
 )
+
+SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength);
+SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength);
 
 #define SBCodepointInRange(v, s, e) SBUInt32InRange(v, s, e)
 

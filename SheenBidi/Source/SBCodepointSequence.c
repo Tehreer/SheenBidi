@@ -21,51 +21,26 @@
 #include "SBTypes.h"
 #include "SBCodepointSequence.h"
 
-static void _SBCodepointSequenceUnload(SBCodepointSequenceRef codepointSequence);
+static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
+    void *buffer, SBUInteger length);
 
 static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
 static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
 static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
 
-SBCodepointSequenceRef SBCodepointSequenceCreate(void)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8Buffer(SBUInt8 *buffer, SBUInteger length)
 {
-    SBCodepointSequenceRef codepointSequence = malloc(sizeof(SBCodepointSequence));
-    SBCodepointSequenceInitialize(codepointSequence);
-
-    return codepointSequence;
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF8, buffer, length);
 }
 
-void SBCodepointSequenceLoadUTF8Buffer(SBCodepointSequenceRef codepointSequence, SBUInt8 *buffer, SBUInteger length)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16Buffer(SBUInt16 *buffer, SBUInteger length)
 {
-    _SBCodepointSequenceUnload(codepointSequence);
-
-    if (buffer && length > 0) {
-        codepointSequence->_encoding = SBEncodingUTF8;
-        codepointSequence->buffer = buffer;
-        codepointSequence->length = length;
-    }
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF16, buffer, length);
 }
 
-void SBCodepointSequenceLoadUTF16Buffer(SBCodepointSequenceRef codepointSequence, SBUInt16 *buffer, SBUInteger length)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32Buffer(SBUInt32 *buffer, SBUInteger length)
 {
-    _SBCodepointSequenceUnload(codepointSequence);
-
-    if (buffer && length > 0) {
-        codepointSequence->_encoding = SBEncodingUTF16;
-        codepointSequence->buffer = buffer;
-        codepointSequence->length = length;
-    }
-}
-
-void SBCodepointSequenceLoadUTF32Buffer(SBCodepointSequenceRef codepointSequence, SBUInt32 *buffer, SBUInteger length)
-{
-    _SBCodepointSequenceUnload(codepointSequence);
-
-    if (buffer && length > 0) {
-        codepointSequence->_encoding = SBEncodingUTF32;
-        codepointSequence->buffer = buffer;
-        codepointSequence->length = length;
-    }
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF32, buffer, length);
 }
 
 SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *bufferIndex)
@@ -107,18 +82,20 @@ void SBCodepointSequenceRelease(SBCodepointSequenceRef codepointSequence)
     }
 }
 
-SB_INTERNAL void SBCodepointSequenceInitialize(SBCodepointSequenceRef codepointSequence)
+static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
+    void *buffer, SBUInteger length)
 {
-    codepointSequence->_encoding = SBEncodingUnknown;
-    codepointSequence->buffer = NULL;
-    codepointSequence->length = 0;
-}
+    SBCodepointSequenceRef codepointSequence = NULL;
 
-static void _SBCodepointSequenceUnload(SBCodepointSequenceRef codepointSequence)
-{
-    codepointSequence->_encoding = SBEncodingUnknown;
-    codepointSequence->buffer = NULL;
-    codepointSequence->length = 0;
+    if (buffer && length > 0) {
+        codepointSequence = malloc(sizeof(SBCodepointSequence));
+        codepointSequence->_encoding = encoding;
+        codepointSequence->buffer = buffer;
+        codepointSequence->length = length;
+        codepointSequence->_retainCount = 1;
+    }
+
+    return codepointSequence;
 }
 
 static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index)

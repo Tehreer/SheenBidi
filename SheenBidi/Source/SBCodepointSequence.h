@@ -37,6 +37,4 @@ struct _SBCodepointSequence {
     SBUInteger _retainCount;
 };
 
-SB_INTERNAL void SBCodepointSequenceInitialize(SBCodepointSequenceRef codepointSequence);
-
 #endif

@@ -19,24 +19,13 @@
 
 #include "SBTypes.h"
 
-SBCodepoint SBUnicodeGetCodepointForUTF8(SBUInt8 *buffer, SBUInteger length, SBUInteger *index, SBBoolean *isFaulty);
-
 struct _SBCodepointSequence;
 typedef struct _SBCodepointSequence SBCodepointSequence;
 typedef SBCodepointSequence *SBCodepointSequenceRef;
 
-typedef struct {
-    SBUInteger bufferIndex;
-    SBCodepoint codepoint;
-    SBBoolean isFaulty;
-} SBCodepointAgent;
-typedef SBCodepointAgent *SBCodepointAgentRef;
-
-SBCodepointSequenceRef SBCodepointSequenceCreate(void);
-
-void SBCodepointSequenceLoadUTF8Buffer(SBCodepointSequenceRef codepointSequence, SBUInt8 *buffer, SBUInteger length);
-void SBCodepointSequenceLoadUTF16Buffer(SBCodepointSequenceRef codepointSequence, SBUInt16 *buffer, SBUInteger length);
-void SBCodepointSequenceLoadUTF32Buffer(SBCodepointSequenceRef codepointSequence, SBUInt32 *buffer, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8Buffer(SBUInt8 *buffer, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16Buffer(SBUInt16 *buffer, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32Buffer(SBUInt32 *buffer, SBUInteger length);
 
 SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *bufferIndex);
 

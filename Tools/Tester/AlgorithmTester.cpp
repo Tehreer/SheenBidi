@@ -44,14 +44,12 @@ AlgorithmTester::AlgorithmTester(BidiTest *bidiTest, BidiCharacterTest *bidiChar
     : m_bidiTest(bidiTest)
     , m_bidiCharacterTest(bidiCharacterTest)
     , m_bidiMirroring(bidiMirroring)
-    , m_codepointSequence(SBCodepointSequenceCreate())
     , m_runAdapter(SBRunAdapterCreate())
     , m_mirrorLocator(SBMirrorLocatorCreate())
 {
 }
 
 AlgorithmTester::~AlgorithmTester() {
-    SBCodepointSequenceRelease(m_codepointSequence);
     SBRunAdapterRelease(m_runAdapter);
     SBMirrorLocatorRelease(m_mirrorLocator);
 }
@@ -280,9 +278,9 @@ bool AlgorithmTester::testMirrors() const {
 bool AlgorithmTester::conductTest() {
     bool passed = true;
 
-    SBCodepointSequenceLoadUTF32Buffer(m_codepointSequence, m_genChars, m_charCount);
-
-    SBParagraphRef paragraph = SBParagraphCreate(m_codepointSequence, m_inputLevel);
+    SBCodepointSequenceRef sequence = SBCodepointSequenceCreateWithUTF32Buffer(m_genChars, m_charCount);
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(sequence);
+    SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, m_charCount, m_inputLevel);
     SBLevel paragraphlevel = SBParagraphGetBaseLevel(paragraph);
     if (m_paragraphLevel == LEVEL_X) {
         m_paragraphLevel = paragraphlevel;
@@ -313,6 +311,8 @@ bool AlgorithmTester::conductTest() {
     }
 
     SBParagraphRelease(paragraph);
+    SBAlgorithmRelease(algorithm);
+    SBCodepointSequenceRelease(sequence);
     
     return passed;
 }

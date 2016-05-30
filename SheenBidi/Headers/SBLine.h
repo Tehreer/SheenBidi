@@ -27,17 +27,6 @@ typedef SBLine *SBLineRef;
 
 /**
  * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
- * @param codepointSequence
- *      An SBCodepointSequence object, describing the line text.
- * @param baseLevel
- *      The desired base level of the line.
- * @return
- *      A reference to a line object if the call was successful, NULL otherwise.
- */
-SBLineRef SBLineCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel);
-
-/**
- * Creates a line object which implements rules L1 to L3 of unicode bidirectional algorithm.
  * @param paragraph
  *      The paragraph for which the line will be created.
  * @param offset
@@ -50,7 +39,7 @@ SBLineRef SBLineCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLev
 SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length);
 
 /**
- * Provides the offset of the line.
+ * Provides the offset of the line in original buffer.
  * @param line
  *      The line whose offset you want to obtain.
  * @return
@@ -59,7 +48,7 @@ SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset,
 SBUInteger SBLineGetOffset(SBLineRef line);
 
 /**
- * Provides the length of the line.
+ * Provides the length of the line in original buffer.
  * @param line
  *      The line whose length you want to obtain.
  * @return

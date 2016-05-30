@@ -34,9 +34,9 @@ enum {
     SBCharTypeES  = 0x09,   /**< Weak: European Number Separator */
     SBCharTypeCS  = 0x0A,   /**< Weak: Common Number Separator */
 
-    SBCharTypeB   = 0x0B,   /**< Neutral: Paragraph Separator */
+    SBCharTypeWS  = 0x0B,   /**< Neutral: White Space */
     SBCharTypeS   = 0x0C,   /**< Neutral: Segment Separator */
-    SBCharTypeWS  = 0x0D,   /**< Neutral: White Space */
+    SBCharTypeB   = 0x0D,   /**< Neutral: Paragraph Separator */
     SBCharTypeON  = 0x0E,   /**< Neutral: Other Neutral */
 
     SBCharTypeLRI = 0x0F,   /**< Format: Left-to-Right Isolate */
@@ -61,17 +61,16 @@ typedef SBUInt8 SBCharType;
 
 #define SBCharTypeIsStrong(t)               _SBCharTypeInRange(t, SBCharTypeL, SBCharTypeAL)
 #define SBCharTypeIsWeak(t)                 _SBCharTypeInRange(t, SBCharTypeBN, SBCharTypeCS)
-#define SBCharTypeIsNeutral(t)              _SBCharTypeInRange(t, SBCharTypeB, SBCharTypeON)
+#define SBCharTypeIsNeutral(t)              _SBCharTypeInRange(t, SBCharTypeWS, SBCharTypeON)
 #define SBCharTypeIsFormat(t)               _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDF)
 
 #define SBCharTypeIsNumber(t)               _SBCharTypeInRange(t, SBCharTypeAN, SBCharTypeEN)
-#define SBCharTypeIsSeparator(t)            _SBCharTypeInRange(t, SBCharTypeES, SBCharTypeS)
 #define SBCharTypeIsIsolate(t)              _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypePDI)
 
 #define SBCharTypeIsStrongOrNumber(t)       (SBCharTypeIsStrong(t) || SBCharTypeIsNumber(t))
 #define SBCharTypeIsNumberSeparator(t)      _SBCharTypeInRange(t, SBCharTypeES, SBCharTypeCS)
 #define SBCharTypeIsIsolateInitiator(t)     _SBCharTypeInRange(t, SBCharTypeLRI, SBCharTypeFSI)
 #define SBCharTypeIsIsolateTerminator(t)    _SBCharTypeIsEqual(t, SBCharTypePDI)
-#define SBCharTypeIsNeutralOrIsolate(t)     _SBCharTypeInRange(t, SBCharTypeB, SBCharTypePDI)
+#define SBCharTypeIsNeutralOrIsolate(t)     _SBCharTypeInRange(t, SBCharTypeWS, SBCharTypePDI)
 
 #endif

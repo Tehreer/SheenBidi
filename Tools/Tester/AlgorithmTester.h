@@ -46,7 +46,6 @@ private:
     size_t testCounter;
     size_t failCounter;
 
-    SBCodepointSequenceRef m_codepointSequence;
     SBRunAdapterRef m_runAdapter;
     SBMirrorLocatorRef m_mirrorLocator;
 

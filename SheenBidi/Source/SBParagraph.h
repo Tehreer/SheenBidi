@@ -17,6 +17,7 @@
 #ifndef _SB_INTERNAL_PARAGRAPH_H
 #define _SB_INTERNAL_PARAGRAPH_H
 
+#include <SBAlgorithm.h>
 #include <SBConfig.h>
 #include <SBParagraph.h>
 
@@ -24,13 +25,16 @@
 #include "SBTypes.h"
 
 struct _SBParagraph {
-    SBUInteger _retainCount;
-
-    SBCharType *fixedTypes;
+    SBAlgorithmRef algorithm;
+    SBCharType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger offset;
     SBUInteger length;
     SBLevel baseLevel;
+    SBUInteger _retainCount;
 };
+
+SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel);
 
 #endif

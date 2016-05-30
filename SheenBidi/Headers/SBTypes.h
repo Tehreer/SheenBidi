@@ -85,12 +85,12 @@ typedef SBUInt8                     SBLevel;
 #define SBLevelMax                  125
 
 /**
- * A value defaulting base level to zero (left-to-right) if there is no strong character.
+ * A value specifying to set base level to zero (left-to-right) if there is no strong character.
  */
 #define SBLevelDefaultLTR           0xFE
 
 /**
- * A value defaulting base level to one (right-to-left) if there is no strong character.
+ * A value specifying to set base level to one (right-to-left) if there is no strong character.
  */
 #define SBLevelDefaultRTL           0xFD
 

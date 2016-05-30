@@ -284,20 +284,6 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithCodepoints(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel)
-{
-    SBParagraphRef paragraph = SBParagraphCreate(codepointSequence, baseLevel);
-    SBLineRef line = NULL;
-
-    if (paragraph) {
-        line = SBLineCreateWithParagraph(paragraph, paragraph->offset, paragraph->length);
-
-        SBParagraphRelease(paragraph);
-    }
-
-    return line;
-}
-
 SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length)
 {
     SBUInteger paragraphOffset = paragraph->offset;
@@ -308,7 +294,7 @@ SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset,
     if (paragraph && length > 0 && offset >= paragraphOffset && maxLineOffset <= maxParagraphOffset) {
         SBUInteger innerOffset = offset - paragraphOffset;
 
-        return _SBLineCreate(paragraph->fixedTypes + innerOffset,
+        return _SBLineCreate(paragraph->refTypes + innerOffset,
                              paragraph->fixedLevels + innerOffset,
                              offset, length,
                              paragraph->baseLevel);

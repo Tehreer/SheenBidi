@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef _SHEEN_BIDI_H
-#define _SHEEN_BIDI_H
+#ifndef _SB_INTERNAL_ALGORITHM_H
+#define _SB_INTERNAL_ALGORITHM_H
 
-#include "SBAlgorithm.h"
-#include "SBCodepointSequence.h"
-#include "SBLine.h"
-#include "SBMirrorLocator.h"
-#include "SBParagraph.h"
-#include "SBRunAdapter.h"
-#include "SBTypes.h"
+#include <SBAlgorithm.h>
+#include <SBCodepointSequence.h>
+#include <SBConfig.h>
+
+#include "SBCharType.h"
+
+struct _SBAlgorithm {
+    SBCodepointSequenceRef codepointSequence;
+    SBCharType *fixedTypes;
+    SBUInteger _retainCount;
+};
+
+SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex);
 
 #endif

@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBidiChain.h"
 #include "SBBidiLink.h"
@@ -118,11 +119,8 @@ static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support)
 static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
 {
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
-    const SBUInteger sizeTypes     = sizeof(SBCharType) * length;
-    const SBUInteger sizeLevels    = sizeof(SBLevel)     * length;
-
+    const SBUInteger sizeLevels    = sizeof(SBLevel) * length;
     const SBUInteger sizeMemory    = sizeParagraph
-                                   + sizeTypes
                                    + sizeLevels;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
@@ -131,77 +129,58 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
     SBParagraphRef paragraph = (SBParagraphRef)(memory + offset);
 
     offset += sizeParagraph;
-    paragraph->fixedTypes = (SBCharType *)(memory + offset);
-
-    offset += sizeTypes;
     paragraph->fixedLevels = (SBLevel *)(memory + offset);
 
     return paragraph;
 }
 
-static SBUInteger _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *types, SBUInteger *outLinkCount)
+static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength, SBUInteger *outLinkCount)
 {
+    SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
+    SBCharType *charTypes = algorithm->fixedTypes;
+    SBCharType currentType;
     SBUInteger linkCount;
-    SBCodepoint codepoint;
-    SBCharType newType;
-    SBUInteger bufferIndex;
-    SBUInteger firstIndex;
+    SBUInteger index;
 
-    /* The parameter 'outLinkCount' must NOT be null. */
-    SBAssert(outLinkCount != NULL);
-
+    currentType = SBCharTypeNil;
     linkCount = 0;
-    newType = SBCharTypeNil;
-    firstIndex = bufferIndex = 0;
 
-    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &bufferIndex)) != SBCodepointInvalid) {
-        SBUInteger lastIndex = bufferIndex - 1;
-        SBCharType priorType = newType;
+    for (index = paragraphOffset; index < suggestedLength; index++) {
+        SBCharType priorType = currentType;
 
-        /* Previous code units get 'BN' type. */
-        if (firstIndex < lastIndex) {
-            newType = SBCharTypeBN;
-            if (priorType != newType) {
+        currentType = charTypes[index];
+
+        switch (currentType) {
+            case SBCharTypeON:
+            case SBCharTypeLRE:
+            case SBCharTypeRLE:
+            case SBCharTypeLRO:
+            case SBCharTypeRLO:
+            case SBCharTypePDF:
+            case SBCharTypeLRI:
+            case SBCharTypeRLI:
+            case SBCharTypeFSI:
+            case SBCharTypePDI:
                 ++linkCount;
-            }
+                break;
 
-            do {
-                types[firstIndex] = newType;
-            } while (++firstIndex < lastIndex);
-
-            priorType = newType;
-        }
-
-        newType = SBCharTypeDetermine(codepoint);
-
-        switch (newType) {
-        case SBCharTypeON:
-        case SBCharTypeLRE:
-        case SBCharTypeRLE:
-        case SBCharTypeLRO:
-        case SBCharTypeRLO:
-        case SBCharTypePDF:
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:
-        case SBCharTypeFSI:
-        case SBCharTypePDI:
-            ++linkCount;
-            break;
-
-        default:
-            if (newType != priorType) {
+            case SBCharTypeB:
                 ++linkCount;
-            }
-            break;
-        }
+                goto Return;
 
-        types[firstIndex] = newType;
-        firstIndex = bufferIndex;
+            default:
+                if (currentType != priorType) {
+                    ++linkCount;
+                }
+                break;
+        }
     }
 
+Return:
     *outLinkCount = linkCount;
+    index += SBAlgorithmDetermineSeparatorLength(algorithm, index);
 
-    return bufferIndex;
+    return (index - paragraphOffset);
 }
 
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length)
@@ -231,6 +210,7 @@ static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBChar
         type = types[index];
 
         switch (type) {
+        case SBCharTypeB:
         case SBCharTypeON:
         case SBCharTypeLRE:
         case SBCharTypeRLE:
@@ -242,6 +222,11 @@ static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBChar
         case SBCharTypeFSI:
         case SBCharTypePDI:
             _SB_ADD_CONSECUTIVE_LINK(type);
+
+            if (type == SBCharTypeB) {
+                index = length;
+                goto AddLast;
+            }
             break;
 
         default:
@@ -252,6 +237,7 @@ static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBChar
         }
     }
 
+AddLast:
     _SB_ADD_CONSECUTIVE_LINK(SBCharTypeNil);
 
 #undef _SB_ADD_CONSECUTIVE_LINK
@@ -621,62 +607,68 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
     }
 }
 
-SBParagraphRef SBParagraphCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel)
+SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
-    SBUInteger length = codepointSequence->length;
+    SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
+    SBUInteger bufferLength = codepointSequence->length;
+    SBUInteger actualLength;
+    SBUInteger linkCount;
 
-    if (length > 0) {
-        SBParagraphRef paragraph;
-        SBUInteger actualLength;
-        SBUInteger runCount;
+    SBParagraphRef paragraph;
+    _SBParagraphSupportRef support;
+    SBLevel resolvedLevel;
 
-        _SBParagraphSupportRef support;
-        SBLevel resolvedLevel;
-        
-        SB_LOG_BLOCK_OPENER("Paragraph Input");
-        SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
-        SB_LOG_STATEMENT("Direction",  1, SB_LOG_BASE_LEVEL(baseLevel));
-        SB_LOG_BLOCK_CLOSER();
+    /* The given range MUST be valid. */
+    SBAssert(SBUIntegerVerifyRange(bufferLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
 
-        paragraph = _SBParagraphAllocate(length);
-        actualLength = _SBDetermineCharTypes(codepointSequence, paragraph->fixedTypes, &runCount);
-        
-        SB_LOG_BLOCK_OPENER("Determined Types");
-        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(paragraph->fixedTypes, actualLength));
-        SB_LOG_BLOCK_CLOSER();
-        
-        support = _SBParagraphSupportAllocate(runCount + 1);
-        _SBParagraphSupportInitialize(support, paragraph->fixedTypes, paragraph->fixedLevels, actualLength);
-        
-        resolvedLevel = _SBDetermineParagraphLevel(&support->bidiChain, baseLevel);
-        
-        SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
-        SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(resolvedLevel));
-        SB_LOG_BLOCK_CLOSER();
+    SBAlgorithmRetain(algorithm);
 
-        support->isolatingRun.codepointSequence = codepointSequence;
-        support->isolatingRun.paragraphLevel = resolvedLevel;
-        
-        _SBDetermineLevels(support, resolvedLevel);
-        _SBSaveLevels(&support->bidiChain, support->refLevels, resolvedLevel);
-        
-        SB_LOG_BLOCK_OPENER("Determined Levels");
-        SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
-        SB_LOG_BLOCK_CLOSER();
+    SB_LOG_BLOCK_OPENER("Paragraph Input");
+    SB_LOG_STATEMENT("Paragraph Offset", 1, SB_LOG_NUMBER(paragraphOffset));
+    SB_LOG_STATEMENT("Suggested Length", 1, SB_LOG_NUMBER(suggestedLength));
+    SB_LOG_STATEMENT("Base Direction",   1, SB_LOG_BASE_LEVEL(baseLevel));
+    SB_LOG_BLOCK_CLOSER();
 
-        paragraph->offset = 0;
-        paragraph->length = actualLength;
-        paragraph->baseLevel = resolvedLevel;
-        paragraph->_retainCount = 1;
-        
-        _SBParagraphSupportDeallocate(support);
-        
-        SB_LOG_BREAKER();
-        
-        return paragraph;
-    }
+    actualLength = _SBDetermineBoundary(algorithm, paragraphOffset, suggestedLength, &linkCount);
+
+    SB_LOG_BLOCK_OPENER("Determined Paragraph Boundary");
+    SB_LOG_STATEMENT("Actual Length", 1, SB_LOG_NUMBER(actualLength));
+    SB_LOG_BLOCK_CLOSER();
+
+    paragraph = _SBParagraphAllocate(actualLength);
+    paragraph->refTypes = algorithm->fixedTypes + paragraphOffset;
+
+    support = _SBParagraphSupportAllocate(linkCount + 1);
+    _SBParagraphSupportInitialize(support, paragraph->refTypes, paragraph->fixedLevels, actualLength);
     
-    return NULL;
+    resolvedLevel = _SBDetermineParagraphLevel(&support->bidiChain, baseLevel);
+    
+    SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
+    SB_LOG_STATEMENT("Base Level", 1, SB_LOG_LEVEL(resolvedLevel));
+    SB_LOG_BLOCK_CLOSER();
+
+    support->isolatingRun.codepointSequence = codepointSequence;
+    support->isolatingRun.paragraphLevel = resolvedLevel;
+    
+    _SBDetermineLevels(support, resolvedLevel);
+    _SBSaveLevels(&support->bidiChain, support->refLevels, resolvedLevel);
+    
+    SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
+    SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
+    SB_LOG_BLOCK_CLOSER();
+
+    paragraph->algorithm = algorithm;
+    paragraph->offset = 0;
+    paragraph->length = actualLength;
+    paragraph->baseLevel = resolvedLevel;
+    paragraph->_retainCount = 1;
+    
+    _SBParagraphSupportDeallocate(support);
+    
+    SB_LOG_BREAKER();
+    
+    return paragraph;
 }
 
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph)
@@ -706,6 +698,7 @@ SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
 void SBParagraphRelease(SBParagraphRef paragraph)
 {
     if (paragraph && --paragraph->_retainCount == 0) {
+        SBAlgorithmRelease(paragraph->algorithm);
         free(paragraph);
     }
 }

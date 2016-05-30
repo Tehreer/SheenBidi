@@ -25,18 +25,7 @@ typedef struct _SBParagraph SBParagraph;
 typedef SBParagraph *SBParagraphRef;
 
 /**
- * Creates a paragraph object which implements rules P2 to I2 of unicode bidirectional algorithm.
- * @param codepointSequence
- *      An SBCodepointSequence object, describing the paragraph text.
- * @param baseLevel
- *      The desired base level of the paragraph.
- * @return
- *      A reference to a paragraph object if the call was successful, NULL otherwise.
- */
-SBParagraphRef SBParagraphCreate(SBCodepointSequenceRef codepointSequence, SBLevel baseLevel);
-
-/**
- * Provides the offset of the paragraph in original code point array.
+ * Provides the offset of the paragraph in original buffer.
  * @param paragraph
  *      The paragraph whose offset you want to obtain.
  * @return
@@ -45,7 +34,7 @@ SBParagraphRef SBParagraphCreate(SBCodepointSequenceRef codepointSequence, SBLev
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph);
 
 /**
- * Provides the length of the paragraph in original code point array.
+ * Provides the length of the paragraph in original buffer.
  * @param paragraph
  *      The paragraph whose length you want to obtain.
  * @return
