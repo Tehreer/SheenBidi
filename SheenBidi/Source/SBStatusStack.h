@@ -25,18 +25,16 @@
 #define _SB_STATUS_STACK_LIST__LENGTH      16
 #define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)
 
-struct _SBStatusStackList;
-typedef struct _SBStatusStackList _SBStatusStackList;
-typedef _SBStatusStackList *_SBStatusStackListRef;
+typedef struct _SBStatusStackList *_SBStatusStackListRef;
 
-struct _SBStatusStackList {
+typedef struct _SBStatusStackList {
     _SBStatusStackListRef previous;
     _SBStatusStackListRef next;
 
     SBBoolean isolateStatus[_SB_STATUS_STACK_LIST__LENGTH];
     SBCharType overrideStatus[_SB_STATUS_STACK_LIST__LENGTH];
     SBLevel embeddingLevel[_SB_STATUS_STACK_LIST__LENGTH];
-};
+} _SBStatusStackList;
 
 typedef struct _SBStatusStack {
     _SBStatusStackList _firstList;

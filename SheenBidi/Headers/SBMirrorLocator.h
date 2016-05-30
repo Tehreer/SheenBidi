@@ -20,18 +20,15 @@
 #include "SBBase.h"
 #include "SBLine.h"
 
-struct _SBMirrorLocator;
-typedef struct _SBMirrorLocator SBMirrorLocator;
-typedef SBMirrorLocator *SBMirrorLocatorRef;
+typedef struct _SBMirrorLocator *SBMirrorLocatorRef;
 
 /**
  * A structure containing the information about a code point having Bidi_Mirrored property.
  */
-typedef struct {
+typedef struct _SBMirrorAgent {
     SBUInteger index;   /**< The absolute index of the code point. */
     SBCodepoint mirror; /**< The mirrored of the code point. */
-} SBMirrorAgent;
-typedef SBMirrorAgent *SBMirrorAgentRef;
+} SBMirrorAgent, *SBMirrorAgentRef;
 
 /**
  * Creates a mirror locator object which can be used to find mirrors in a line.

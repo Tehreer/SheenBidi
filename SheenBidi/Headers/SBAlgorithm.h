@@ -21,9 +21,7 @@
 #include "SBCodepointSequence.h"
 #include "SBParagraph.h"
 
-struct _SBAlgorithm;
-typedef struct _SBAlgorithm SBAlgorithm;
-typedef SBAlgorithm *SBAlgorithmRef;
+typedef struct _SBAlgorithm *SBAlgorithmRef;
 
 SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequenceRef codepointSequence);
 

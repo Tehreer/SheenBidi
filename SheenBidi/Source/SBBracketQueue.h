@@ -26,11 +26,9 @@
 #define _SB_BRACKET_QUEUE_LIST__LENGTH      8
 #define _SB_BRACKET_QUEUE_LIST__MAX_INDEX   (_SB_BRACKET_QUEUE_LIST__LENGTH - 1)
 
-struct _SBBracketQueueList;
-typedef struct _SBBracketQueueList _SBBracketQueueList;
-typedef _SBBracketQueueList *_SBBracketQueueListRef;
+typedef struct _SBBracketQueueList *_SBBracketQueueListRef;
 
-struct _SBBracketQueueList {
+typedef struct _SBBracketQueueList {
     _SBBracketQueueListRef previous;
     _SBBracketQueueListRef next;
 
@@ -39,7 +37,7 @@ struct _SBBracketQueueList {
     SBBidiLinkRef openingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBBidiLinkRef closingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBCharType strongType[_SB_BRACKET_QUEUE_LIST__LENGTH];
-};
+} _SBBracketQueueList;
 
 typedef struct _SBBracketQueue {
     _SBBracketQueueList _firstList;

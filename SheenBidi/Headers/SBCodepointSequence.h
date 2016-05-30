@@ -19,9 +19,7 @@
 
 #include "SBBase.h"
 
-struct _SBCodepointSequence;
-typedef struct _SBCodepointSequence SBCodepointSequence;
-typedef SBCodepointSequence *SBCodepointSequenceRef;
+typedef struct _SBCodepointSequence *SBCodepointSequenceRef;
 
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8Buffer(SBUInt8 *buffer, SBUInteger length);
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16Buffer(SBUInt16 *buffer, SBUInteger length);

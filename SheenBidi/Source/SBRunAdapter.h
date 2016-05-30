@@ -25,14 +25,14 @@ enum {
     _SBRunAdapterTypeNone = 0,
     _SBRunAdapterTypeParagraph = 1
 };
-typedef SBUInteger _SBRunAdapterType;
+typedef SBUInt32 _SBRunAdapterType;
 
-struct _SBRunAdapter {
+typedef struct _SBRunAdapter {
     SBParagraphRef _paragraph;
     _SBRunAdapterType _type;
     SBUInteger _index;
     SBRunAgent agent;
     SBUInteger _retainCount;
-};
+} SBRunAdapter;
 
 #endif

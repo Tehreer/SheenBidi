@@ -23,11 +23,11 @@
 
 #include "SBCharType.h"
 
-struct _SBAlgorithm {
+typedef struct _SBAlgorithm {
     SBCodepointSequenceRef codepointSequence;
     SBCharType *fixedTypes;
     SBUInteger _retainCount;
-};
+} SBAlgorithm;
 
 SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex);
 

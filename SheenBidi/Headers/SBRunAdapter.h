@@ -20,14 +20,12 @@
 #include "SBBase.h"
 #include "SBLine.h"
 
-struct _SBRunAdapter;
-typedef struct _SBRunAdapter SBRunAdapter;
-typedef SBRunAdapter *SBRunAdapterRef;
+typedef struct _SBRunAdapter *SBRunAdapterRef;
 
 /**
  * A structure containing the information about a bidi run.
  */
-typedef struct {
+typedef struct _SBRunAgent {
     SBUInteger offset;  /**< The offset of a run from the start of a paragraph. */
     SBUInteger length;  /**< The length of a run. */
     SBLevel level;      /**< The bidi level of a run. */

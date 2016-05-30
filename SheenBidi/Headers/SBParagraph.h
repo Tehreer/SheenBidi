@@ -21,9 +21,7 @@
 #include "SBCodepointSequence.h"
 #include "SBLine.h"
 
-struct _SBParagraph;
-typedef struct _SBParagraph SBParagraph;
-typedef SBParagraph *SBParagraphRef;
+typedef struct _SBParagraph *SBParagraphRef;
 
 /**
  * Provides the offset of the paragraph in original buffer.

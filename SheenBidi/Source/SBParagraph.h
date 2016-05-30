@@ -24,7 +24,7 @@
 
 #include "SBCharType.h"
 
-struct _SBParagraph {
+typedef struct _SBParagraph {
     SBAlgorithmRef algorithm;
     SBCharType *refTypes;
     SBLevel *fixedLevels;
@@ -32,7 +32,7 @@ struct _SBParagraph {
     SBUInteger length;
     SBLevel baseLevel;
     SBUInteger _retainCount;
-};
+} SBParagraph;
 
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel);

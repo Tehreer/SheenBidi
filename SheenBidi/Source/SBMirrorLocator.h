@@ -21,13 +21,13 @@
 #include <SBMirrorLocator.h>
 #include <SBLine.h>
 
-struct _SBMirrorLocator {
+typedef struct _SBMirrorLocator {
     SBUInteger _retainCount;
     SBCodepoint *_refSource;
     SBLineRef _line;
     SBUInteger _runIndex;
     SBUInteger _charIndex;
     SBMirrorAgent agent;
-};
+} SBMirrorLocator;
 
 #endif

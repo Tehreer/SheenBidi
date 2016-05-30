@@ -23,13 +23,13 @@
 #include <SBParagraph.h>
 #include <SBRun.h>
 
-struct _SBLine {
+typedef struct _SBLine {
     SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;
     SBUInteger length;
     SBUInteger _retainCount;
-};
+} SBLine;
 
 SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength);
 

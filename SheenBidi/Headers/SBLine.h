@@ -21,9 +21,7 @@
 #include "SBCodepointSequence.h"
 #include "SBRun.h"
 
-struct _SBLine;
-typedef struct _SBLine SBLine;
-typedef SBLine *SBLineRef;
+typedef struct _SBLine *SBLineRef;
 
 /**
  * Provides the offset of the line in original buffer.

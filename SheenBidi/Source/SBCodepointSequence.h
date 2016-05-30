@@ -30,11 +30,11 @@ enum {
 };
 typedef SBUInt32 SBEncoding;
 
-struct _SBCodepointSequence {
+typedef struct _SBCodepointSequence {
     SBEncoding _encoding;
     void *buffer;
     SBUInteger length;
     SBUInteger _retainCount;
-};
+} SBCodepointSequence;
 
 #endif
