@@ -19,8 +19,8 @@
 #include <stdlib.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 #include "SBStatusStack.h"
 
 SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack)

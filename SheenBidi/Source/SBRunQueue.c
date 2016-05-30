@@ -15,12 +15,13 @@
  */
 
 #include <SBConfig.h>
+
 #include <stddef.h>
 #include <stdlib.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBLevelRun.h"
-#include "SBTypes.h"
 #include "SBRunQueue.h"
 
 static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue);

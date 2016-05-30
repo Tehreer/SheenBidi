@@ -19,12 +19,12 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBBidiLink.h"
 #include "SBBracketQueue.h"
 #include "SBCharType.h"
 #include "SBCodepointSequence.h"
 #include "SBLevelRun.h"
-#include "SBTypes.h"
 
 typedef struct _SBIsolatingRun {
     SBCodepointSequenceRef codepointSequence;

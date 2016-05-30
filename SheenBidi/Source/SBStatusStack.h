@@ -19,8 +19,8 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 #define _SB_STATUS_STACK_LIST__LENGTH      16
 #define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)

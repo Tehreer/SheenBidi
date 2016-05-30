@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_TYPES_H
-#define _SB_INTERNAL_TYPES_H
+#ifndef _SB_INTERNAL_BASE_H
+#define _SB_INTERNAL_BASE_H
 
+#include <SBBase.h>
 #include <SBConfig.h>
-#include <SBTypes.h>
 
 /**
  * A value that indicates an invalid unsigned index.

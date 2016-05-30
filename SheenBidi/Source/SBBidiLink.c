@@ -18,6 +18,7 @@
 #include <stddef.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBBidiLink.h"
 
 SB_INTERNAL void SBBidiLinkMakeEmpty(SBBidiLinkRef link)

@@ -17,7 +17,7 @@
 #ifndef _SB_PUBLIC_CODEPOINT_SEQUENCE_H
 #define _SB_PUBLIC_CODEPOINT_SEQUENCE_H
 
-#include "SBTypes.h"
+#include "SBBase.h"
 
 struct _SBCodepointSequence;
 typedef struct _SBCodepointSequence SBCodepointSequence;

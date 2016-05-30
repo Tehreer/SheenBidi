@@ -17,9 +17,9 @@
 #ifndef _SB_PUBLIC_ALGORITHM_H
 #define _SB_PUBLIC_ALGORITHM_H
 
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 #include "SBParagraph.h"
-#include "SBTypes.h"
 
 struct _SBAlgorithm;
 typedef struct _SBAlgorithm SBAlgorithm;

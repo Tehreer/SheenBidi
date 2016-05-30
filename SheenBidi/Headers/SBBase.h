@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_TYPES_H
-#define _SB_PUBLIC_TYPES_H
+#ifndef _SB_PUBLIC_BASE_H
+#define _SB_PUBLIC_BASE_H
 
 #include <stddef.h>
 #include <stdint.h>

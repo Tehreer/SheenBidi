@@ -15,10 +15,12 @@
  */
 
 #include <SBConfig.h>
+
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "SBAssert.h"
-#include "SBTypes.h"
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 
 static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,

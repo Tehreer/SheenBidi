@@ -17,7 +17,7 @@
 #include <SBConfig.h>
 
 #include "SBPairingLookup.h"
-#include "SBTypes.h"
+#include "SBBase.h"
 
 SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength)
 {

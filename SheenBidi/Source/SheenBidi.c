@@ -20,6 +20,7 @@
 #ifdef SB_CONFIG_UNITY
 
 #include "SBAlgorithm.c"
+#include "SBBase.c"
 #include "SBBidiChain.c"
 #include "SBBidiLink.c"
 #include "SBBracketQueue.c"
@@ -35,6 +36,5 @@
 #include "SBRunAdapter.c"
 #include "SBRunQueue.c"
 #include "SBStatusStack.c"
-#include "SBTypes.c"
 
 #endif

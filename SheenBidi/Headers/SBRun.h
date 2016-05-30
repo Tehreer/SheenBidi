@@ -17,7 +17,7 @@
 #ifndef _SB_PUBLIC_RUN_H
 #define _SB_PUBLIC_RUN_H
 
-#include "SBTypes.h"
+#include "SBBase.h"
 
 typedef struct _SBRun {
     SBUInteger offset;

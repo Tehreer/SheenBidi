@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_CHAR_TYPE_H
 #define _SB_INTERNAL_CHAR_TYPE_H
 
-#include "SBTypes.h"
+#include "SBBase.h"
 
 enum {
     SBCharTypeNil = 0x00,

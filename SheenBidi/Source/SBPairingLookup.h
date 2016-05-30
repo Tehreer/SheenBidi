@@ -8,8 +8,8 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBBracketType.h"
-#include "SBTypes.h"
 
 SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);
 SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *bracketType);

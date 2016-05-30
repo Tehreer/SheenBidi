@@ -17,12 +17,11 @@
 #ifndef _SB_INTERNAL_LINE_H
 #define _SB_INTERNAL_LINE_H
 
+#include <SBBase.h>
 #include <SBConfig.h>
 #include <SBLine.h>
 #include <SBParagraph.h>
 #include <SBRun.h>
-
-#include "SBTypes.h"
 
 struct _SBLine {
     SBRun *fixedRuns;

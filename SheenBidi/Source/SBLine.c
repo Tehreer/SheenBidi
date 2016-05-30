@@ -15,15 +15,17 @@
  */
 
 #include <SBConfig.h>
+
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 #include "SBConfig.h"
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
-#include "SBTypes.h"
 #include "SBLine.h"
 
 struct _SBLineSupport;

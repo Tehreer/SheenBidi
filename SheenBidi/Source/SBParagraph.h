@@ -18,11 +18,11 @@
 #define _SB_INTERNAL_PARAGRAPH_H
 
 #include <SBAlgorithm.h>
+#include <SBBase.h>
 #include <SBConfig.h>
 #include <SBParagraph.h>
 
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 struct _SBParagraph {
     SBAlgorithmRef algorithm;

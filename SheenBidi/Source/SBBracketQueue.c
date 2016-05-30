@@ -19,9 +19,9 @@
 #include <stdlib.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBBidiLink.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 #include "SBBracketQueue.h"
 
 static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top)

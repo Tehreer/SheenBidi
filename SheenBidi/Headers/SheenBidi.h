@@ -18,11 +18,12 @@
 #define _SHEEN_BIDI_H
 
 #include "SBAlgorithm.h"
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 #include "SBLine.h"
 #include "SBMirrorLocator.h"
 #include "SBParagraph.h"
+#include "SBRun.h"
 #include "SBRunAdapter.h"
-#include "SBTypes.h"
 
 #endif

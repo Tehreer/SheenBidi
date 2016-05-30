@@ -19,8 +19,8 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 struct _SBBidiLink;
 typedef struct _SBBidiLink SBBidiLink;

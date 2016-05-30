@@ -17,8 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "SBLine.h"
-#include "SBTypes.h"
+#include "SBBase.h"
+#include "SBParagraph.h"
 #include "SBRunAdapter.h"
 
 static void _SBRunAdapterUnload(SBRunAdapterRef adapter);

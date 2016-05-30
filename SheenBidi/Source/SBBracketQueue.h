@@ -19,9 +19,9 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBBidiLink.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 #define _SB_BRACKET_QUEUE_LIST__LENGTH      8
 #define _SB_BRACKET_QUEUE_LIST__MAX_INDEX   (_SB_BRACKET_QUEUE_LIST__LENGTH - 1)

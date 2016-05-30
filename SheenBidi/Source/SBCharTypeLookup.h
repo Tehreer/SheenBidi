@@ -8,8 +8,8 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint);
 

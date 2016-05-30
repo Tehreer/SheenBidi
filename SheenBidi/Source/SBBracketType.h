@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_BRACKET_TYPE_H
 #define _SB_INTERNAL_BRACKET_TYPE_H
 
-#include "SBTypes.h"
+#include "SBBase.h"
 
 enum {
     SBBracketTypeNone  = 0x00,

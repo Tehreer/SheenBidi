@@ -17,9 +17,9 @@
 #ifndef _SB_PUBLIC_LINE_H
 #define _SB_PUBLIC_LINE_H
 
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 #include "SBRun.h"
-#include "SBTypes.h"
 
 struct _SBLine;
 typedef struct _SBLine SBLine;

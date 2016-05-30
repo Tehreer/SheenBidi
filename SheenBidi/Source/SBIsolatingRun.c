@@ -15,10 +15,10 @@
  */
 
 #include <SBConfig.h>
-
 #include <stddef.h>
 
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "SBBidiLink.h"
 #include "SBBracketQueue.h"
 #include "SBBracketType.h"
@@ -26,7 +26,6 @@
 #include "SBLevelRun.h"
 #include "SBLog.h"
 #include "SBPairingLookup.h"
-#include "SBTypes.h"
 #include "SBIsolatingRun.h"
 
 #define SB_LEVEL_TO_EXACT_TYPE(l)       \

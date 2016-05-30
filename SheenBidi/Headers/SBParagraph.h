@@ -17,9 +17,9 @@
 #ifndef _SB_PUBLIC_PARAGRAPH_H
 #define _SB_PUBLIC_PARAGRAPH_H
 
+#include "SBBase.h"
 #include "SBCodepointSequence.h"
 #include "SBLine.h"
-#include "SBTypes.h"
 
 struct _SBParagraph;
 typedef struct _SBParagraph SBParagraph;

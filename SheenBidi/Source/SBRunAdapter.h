@@ -17,11 +17,9 @@
 #ifndef _SB_INTERNAL_RUN_ADAPTER_H
 #define _SB_INTERNAL_RUN_ADAPTER_H
 
+#include <SBBase.h>
+#include <SBParagraph.h>
 #include <SBRunAdapter.h>
-
-#include "SBParagraph.h"
-#include "SBLine.h"
-#include "SBTypes.h"
 
 enum {
     _SBRunAdapterTypeNone = 0,

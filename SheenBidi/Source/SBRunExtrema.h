@@ -17,8 +17,8 @@
 #ifndef _SB_INTERNAL_RUN_EXTREMA_H
 #define _SB_INTERNAL_RUN_EXTREMA_H
 
+#include "SBBase.h"
 #include "SBCharType.h"
-#include "SBTypes.h"
 
 enum {
     SBRunExtremaLeadingL  = SBCharTypeL << 0,

@@ -23,11 +23,11 @@
 
 #include <stdio.h>
 
+#include "SBBase.h"
 #include "SBBidiLink.h"
 #include "SBCharType.h"
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
-#include "SBTypes.h"
 
 SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel);
 SB_INTERNAL void _SBPrintCharType(SBCharType type);

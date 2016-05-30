@@ -20,7 +20,7 @@
 #include <SBConfig.h>
 #include <SBCodepointSequence.h>
 
-#include "SBTypes.h"
+#include "SBBase.h"
 
 enum {
     SBEncodingUnknown = 0,
