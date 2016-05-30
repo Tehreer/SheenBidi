@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_LINE_H
-#define _SB_INTERNAL_LINE_H
-
-#include <SBConfig.h>
-#include <SBLine.h>
-#include <SBParagraph.h>
-#include <SBRun.h>
+#ifndef _SB_PUBLIC_RUN_H
+#define _SB_PUBLIC_RUN_H
 
 #include "SBTypes.h"
 
-struct _SBLine {
-    SBRun *fixedRuns;
-    SBUInteger runCount;
+typedef struct _SBRun {
     SBUInteger offset;
     SBUInteger length;
-    SBUInteger _retainCount;
-};
-
-SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength);
+    SBLevel level;
+} SBRun;
 
 #endif

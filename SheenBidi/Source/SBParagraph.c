@@ -688,6 +688,11 @@ SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph)
     return paragraph->baseLevel;
 }
 
+const SBLevel *SBParagraphGetLevelsPtr(SBParagraphRef paragraph)
+{
+    return paragraph->fixedLevels;
+}
+
 SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength)
 {
     SBUInteger paragraphOffset = paragraph->offset;

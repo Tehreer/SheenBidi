@@ -29,22 +29,11 @@ SBRunAdapterRef SBRunAdapterCreate(void)
 
     adapter = malloc(sizeof(SBRunAdapter));
     adapter->_paragraph = NULL;
-    adapter->_line = NULL;
     adapter->_type = _SBRunAdapterTypeNone;
     adapter->_retainCount = 1;
     SBRunAdapterReset(adapter);
 
     return adapter;
-}
-
-static void _SBRunAdapterUnload(SBRunAdapterRef adapter)
-{
-    SBParagraphRelease(adapter->_paragraph);
-    SBLineRelease(adapter->_line);
-
-    adapter->_paragraph = NULL;
-    adapter->_line = NULL;
-    adapter->_type = _SBRunAdapterTypeNone;
 }
 
 void SBRunAdapterLoadParagraph(SBRunAdapterRef adapter, SBParagraphRef paragraph)
@@ -59,18 +48,6 @@ void SBRunAdapterLoadParagraph(SBRunAdapterRef adapter, SBParagraphRef paragraph
     SBRunAdapterReset(adapter);
 }
 
-void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line)
-{
-    _SBRunAdapterUnload(adapter);
-
-    if (line) {
-        adapter->_line = SBLineRetain(line);
-        adapter->_type = _SBRunAdapterTypeLine;
-    }
-
-    SBRunAdapterReset(adapter);
-}
-
 SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter)
 {
     return &adapter->agent;
@@ -79,8 +56,7 @@ SBRunAgentRef SBRunAdapterGetAgent(SBRunAdapterRef adapter)
 SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter)
 {
     switch (adapter->_type) {
-    case _SBRunAdapterTypeParagraph:
-        {
+        case _SBRunAdapterTypeParagraph: {
             SBParagraphRef paragraph = adapter->_paragraph;
             SBUInteger nextIndex = adapter->_index;
 
@@ -103,26 +79,8 @@ SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter)
             }
 
             SBRunAdapterReset(adapter);
+            break;
         }
-        break;
-
-    case _SBRunAdapterTypeLine:
-        {
-            SBLineRef line = adapter->_line;
-
-            if (adapter->_index < line->runCount) {
-                SBRunRef run = &line->fixedRuns[adapter->_index];
-                adapter->agent.offset = run->offset;
-                adapter->agent.length = run->length;
-                adapter->agent.level = run->level;
-                adapter->_index += 1;
-
-                return SBTrue;
-            }
-
-            SBRunAdapterReset(adapter);
-        }
-        break;
     }
 
     return SBFalse;
@@ -148,7 +106,15 @@ SBRunAdapterRef SBRunAdapterRetain(SBRunAdapterRef adapter)
 void SBRunAdapterRelease(SBRunAdapterRef adapter)
 {
     if (adapter && --adapter->_retainCount == 0) {
-        SBLineRelease(adapter->_line);
+        _SBRunAdapterUnload(adapter);
         free(adapter);
     }
+}
+
+static void _SBRunAdapterUnload(SBRunAdapterRef adapter)
+{
+    SBParagraphRelease(adapter->_paragraph);
+
+    adapter->_paragraph = NULL;
+    adapter->_type = _SBRunAdapterTypeNone;
 }

@@ -53,6 +53,15 @@ SBUInteger SBParagraphGetLength(SBParagraphRef paragraph);
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph);
 
 /**
+ * Provides a direct pointer for the embedding levels stored in the paragraph.
+ * @param paragraph
+ *      The paragraph from which to access levels.
+ * @return
+ *      A valid pointer to an array of SBLevel structures.
+ */
+const SBLevel *SBParagraphGetLevelsPtr(SBParagraphRef paragraph);
+
+/**
  * Creates a line object by implementing rules L1 to L3 of unicode bidirectional algorithm.
  * @param paragraph
  *      The paragraph that creates the line.

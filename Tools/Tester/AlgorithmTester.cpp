@@ -44,13 +44,11 @@ AlgorithmTester::AlgorithmTester(BidiTest *bidiTest, BidiCharacterTest *bidiChar
     : m_bidiTest(bidiTest)
     , m_bidiCharacterTest(bidiCharacterTest)
     , m_bidiMirroring(bidiMirroring)
-    , m_runAdapter(SBRunAdapterCreate())
     , m_mirrorLocator(SBMirrorLocatorCreate())
 {
 }
 
 AlgorithmTester::~AlgorithmTester() {
-    SBRunAdapterRelease(m_runAdapter);
     SBMirrorLocatorRelease(m_mirrorLocator);
 }
 
@@ -116,13 +114,11 @@ void AlgorithmTester::loadMirrors() {
 }
 
 bool AlgorithmTester::testLevels() const {
-    const SBRunAgentRef agent = SBRunAdapterGetAgent(m_runAdapter);
-    SBRunAdapterReset(m_runAdapter);
-
-    while (SBRunAdapterMoveNext(m_runAdapter)) {
-        SBUInteger start = agent->offset;
-        SBUInteger end = start + agent->length - 1;
-        SBLevel level = agent->level;
+    for (size_t i = 0; i < m_runCount; i++) {
+        const SBRun *runPtr = &m_runArray[i];
+        SBUInteger start = runPtr->offset;
+        SBUInteger end = start + runPtr->length - 1;
+        SBLevel level = runPtr->level;
 
         if (end >= m_charCount) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
@@ -135,32 +131,32 @@ bool AlgorithmTester::testLevels() const {
         }
 
         uint8_t oldLevel = m_paragraphLevel;
-        for (size_t i = start; i--;) {
-            if (m_levels->at(i) != LEVEL_X) {
-                oldLevel = m_levels->at(i);
+        for (size_t j = start; j--;) {
+            if (m_levels->at(j) != LEVEL_X) {
+                oldLevel = m_levels->at(j);
                 break;
             }
         }
 
-        for (size_t i = start; i <= end; i++) {
-            if (m_levels->at(i) == LEVEL_X) {
+        for (size_t j = start; j <= end; j++) {
+            if (m_levels->at(j) == LEVEL_X) {
                 if (level != oldLevel) {
                     cout << "Warning: Level X should be equal to previous level." << endl;
                 }
                 continue;
             }
 
-            if (m_levels->at(i) != level) {
+            if (m_levels->at(j) != level) {
                 if (Configuration::DISPLAY_ERROR_DETAILS) {
                     cout << "Test failed due to level mismatch." << endl;
-                    cout << "  Text Index: " << i << endl;
+                    cout << "  Text Index: " << j << endl;
                     cout << "  Discovered Level: " << (int)level << endl;
-                    cout << "  Expected Level: " << (int)m_levels->at(i) << endl;
+                    cout << "  Expected Level: " << (int)m_levels->at(j) << endl;
                 }
                 return false;
             }
 
-            oldLevel = m_levels->at(i);
+            oldLevel = m_levels->at(j);
         }
     }
 
@@ -174,16 +170,14 @@ bool AlgorithmTester::testOrder() const {
     size_t dcvIndex = 0;    // Discovered Visual Index
     size_t expIndex = 0;    // Expected Visual Index
 
-    SBRunAgentRef agent = SBRunAdapterGetAgent(m_runAdapter);
-    SBRunAdapterReset(m_runAdapter);
-
-    while (SBRunAdapterMoveNext(m_runAdapter)) {
-        SBUInteger start = agent->offset;
-        SBUInteger end = start + agent->length - 1;
-        SBLevel level = agent->level;
+    for (size_t i = 0; i < m_runCount; i++) {
+        const SBRun *runPtr = &m_runArray[i];
+        SBUInteger start = runPtr->offset;
+        SBUInteger end = start + runPtr->length - 1;
+        SBLevel level = runPtr->level;
 
         if (level & 1) {
-            for (size_t i = start, dcvIndex = end; i <= end; i++, dcvIndex--) {
+            for (size_t j = start, dcvIndex = end; j <= end; j++, dcvIndex--) {
                 lgcIndex++;
 
                 if (m_levels->at(dcvIndex) == LEVEL_X) {
@@ -288,7 +282,8 @@ bool AlgorithmTester::conductTest() {
 
     if (paragraphlevel == m_paragraphLevel) {
         SBLineRef line = SBParagraphCreateLine(paragraph, 0, m_charCount);
-        SBRunAdapterLoadLine(m_runAdapter, line);
+        m_runCount = SBLineGetRunCount(line);
+        m_runArray = SBLineGetRunsPtr(line);
 
         passed &= testLevels();
         passed &= testOrder();

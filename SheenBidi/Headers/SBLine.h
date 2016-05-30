@@ -18,6 +18,7 @@
 #define _SB_PUBLIC_LINE_H
 
 #include "SBCodepointSequence.h"
+#include "SBRun.h"
 #include "SBTypes.h"
 
 struct _SBLine;
@@ -41,6 +42,24 @@ SBUInteger SBLineGetOffset(SBLineRef line);
  *      The length of the line passed in.
  */
 SBUInteger SBLineGetLength(SBLineRef line);
+
+/**
+ * Provides the total run count of the line.
+ * @param line
+ *      The line whose run count you want to obtain.
+ * @return
+ *      The total runs of the line passed in.
+ */
+SBUInteger SBLineGetRunCount(SBLineRef line);
+
+/**
+ * Provides a direct pointer for the run array stored in the line.
+ * @param line
+ *      The line from which to access runs.
+ * @return
+ *      A valid pointer to an array of SBRun structures. 
+ */
+const SBRun *SBLineGetRunsPtr(SBLineRef line);
 
 SBLineRef SBLineRetain(SBLineRef line);
 void SBLineRelease(SBLineRef line);

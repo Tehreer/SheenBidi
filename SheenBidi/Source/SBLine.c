@@ -22,6 +22,7 @@
 #include "SBConfig.h"
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
+#include "SBRun.h"
 #include "SBTypes.h"
 #include "SBLine.h"
 
@@ -311,6 +312,16 @@ SBUInteger SBLineGetOffset(SBLineRef line)
 SBUInteger SBLineGetLength(SBLineRef line)
 {
     return line->length;
+}
+
+SBUInteger SBLineGetRunCount(SBLineRef line)
+{
+    return line->runCount;
+}
+
+const SBRun *SBLineGetRunsPtr(SBLineRef line)
+{
+    return line->fixedRuns;
 }
 
 SBLineRef SBLineRetain(SBLineRef line)

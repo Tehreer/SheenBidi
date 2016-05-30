@@ -57,7 +57,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
 
     if (line && codepoints) {
         do {
-            SBRunRef run = &line->fixedRuns[locator->_runIndex];
+            const SBRun *run = &line->fixedRuns[locator->_runIndex];
 
             if (run->level & 1) {
                 SBUInteger index;

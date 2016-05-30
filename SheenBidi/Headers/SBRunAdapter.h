@@ -50,15 +50,6 @@ SBRunAdapterRef SBRunAdapterCreate(void);
 void SBRunAdapterLoadParagraph(SBRunAdapterRef adapter, SBParagraphRef paragraph);
 
 /**
- * Loads a line in the adapter so that its runs can be obtained.
- * @param adapter
- *      The adapter in which the line will be loaded.
- * @param line
- *      The line which will be loaded in the adapter.
- */
-void SBRunAdapterLoadLine(SBRunAdapterRef adapter, SBLineRef line);
-
-/**
  * Provides the agent containing the information of current run.
  * @param adapter
  *      The adapter whose agent you want to obtain.
