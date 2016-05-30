@@ -18,6 +18,7 @@
 #define _SB_PUBLIC_PARAGRAPH_H
 
 #include "SBCodepointSequence.h"
+#include "SBLine.h"
 #include "SBTypes.h"
 
 struct _SBParagraph;
@@ -50,6 +51,19 @@ SBUInteger SBParagraphGetLength(SBParagraphRef paragraph);
  *      The base level of the paragraph passed in.
  */
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph);
+
+/**
+ * Creates a line object by implementing rules L1 to L3 of unicode bidirectional algorithm.
+ * @param paragraph
+ *      The paragraph that creates the line.
+ * @param lineOffset
+ *      The absolute starting index of the line residing inside the paragraph.
+ * @param lineLength
+ *      The length of the line.
+ * @return
+ *      A reference to a line object if the call was successful, NULL otherwise.
+ */
+SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength);
 
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph);
 void SBParagraphRelease(SBParagraphRef paragraph);

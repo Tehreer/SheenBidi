@@ -287,7 +287,7 @@ bool AlgorithmTester::conductTest() {
     }
 
     if (paragraphlevel == m_paragraphLevel) {
-        SBLineRef line = SBLineCreateWithParagraph(paragraph, 0, m_charCount);
+        SBLineRef line = SBParagraphCreateLine(paragraph, 0, m_charCount);
         SBRunAdapterLoadLine(m_runAdapter, line);
 
         passed &= testLevels();

@@ -19,6 +19,7 @@
 
 #include <SBConfig.h>
 #include <SBLine.h>
+#include <SBParagraph.h>
 
 #include "SBTypes.h"
 
@@ -36,5 +37,7 @@ struct _SBLine {
     SBUInteger offset;
     SBUInteger length;
 };
+
+SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength);
 
 #endif

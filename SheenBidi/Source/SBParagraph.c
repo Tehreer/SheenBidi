@@ -15,6 +15,7 @@
  */
 
 #include <SBConfig.h>
+
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -27,6 +28,7 @@
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
 #include "SBLevelRun.h"
+#include "SBLine.h"
 #include "SBLog.h"
 #include "SBRunQueue.h"
 #include "SBStatusStack.h"
@@ -684,6 +686,20 @@ SBUInteger SBParagraphGetLength(SBParagraphRef paragraph)
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph)
 {
     return paragraph->baseLevel;
+}
+
+SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength)
+{
+    SBUInteger paragraphOffset = paragraph->offset;
+    SBUInteger paragraphLength = paragraph->length;
+    SBUInteger paragraphLimit = paragraphOffset + paragraphLength;
+    SBUInteger lineLimit = lineOffset + lineLength;
+
+    if (lineOffset < lineLimit && lineOffset >= paragraphOffset && lineLimit <= paragraphLimit) {
+        return SBLineCreate(paragraph, lineOffset, lineLength);
+    }
+
+    return NULL;
 }
 
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)

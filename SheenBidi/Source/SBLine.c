@@ -17,7 +17,9 @@
 #include <SBConfig.h>
 #include <stdlib.h>
 
+#include "SBAssert.h"
 #include "SBCodepointSequence.h"
+#include "SBConfig.h"
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
 #include "SBTypes.h"
@@ -284,23 +286,21 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     return line;
 }
 
-SBLineRef SBLineCreateWithParagraph(SBParagraphRef paragraph, SBUInteger offset, SBUInteger length)
+SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength)
 {
-    SBUInteger paragraphOffset = paragraph->offset;
-    SBUInteger paragraphLength = paragraph->length;
-    SBUInteger maxParagraphOffset = paragraphOffset + paragraphLength;
-    SBUInteger maxLineOffset = offset + length;
+    SBUInteger innerOffset;
 
-    if (paragraph && length > 0 && offset >= paragraphOffset && maxLineOffset <= maxParagraphOffset) {
-        SBUInteger innerOffset = offset - paragraphOffset;
+    /* Paragraph must NOT be null. */
+    SBAssert(paragraph != NULL);
+    /* Line range MUST be valid. */
+    SBAssert(lineOffset < (lineOffset + lineLength)
+             && lineOffset >= paragraph->offset
+             && (lineOffset + lineLength) <= (paragraph->offset + paragraph->length));
 
-        return _SBLineCreate(paragraph->refTypes + innerOffset,
-                             paragraph->fixedLevels + innerOffset,
-                             offset, length,
-                             paragraph->baseLevel);
-    }
+    innerOffset = lineOffset - paragraph->offset;
 
-    return NULL;
+    return _SBLineCreate(paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
+                         lineOffset, lineLength, paragraph->baseLevel);
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line)
