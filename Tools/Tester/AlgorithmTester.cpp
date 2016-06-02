@@ -52,7 +52,7 @@ AlgorithmTester::~AlgorithmTester() {
     SBMirrorLocatorRelease(m_mirrorLocator);
 }
 
-void AlgorithmTester::test() {
+void AlgorithmTester::testAlgorithm() {
     if (m_bidiTest || m_bidiCharacterTest) {
         cout << "Running algorithm tester." << endl;
 
@@ -67,12 +67,65 @@ void AlgorithmTester::test() {
             analyzeBidiCharacterTest();
         }
 
-        cout << failCounter << " error/s." << endl;
+        cout << failCounter << " error/s." << endl << endl;
     } else {
-        cout << "No test case found for algorithm tester." << endl;
+        cout << "No test case found for algorithm tester." << endl << endl;
     }
 
     cout << endl;
+}
+
+void AlgorithmTester::testMulticharNewline()
+{
+    cout << "Running multi character new line tester." << endl;
+
+    size_t failed = 0;
+    SBCodepoint codepointArray[] = { 'L', 'i', 'n', 'e', '\r', '\n', '.' };
+    SBUInteger codepointCount = sizeof(codepointArray) / sizeof(SBCodepoint);
+
+    SBCodepointSequenceRef sequence = SBCodepointSequenceCreateWithUTF32Buffer(codepointArray, codepointCount);
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(sequence);
+    SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, codepointCount, 0);
+    SBUInteger offset = SBParagraphGetOffset(paragraph);
+    SBUInteger length = SBParagraphGetLength(paragraph);
+    const SBLevel *levels = SBParagraphGetLevelsPtr(paragraph);
+
+    if (offset != 0 && length != 6) {
+        failed = 1;
+
+        if (Configuration::DISPLAY_ERROR_DETAILS) {
+            cout << "Test failed due to invalid paragraph range." << endl;
+            cout << "  Paragraph Offset: " << SBParagraphGetOffset(paragraph) << endl;
+            cout << "  Paragraph Length: " << SBParagraphGetLength(paragraph) << endl;
+            cout << "  Expected Offset: " << 0 << endl;
+            cout << "  Expected Length: " << 6 << endl;
+        }
+    }
+
+    for (size_t i = 0; i < length; i++) {
+        if (levels[i] != 0) {
+            failed = 1;
+
+            if (Configuration::DISPLAY_ERROR_DETAILS) {
+                cout << "Test failed due to level mismatch." << endl;
+                cout << "  Text Index: " << i << endl;
+                cout << "  Discovered Level: " << (int)levels[i] << endl;
+                cout << "  Expected Level: " << 0 << endl;
+            }
+        }
+    }
+
+    SBParagraphRelease(paragraph);
+    SBAlgorithmRelease(algorithm);
+    SBCodepointSequenceRelease(sequence);
+
+    cout << failed << " error/s." << endl << endl;
+}
+
+void AlgorithmTester::test()
+{
+    testAlgorithm();
+    testMulticharNewline();
 }
 
 void AlgorithmTester::loadCharacters(const vector<string> &types) {

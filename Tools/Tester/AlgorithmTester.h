@@ -36,6 +36,8 @@ public:
     AlgorithmTester(Parser::BidiTest *bidiTest, Parser::BidiCharacterTest *bidiBracketTest, Parser::BidiMirroring *bidiMirroring);
     ~AlgorithmTester();
 
+    void testAlgorithm();
+    void testMulticharNewline();
     void test();
 
 private:
