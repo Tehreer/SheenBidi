@@ -140,6 +140,7 @@ static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger para
 {
     SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
     SBCharType *charTypes = algorithm->fixedTypes;
+    SBUInteger suggestedLimit = paragraphOffset + suggestedLength;
     SBCharType currentType;
     SBUInteger linkCount;
     SBUInteger index;
@@ -147,7 +148,7 @@ static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger para
     currentType = SBCharTypeNil;
     linkCount = 0;
 
-    for (index = paragraphOffset; index < suggestedLength; index++) {
+    for (index = paragraphOffset; index < suggestedLimit; index++) {
         SBCharType priorType = currentType;
 
         currentType = charTypes[index];
@@ -661,7 +662,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_BLOCK_CLOSER();
 
     paragraph->algorithm = algorithm;
-    paragraph->offset = 0;
+    paragraph->offset = paragraphOffset;
     paragraph->length = actualLength;
     paragraph->baseLevel = resolvedLevel;
     paragraph->_retainCount = 1;

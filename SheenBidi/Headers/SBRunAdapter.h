@@ -18,7 +18,7 @@
 #define _SB_PUBLIC_RUN_ADAPTER_H
 
 #include "SBBase.h"
-#include "SBLine.h"
+#include "SBParagraph.h"
 
 typedef struct _SBRunAdapter *SBRunAdapterRef;
 

@@ -113,7 +113,7 @@ SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algori
     return separatorLength;
 }
 
-void SBAlgorithmDetermineParagraphBoundary(SBAlgorithmRef algorithm,
+void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength,
     SBUInteger *acutalLength, SBUInteger *separatorLength)
 {
@@ -130,7 +130,7 @@ void SBAlgorithmDetermineParagraphBoundary(SBAlgorithmRef algorithm,
 
         if (currentType == SBCharTypeB) {
             if (separatorLength) {
-                *separatorLength = SBAlgorithmDetermineSeparatorLength(codepointSequence, startIndex);
+                *separatorLength = SBAlgorithmDetermineSeparatorLength(algorithm, startIndex);
             }
             break;
         }
