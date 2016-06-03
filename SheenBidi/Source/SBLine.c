@@ -19,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
@@ -53,7 +54,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger len
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
 static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
-static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
+static SBLineRef _SBLineCreate(SBCodepointSequenceRef codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
 
 static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
@@ -266,7 +267,7 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
     }
 }
 
-static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+static SBLineRef _SBLineCreate(SBCodepointSequenceRef codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     _SBLineSupportRef support;
     SBLineRef line;
@@ -280,6 +281,7 @@ static SBLineRef _SBLineCreate(SBCharType *types, SBLevel *levels, SBUInteger of
     line->runCount = _SBInitializeRuns(line->fixedRuns, support->fixedLevels, length);
     _SBReorderRuns(line->fixedRuns, line->runCount, support->maxLevel);
 
+    line->codepointSequence = SBCodepointSequenceRetain(codepointSequence);
     line->offset = offset;
     line->length = length;
     line->_retainCount = 1;
@@ -302,7 +304,8 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffs
 
     innerOffset = lineOffset - paragraph->offset;
 
-    return _SBLineCreate(paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
+    return _SBLineCreate(paragraph->algorithm->codepointSequence,
+                         paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
                          lineOffset, lineLength, paragraph->baseLevel);
 }
 
@@ -338,6 +341,7 @@ SBLineRef SBLineRetain(SBLineRef line)
 void SBLineRelease(SBLineRef line)
 {
     if (line && --line->_retainCount == 0) {
+        SBCodepointSequenceRelease(line->codepointSequence);
         free(line);
     }
 }

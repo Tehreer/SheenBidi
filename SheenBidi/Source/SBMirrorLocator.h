@@ -18,16 +18,17 @@
 #define _SB_INTERNAL_MIRROR_LOCATOR_H
 
 #include <SBBase.h>
+#include <SBCodepointSequence.h>
 #include <SBMirrorLocator.h>
 #include <SBLine.h>
 
 typedef struct _SBMirrorLocator {
-    SBUInteger _retainCount;
-    SBCodepoint *_refSource;
+    SBCodepointSequenceRef _codepointSequence;
     SBLineRef _line;
     SBUInteger _runIndex;
-    SBUInteger _charIndex;
+    SBUInteger _bufferIndex;
     SBMirrorAgent agent;
+    SBUInteger _retainCount;
 } SBMirrorLocator;
 
 #endif

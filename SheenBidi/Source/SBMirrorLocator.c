@@ -27,19 +27,19 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void)
     SBMirrorLocatorRef locator;
 
     locator = malloc(sizeof(SBMirrorLocator));
-    locator->_retainCount = 1;
-    locator->_refSource = NULL;
+    locator->_codepointSequence = NULL;
     locator->_line = NULL;
+    locator->_retainCount = 1;
     SBMirrorLocatorReset(locator);
 
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *source)
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line)
 {
     SBLineRelease(locator->_line);
 
-    locator->_refSource = source;
+    locator->_codepointSequence = line->codepointSequence;
     locator->_line = SBLineRetain(line);
 
     SBMirrorLocatorReset(locator);
@@ -52,29 +52,29 @@ SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
 
 SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
 {
-    SBCodepoint *codepoints = locator->_refSource;
+    SBCodepointSequenceRef sequence = locator->_codepointSequence;
     SBLineRef line = locator->_line;
 
-    if (line && codepoints) {
+    if (sequence && line) {
         do {
             const SBRun *run = &line->fixedRuns[locator->_runIndex];
 
             if (run->level & 1) {
-                SBUInteger index;
-                SBUInteger limit;
+                SBUInteger bufferIndex;
+                SBUInteger bufferLimit;
 
-                index = locator->_charIndex;
-                if (index == SBInvalidIndex) {
-                    index = run->offset;
+                bufferIndex = locator->_bufferIndex;
+                if (bufferIndex == SBInvalidIndex) {
+                    bufferIndex = run->offset;
                 }
-                limit = run->offset + run->length;
+                bufferLimit = run->offset + run->length;
 
-                for (; index < limit; index++) {
-                    SBCodepoint mirror = SBPairingDetermineMirror(codepoints[index]);
+                for (; bufferIndex < bufferLimit; bufferIndex++) {
+                    SBCodepoint codepoint = SBCodepointSequenceGetCodepointAt(sequence, &locator->_bufferIndex);
+                    SBCodepoint mirror = SBPairingDetermineMirror(codepoint);
 
                     if (mirror) {
-                        locator->_charIndex = index + 1;
-                        locator->agent.index = index;
+                        locator->agent.index = bufferIndex;
                         locator->agent.mirror = mirror;
 
                         return SBTrue;
@@ -82,7 +82,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
                 }
             }
             
-            locator->_charIndex = SBInvalidIndex;
+            locator->_bufferIndex = SBInvalidIndex;
         } while (++locator->_runIndex < line->runCount);
         
         SBMirrorLocatorReset(locator);
@@ -94,7 +94,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
 void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
 {
     locator->_runIndex = 0;
-    locator->_charIndex = SBInvalidIndex;
+    locator->_bufferIndex = SBInvalidIndex;
     locator->agent.index = SBInvalidIndex;
     locator->agent.mirror = 0;
 }

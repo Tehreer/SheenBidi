@@ -18,12 +18,14 @@
 #define _SB_INTERNAL_LINE_H
 
 #include <SBBase.h>
+#include <SBCodepointSequence.h>
 #include <SBConfig.h>
 #include <SBLine.h>
 #include <SBParagraph.h>
 #include <SBRun.h>
 
 typedef struct _SBLine {
+    SBCodepointSequenceRef codepointSequence;
     SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;

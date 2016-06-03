@@ -625,8 +625,6 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     /* The given range MUST be valid. */
     SBAssert(SBUIntegerVerifyRange(bufferLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
 
-    SBAlgorithmRetain(algorithm);
-
     SB_LOG_BLOCK_OPENER("Paragraph Input");
     SB_LOG_STATEMENT("Paragraph Offset", 1, SB_LOG_NUMBER(paragraphOffset));
     SB_LOG_STATEMENT("Suggested Length", 1, SB_LOG_NUMBER(suggestedLength));
@@ -661,7 +659,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
     SB_LOG_BLOCK_CLOSER();
 
-    paragraph->algorithm = algorithm;
+    paragraph->algorithm = SBAlgorithmRetain(algorithm);
     paragraph->offset = paragraphOffset;
     paragraph->length = actualLength;
     paragraph->baseLevel = resolvedLevel;
