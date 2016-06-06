@@ -21,11 +21,11 @@
 
 typedef struct _SBCodepointSequence *SBCodepointSequenceRef;
 
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8Buffer(SBUInt8 *buffer, SBUInteger length);
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16Buffer(SBUInt16 *buffer, SBUInteger length);
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32Buffer(SBUInt32 *buffer, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8String(const SBUInt8 *string, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16String(const SBUInt16 *string, SBUInteger length);
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *string, SBUInteger length);
 
-SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *bufferIndex);
+SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
 
 SBCodepointSequenceRef SBCodepointSequenceRetain(SBCodepointSequenceRef codepointSequence);
 void SBCodepointSequenceRelease(SBCodepointSequenceRef codepointSequence);

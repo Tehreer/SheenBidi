@@ -32,8 +32,8 @@ typedef SBUInt32 SBEncoding;
 
 typedef struct _SBCodepointSequence {
     SBEncoding _encoding;
-    void *buffer;
-    SBUInteger length;
+    const void *stringBuffer;
+    SBUInteger stringLength;
     SBUInteger _retainCount;
 } SBCodepointSequence;
 

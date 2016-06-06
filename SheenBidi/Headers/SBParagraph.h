@@ -24,7 +24,7 @@
 typedef struct _SBParagraph *SBParagraphRef;
 
 /**
- * Provides the offset of the paragraph in original buffer.
+ * Provides the offset of the paragraph in original string.
  * @param paragraph
  *      The paragraph whose offset you want to obtain.
  * @return
@@ -33,7 +33,7 @@ typedef struct _SBParagraph *SBParagraphRef;
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph);
 
 /**
- * Provides the length of the paragraph in original buffer.
+ * Provides the length of the paragraph in original string.
  * @param paragraph
  *      The paragraph whose length you want to obtain.
  * @return

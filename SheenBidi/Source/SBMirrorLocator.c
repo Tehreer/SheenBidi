@@ -60,21 +60,21 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
             const SBRun *run = &line->fixedRuns[locator->_runIndex];
 
             if (run->level & 1) {
-                SBUInteger bufferIndex;
-                SBUInteger bufferLimit;
+                SBUInteger stringIndex;
+                SBUInteger stringLimit;
 
-                bufferIndex = locator->_bufferIndex;
-                if (bufferIndex == SBInvalidIndex) {
-                    bufferIndex = run->offset;
+                stringIndex = locator->_stringIndex;
+                if (stringIndex == SBInvalidIndex) {
+                    stringIndex = run->offset;
                 }
-                bufferLimit = run->offset + run->length;
+                stringLimit = run->offset + run->length;
 
-                for (; bufferIndex < bufferLimit; bufferIndex++) {
-                    SBCodepoint codepoint = SBCodepointSequenceGetCodepointAt(sequence, &locator->_bufferIndex);
+                for (; stringIndex < stringLimit; stringIndex++) {
+                    SBCodepoint codepoint = SBCodepointSequenceGetCodepointAt(sequence, &locator->_stringIndex);
                     SBCodepoint mirror = SBPairingDetermineMirror(codepoint);
 
                     if (mirror) {
-                        locator->agent.index = bufferIndex;
+                        locator->agent.index = stringIndex;
                         locator->agent.mirror = mirror;
 
                         return SBTrue;
@@ -82,7 +82,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
                 }
             }
             
-            locator->_bufferIndex = SBInvalidIndex;
+            locator->_stringIndex = SBInvalidIndex;
         } while (++locator->_runIndex < line->runCount);
         
         SBMirrorLocatorReset(locator);
@@ -94,7 +94,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
 void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
 {
     locator->_runIndex = 0;
-    locator->_bufferIndex = SBInvalidIndex;
+    locator->_stringIndex = SBInvalidIndex;
     locator->agent.index = SBInvalidIndex;
     locator->agent.mirror = 0;
 }

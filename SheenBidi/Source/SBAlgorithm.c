@@ -25,10 +25,10 @@
 #include "SBParagraph.h"
 #include "SBAlgorithm.h"
 
-static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger bufferLength)
+static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
 {
     const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
-    const SBUInteger sizeTypes     = sizeof(SBCharType) * bufferLength;
+    const SBUInteger sizeTypes     = sizeof(SBCharType) * stringLength;
 
     const SBUInteger sizeMemory    = sizeAlgorithm
                                    + sizeTypes;
@@ -46,15 +46,15 @@ static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger bufferLength)
 
 static void _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *types)
 {
-    SBUInteger bufferIndex = 0;
+    SBUInteger stringIndex = 0;
     SBUInteger firstIndex = 0;
     SBCodepoint codepoint;
 
-    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &bufferIndex)) != SBCodepointInvalid) {
+    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex)) != SBCodepointInvalid) {
         types[firstIndex] = SBCharTypeDetermine(codepoint);
 
         /* Subsequent code units get 'BN' type. */
-        while (++firstIndex < bufferIndex) {
+        while (++firstIndex < stringIndex) {
             types[firstIndex] = SBCharTypeBN;
         }
     }
@@ -62,23 +62,23 @@ static void _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *t
 
 SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequenceRef codepointSequence)
 {
-    SBUInteger bufferLength = codepointSequence->length;
+    SBUInteger stringLength = codepointSequence->stringLength;
 
-    if (bufferLength > 0) {
+    if (stringLength > 0) {
         SBAlgorithmRef algorithm;
 
         SB_LOG_BLOCK_OPENER("Algorithm Input");
         SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
         SB_LOG_BLOCK_CLOSER();
 
-        algorithm = _SBAlgorithmAllocate(bufferLength);
+        algorithm = _SBAlgorithmAllocate(stringLength);
         algorithm->codepointSequence = SBCodepointSequenceRetain(codepointSequence);
         algorithm->_retainCount = 1;
 
         _SBDetermineCharTypes(codepointSequence, algorithm->fixedTypes);
 
         SB_LOG_BLOCK_OPENER("Determined Types");
-        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(algorithm->fixedTypes, bufferLength));
+        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
         SB_LOG_BLOCK_CLOSER();
 
         SB_LOG_BREAKER();
@@ -92,20 +92,20 @@ SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequenceRef codepointSequence)
 SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
 {
     SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
-    SBUInteger bufferIndex = separatorIndex;
+    SBUInteger stringIndex = separatorIndex;
     SBCodepoint codepoint;
     SBUInteger separatorLength;
 
-    codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &bufferIndex);
-    separatorLength = bufferIndex - separatorIndex;
+    codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &stringIndex);
+    separatorLength = stringIndex - separatorIndex;
 
     if (codepoint == '\r') {
         /* Don't break in between 'CR' and 'LF'. */
-        if (bufferIndex < codepointSequence->length) {
-            codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &bufferIndex);
+        if (stringIndex < codepointSequence->stringLength) {
+            codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &stringIndex);
 
             if (codepoint == '\n') {
-                separatorLength = bufferIndex - separatorIndex;
+                separatorLength = stringIndex - separatorIndex;
             }
         }
     }
@@ -122,7 +122,7 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger limitIndex;
     SBUInteger startIndex;
 
-    SBUIntegerNormalizeRange(codepointSequence->length, &paragraphOffset, &suggestedLength);
+    SBUIntegerNormalizeRange(codepointSequence->stringLength, &paragraphOffset, &suggestedLength);
     limitIndex = paragraphOffset + suggestedLength;
 
     for (startIndex = paragraphOffset; startIndex < limitIndex; startIndex++) {
@@ -145,9 +145,9 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
     SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
-    SBUInteger bufferLength = codepointSequence->length;
+    SBUInteger stringLength = codepointSequence->stringLength;
 
-    SBUIntegerNormalizeRange(bufferLength, &paragraphOffset, &suggestedLength);
+    SBUIntegerNormalizeRange(stringLength, &paragraphOffset, &suggestedLength);
 
     if (suggestedLength > 0) {
         return SBParagraphCreate(algorithm, paragraphOffset, suggestedLength, baseLevel);

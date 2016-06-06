@@ -34,9 +34,9 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
  * @param algorithm
  *      The algorithm object containing code point sequence of desired paragraph.
  * @param paragraphOffset
- *      The buffer offset of the paragraph in code point sequence.
+ *      The string offset of the paragraph in code point sequence.
  * @param suggestedLength
- *      The suggested buffer length of the paragraph in code point sequence.
+ *      The suggested string length of the paragraph in code point sequence.
  * @param baseLevel
  *      The desired base level of the paragraph.
  * @return

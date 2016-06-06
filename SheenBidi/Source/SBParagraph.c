@@ -66,8 +66,6 @@ static void _SBParagraphSupportInitialize(_SBParagraphSupportRef support, SBChar
 static void _SBParagraphSupportDeallocate(_SBParagraphSupportRef support);
 
 static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
-
-static SBUInteger _SBDetermineCharTypes(SBCodepointSequenceRef sequence, SBCharType *types, SBUInteger *outLinkCount);
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length);
 
 static SBBidiLinkRef _SBSkipIsolatingRun(SBBidiLinkRef skipLink, SBBidiLinkRef breakLink);
@@ -138,20 +136,19 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
 
 static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength, SBUInteger *outLinkCount)
 {
-    SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
     SBCharType *charTypes = algorithm->fixedTypes;
     SBUInteger suggestedLimit = paragraphOffset + suggestedLength;
     SBCharType currentType;
     SBUInteger linkCount;
-    SBUInteger index;
+    SBUInteger stringIndex;
 
     currentType = SBCharTypeNil;
     linkCount = 0;
 
-    for (index = paragraphOffset; index < suggestedLimit; index++) {
+    for (stringIndex = paragraphOffset; stringIndex < suggestedLimit; stringIndex++) {
         SBCharType priorType = currentType;
 
-        currentType = charTypes[index];
+        currentType = charTypes[stringIndex];
 
         switch (currentType) {
             case SBCharTypeON:
@@ -181,9 +178,9 @@ static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger para
 
 Return:
     *outLinkCount = linkCount;
-    index += SBAlgorithmDetermineSeparatorLength(algorithm, index);
+    stringIndex += SBAlgorithmDetermineSeparatorLength(algorithm, stringIndex);
 
-    return (index - paragraphOffset);
+    return (stringIndex - paragraphOffset);
 }
 
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiLink *links, SBCharType *types, SBUInteger length)
@@ -614,7 +611,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
     SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
-    SBUInteger bufferLength = codepointSequence->length;
+    SBUInteger stringLength = codepointSequence->stringLength;
     SBUInteger actualLength;
     SBUInteger linkCount;
 
@@ -623,7 +620,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBLevel resolvedLevel;
 
     /* The given range MUST be valid. */
-    SBAssert(SBUIntegerVerifyRange(bufferLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
+    SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
 
     SB_LOG_BLOCK_OPENER("Paragraph Input");
     SB_LOG_STATEMENT("Paragraph Offset", 1, SB_LOG_NUMBER(paragraphOffset));

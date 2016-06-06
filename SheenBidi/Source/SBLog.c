@@ -154,10 +154,10 @@ SB_INTERNAL void _SBPrintCharType(SBCharType type)
 
 SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequenceRef codepointSequence)
 {
-    SBUInteger bufferIndex = 0;
+    SBUInteger stringIndex = 0;
     SBCodepoint codepoint;
 
-    while ((codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &bufferIndex)) != SBCodepointInvalid) {
+    while ((codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &stringIndex)) != SBCodepointInvalid) {
         SB_LOG(("%04X ", codepoint));
     }
 }

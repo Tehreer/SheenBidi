@@ -24,7 +24,7 @@
 typedef struct _SBLine *SBLineRef;
 
 /**
- * Provides the offset of the line in original buffer.
+ * Provides the offset of the line in original string.
  * @param line
  *      The line whose offset you want to obtain.
  * @return
@@ -33,7 +33,7 @@ typedef struct _SBLine *SBLineRef;
 SBUInteger SBLineGetOffset(SBLineRef line);
 
 /**
- * Provides the length of the line in original buffer.
+ * Provides the length of the line in original string.
  * @param line
  *      The line whose length you want to obtain.
  * @return

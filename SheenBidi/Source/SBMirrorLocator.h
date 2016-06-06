@@ -26,7 +26,7 @@ typedef struct _SBMirrorLocator {
     SBCodepointSequenceRef _codepointSequence;
     SBLineRef _line;
     SBUInteger _runIndex;
-    SBUInteger _bufferIndex;
+    SBUInteger _stringIndex;
     SBMirrorAgent agent;
     SBUInteger _retainCount;
 } SBMirrorLocator;

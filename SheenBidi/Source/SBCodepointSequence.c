@@ -24,43 +24,43 @@
 #include "SBCodepointSequence.h"
 
 static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
-    void *buffer, SBUInteger length);
+    const void *stringBuffer, SBUInteger stringLength);
 
-static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
-static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
-static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index);
+static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
 
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8Buffer(SBUInt8 *buffer, SBUInteger length)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8String(const SBUInt8 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF8, buffer, length);
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF8, string, length);
 }
 
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16Buffer(SBUInt16 *buffer, SBUInteger length)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16String(const SBUInt16 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF16, buffer, length);
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF16, string, length);
 }
 
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32Buffer(SBUInt32 *buffer, SBUInteger length)
+SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF32, buffer, length);
+    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF32, string, length);
 }
 
-SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *bufferIndex)
+SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex)
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
-    if (bufferIndex && *bufferIndex < codepointSequence->length) {
+    if (stringIndex && *stringIndex < codepointSequence->stringLength) {
         switch (codepointSequence->_encoding) {
             case SBEncodingUTF8:
-                codepoint = _SBGetUTF8CodepointAt(codepointSequence, bufferIndex);
+                codepoint = _SBGetUTF8CodepointAt(codepointSequence, stringIndex);
                 break;
 
             case SBEncodingUTF16:
-                codepoint = _SBGetUTF16CodepointAt(codepointSequence, bufferIndex);
+                codepoint = _SBGetUTF16CodepointAt(codepointSequence, stringIndex);
                 break;
 
             case SBEncodingUTF32:
-                codepoint = _SBGetUTF32CodepointAt(codepointSequence, bufferIndex);
+                codepoint = _SBGetUTF32CodepointAt(codepointSequence, stringIndex);
                 break;
         }
     }
@@ -85,25 +85,25 @@ void SBCodepointSequenceRelease(SBCodepointSequenceRef codepointSequence)
 }
 
 static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
-    void *buffer, SBUInteger length)
+    const void *stringBuffer, SBUInteger stringLength)
 {
     SBCodepointSequenceRef codepointSequence = NULL;
 
-    if (buffer && length > 0) {
+    if (stringBuffer && stringLength > 0) {
         codepointSequence = malloc(sizeof(SBCodepointSequence));
         codepointSequence->_encoding = encoding;
-        codepointSequence->buffer = buffer;
-        codepointSequence->length = length;
+        codepointSequence->stringBuffer = stringBuffer;
+        codepointSequence->stringLength = stringLength;
         codepointSequence->_retainCount = 1;
     }
 
     return codepointSequence;
 }
 
-static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index)
+static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex)
 {
-    SBUInt8 *buffer = codepointSequence->buffer;
-    SBUInteger remaining = codepointSequence->length - *index;
+    const SBUInt8 *utf8String = codepointSequence->stringBuffer;
+    SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
     SBCodepoint header;
     SBCodepoint result;
 
@@ -123,31 +123,31 @@ static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequenc
      * +------+---------+----------+-------+----------+----------+----------+----------+
      */
 
-    header = buffer[*index];
+    header = utf8String[*stringIndex];
     result = SBCodepointFaulty;
 
-    *index += 1;
+    *stringIndex += 1;
 
     if (header < 0x80) {
         result = header;
     } else if (SBUInt8InRange(header, 0xC2, 0xDF)) {
         if (remaining > 1) {
             SBCodepoint byte1 = header & 0xF;
-            SBCodepoint byte2 = buffer[*index + 0] - 0x80;
+            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
 
             if (byte2 <= 0x3F) {
                 SBCodepoint codepoint = (byte1 << 6)
                                       | (byte2 << 0);
 
                 result = codepoint;
-                *index += 1;
+                *stringIndex += 1;
             }
         }
     } else if (SBUInt8InRange(header, 0xE0, 0xEF)) {
         if (remaining > 2) {
             SBCodepoint byte1 = header & 0xF;
-            SBCodepoint byte2 = buffer[*index + 0] - 0x80;
-            SBCodepoint byte3 = buffer[*index + 1] - 0x80;
+            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
+            SBCodepoint byte3 = utf8String[*stringIndex + 1] - 0x80;
 
             if (byte2 <= 0x3F && byte3 <= 0x3F) {
                 SBCodepoint codepoint = (byte1 << 12)
@@ -156,16 +156,16 @@ static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequenc
 
                 if (codepoint > 0x0800 && !SBCodepointInRange(codepoint, 0xD800, 0xDFFF)) {
                     result = codepoint;
-                    *index += 2;
+                    *stringIndex += 2;
                 }
             }
         }
     } else if (SBUInt8InRange(header, 0xF0, 0xF4)) {
         if (remaining > 3) {
             SBCodepoint byte1 = header & 0x7;
-            SBCodepoint byte2 = buffer[*index + 0] - 0x80;
-            SBCodepoint byte3 = buffer[*index + 1] - 0x80;
-            SBCodepoint byte4 = buffer[*index + 2] - 0x80;
+            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
+            SBCodepoint byte3 = utf8String[*stringIndex + 1] - 0x80;
+            SBCodepoint byte4 = utf8String[*stringIndex + 2] - 0x80;
 
             if (byte2 <= 0x3F && byte3 <= 0x3F && byte4 <= 0x3F) {
                 SBCodepoint codepoint = (byte1 << 18)
@@ -175,7 +175,7 @@ static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequenc
 
                 if (SBCodepointInRange(codepoint, 0x10000, 0x10FFFF)) {
                     result = codepoint;
-                    *index += 3;
+                    *stringIndex += 3;
                 }
             }
         }
@@ -184,28 +184,28 @@ static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequenc
     return result;
 }
 
-static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index)
+static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex)
 {
-    SBUInt16 *buffer = codepointSequence->buffer;
-    SBUInteger remaining = codepointSequence->length - *index;
+    const SBUInt16 *utf16String = codepointSequence->stringBuffer;
+    SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
     SBCodepoint header;
     SBCodepoint result;
 
-    header = buffer[*index];
+    header = utf16String[*stringIndex];
     result = SBCodepointFaulty;
 
-    *index += 1;
+    *stringIndex += 1;
 
     if (!SBUInt16InRange(header, 0xD800, 0xDFFF)) {
         result = header;
     } else if (header <= 0xDBFF) {
         if (remaining > 1) {
             SBCodepoint high = header;
-            SBCodepoint low = buffer[*index];
+            SBCodepoint low = utf16String[*stringIndex];
 
             if (SBCodepointInRange(low, 0xDC00, 0xDFFF)) {
                 result = (high << 10) + low - ((0xD800 << 10) + 0xDC00 - 0x10000);
-                *index += 1;
+                *stringIndex += 1;
             }
         }
     }
@@ -213,16 +213,16 @@ static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequenceRef codepointSequen
     return result;
 }
 
-static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *index)
+static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex)
 {
-    SBUInt32 *buffer = codepointSequence->buffer;
+    const SBUInt32 *utf32String = codepointSequence->stringBuffer;
     SBCodepoint header;
     SBCodepoint result;
 
-    header = buffer[*index];
+    header = utf32String[*stringIndex];
     result = SBCodepointFaulty;
 
-    *index += 1;
+    *stringIndex += 1;
 
     if (!SBCodepointInRange(header, 0xD800, 0xDFFF) && header <= 0x10FFFF) {
         result = header;

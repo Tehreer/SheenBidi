@@ -295,7 +295,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
     for (link = roller->next; link != roller; link = link->next) {
-        SBUInteger bufferIndex;
+        SBUInteger stringIndex;
         SBCodepoint codepoint;
         SBCharType type;
 
@@ -306,8 +306,8 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
         switch (type) {
         case SBCharTypeON:
-            bufferIndex = link->offset;
-            codepoint = SBCodepointSequenceGetCodepointAt(sequence, &bufferIndex);
+            stringIndex = link->offset;
+            codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
             bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
 
             switch (bracketType) {
