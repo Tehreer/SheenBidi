@@ -46,6 +46,12 @@
 SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength);
 SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength);
 
+#define SBCodepointMax              0x10FFFF
+
 #define SBCodepointInRange(v, s, e) SBUInt32InRange(v, s, e)
+
+#define SBCodepointIsSurrogate(c)   SBCodepointInRange(c, 0xD800, 0xDFFF)
+
+#define SBCodepointIsValid(c)       (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
 
 #endif
