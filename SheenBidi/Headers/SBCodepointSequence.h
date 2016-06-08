@@ -25,6 +25,7 @@ SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8String(const SBUInt8 *st
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16String(const SBUInt16 *string, SBUInteger length);
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *string, SBUInteger length);
 
+SBUInteger SBCodepointSequenceGetStringLength(SBCodepointSequenceRef codepointSequence);
 SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
 
 SBCodepointSequenceRef SBCodepointSequenceRetain(SBCodepointSequenceRef codepointSequence);

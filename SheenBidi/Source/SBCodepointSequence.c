@@ -45,6 +45,11 @@ SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *
     return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF32, string, length);
 }
 
+SBUInteger SBCodepointSequenceGetStringLength(SBCodepointSequenceRef codepointSequence)
+{
+    return codepointSequence->stringLength;
+}
+
 SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex)
 {
     SBCodepoint codepoint = SBCodepointInvalid;
