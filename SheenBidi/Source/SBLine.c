@@ -50,7 +50,7 @@ static SBLineRef _SBLineAllocate(SBUInteger runCount);
 static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel);
 static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount);
 
-static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length);
+static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length, SBUInteger lineOffset);
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
 static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
@@ -198,29 +198,29 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
     }
 }
 
-static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length)
+static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length, SBUInteger lineOffset)
 {
     SBUInteger index;
     SBUInteger runCount = 1;
 
-    (*runs).offset = 0;
+    (*runs).offset = lineOffset;
     (*runs).level = levels[0];
 
     for (index = 0; index < length; ++index) {
         SBLevel level = levels[index];
 
         if (level != (*runs).level) {
-            (*runs).length = index - (*runs).offset;
+            (*runs).length = index + (*runs).offset - lineOffset;
 
             ++runs;
-            (*runs).offset = index;
+            (*runs).offset = lineOffset + index;
             (*runs).level = level;
 
             ++runCount;
         }
     }
 
-    (*runs).length = index - (*runs).offset;
+    (*runs).length = index + (*runs).offset - lineOffset;
 
     return runCount;
 }
@@ -278,7 +278,7 @@ static SBLineRef _SBLineCreate(SBCodepointSequenceRef codepointSequence, SBCharT
     _SBResetLevels(support, baseLevel, length);
 
     line = _SBLineAllocate(support->runCount);
-    line->runCount = _SBInitializeRuns(line->fixedRuns, support->fixedLevels, length);
+    line->runCount = _SBInitializeRuns(line->fixedRuns, support->fixedLevels, length, offset);
     _SBReorderRuns(line->fixedRuns, line->runCount, support->maxLevel);
 
     line->codepointSequence = SBCodepointSequenceRetain(codepointSequence);

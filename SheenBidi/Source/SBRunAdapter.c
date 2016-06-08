@@ -70,7 +70,7 @@ SBBoolean SBRunAdapterMoveNext(SBRunAdapterRef adapter)
                     }
                 }
 
-                adapter->agent.offset = adapter->_index;
+                adapter->agent.offset = paragraph->offset + adapter->_index;
                 adapter->agent.length = nextIndex - adapter->_index;
                 adapter->agent.level = runLevel;
                 adapter->_index = nextIndex;
