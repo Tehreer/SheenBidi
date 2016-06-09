@@ -210,7 +210,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger len
         SBLevel level = levels[index];
 
         if (level != (*runs).level) {
-            (*runs).length = index + (*runs).offset - lineOffset;
+            (*runs).length = index + lineOffset - (*runs).offset;
 
             ++runs;
             (*runs).offset = lineOffset + index;
@@ -220,7 +220,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger len
         }
     }
 
-    (*runs).length = index + (*runs).offset - lineOffset;
+    (*runs).length = index + lineOffset - (*runs).offset;
 
     return runCount;
 }
