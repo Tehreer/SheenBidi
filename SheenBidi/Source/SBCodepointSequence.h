@@ -23,15 +23,15 @@
 #include "SBBase.h"
 
 enum {
-    SBEncodingUnknown = 0,
-    SBEncodingUTF8 = 1,
-    SBEncodingUTF16 = 2,
-    SBEncodingUTF32 = 3
+    SBStringEncodingUnknown = 0,
+    SBStringEncodingUTF8 = 1,
+    SBStringEncodingUTF16 = 2,
+    SBStringEncodingUTF32 = 3
 };
-typedef SBUInt32 SBEncoding;
+typedef SBUInt32 SBStringEncoding;
 
 typedef struct _SBCodepointSequence {
-    SBEncoding _encoding;
+    SBStringEncoding stringEncoding;
     const void *stringBuffer;
     SBUInteger stringLength;
     SBUInteger _retainCount;

@@ -23,7 +23,7 @@
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
 
-static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
+static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBStringEncoding stringEncoding,
     const void *stringBuffer, SBUInteger stringLength);
 
 static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
@@ -35,17 +35,17 @@ static SBCodepoint _SBGetUTF32CodepointBefore(SBCodepointSequenceRef codepointSe
 
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8String(const SBUInt8 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF8, string, length);
+    return SBCodepointSequenceCreateWithEncoding(SBStringEncodingUTF8, string, length);
 }
 
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16String(const SBUInt16 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF16, string, length);
+    return SBCodepointSequenceCreateWithEncoding(SBStringEncodingUTF16, string, length);
 }
 
 SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *string, SBUInteger length)
 {
-    return SBCodepointSequenceCreateWithEncoding(SBEncodingUTF32, string, length);
+    return SBCodepointSequenceCreateWithEncoding(SBStringEncodingUTF32, string, length);
 }
 
 SBUInteger SBCodepointSequenceGetStringLength(SBCodepointSequenceRef codepointSequence)
@@ -57,17 +57,17 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequenceRef codepoi
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
-    if (stringIndex && *stringIndex <= codepointSequence->stringLength) {
-        switch (codepointSequence->_encoding) {
-            case SBEncodingUTF8:
+    if ((*stringIndex - 1) < codepointSequence->stringLength) {
+        switch (codepointSequence->stringEncoding) {
+            case SBStringEncodingUTF8:
                 codepoint = _SBGetUTF8CodepointBefore(codepointSequence, stringIndex);
                 break;
 
-            case SBEncodingUTF16:
+            case SBStringEncodingUTF16:
                 codepoint = _SBGetUTF16CodepointBefore(codepointSequence, stringIndex);
                 break;
 
-            case SBEncodingUTF32:
+            case SBStringEncodingUTF32:
                 codepoint = _SBGetUTF32CodepointBefore(codepointSequence, stringIndex);
                 break;
         }
@@ -80,17 +80,17 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSe
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
-    if (stringIndex && *stringIndex < codepointSequence->stringLength) {
-        switch (codepointSequence->_encoding) {
-            case SBEncodingUTF8:
+    if (*stringIndex < codepointSequence->stringLength) {
+        switch (codepointSequence->stringEncoding) {
+            case SBStringEncodingUTF8:
                 codepoint = _SBGetUTF8CodepointAt(codepointSequence, stringIndex);
                 break;
 
-            case SBEncodingUTF16:
+            case SBStringEncodingUTF16:
                 codepoint = _SBGetUTF16CodepointAt(codepointSequence, stringIndex);
                 break;
 
-            case SBEncodingUTF32:
+            case SBStringEncodingUTF32:
                 codepoint = _SBGetUTF32CodepointAt(codepointSequence, stringIndex);
                 break;
         }
@@ -115,14 +115,14 @@ void SBCodepointSequenceRelease(SBCodepointSequenceRef codepointSequence)
     }
 }
 
-static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBEncoding encoding,
+static SBCodepointSequenceRef SBCodepointSequenceCreateWithEncoding(SBStringEncoding stringEncoding,
     const void *stringBuffer, SBUInteger stringLength)
 {
     SBCodepointSequenceRef codepointSequence = NULL;
 
     if (stringBuffer && stringLength > 0) {
         codepointSequence = malloc(sizeof(SBCodepointSequence));
-        codepointSequence->_encoding = encoding;
+        codepointSequence->stringEncoding = stringEncoding;
         codepointSequence->stringBuffer = stringBuffer;
         codepointSequence->stringLength = stringLength;
         codepointSequence->_retainCount = 1;
