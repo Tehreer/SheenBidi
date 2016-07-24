@@ -27,7 +27,7 @@
 #include "SBLevelRun.h"
 
 typedef struct _SBIsolatingRun {
-    SBCodepointSequenceRef codepointSequence;
+    SBCodepointSequencePtr codepointSequence;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;

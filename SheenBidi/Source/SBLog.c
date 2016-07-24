@@ -152,7 +152,7 @@ SB_INTERNAL void _SBPrintCharType(SBCharType type)
     }
 }
 
-SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequenceRef codepointSequence)
+SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequencePtr codepointSequence)
 {
     SBUInteger stringIndex = 0;
     SBCodepoint codepoint;

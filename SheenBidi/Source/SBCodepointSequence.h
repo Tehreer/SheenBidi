@@ -20,21 +20,6 @@
 #include <SBConfig.h>
 #include <SBCodepointSequence.h>
 
-#include "SBBase.h"
-
-enum {
-    SBStringEncodingUnknown = 0,
-    SBStringEncodingUTF8 = 1,
-    SBStringEncodingUTF16 = 2,
-    SBStringEncodingUTF32 = 3
-};
-typedef SBUInt32 SBStringEncoding;
-
-typedef struct _SBCodepointSequence {
-    SBStringEncoding stringEncoding;
-    const void *stringBuffer;
-    SBUInteger stringLength;
-    SBUInteger _retainCount;
-} SBCodepointSequence;
+SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(SBCodepointSequencePtr codepointSequence);
 
 #endif

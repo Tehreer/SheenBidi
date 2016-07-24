@@ -19,18 +19,21 @@
 
 #include "SBBase.h"
 
-typedef struct _SBCodepointSequence *SBCodepointSequenceRef;
+enum {
+    SBStringEncodingUTF8 = 0,
+    SBStringEncodingUTF16 = 1,
+    SBStringEncodingUTF32 = 2
+};
+typedef SBUInt32 SBStringEncoding;
 
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF8String(const SBUInt8 *string, SBUInteger length);
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF16String(const SBUInt16 *string, SBUInteger length);
-SBCodepointSequenceRef SBCodepointSequenceCreateWithUTF32String(const SBUInt32 *string, SBUInteger length);
+typedef struct _SBCodepointSequence {
+    SBStringEncoding stringEncoding;
+    void *stringBuffer;
+    SBUInteger stringLength;
+} SBCodepointSequence;
+typedef const SBCodepointSequence *SBCodepointSequencePtr;
 
-SBUInteger SBCodepointSequenceGetStringLength(SBCodepointSequenceRef codepointSequence);
-
-SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
-SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequenceRef codepointSequence, SBUInteger *stringIndex);
-
-SBCodepointSequenceRef SBCodepointSequenceRetain(SBCodepointSequenceRef codepointSequence);
-void SBCodepointSequenceRelease(SBCodepointSequenceRef codepointSequence);
+SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
+SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
 
 #endif

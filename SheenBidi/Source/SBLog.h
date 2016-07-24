@@ -32,7 +32,7 @@
 SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel);
 SB_INTERNAL void _SBPrintCharType(SBCharType type);
 
-SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequenceRef codepointSequence);
+SB_INTERNAL void _SBPrintCodepointSequence(SBCodepointSequencePtr codepointSequence);
 SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 

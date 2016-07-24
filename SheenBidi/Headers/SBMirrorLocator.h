@@ -43,8 +43,10 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void);
  *      The locator in which the line will be loaded.
  * @param line
  *      The line which will be loaded in the locator.
+ * @param stringBuffer
+ *      The string buffer from which the line's algorithm was created.
  */
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line);
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *stringBuffer);
 
 /**
  * Provides the agent containing the information of current located mirror.

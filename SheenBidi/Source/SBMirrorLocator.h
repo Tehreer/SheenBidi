@@ -23,7 +23,6 @@
 #include <SBLine.h>
 
 typedef struct _SBMirrorLocator {
-    SBCodepointSequenceRef _codepointSequence;
     SBLineRef _line;
     SBUInteger _runIndex;
     SBUInteger _stringIndex;

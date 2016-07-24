@@ -610,7 +610,7 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
-    SBCodepointSequenceRef codepointSequence = algorithm->codepointSequence;
+    SBCodepointSequencePtr codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringLength = codepointSequence->stringLength;
     SBUInteger actualLength;
     SBUInteger linkCount;

@@ -25,7 +25,7 @@
 #include <SBRun.h>
 
 typedef struct _SBLine {
-    SBCodepointSequenceRef codepointSequence;
+    SBCodepointSequence codepointSequence;
     SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;

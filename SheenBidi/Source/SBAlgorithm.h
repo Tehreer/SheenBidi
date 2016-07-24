@@ -24,7 +24,7 @@
 #include "SBCharType.h"
 
 typedef struct _SBAlgorithm {
-    SBCodepointSequenceRef codepointSequence;
+    SBCodepointSequence codepointSequence;
     SBCharType *fixedTypes;
     SBUInteger _retainCount;
 } SBAlgorithm;

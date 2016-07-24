@@ -27,7 +27,6 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void)
     SBMirrorLocatorRef locator;
 
     locator = malloc(sizeof(SBMirrorLocator));
-    locator->_codepointSequence = NULL;
     locator->_line = NULL;
     locator->_retainCount = 1;
     SBMirrorLocatorReset(locator);
@@ -35,12 +34,13 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void)
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line)
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *stringBuffer)
 {
     SBLineRelease(locator->_line);
 
-    locator->_codepointSequence = line->codepointSequence;
-    locator->_line = SBLineRetain(line);
+    if (line && stringBuffer == line->codepointSequence.stringBuffer) {
+        locator->_line = SBLineRetain(line);
+    }
 
     SBMirrorLocatorReset(locator);
 }
@@ -52,10 +52,11 @@ SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
 
 SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
 {
-    SBCodepointSequenceRef sequence = locator->_codepointSequence;
     SBLineRef line = locator->_line;
 
-    if (sequence && line) {
+    if (line) {
+        SBCodepointSequencePtr sequence = &line->codepointSequence;
+
         do {
             const SBRun *run = &line->fixedRuns[locator->_runIndex];
 
