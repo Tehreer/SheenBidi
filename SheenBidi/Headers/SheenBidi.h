@@ -24,6 +24,5 @@
 #include "SBMirrorLocator.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
-#include "SBRunAdapter.h"
 
 #endif

@@ -33,7 +33,6 @@
 #include "SBMirrorLocator.c"
 #include "SBPairingLookup.c"
 #include "SBParagraph.c"
-#include "SBRunAdapter.c"
 #include "SBRunQueue.c"
 #include "SBStatusStack.c"
 
