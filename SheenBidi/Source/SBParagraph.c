@@ -151,28 +151,28 @@ static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger para
         currentType = charTypes[stringIndex];
 
         switch (currentType) {
-            case SBCharTypeON:
-            case SBCharTypeLRE:
-            case SBCharTypeRLE:
-            case SBCharTypeLRO:
-            case SBCharTypeRLO:
-            case SBCharTypePDF:
-            case SBCharTypeLRI:
-            case SBCharTypeRLI:
-            case SBCharTypeFSI:
-            case SBCharTypePDI:
-                ++linkCount;
-                break;
+        case SBCharTypeON:
+        case SBCharTypeLRE:
+        case SBCharTypeRLE:
+        case SBCharTypeLRO:
+        case SBCharTypeRLO:
+        case SBCharTypePDF:
+        case SBCharTypeLRI:
+        case SBCharTypeRLI:
+        case SBCharTypeFSI:
+        case SBCharTypePDI:
+            ++linkCount;
+            break;
 
-            case SBCharTypeB:
-                ++linkCount;
-                goto Return;
+        case SBCharTypeB:
+            ++linkCount;
+            goto Return;
 
-            default:
-                if (currentType != priorType) {
-                    ++linkCount;
-                }
-                break;
+        default:
+            if (currentType != priorType) {
+                ++linkCount;
+            }
+            break;
         }
     }
 

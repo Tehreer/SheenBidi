@@ -55,17 +55,17 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
 
     if ((*stringIndex - 1) < codepointSequence->stringLength) {
         switch (codepointSequence->stringEncoding) {
-            case SBStringEncodingUTF8:
-                codepoint = _SBGetUTF8CodepointBefore(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF8:
+            codepoint = _SBGetUTF8CodepointBefore(codepointSequence, stringIndex);
+            break;
 
-            case SBStringEncodingUTF16:
-                codepoint = _SBGetUTF16CodepointBefore(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF16:
+            codepoint = _SBGetUTF16CodepointBefore(codepointSequence, stringIndex);
+            break;
 
-            case SBStringEncodingUTF32:
-                codepoint = _SBGetUTF32CodepointBefore(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF32:
+            codepoint = _SBGetUTF32CodepointBefore(codepointSequence, stringIndex);
+            break;
         }
     }
 
@@ -78,17 +78,17 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
 
     if (*stringIndex < codepointSequence->stringLength) {
         switch (codepointSequence->stringEncoding) {
-            case SBStringEncodingUTF8:
-                codepoint = _SBGetUTF8CodepointAt(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF8:
+            codepoint = _SBGetUTF8CodepointAt(codepointSequence, stringIndex);
+            break;
 
-            case SBStringEncodingUTF16:
-                codepoint = _SBGetUTF16CodepointAt(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF16:
+            codepoint = _SBGetUTF16CodepointAt(codepointSequence, stringIndex);
+            break;
 
-            case SBStringEncodingUTF32:
-                codepoint = _SBGetUTF32CodepointAt(codepointSequence, stringIndex);
-                break;
+        case SBStringEncodingUTF32:
+            codepoint = _SBGetUTF32CodepointAt(codepointSequence, stringIndex);
+            break;
         }
     }
 
