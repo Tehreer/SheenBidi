@@ -31,9 +31,8 @@ typedef struct _SBCodepointSequence {
     void *stringBuffer;
     SBUInteger stringLength;
 } SBCodepointSequence;
-typedef const SBCodepointSequence *SBCodepointSequencePtr;
 
-SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
+SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
 #endif

@@ -55,7 +55,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
     SBLineRef line = locator->_line;
 
     if (line) {
-        SBCodepointSequencePtr sequence = &line->codepointSequence;
+        const SBCodepointSequence *sequence = &line->codepointSequence;
 
         do {
             const SBRun *run = &line->fixedRuns[locator->_runIndex];

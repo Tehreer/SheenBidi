@@ -44,7 +44,7 @@ static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
     return algorithm;
 }
 
-static void _SBDetermineCharTypes(SBCodepointSequencePtr sequence, SBCharType *types)
+static void _SBDetermineCharTypes(const SBCodepointSequence *sequence, SBCharType *types)
 {
     SBUInteger stringIndex = 0;
     SBUInteger firstIndex = 0;
@@ -60,7 +60,7 @@ static void _SBDetermineCharTypes(SBCodepointSequencePtr sequence, SBCharType *t
     }
 }
 
-SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequencePtr codepointSequence)
+SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
 {
     if (SBCodepointSequenceIsValid(codepointSequence)) {
         SBUInteger stringLength = codepointSequence->stringLength;
@@ -90,7 +90,7 @@ SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequencePtr codepointSequence)
 
 SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
 {
-    SBCodepointSequencePtr codepointSequence = &algorithm->codepointSequence;
+    const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringIndex = separatorIndex;
     SBCodepoint codepoint;
     SBUInteger separatorLength;
@@ -116,7 +116,7 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength,
     SBUInteger *acutalLength, SBUInteger *separatorLength)
 {
-    SBCodepointSequencePtr codepointSequence = &algorithm->codepointSequence;
+    const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBCharType *charTypes = algorithm->fixedTypes;
     SBUInteger limitIndex;
     SBUInteger startIndex;
@@ -143,7 +143,7 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
 SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
-    SBCodepointSequencePtr codepointSequence = &algorithm->codepointSequence;
+    const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringLength = codepointSequence->stringLength;
 
     SBUIntegerNormalizeRange(stringLength, &paragraphOffset, &suggestedLength);

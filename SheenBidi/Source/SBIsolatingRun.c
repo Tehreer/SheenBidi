@@ -281,7 +281,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 
 static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 {
-    SBCodepointSequencePtr sequence = isolatingRun->codepointSequence;
+    const SBCodepointSequence *sequence = isolatingRun->codepointSequence;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiLinkRef roller = &isolatingRun->_dummyLink;
     SBBidiLinkRef link;

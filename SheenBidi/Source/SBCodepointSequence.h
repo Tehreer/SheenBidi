@@ -20,6 +20,6 @@
 #include <SBConfig.h>
 #include <SBCodepointSequence.h>
 
-SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(SBCodepointSequencePtr codepointSequence);
+SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence);
 
 #endif

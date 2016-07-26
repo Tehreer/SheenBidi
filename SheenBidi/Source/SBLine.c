@@ -34,29 +34,29 @@ typedef struct _SBLineSupport _SBLineSupport;
 typedef _SBLineSupport *_SBLineSupportRef;
 
 struct _SBLineSupport {
-    SBCharType *refTypes;
+    const SBCharType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
     SBLevel maxLevel;
 };
 
-static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount);
+static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount);
 
 static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount);
-static void _SBLineSupportInitialize(_SBLineSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger charCount);
+static void _SBLineSupportInitialize(_SBLineSupportRef support, const SBCharType *types, SBLevel *levels, SBUInteger charCount);
 static void _SBLineSupportDeallocate(_SBLineSupportRef support);
 
 static SBLineRef _SBLineAllocate(SBUInteger runCount);
 static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel);
 static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount);
 
-static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length, SBUInteger lineOffset);
+static SBUInteger _SBInitializeRuns(SBRun *runs, const SBLevel *levels, SBUInteger length, SBUInteger lineOffset);
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
 static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
-static SBLineRef _SBLineCreate(SBCodepointSequencePtr codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
+static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
 
-static SBLevel _SBCopyLevels(SBLevel *destination, SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
+static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
     SBLevel lastLevel = SBLevelInvalid;
     SBLevel maxLevel = 0;
@@ -99,7 +99,8 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
     return support;
 }
 
-static void _SBLineSupportInitialize(_SBLineSupportRef support, SBCharType *types, SBLevel *levels, SBUInteger charCount)
+static void _SBLineSupportInitialize(_SBLineSupportRef support,
+    const SBCharType *types, SBLevel *levels, SBUInteger charCount)
 {
     SBLevel maxLevel;
     SBUInteger runCount;
@@ -146,7 +147,7 @@ static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 
 static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
 {
-    SBCharType *types = support->refTypes;
+    const SBCharType *types = support->refTypes;
     SBLevel *levels = support->fixedLevels;
     SBUInteger index;
     SBUInteger length;
@@ -198,7 +199,8 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
     }
 }
 
-static SBUInteger _SBInitializeRuns(SBRun *runs, SBLevel *levels, SBUInteger length, SBUInteger lineOffset)
+static SBUInteger _SBInitializeRuns(SBRun *runs,
+    const SBLevel *levels, SBUInteger length, SBUInteger lineOffset)
 {
     SBUInteger index;
     SBUInteger runCount = 1;
@@ -267,7 +269,8 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
     }
 }
 
-static SBLineRef _SBLineCreate(SBCodepointSequencePtr codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence,
+    SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     _SBLineSupportRef support;
     SBLineRef line;

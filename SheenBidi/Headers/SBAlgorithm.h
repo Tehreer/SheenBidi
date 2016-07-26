@@ -23,7 +23,7 @@
 
 typedef struct _SBAlgorithm *SBAlgorithmRef;
 
-SBAlgorithmRef SBAlgorithmCreate(SBCodepointSequencePtr codepointSequence);
+SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence);
 
 void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength,

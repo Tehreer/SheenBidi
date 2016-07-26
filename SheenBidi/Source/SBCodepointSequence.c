@@ -23,14 +23,14 @@
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
 
-static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF8CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF16CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF32CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
-SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(SBCodepointSequencePtr codepointSequence)
+SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence)
 {
     if (codepointSequence) {
         SBBoolean encodingValid = SBFalse;
@@ -49,7 +49,7 @@ SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(SBCodepointSequencePtr codepoin
     return SBFalse;
 }
 
-SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
@@ -72,7 +72,7 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(SBCodepointSequencePtr codepoi
     return codepoint;
 }
 
-SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
@@ -95,7 +95,7 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(SBCodepointSequencePtr codepointSe
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt8 *utf8String = codepointSequence->stringBuffer;
     SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
@@ -179,7 +179,7 @@ static SBCodepoint _SBGetUTF8CodepointAt(SBCodepointSequencePtr codepointSequenc
     return result;
 }
 
-static SBCodepoint _SBGetUTF8CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt8 *utf8String = codepointSequence->stringBuffer;
     SBUInteger startIndex = *stringIndex;
@@ -210,7 +210,7 @@ static SBCodepoint _SBGetUTF8CodepointBefore(SBCodepointSequencePtr codepointSeq
     return result;
 }
 
-static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt16 *utf16String = codepointSequence->stringBuffer;
     SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
@@ -239,7 +239,7 @@ static SBCodepoint _SBGetUTF16CodepointAt(SBCodepointSequencePtr codepointSequen
     return result;
 }
 
-static SBCodepoint _SBGetUTF16CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt16 *utf16String = codepointSequence->stringBuffer;
     SBUInteger remaining;
@@ -269,7 +269,7 @@ static SBCodepoint _SBGetUTF16CodepointBefore(SBCodepointSequencePtr codepointSe
     return result;
 }
 
-static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt32 *utf32String = codepointSequence->stringBuffer;
     SBCodepoint header;
@@ -287,7 +287,7 @@ static SBCodepoint _SBGetUTF32CodepointAt(SBCodepointSequencePtr codepointSequen
     return result;
 }
 
-static SBCodepoint _SBGetUTF32CodepointBefore(SBCodepointSequencePtr codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt32 *utf32String = codepointSequence->stringBuffer;
     SBCodepoint header;
