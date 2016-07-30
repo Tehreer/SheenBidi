@@ -83,8 +83,12 @@ void AlgorithmTester::testMulticharNewline()
     SBCodepoint codepointArray[] = { 'L', 'i', 'n', 'e', '\r', '\n', '.' };
     SBUInteger codepointCount = sizeof(codepointArray) / sizeof(SBCodepoint);
 
-    SBCodepointSequenceRef sequence = SBCodepointSequenceCreateWithUTF32Buffer(codepointArray, codepointCount);
-    SBAlgorithmRef algorithm = SBAlgorithmCreate(sequence);
+    SBCodepointSequence sequence;
+    sequence.stringEncoding = SBStringEncodingUTF32;
+    sequence.stringBuffer = codepointArray;
+    sequence.stringLength = codepointCount;
+
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(&sequence);
     SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, codepointCount, 0);
     SBUInteger offset = SBParagraphGetOffset(paragraph);
     SBUInteger length = SBParagraphGetLength(paragraph);
@@ -117,7 +121,6 @@ void AlgorithmTester::testMulticharNewline()
 
     SBParagraphRelease(paragraph);
     SBAlgorithmRelease(algorithm);
-    SBCodepointSequenceRelease(sequence);
 
     cout << failed << " error/s." << endl << endl;
 }
@@ -230,7 +233,9 @@ bool AlgorithmTester::testOrder() const {
         SBLevel level = runPtr->level;
 
         if (level & 1) {
-            for (size_t j = start, dcvIndex = end; j <= end; j++, dcvIndex--) {
+            dcvIndex = end;
+
+            for (size_t j = start; j <= end; j++, dcvIndex--) {
                 lgcIndex++;
 
                 if (m_levels->at(dcvIndex) == LEVEL_X) {
@@ -325,8 +330,12 @@ bool AlgorithmTester::testMirrors() const {
 bool AlgorithmTester::conductTest() {
     bool passed = true;
 
-    SBCodepointSequenceRef sequence = SBCodepointSequenceCreateWithUTF32Buffer(m_genChars, m_charCount);
-    SBAlgorithmRef algorithm = SBAlgorithmCreate(sequence);
+    SBCodepointSequence sequence;
+    sequence.stringEncoding = SBStringEncodingUTF32;
+    sequence.stringBuffer = m_genChars;
+    sequence.stringLength = m_charCount;
+
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(&sequence);
     SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, m_charCount, m_inputLevel);
     SBLevel paragraphlevel = SBParagraphGetBaseLevel(paragraph);
     if (m_paragraphLevel == LEVEL_X) {
@@ -360,7 +369,6 @@ bool AlgorithmTester::conductTest() {
 
     SBParagraphRelease(paragraph);
     SBAlgorithmRelease(algorithm);
-    SBCodepointSequenceRelease(sequence);
     
     return passed;
 }
