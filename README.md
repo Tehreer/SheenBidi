@@ -1,7 +1,7 @@
 SheenBidi
 =========
 
-SheenBidi implements Unicode Bidirectional Algorithm available at http://www.unicode.org/reports/tr9. It is the world's most sophisticated implementaion which provides the developers an easy way to use UBA in their applications.
+SheenBidi implements Unicode Bidirectional Algorithm available at http://www.unicode.org/reports/tr9. It is a sophisticated implementaion which provides the developers an easy way to use UBA in their applications.
 
 Here are some of the advantages of SheenBidi.
 - Object based.
@@ -22,45 +22,42 @@ The configuration options are available in `Headers/SBConifg.h`.
 SheenBidi can be compiled with any C compiler. The best way for compiling is to add all the files in an IDE and hit build. The only thing to consider however is that if ```SB_CONFIG_UNITY``` is enabled then only ```Source/SheenBidi.c``` should be compiled.
 
 ## Example
-Here is a simple example written in C++.
+Here is a simple example written in C11.
 ```
-#include <iostream>
+#include <stdio.h>
+#include <string.h>
 
-extern "C" {
 #include <SheenBidi.h>
-}
-
-using namespace std;
 
 int main(int argc, const char * argv[]) {
-  SBUnichar text[15] = { 0x06CC,0x06C1,0x0627,0x06CC,0x06A9,' ',')','c','a','r','(',' ',0x06C1,0x06D2,0x06D4 };
-  SBUInteger length = 15;
+    const char *bidiText = u8"یہ ایک )car( ہے۔";
 
-  SBParagraphRef paragraph = SBParagraphCreateWithUnicodeCharacters(text, length, SBBaseDirectionAutoLTR, SBParagraphOptionsNone);
-  SBLineRef line = SBLineCreateWithParagraph(paragraph, 0, length, SBLineOptionsNone);
+    SBCodepointSequence sequence = { SBStringEncodingUTF8, (void *)bidiText, strlen(bidiText) };
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(&sequence);
+    SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, sequence.stringLength, SBLevelDefaultLTR);
+    SBLineRef line = SBParagraphCreateLine(paragraph, 0, sequence.stringLength);
 
-  SBRunAdapterRef adapter = SBRunAdapterCreate();
-  SBRunAdapterLoadLine(adapter, line);
-  const SBRunAgentRef run = SBRunAdapterGetAgent(adapter);
-  while (SBRunAdapterMoveNext(adapter)) {
-    cout << "Run Level: " << (int)run->level << endl;
-    cout << "Run Offset: " << run->offset << endl;
-    cout << "Run Length: " << run->length << endl << endl;
-  }
-  SBRunAdapterRelease(adapter);
+    SBUInteger runCount = SBLineGetRunCount(line);
+    const SBRun *runArray = SBLineGetRunsPtr(line);
+    for (SBUInteger i = 0; i < runCount; i++) {
+        printf("Run Level: %ld\n", (long)runArray[i].level);
+        printf("Run Offset: %ld\n", (long)runArray[i].offset);
+        printf("Run Length: %ld\n\n", (long)runArray[i].length);
+    }
 
-  SBMirrorLocatorRef locator = SBMirrorLocatorCreate();
-  SBMirrorLocatorLoadLine(locator, line, text);
-  const SBMirrorAgentRef mirror = SBMirrorLocatorGetAgent(locator);
-  while (SBMirrorLocatorMoveNext(locator)) {
-    cout << "Mirror Location: " << mirror->index << endl;
-    cout << "Mirror Unicode: " << mirror->mirror << endl << endl;
-  }
-  SBMirrorLocatorRelease(locator);
+    SBMirrorLocatorRef locator = SBMirrorLocatorCreate();
+    SBMirrorLocatorLoadLine(locator, line, sequence.stringBuffer);
+    const SBMirrorAgentRef agent = SBMirrorLocatorGetAgent(locator);
+    while (SBMirrorLocatorMoveNext(locator)) {
+        printf("Mirror Location: %ld\n", (long)agent->index);
+        printf("Mirror Code Point: %ld\n\n", (long)agent->mirror);
+    }
+    SBMirrorLocatorRelease(locator);
 
-  SBLineRelease(line);
-  SBParagraphRelease(paragraph);
+    SBLineRelease(line);
+    SBParagraphRelease(paragraph);
+    SBAlgorithmRelease(algorithm);
     
-  return 0;
+    return 0;
 }
 ```
