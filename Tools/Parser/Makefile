@@ -1,0 +1,25 @@
+PARSER = $(DEBUG)/Parser
+
+PARSER_SRCS = $(PARSER_DIR)/BidiBrackets.cpp \
+              $(PARSER_DIR)/BidiCharacterTest.cpp \
+              $(PARSER_DIR)/BidiMirroring.cpp \
+              $(PARSER_DIR)/BidiTest.cpp \
+              $(PARSER_DIR)/UnicodeData.cpp \
+              $(PARSER_DIR)/UnicodeVersion.cpp
+
+PARSER_OBJS = $(PARSER_SRCS:$(PARSER_DIR)/%.cpp=$(PARSER)/%.o)
+
+$(PARSER):
+	mkdir $(PARSER)
+
+$(PARSER)/%.o: $(PARSER_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(PARSER_TARGET): $(PARSER_OBJS)
+	$(AR) $(ARFLAGS) $(PARSER_TARGET) $(PARSER_OBJS)
+
+parser: $(DEBUG) $(PARSER) $(PARSER_TARGET)
+
+parser_clean:
+	$(RM) $(PARSER)/*.o
+	$(RM) $(PARSER_TARGET)
