@@ -127,7 +127,7 @@ static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSeq
         result = header;
     } else if (SBUInt8InRange(header, 0xC2, 0xDF)) {
         if (remaining > 1) {
-            SBCodepoint byte1 = header & 0xF;
+            SBCodepoint byte1 = header & 0x1F;
             SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
 
             if (byte2 <= 0x3F) {
