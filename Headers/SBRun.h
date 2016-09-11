@@ -20,9 +20,9 @@
 #include "SBBase.h"
 
 typedef struct _SBRun {
-    SBUInteger offset;
-    SBUInteger length;
-    SBLevel level;
+    SBUInteger offset; /**< The index to the first code unit of the run in source string. */
+    SBUInteger length; /**< The number of code units covering the length of the run. */
+    SBLevel level;     /**< The embedding level of the run. */
 } SBRun;
 
 #endif

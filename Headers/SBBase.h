@@ -110,9 +110,10 @@ typedef SBUInt32                    SBCodepoint;
 #define SBCodepointFaulty           0xFFFD
 
 /**
- * Finds the mirror of the provided code point.
+ * Returns the mirror of the provided code point.
+ *
  * @param codepoint
- *      The code point whose mirror you want to find.
+ *      The code point whose mirror is returned.
  * @return
  *      The mirror of the provided code point if available, 0 otherwise.
  */

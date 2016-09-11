@@ -24,36 +24,40 @@
 typedef struct _SBLine *SBLineRef;
 
 /**
- * Provides the offset of the line in original string.
+ * Returns the index to first code unit of the line in source string.
+ *
  * @param line
- *      The line whose offset you want to obtain.
+ *      The line whose offset is returned.
  * @return
  *      The offset of the line passed in.
  */
 SBUInteger SBLineGetOffset(SBLineRef line);
 
 /**
- * Provides the length of the line in original string.
+ * Returns the number of code units coverting the length of the line.
+ *
  * @param line
- *      The line whose length you want to obtain.
+ *      The line whose length is returned.
  * @return
  *      The length of the line passed in.
  */
 SBUInteger SBLineGetLength(SBLineRef line);
 
 /**
- * Provides the total run count of the line.
+ * Returns the total run count of the line.
+ *
  * @param line
- *      The line whose run count you want to obtain.
+ *      The line whose run count is returned.
  * @return
- *      The total runs of the line passed in.
+ *      The total number of runs of the line passed in.
  */
 SBUInteger SBLineGetRunCount(SBLineRef line);
 
 /**
- * Provides a direct pointer for the run array stored in the line.
+ * Returns a direct pointer for the run array stored in the line.
+ *
  * @param line
- *      The line from which to access runs.
+ *      The line from which to access the runs.
  * @return
  *      A valid pointer to an array of SBRun structures. 
  */

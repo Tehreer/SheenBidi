@@ -20,19 +20,46 @@
 #include "SBBase.h"
 
 enum {
-    SBStringEncodingUTF8 = 0,
-    SBStringEncodingUTF16 = 1,
-    SBStringEncodingUTF32 = 2
+    SBStringEncodingUTF8 = 0,  /**< An 8-bit representation of Unicode code points. */
+    SBStringEncodingUTF16 = 1, /**< 16-bit UTF encoding in native endianness. */
+    SBStringEncodingUTF32 = 2  /**< 32-bit UTF encoding in native endianness. */
 };
 typedef SBUInt32 SBStringEncoding;
 
 typedef struct _SBCodepointSequence {
-    SBStringEncoding stringEncoding;
-    void *stringBuffer;
-    SBUInteger stringLength;
+    SBStringEncoding stringEncoding; /**< The encoding of the string. */
+    void *stringBuffer;              /**< The source string containing the code units. */
+    SBUInteger stringLength;         /**< The length of the string in terms of code units. */
 } SBCodepointSequence;
 
-SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+/**
+ * Returns the code point before the given string index.
+ *
+ * @param codepointSequence
+ *      The object holding the information of the string.
+ * @param stringIndex
+ *      The index of code unit before which to get the code point. On output, it is set to point to
+ *      the first code unit of returned code point.
+ * @return
+ *      The code point before the given string index, or SBCodepointInvalid if stringIndex is equal 
+ *      to zero or larger than actual length of source string.
+ */
+SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence,
+    SBUInteger *stringIndex);
+
+/**
+ * Returns the code point at the given string index.
+ *
+ * @param codepointSequence
+ *      The object holding the information of the string.
+ * @param stringIndex
+ *      The index of code unit at which to get the code point. On output, it is set to point to the
+ *      first code unit of next code point.
+ * @return
+ *      The code point at the given string index, or SBCodepointInvalid if stringIndex is larger
+ *      than or equal to actual length of source string.
+ */
+SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence,
+    SBUInteger *stringIndex);
 
 #endif

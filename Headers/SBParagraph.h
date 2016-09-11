@@ -24,49 +24,56 @@
 typedef struct _SBParagraph *SBParagraphRef;
 
 /**
- * Provides the offset of the paragraph in original string.
+ * Returns the index to first code unit of the paragraph in source string.
+ *
  * @param paragraph
- *      The paragraph whose offset you want to obtain.
+ *      The paragraph whose offset is returned.
  * @return
  *      The offset of the paragraph passed in.
  */
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph);
 
 /**
- * Provides the length of the paragraph in original string.
+ * Returns the number of code units covering the length of the paragraph.
+ *
  * @param paragraph
- *      The paragraph whose length you want to obtain.
+ *      The paragraph whose length is returned.
  * @return
  *      The length of the paragraph passed in.
  */
 SBUInteger SBParagraphGetLength(SBParagraphRef paragraph);
 
 /**
- * Provides the base level of the paragraph.
+ * Returns the base level of the paragraph.
+ *
  * @param paragraph
- *      The paragraph whose base level you want to obtain.
+ *      The paragraph whose base level is returned.
  * @return
  *      The base level of the paragraph passed in.
  */
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph);
 
 /**
- * Provides a direct pointer for the embedding levels stored in the paragraph.
+ * Returns a direct pointer for the embedding levels stored in the paragraph.
+ *
  * @param paragraph
- *      The paragraph from which to access levels.
+ *      The paragraph from which to access the embedding levels.
  * @return
  *      A valid pointer to an array of SBLevel structures.
  */
 const SBLevel *SBParagraphGetLevelsPtr(SBParagraphRef paragraph);
 
 /**
- * Creates a line object by implementing rules L1 to L3 of unicode bidirectional algorithm.
+ * Creates a line object of specified range by applying rules L1-L2 of Unicode Bidirectional
+ * Algorithm.
+ *
  * @param paragraph
  *      The paragraph that creates the line.
  * @param lineOffset
- *      The absolute starting index of the line residing inside the paragraph.
+ *      The index to the first code unit of the line in source string. It should occur within the
+ *      range of paragraph.
  * @param lineLength
- *      The length of the line.
+ *      The number of code units covering the length of the line.
  * @return
  *      A reference to a line object if the call was successful, NULL otherwise.
  */
