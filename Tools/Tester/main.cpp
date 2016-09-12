@@ -37,7 +37,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 
 int main(int argc, const char *argv[]) {
-    const char *dir = "/path/to/unidata";
+    const char *dir = argv[1];
 
     UnicodeData unicodeData(dir);
     BidiMirroring bidiMirroring(dir);
@@ -54,8 +54,6 @@ int main(int argc, const char *argv[]) {
     mirrorTester.test();
     bracketTester.test();
     algorithmTester.test();
-    
-    getchar();
 
     return 0;
 }

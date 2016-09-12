@@ -36,6 +36,8 @@ public:
     AlgorithmTester(Parser::BidiTest *bidiTest, Parser::BidiCharacterTest *bidiBracketTest, Parser::BidiMirroring *bidiMirroring);
     ~AlgorithmTester();
 
+    void testAlgorithm();
+    void testMulticharNewline();
     void test();
 
 private:
@@ -46,14 +48,16 @@ private:
     size_t testCounter;
     size_t failCounter;
 
-    SBRunAdapterRef m_runAdapter;
     SBMirrorLocatorRef m_mirrorLocator;
 
     SBCodepoint m_genChars[128];
     SBUInteger m_charCount;
 
-    SBBaseDirection m_paragraphDirection;
+    SBLevel m_inputLevel;
     uint8_t m_paragraphLevel;
+
+    SBUInteger m_runCount;
+    const SBRun *m_runArray;
 
     uint32_t m_genMirrors[128];
     size_t m_mirrorCount;

@@ -24,42 +24,42 @@ The configuration options are available in `Headers/SBConifg.h`.
 SheenBidi can be compiled with any C compiler. The best way for compiling is to add all the files in an IDE and hit build. The only thing to consider however is that if ```SB_CONFIG_UNITY``` is enabled then only ```Source/SheenBidi.c``` should be compiled.
 
 ## Example
-Here is a simple example written in C++.
+Here is a simple example written in C11.
 ```
 #include <stdio.h>
+#include <string.h>
+
 #include <SheenBidi.h>
 
 int main(int argc, const char * argv[]) {
-    SBCodepoint text[] = { 0x06CC,0x06C1,0x0627,0x06CC,0x06A9,' ',')','c','a','r','(',' ',0x06C1,0x06D2,0x06D4 };
-    SBUInteger length = sizeof(text) / sizeof(SBCodepoint);
-    SBRunAdapterRef runAdapter = SBRunAdapterCreate();
-    SBRunAgentRef runAgent = SBRunAdapterGetAgent(runAdapter);
-    SBMirrorLocatorRef mirrorLocator = SBMirrorLocatorCreate();
-    SBMirrorAgentRef mirrorAgent = SBMirrorLocatorGetAgent(mirrorLocator);
-    SBParagraphRef bidiParagraph;
-    SBLineRef bidiLine;
+    const char *bidiText = u8"یہ ایک )car( ہے۔";
 
-    bidiParagraph = SBParagraphCreateWithCodepoints(text, length, SBBaseDirectionAutoLTR, SBParagraphOptionsDefault);
-    bidiLine = SBLineCreateWithParagraph(bidiParagraph, 0, length, SBLineOptionsDefault);
+    SBCodepointSequence sequence = { SBStringEncodingUTF8, (void *)bidiText, strlen(bidiText) };
+    SBAlgorithmRef algorithm = SBAlgorithmCreate(&sequence);
+    SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, sequence.stringLength, SBLevelDefaultLTR);
+    SBLineRef line = SBParagraphCreateLine(paragraph, 0, sequence.stringLength);
 
-    SBRunAdapterLoadLine(runAdapter, bidiLine);
-    while (SBRunAdapterMoveNext(runAdapter)) {
-        printf("Run Level: %d\n", (int)runAgent->level);
-        printf("Run Offset: %ld\n", (long)runAgent->offset);
-        printf("Run Length: %ld\n\n", (long)runAgent->length);
+    SBUInteger runCount = SBLineGetRunCount(line);
+    const SBRun *runArray = SBLineGetRunsPtr(line);
+    for (SBUInteger i = 0; i < runCount; i++) {
+        printf("Run Level: %ld\n", (long)runArray[i].level);
+        printf("Run Offset: %ld\n", (long)runArray[i].offset);
+        printf("Run Length: %ld\n\n", (long)runArray[i].length);
     }
 
-    SBMirrorLocatorLoadLine(mirrorLocator, bidiLine, text);
-    while (SBMirrorLocatorMoveNext(mirrorLocator)) {
-        printf("Mirror Location: %ld\n", (long)mirrorAgent->index);
-        printf("Mirror Codepoint: %ld\n\n", (long)mirrorAgent->mirror);
+    SBMirrorLocatorRef locator = SBMirrorLocatorCreate();
+    SBMirrorLocatorLoadLine(locator, line, sequence.stringBuffer);
+    const SBMirrorAgentRef agent = SBMirrorLocatorGetAgent(locator);
+    while (SBMirrorLocatorMoveNext(locator)) {
+        printf("Mirror Location: %ld\n", (long)agent->index);
+        printf("Mirror Code Point: %ld\n\n", (long)agent->mirror);
     }
+    SBMirrorLocatorRelease(locator);
 
-    SBLineRelease(bidiLine);
-    SBParagraphRelease(bidiParagraph);
-    SBRunAdapterRelease(runAdapter);
-    SBMirrorLocatorRelease(mirrorLocator);
-
+    SBLineRelease(line);
+    SBParagraphRelease(paragraph);
+    SBAlgorithmRelease(algorithm);
+    
     return 0;
 }
 ```

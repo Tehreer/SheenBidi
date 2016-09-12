@@ -17,8 +17,8 @@
 #include <iostream>
 
 extern "C" {
+#include <SBBase.h>
 #include <SBConfig.h>
-#include <SBTypes.h>
 #include <Source/SBBracketType.h>
 #include <Source/SBPairingLookup.h>
 }
