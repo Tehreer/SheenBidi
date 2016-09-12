@@ -9,10 +9,14 @@ LIB_SHEENBIDI = sheenbidi
 LIB_PARSER    = sheenbidiparser
 EXEC_TESTER   = sheenbiditester
 
-AR = ar
-CC = gcc
-CXX = g++
+ifndef CC
+	CC = gcc
+endif
+ifndef CXX
+	CXX = g++
+endif
 
+AR = ar
 ARFLAGS = -r
 CFLAGS = -ansi -pedantic -Wall -I$(HEADERS_DIR)
 CXXFLAGS = -std=c++11 -g -Wall
@@ -48,6 +52,19 @@ PARSER_TARGET  = $(DEBUG)/lib$(LIB_PARSER).a
 TESTER_TARGET  = $(DEBUG)/$(EXEC_TESTER)
 RELEASE_TARGET = $(RELEASE)/lib$(LIB_SHEENBIDI).a
 
+all:     release
+release: $(RELEASE) $(RELEASE_TARGET)
+debug:   $(DEBUG) $(DEBUG_TARGET)
+
+check: tester
+	./Debug/sheenbiditester Tools/Unicode
+
+clean: parser_clean tester_clean
+	$(RM) $(DEBUG)/*.o
+	$(RM) $(DEBUG_TARGET)
+	$(RM) $(RELEASE)/*.o
+	$(RM) $(RELEASE_TARGET)
+
 $(DEBUG):
 	mkdir $(DEBUG)
 
@@ -61,20 +78,12 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(AR) $(ARFLAGS) $(RELEASE_TARGET) $(RELEASE_OBJECTS)
 
 $(DEBUG)/%.o: $(SOURCE_DIR)/%.c
-	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EXTRA_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 $(RELEASE)/%.o: $(SOURCE_DIR)/%.c
-	$(CC) $(CFLAGS) $(RELEASE_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EXTRA_FLAGS) $(RELEASE_FLAGS) -c $< -o $@
 
-.PHONY: all debug parser tester release clean 
-
-debug:   $(DEBUG) $(DEBUG_TARGET)
-release: $(RELEASE) $(RELEASE_TARGET)
-all:     release
-
-clean: parser_clean tester_clean
-	$(RM) $(DEBUG)/*.o $(DEBUG_TARGET)
-	$(RM) $(RELEASE)/*.o $(RELEASE_TARGET)
+.PHONY: all check clean compiler debug parser release tester
 
 include $(PARSER_DIR)/Makefile
 include $(TESTER_DIR)/Makefile

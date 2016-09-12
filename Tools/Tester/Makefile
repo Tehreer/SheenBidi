@@ -1,5 +1,5 @@
 TESTER_INCLUDES = -I$(ROOT_DIR) -I$(HEADERS_DIR) -I$(TOOLS_DIR)
-TESTER_FLAGS = -std=c++11 -g -Wall $(TESTER_INCLUDES)
+TESTER_FLAGS = --coverage $(TESTER_INCLUDES)
 TESTER_LIBS = -L$(DEBUG) -l$(LIB_SHEENBIDI) -l$(LIB_PARSER)
 
 TESTER      = $(DEBUG)/Tester
@@ -21,7 +21,7 @@ $(TESTER):
 	mkdir $(TESTER_UTIL)
 
 $(TESTER)/%.o: $(TESTER_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(TESTER_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(EXTRA_FLAGS) $(TESTER_FLAGS) -c $< -o $@
 
 $(TESTER_TARGET): $(TESTER_OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(TESTER_FLAGS) $(TESTER_LIBS)
@@ -29,6 +29,6 @@ $(TESTER_TARGET): $(TESTER_OBJS)
 tester: debug parser $(TESTER) $(TESTER_TARGET)
 
 tester_clean:
-	$(RM) $(TESTER_UTIL)/*.o
 	$(RM) $(TESTER)/*.o
+	$(RM) $(TESTER_UTIL)/*.o
 	$(RM) $(TESTER_TARGET)
