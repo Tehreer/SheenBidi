@@ -358,9 +358,6 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     for (link = roller->next; link != roller; link = link->next) {
         SBBoolean forceFinish = SBFalse;
         SBBoolean bnEquivalent = SBFalse;
-        SBCharType type;
-
-        type = link->type;
 
 #define SB_LEAST_GREATER_ODD_LEVEL()                                        \
 (                                                                           \
@@ -371,6 +368,15 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 (                                                                           \
         (SBStatusStackGetEmbeddingLevel(stack) + 2) & ~1                    \
 )
+
+#define SB_MERGE_LINK_IF_NEEDED()                                           \
+{                                                                           \
+        if (priorLink->type == link->type                                   \
+            && priorLink->level == link->level) {                           \
+            SBBidiLinkMergeNext(priorLink);                                 \
+            continue;                                                       \
+        }                                                                   \
+}
 
 #define SB_PUSH_EMBEDDING(l, o)                                             \
 {                                                                           \
@@ -390,10 +396,10 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
 #define SB_PUSH_ISOLATE(l, o)                                               \
 {                                                                           \
-        SBLevel newLevel;                                                   \
+        SBCharType priorStatus = SBStatusStackGetOverrideStatus(stack);     \
+        SBLevel newLevel = l;                                               \
                                                                             \
         link->level = SBStatusStackGetEmbeddingLevel(stack);                \
-        newLevel = l;                                                       \
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
             ++validIsolate;                                                 \
@@ -401,9 +407,14 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         } else {                                                            \
             ++overIsolate;                                                  \
         }                                                                   \
+                                                                            \
+        if (priorStatus != SBCharTypeON) {                                  \
+            link->type = priorStatus;                                       \
+            SB_MERGE_LINK_IF_NEEDED();                                      \
+        }                                                                   \
 }
 
-        switch (type) {
+        switch (link->type) {
         /* Rule X2 */
         case SBCharTypeRLE:
             SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBCharTypeON);
@@ -451,21 +462,15 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
             if (SBStatusStackGetOverrideStatus(stack) != SBCharTypeON) {
                 link->type = SBStatusStackGetOverrideStatus(stack);
-
-                if (priorLink->type == link->type
-                    && priorLink->level == link->level) {
-                    /*
-                     * Properties of this link are same as previous link, therefore merge it and
-                     * continue the loop.
-                     */
-                    SBBidiLinkMergeNext(priorLink);
-                    continue;
-                }
+                SB_MERGE_LINK_IF_NEEDED();
             }
             break;
 
         /* Rule X6a */
         case SBCharTypePDI:
+        {
+            SBCharType overrideStatus;
+
             if (overIsolate != 0) {
                 --overIsolate;
             } else if (validIsolate == 0) {
@@ -482,7 +487,14 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             }
 
             link->level = SBStatusStackGetEmbeddingLevel(stack);
+            overrideStatus = SBStatusStackGetOverrideStatus(stack);
+
+            if (overrideStatus != SBCharTypeON) {
+                link->type = overrideStatus;
+                SB_MERGE_LINK_IF_NEEDED();
+            }
             break;
+        }
 
         /* Rule X7 */
         case SBCharTypePDF:
