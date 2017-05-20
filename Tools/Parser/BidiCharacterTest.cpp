@@ -146,7 +146,7 @@ const BidiCharacterTest::TestCase &BidiCharacterTest::testCase() const {
 }
 
 bool BidiCharacterTest::fetchNext() {
-    const int BufferSize = 512;
+    const int BufferSize = 2048;
     char line[BufferSize];
 
     while (!m_Stream.eof()) {
