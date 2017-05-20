@@ -28,6 +28,7 @@
 
 typedef struct _SBIsolatingRun {
     const SBCodepointSequence *codepointSequence;
+    const SBCharType *charTypes;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;

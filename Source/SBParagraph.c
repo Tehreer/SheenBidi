@@ -659,6 +659,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_BLOCK_CLOSER();
 
     support->isolatingRun.codepointSequence = codepointSequence;
+    support->isolatingRun.charTypes = paragraph->refTypes;
     support->isolatingRun.paragraphLevel = resolvedLevel;
     
     _SBDetermineLevels(support, resolvedLevel);

@@ -172,11 +172,17 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 
     for (link = roller->next; link != roller; link = link->next) {
         SBCharType type = link->type;
+        SBBoolean forceMerge = SBFalse;
 
         /* Rule W1 */
         if (type == SBCharTypeNSM) {
             /* Change the 'type' variable as well because it can be EN on which W2 depends. */
             link->type = type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
+
+            /* Fix for 3rd point of rule N0. */
+            if (w1PriorType == SBCharTypeON) {
+                forceMerge = SBTrue;
+            }
         }
         w1PriorType = type;
 
@@ -200,7 +206,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
             w2StrongType = type;
         }
 
-        if (type != SBCharTypeON && priorLink->type == type) {
+        if ((type != SBCharTypeON && priorLink->type == type) || forceMerge) {
             SBBidiLinkMergeNext(priorLink);
         } else {
             priorLink = link;
