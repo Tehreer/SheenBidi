@@ -149,6 +149,21 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef 
     _SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
     SBUInteger limit = 0;
+    SBCodepoint canonical;
+
+    switch (bracket) {
+    case 0x232A:
+        canonical = 0x3009;
+        break;
+
+    case 0x3009:
+        canonical = 0x232A;
+        break;
+
+    default:
+        canonical = bracket;
+        break;
+    }
 
     for (; ;) {
         SBBoolean is_frontList = (list == queue->_frontList);
@@ -156,7 +171,7 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef 
 
         do {
             if (list->openingLink[top] && !list->closingLink[top]
-                && list->bracket[top] == bracket) {
+                && (list->bracket[top] == bracket || list->bracket[top] == canonical)) {
                 list->closingLink[top] = closingLink;
                 _SBBracketQueueFinalizePairs(queue, list, top);
 

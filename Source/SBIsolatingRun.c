@@ -319,7 +319,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
             switch (bracketType) {
             case SBBracketTypeOpen:
                 if (queue->count < SBBracketQueueGetMaxCapacity()) {
-                    SBBracketQueueEnqueue(queue, priorStrongLink, link, codepoint);
+                    SBBracketQueueEnqueue(queue, priorStrongLink, link, bracketValue);
                 } else {
                     goto Resolve;
                 }
@@ -327,7 +327,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
             case SBBracketTypeClose:
                 if (queue->count != 0) {
-                    SBBracketQueueClosePair(queue, link, bracketValue);
+                    SBBracketQueueClosePair(queue, link, codepoint);
 
                     if (SBBracketQueueShouldDequeue(queue)) {
                         _SBResolveAvailableBracketPairs(isolatingRun);
