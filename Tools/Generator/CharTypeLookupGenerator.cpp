@@ -35,10 +35,10 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Generator;
 using namespace SheenBidi::Generator::Utilities;
 
-static const size_t MIN_MAIN_SEGMENT_SIZE = 32;
+static const size_t MIN_MAIN_SEGMENT_SIZE = 8;
 static const size_t MAX_MAIN_SEGMENT_SIZE = 512;
 
-static const size_t MIN_BRANCH_SEGMENT_SIZE = 32;
+static const size_t MIN_BRANCH_SEGMENT_SIZE = 8;
 static const size_t MAX_BRANCH_SEGMENT_SIZE = 512;
 
 static const string DATA_ARRAY_TYPE = "static const SBUInt8";
@@ -56,12 +56,8 @@ CharTypeLookupGenerator::MainDataSegment::MainDataSegment(size_t index, MainData
 {
 }
 
-const string CharTypeLookupGenerator::MainDataSegment::macroLine() const {
-    return ("#define " + macroName() + " 0x" + Converter::toHex(index, 4));
-}
-
-const string CharTypeLookupGenerator::MainDataSegment::macroName() const {
-    return (DATA_ARRAY_NAME + "_" + Converter::toHex(index, 4));
+const string CharTypeLookupGenerator::MainDataSegment::hintLine() const {
+    return ("/* DATA_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
 CharTypeLookupGenerator::BranchDataSegment::BranchDataSegment(size_t index, BranchDataSet dataset)
@@ -70,12 +66,8 @@ CharTypeLookupGenerator::BranchDataSegment::BranchDataSegment(size_t index, Bran
 {
 }
 
-const string CharTypeLookupGenerator::BranchDataSegment::macroLine() const {
-    return ("#define " + macroName() + " 0x" + Converter::toHex(index, 4));
-}
-
-const string CharTypeLookupGenerator::BranchDataSegment::macroName() const {
-    return (MAIN_INDEXES_ARRAY_NAME + "_" + Converter::toHex(index, 4));
+const string CharTypeLookupGenerator::BranchDataSegment::hintLine() const {
+    return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
 CharTypeLookupGenerator::CharTypeLookupGenerator(const UnicodeData &unicodeData)
@@ -110,64 +102,37 @@ void CharTypeLookupGenerator::displayBidiClassesFrequency() {
 void CharTypeLookupGenerator::analyzeData() {
     cout << "Analyzing data for char type lookup." << endl;
 
-    size_t memory = analyzeData(true);
-
-    cout << "  Main Segment Size: " << m_mainSegmentSize << endl;
-    cout << "  Branch Segment Size: " << m_branchSegmentSize << endl;
-    cout << "  Required Memory: " << memory << " bytes";
-}
-
-size_t CharTypeLookupGenerator::analyzeData(bool all) {
     size_t minMemory = SIZE_MAX;
-    size_t dataSize = 0;
+    size_t mainSegmentSize = 0;
+    size_t branchSegmentSize = 0;
 
-    if (all || m_mainSegmentSize == 0) {
-        size_t minSize = SIZE_MAX;
-        minMemory = SIZE_MAX;
-
-        m_mainSegmentSize = MIN_MAIN_SEGMENT_SIZE;
-        while (m_mainSegmentSize <= MAX_MAIN_SEGMENT_SIZE) {
-            collectMainData();
-
-            size_t memory = m_dataSize + (m_mainIndexesSize * 2);
-            if (memory < minMemory) {
-                minSize = m_mainSegmentSize;
-                minMemory = memory;
-                dataSize = m_dataSize;
-            }
-
-            m_mainSegmentSize++;
-        }
-        m_mainSegmentSize = minSize;
+    m_mainSegmentSize = MIN_MAIN_SEGMENT_SIZE;
+    while (m_mainSegmentSize <= MAX_MAIN_SEGMENT_SIZE) {
         collectMainData();
-    }
-    
-    if (all || m_branchSegmentSize == 0) {
-        size_t minSize = SIZE_MAX;
-        minMemory = SIZE_MAX;
 
         m_branchSegmentSize = MIN_BRANCH_SEGMENT_SIZE;
         while (m_branchSegmentSize <= MAX_BRANCH_SEGMENT_SIZE) {
             collectBranchData();
 
-            size_t branchBytes = m_branchSegments.at(m_branchSegments.size() - 1).index > UINT8_MAX ? 2 : 1;
-            size_t memory = (m_mainIndexesSize * 2) + (m_branchIndexesSize * branchBytes);
+            size_t memory = m_dataSize + ((m_mainIndexesSize + m_branchIndexesSize) * 2);
             if (memory < minMemory) {
-                minSize = m_branchSegmentSize;
+                mainSegmentSize = m_mainSegmentSize;
+                branchSegmentSize = m_branchSegmentSize;
                 minMemory = memory;
             }
 
             m_branchSegmentSize++;
         }
-        m_branchSegmentSize = minSize;
-        collectBranchData();
+
+        m_mainSegmentSize++;
     }
 
-    if (all) {
-        return (dataSize + minMemory);
-    }
+    m_mainSegmentSize = mainSegmentSize;
+    m_branchSegmentSize = branchSegmentSize;
 
-    return 0;
+    cout << "  Main Segment Size: " << mainSegmentSize << endl;
+    cout << "  Branch Segment Size: " << branchSegmentSize << endl;
+    cout << "  Required Memory: " << minMemory << " bytes";
 }
 
 void CharTypeLookupGenerator::collectMainData() {
@@ -264,7 +229,6 @@ void CharTypeLookupGenerator::collectBranchData() {
 }
 
 void CharTypeLookupGenerator::generateFile(const std::string &directory) {
-    analyzeData(false);
     collectMainData();
     collectBranchData();
 
@@ -274,6 +238,7 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     arrData.setDataType(DATA_ARRAY_TYPE);
     arrData.setName(DATA_ARRAY_NAME);
     arrData.setElementSpace(3);
+    arrData.setSizeDescriptor(Converter::toString((int)m_dataSize));
 
     auto dataPtr = m_dataSegments.begin();
     auto dataEnd = m_dataSegments.end();
@@ -281,7 +246,7 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
         const MainDataSegment &segment = *dataPtr;
         bool isLast = (dataPtr == (dataEnd - 1));
 
-        arrData.append(segment.macroLine());
+        arrData.append(segment.hintLine());
         arrData.newLine();
 
         size_t length = segment.dataset->size();
@@ -304,6 +269,7 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     ArrayBuilder arrMainIndexes;
     arrMainIndexes.setDataType(MAIN_INDEXES_ARRAY_TYPE);
     arrMainIndexes.setName(MAIN_INDEXES_ARRAY_NAME);
+    arrMainIndexes.setSizeDescriptor(Converter::toString((int)m_mainIndexesSize));
 
     size_t segmentStart = m_firstCodePoint;
     auto mainIndexPtr = m_branchSegments.begin();
@@ -312,18 +278,22 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
         const BranchDataSegment &segment = *mainIndexPtr;
         bool isLast = (mainIndexPtr == (mainIndexEnd - 1));
 
-        arrMainIndexes.append(segment.macroLine());
+        arrMainIndexes.append(segment.hintLine());
         arrMainIndexes.newLine();
 
         size_t length = segment.dataset->size();
 
         for (size_t j = 0; j < length; j++) {
-            arrMainIndexes.appendElement(segment.dataset->at(j)->macroName());
+            string element = "0x" + Converter::toHex(segment.dataset->at(j)->index, 4);
+            arrMainIndexes.appendElement(element);
 
             if (!isLast || j != (length - 1)) {
                 arrMainIndexes.newElement();
-                arrMainIndexes.newLine();
             }
+        }
+
+        if (!isLast) {
+            arrMainIndexes.newLine();
         }
 
         segmentStart += m_mainSegmentSize;
@@ -332,6 +302,7 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     ArrayBuilder arrBranchIndexes;
     arrBranchIndexes.setDataType(BRANCH_INDEXES_ARRAY_TYPE);
     arrBranchIndexes.setName(BRANCH_INDEXES_ARRAY_NAME);
+    arrBranchIndexes.setSizeDescriptor(Converter::toString((int)m_branchIndexesSize));
 
     segmentStart = 0;
     auto branchIndexPtr = m_branchReferences.begin();
@@ -339,11 +310,11 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     for (; branchIndexPtr != branchIndexEnd; branchIndexPtr++) {
         const BranchDataSegment &segment = **branchIndexPtr;
         bool isLast = (branchIndexPtr == (branchIndexEnd - 1));
+        string element = "0x" + Converter::toHex(segment.index, 4);
 
-        arrBranchIndexes.appendElement(segment.macroName());
+        arrBranchIndexes.appendElement(element);
         if (!isLast) {
             arrBranchIndexes.newElement();
-            arrBranchIndexes.newLine();
         }
 
         segmentStart += m_branchSegmentSize;
@@ -379,8 +350,8 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.newLine();
+    header.append("#include \"SBBase.h\"").newLine();
     header.append("#include \"SBCharType.h\"").newLine();
-    header.append("#include \"SBTypes.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint);").newLine();
     header.newLine();
@@ -390,6 +361,12 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     source.append("/*").newLine();
     source.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     source.append(" * DO NOT EDIT!!").newLine();
+    source.append(" *").newLine();
+    source.append(" * REQUIRED MEMORY: " + Converter::toString((int)m_dataSize)
+                  + "+(" + Converter::toString((int)m_mainIndexesSize) + "*2)+("
+                  + Converter::toString((int)m_branchIndexesSize) + "*2) = "
+                  + Converter::toString((int)(m_dataSize + m_mainIndexesSize*2 + m_branchIndexesSize*2))
+                  + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
     source.append("#include \"SBCharTypeLookup.h\"").newLine();
