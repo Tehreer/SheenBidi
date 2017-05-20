@@ -46,8 +46,7 @@ private:
 
         DataSegment(size_t index, DataSet dataset);
 
-        const std::string macroLine() const;
-        const std::string macroName() const;
+        const std::string hintLine() const;
     };
 
     const Parser::BidiMirroring &m_bidiMirroring;
@@ -64,7 +63,6 @@ private:
     size_t m_dataSize;
     size_t m_indexesSize;
 
-    size_t analyzeData(bool all);
     void collectData();
 };
 

@@ -36,7 +36,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Generator;
 using namespace SheenBidi::Generator::Utilities;
 
-static const size_t MIN_SEGMENT_SIZE = 32;
+static const size_t MIN_SEGMENT_SIZE = 8;
 static const size_t MAX_SEGMENT_SIZE = 512;
 
 static const string DIFFERENCES_ARRAY_TYPE = "static const SBInt16";
@@ -54,12 +54,8 @@ PairingLookupGenerator::DataSegment::DataSegment(size_t index, DataSet dataset)
 {
 }
 
-const string PairingLookupGenerator::DataSegment::macroLine() const {
-    return ("#define " + macroName() + " 0x" + Converter::toHex(index, 3));
-}
-
-const string PairingLookupGenerator::DataSegment::macroName() const {
-    return (DATA_ARRAY_NAME + "_" + Converter::toHex(index, 3));
+const string PairingLookupGenerator::DataSegment::hintLine() const {
+    return ("/* DATA_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
 PairingLookupGenerator::PairingLookupGenerator(const BidiMirroring& bidiMirroring, const BidiBrackets& bidiBrackets)
@@ -78,37 +74,27 @@ void PairingLookupGenerator::setSegmentSize(size_t segmentSize) {
 void PairingLookupGenerator::analyzeData() {
     cout << "Analyzing data for pairing lookup." << endl;
 
-    size_t memory = analyzeData(true);
+    size_t minMemory = SIZE_MAX;
+    size_t segmentSize = 0;
 
-    cout << "  Segment Size: " << m_segmentSize << endl;
-    cout << "  Required Memory: " << memory << " bytes" << endl;
+    m_segmentSize = MIN_SEGMENT_SIZE;
+    while (m_segmentSize <= MAX_SEGMENT_SIZE) {
+        collectData();
+
+        size_t memory = m_dataSize + (m_differencesSize * 2) + (m_indexesSize * 2);
+        if (memory < minMemory) {
+            segmentSize = m_segmentSize;
+            minMemory = memory;
+        }
+
+        m_segmentSize++;
+    }
+    m_segmentSize = segmentSize;
+
+    cout << "  Segment Size: " << segmentSize << endl;
+    cout << "  Required Memory: " << minMemory << " bytes" << endl;
 
     cout << "Finished analysis." << endl << endl;
-}
-
-size_t PairingLookupGenerator::analyzeData(bool all) {
-    if (all || !m_segmentSize) {
-        size_t minMemory = SIZE_MAX;
-        size_t segmentSize = 0;
-
-        m_segmentSize = MIN_SEGMENT_SIZE;
-        while (m_segmentSize <= MAX_SEGMENT_SIZE) {
-            collectData();
-
-            size_t memory = m_dataSize + (m_differencesSize * 2) + (m_indexesSize * 2);
-            if (memory < minMemory) {
-                segmentSize = m_segmentSize;
-                minMemory = memory;
-            }
-
-            m_segmentSize++;
-        }
-        m_segmentSize = segmentSize;
-
-        return minMemory;
-    }
-
-    return 0;
 }
 
 void PairingLookupGenerator::collectData() {
@@ -194,13 +180,13 @@ void PairingLookupGenerator::collectData() {
 }
 
 void PairingLookupGenerator::generateFile(const std::string &directory) {
-    analyzeData(false);
     collectData();
 
     ArrayBuilder arrDifferences;
     arrDifferences.setDataType(DIFFERENCES_ARRAY_TYPE);
     arrDifferences.setName(DIFFERENCES_ARRAY_NAME);
     arrDifferences.setElementSpace(5);
+    arrDifferences.setSizeDescriptor(Converter::toString((int)m_differencesSize));
 
     auto diffPtr = m_differences.begin();
     auto diffEnd = m_differences.end();
@@ -218,6 +204,7 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     arrData.setDataType(DATA_ARRAY_TYPE);
     arrData.setName(DATA_ARRAY_NAME);
     arrData.setElementSpace(3);
+    arrData.setSizeDescriptor(Converter::toString((int)m_dataSize));
 
     auto dataPtr = m_data.begin();
     auto dataEnd = m_data.end();
@@ -225,7 +212,7 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
         const DataSegment &data = *dataPtr;
         bool isLast = (dataPtr == (dataEnd - 1));
 
-        arrData.append(data.macroLine());
+        arrData.append(data.hintLine());
         arrData.newLine();
 
         size_t length = data.dataset->size();
@@ -244,6 +231,7 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     ArrayBuilder arrIndexes;
     arrIndexes.setDataType(INDEXES_ARRAY_TYPE);
     arrIndexes.setName(INDEXES_ARRAY_NAME);
+    arrIndexes.setSizeDescriptor(Converter::toString((int)m_indexesSize));
 
     size_t segmentStart = m_firstCodePoint;
     auto indexPtr = m_indexes.begin();
@@ -251,22 +239,11 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     for (; indexPtr != indexEnd; indexPtr++) {
         const DataSegment &data = **indexPtr;
         bool isLast = (indexPtr == (indexEnd - 1));
+        string element = "0x" + Converter::toHex(data.index, 4);
 
-        arrIndexes.appendElement(data.macroName());
+        arrIndexes.appendElement(element);
         if (!isLast) {
             arrIndexes.newElement();
-        }
-
-        size_t segmentEnd = segmentStart + data.dataset->size() - 1;
-        string description = "/**< %"
-                           + Converter::toHex(segmentStart, 4) + ".."
-                           + Converter::toHex(segmentEnd, 4)
-                           + "*/";
-
-        arrIndexes.appendTabs(4);
-        arrIndexes.append(description);
-        if (!isLast) {
-            arrIndexes.newLine();
         }
 
         segmentStart += m_segmentSize;
@@ -330,8 +307,8 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.newLine();
+    header.append("#include \"SBBase.h\"").newLine();
     header.append("#include \"SBBracketType.h\"").newLine();
-    header.append("#include \"SBTypes.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);").newLine();
     header.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *bracketType);").newLine();
@@ -342,6 +319,12 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     source.append("/*").newLine();
     source.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     source.append(" * DO NOT EDIT!!").newLine();
+    source.append(" *").newLine();
+    source.append(" * REQUIRED MEMORY: (" + Converter::toString((int)m_differencesSize)
+                  + ")+" + Converter::toString((int)m_dataSize) + "+("
+                  + Converter::toString((int)m_indexesSize) + "*2) = "
+                  + Converter::toString((int)(m_differencesSize*2 + m_dataSize + m_indexesSize*2))
+                  + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
     source.append("#include \"SBPairingLookup.h\"").newLine();
