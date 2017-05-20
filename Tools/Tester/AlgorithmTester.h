@@ -50,7 +50,7 @@ private:
 
     SBMirrorLocatorRef m_mirrorLocator;
 
-    SBCodepoint m_genChars[128];
+    SBCodepoint m_genChars[256];
     SBUInteger m_charCount;
 
     SBLevel m_inputLevel;
@@ -59,7 +59,7 @@ private:
     SBUInteger m_runCount;
     const SBRun *m_runArray;
 
-    uint32_t m_genMirrors[128];
+    uint32_t m_genMirrors[256];
     size_t m_mirrorCount;
 
     const std::vector<uint8_t> *m_levels;
