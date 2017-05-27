@@ -294,6 +294,7 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 {
     const SBCodepointSequence *sequence = isolatingRun->codepointSequence;
+    SBUInteger paragraphOffset = isolatingRun->paragraphOffset;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBBidiLink roller = chain->roller;
@@ -319,7 +320,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
         switch (type) {
         case SBCharTypeON:
-            stringIndex = SBBidiChainGetOffset(chain, link);
+            stringIndex = SBBidiChainGetOffset(chain, link) + paragraphOffset;
             codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
             bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
 

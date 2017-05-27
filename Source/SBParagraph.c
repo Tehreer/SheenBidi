@@ -598,6 +598,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_BLOCK_CLOSER();
 
     support->isolatingRun.codepointSequence = codepointSequence;
+    support->isolatingRun.paragraphOffset = paragraphOffset;
     support->isolatingRun.charTypes = paragraph->refTypes;
     support->isolatingRun.bidiChain = &support->bidiChain;
     support->isolatingRun.paragraphLevel = resolvedLevel;
