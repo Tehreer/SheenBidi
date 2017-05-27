@@ -23,11 +23,11 @@
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
     SBCharType *types, SBLevel *levels, SBBidiLink *links)
 {
-    chain->roller = 0;
-    chain->last = 0;
     chain->types = types;
     chain->levels = levels;
     chain->links = links;
+    chain->roller = 0;
+    chain->last = 0;
 
     /* Make first link empty. */
     chain->types[0] = SBCharTypeNil;

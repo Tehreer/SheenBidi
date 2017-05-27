@@ -27,11 +27,11 @@ typedef SBUInt32 SBBidiLink;
 #define SBBidiLinkNone (SBUInt32)(-1)
 
 typedef struct _SBBidiChain {
-    SBBidiLink roller;
-    SBBidiLink last;
     SBCharType *types;
     SBLevel *levels;
     SBBidiLink *links;
+    SBBidiLink roller;
+    SBBidiLink last;
 } SBBidiChain, *SBBidiChainRef;
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
