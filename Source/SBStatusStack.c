@@ -39,7 +39,7 @@ SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLeve
     /* The stack can hold upto 127 elements. */
     SBAssert(stack->count <= 127);
 
-    if (stack->_peekTop != _SB_STATUS_STACK_LIST__MAX_INDEX) {
+    if (stack->_peekTop != _SBStatusStackList_MaxIndex) {
         list = stack->_peekList;
         top = ++stack->_peekTop;
     } else {
@@ -75,7 +75,7 @@ SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack)
         --stack->_peekTop;
     } else {
         stack->_peekList = stack->_peekList->previous;
-        stack->_peekTop = _SB_STATUS_STACK_LIST__MAX_INDEX;
+        stack->_peekTop = _SBStatusStackList_MaxIndex;
     }
     --stack->count;
 }

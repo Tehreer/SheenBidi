@@ -22,19 +22,17 @@
 #include "SBBase.h"
 #include "SBCharType.h"
 
-#define _SB_STATUS_STACK_LIST__LENGTH      16
-#define _SB_STATUS_STACK_LIST__MAX_INDEX   (_SB_STATUS_STACK_LIST__LENGTH - 1)
-
-typedef struct _SBStatusStackList *_SBStatusStackListRef;
+#define _SBStatusStackList_Length       16
+#define _SBStatusStackList_MaxIndex     (_SBStatusStackList_Length - 1)
 
 typedef struct _SBStatusStackList {
-    _SBStatusStackListRef previous;
-    _SBStatusStackListRef next;
+    struct _SBStatusStackList *previous;
+    struct _SBStatusStackList *next;
 
-    SBBoolean isolateStatus[_SB_STATUS_STACK_LIST__LENGTH];
-    SBCharType overrideStatus[_SB_STATUS_STACK_LIST__LENGTH];
-    SBLevel embeddingLevel[_SB_STATUS_STACK_LIST__LENGTH];
-} _SBStatusStackList;
+    SBBoolean isolateStatus[_SBStatusStackList_Length];
+    SBCharType overrideStatus[_SBStatusStackList_Length];
+    SBLevel embeddingLevel[_SBStatusStackList_Length];
+} _SBStatusStackList, *_SBStatusStackListRef;
 
 typedef struct _SBStatusStack {
     _SBStatusStackList _firstList;
