@@ -19,26 +19,24 @@
 
 #include <SBConfig.h>
 
-#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 #include "SBCharType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 
-struct _SBLevelRun;
-typedef struct _SBLevelRun SBLevelRun;
-typedef SBLevelRun *SBLevelRunRef;
-
-struct _SBLevelRun {
-    SBLevelRunRef next;             /**< Reference to the next sequence of run links. */
-    SBBidiLinkRef firstLink;        /**< First link of the run. */
-    SBBidiLinkRef lastLink;         /**< Last link of the run. */
-    SBBidiLinkRef subsequentLink;   /**< Subsequent link of the run. */
+typedef struct _SBLevelRun {
+    struct _SBLevelRun *next;   /**< Reference to the next sequence of run links. */
+    SBBidiLink firstLink;       /**< First link of the run. */
+    SBBidiLink lastLink;        /**< Last link of the run. */
+    SBBidiLink subsequentLink;  /**< Subsequent link of the run. */
     SBRunExtrema extrema;
     SBRunKind kind;
-};
+} SBLevelRun, *SBLevelRunRef;
 
-SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor);
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun);
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
+    SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
+    SBCharType sor, SBCharType eor);
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun, SBBidiChainRef bidiChain);
 SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next);
 
 #endif

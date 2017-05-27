@@ -20,7 +20,6 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBBidiLink.h"
 #include "SBCharType.h"
 
 #define _SB_BRACKET_QUEUE_LIST__LENGTH      8
@@ -33,9 +32,9 @@ typedef struct _SBBracketQueueList {
     _SBBracketQueueListRef next;
 
     SBCodepoint bracket[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLinkRef priorStrongLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLinkRef openingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLinkRef closingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
+    SBBidiLink priorStrongLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
+    SBBidiLink openingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
+    SBBidiLink closingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
     SBCharType strongType[_SB_BRACKET_QUEUE_LIST__LENGTH];
 } _SBBracketQueueList;
 
@@ -55,17 +54,17 @@ typedef struct _SBBracketQueue {
 SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue);
 SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction);
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLinkRef priorStrongLink, SBBidiLinkRef openingLink, SBCodepoint bracket);
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket);
 SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue);
 
 SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType strongType);
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLinkRef closingLink, SBCodepoint bracket);
+SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink closingLink, SBCodepoint bracket);
 
 SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue);
 
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetPriorStrongLink(SBBracketQueueRef queue);
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetOpeningLink(SBBracketQueueRef queue);
-SB_INTERNAL SBBidiLinkRef SBBracketQueueGetClosingLink(SBBracketQueueRef queue);
+SB_INTERNAL SBBidiLink SBBracketQueueGetPriorStrongLink(SBBracketQueueRef queue);
+SB_INTERNAL SBBidiLink SBBracketQueueGetOpeningLink(SBBracketQueueRef queue);
+SB_INTERNAL SBBidiLink SBBracketQueueGetClosingLink(SBBracketQueueRef queue);
 SB_INTERNAL SBCharType SBBracketQueueGetStrongType(SBBracketQueueRef queue);
 
 SB_INTERNAL void SBBracketQueueFinalize(SBBracketQueueRef queue);

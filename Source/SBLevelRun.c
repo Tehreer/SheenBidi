@@ -18,35 +18,38 @@
 #include <stddef.h>
 
 #include "SBAssert.h"
-#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 #include "SBCharType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
-SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun, SBBidiLinkRef firstLink, SBBidiLinkRef lastLink, SBCharType sor, SBCharType eor)
+SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
+    SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
+    SBCharType sor, SBCharType eor)
 {
+    SBCharType firstType = SBBidiChainGetType(bidiChain, firstLink);
+    SBCharType lastType = SBBidiChainGetType(bidiChain, lastLink);
+
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
     levelRun->lastLink = lastLink;
-    levelRun->subsequentLink = lastLink->next;
+    levelRun->subsequentLink = SBBidiChainGetNext(bidiChain, lastLink);
     levelRun->extrema = SBRunExtremaMake(sor, eor);
     levelRun->kind = SBRunKindMake
                      (
-                        SBCharTypeIsIsolateInitiator(lastLink->type),
-                        SBCharTypeIsIsolateTerminator(firstLink->type)
+                        SBCharTypeIsIsolateInitiator(lastType),
+                        SBCharTypeIsIsolateTerminator(firstType)
                      );
 }
 
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun)
+SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun, SBBidiChainRef bidiChain)
 {
-    return levelRun->firstLink->level;
+    return SBBidiChainGetLevel(bidiChain, levelRun->firstLink);
 }
 
 SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next)
 {
-    /* Only the runs of same level can be attached. */
-    SBAssert(SBLevelRunGetLevel(levelRun) == SBLevelRunGetLevel(next));
     /* No other run can be attached with a simple run. */
     SBAssert(!SBRunKindIsSimple(levelRun->kind));
     /* No other run can be attached with a complete isolating run. */

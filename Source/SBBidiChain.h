@@ -18,15 +18,41 @@
 #define _SB_INTERNAL_BIDI_CHAIN_H
 
 #include <SBConfig.h>
-#include "SBBidiLink.h"
+
+#include "SBBase.h"
+#include "SBCharType.h"
+
+typedef SBUInt32 SBBidiLink;
+
+#define SBBidiLinkNone (SBUInt32)(-1)
 
 typedef struct _SBBidiChain {
-    SBBidiLink _dummy;
-    SBBidiLinkRef rollerLink;
-    SBBidiLinkRef lastLink;
+    SBBidiLink roller;
+    SBBidiLink last;
+    SBCharType *types;
+    SBLevel *levels;
+    SBBidiLink *links;
 } SBBidiChain, *SBBidiChainRef;
 
-SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain);
-SB_INTERNAL void SBBidiChainAddLink(SBBidiChainRef chain, SBBidiLinkRef link);
+SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
+    SBCharType *types, SBLevel *levels, SBBidiLink *links);
+SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBCharType type, SBUInteger length);
+
+SB_INTERNAL SBUInteger SBBidiChainGetOffset(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL SBBoolean SBBidiChainIsSingle(SBBidiChainRef chain, SBBidiLink link);
+
+SB_INTERNAL SBCharType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBCharType type);
+
+SB_INTERNAL SBLevel SBBidiChainGetLevel(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL void SBBidiChainSetLevel(SBBidiChainRef chain, SBBidiLink link, SBLevel level);
+
+SB_INTERNAL SBBidiLink SBBidiChainGetNext(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL void SBBidiChainSetNext(SBBidiChainRef chain, SBBidiLink link, SBBidiLink next);
+SB_INTERNAL void SBBidiChainAbandonNext(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain, SBBidiLink first, SBBidiLink second);
+
+#define SBBidiChainForEach(chain, link, roller) \
+    for (link = chain->links[0]; link != 0; link = chain->links[link])
 
 #endif

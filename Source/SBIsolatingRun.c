@@ -15,11 +15,10 @@
  */
 
 #include <SBConfig.h>
-#include <stddef.h>
 
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 #include "SBBracketQueue.h"
 #include "SBBracketType.h"
 #include "SBCharType.h"
@@ -45,7 +44,7 @@
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
 static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun);
 
-static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun);
+static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun);
 static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun);
 static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
 static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun);
@@ -53,14 +52,13 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun);
 
 SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkMakeEmpty(&isolatingRun->_dummyLink);
     SBBracketQueueInitialize(&isolatingRun->_bracketQueue);
 }
 
 SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkRef lastLink;
-    SBBidiLinkRef subsequentLink;
+    SBBidiLink lastLink;
+    SBBidiLink subsequentLink;
 
     SB_LOG_BLOCK_OPENER("Identified Isolating Run");
 
@@ -102,7 +100,7 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
     /* Re-attach original links. */
     _SBAttachOriginalLinks(isolatingRun);
     /* Attach new final link (of isolating run) with last subsequent link. */
-    SBBidiLinkReplaceNext(lastLink, subsequentLink);
+    SBBidiChainSetNext(isolatingRun->bidiChain, lastLink, subsequentLink);
 
     SB_LOG_BLOCK_CLOSER();
 }
@@ -114,18 +112,19 @@ SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun)
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
 {
-    SBLevelRunRef baseLevelRun;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
+    SBLevelRunRef baseLevelRun = isolatingRun->baseLevelRun;
     SBLevelRunRef current;
     SBLevelRunRef next;
 
-    baseLevelRun = isolatingRun->baseLevelRun;
-    SBBidiLinkReplaceNext(&isolatingRun->_dummyLink, baseLevelRun->firstLink);
+    isolatingRun->_originalLink = SBBidiChainGetNext(chain, chain->roller);
+    SBBidiChainSetNext(chain, chain->roller, baseLevelRun->firstLink);
 
     /* Iterate over level runs and attach their links to form an isolating run. */
     for (current = baseLevelRun; (next = current->next); current = next) {
-        SBBidiLinkReplaceNext(current->lastLink, next->firstLink);
+        SBBidiChainSetNext(chain, current->lastLink, next->firstLink);
     }
-    SBBidiLinkReplaceNext(current->lastLink, &isolatingRun->_dummyLink);
+    SBBidiChainSetNext(chain, current->lastLink, chain->roller);
 
     isolatingRun->_lastLevelRun = current;
     isolatingRun->_sos = SBRunExtrema_SOR(baseLevelRun->extrema);
@@ -134,7 +133,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
         isolatingRun->_eos = SBRunExtrema_EOR(current->extrema);
     } else {
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;
-        SBLevel runLevel = SBLevelRunGetLevel(baseLevelRun);
+        SBLevel runLevel = SBLevelRunGetLevel(baseLevelRun, chain);
         SBLevel eosLevel = (runLevel > paragraphLevel ? runLevel : paragraphLevel);
         isolatingRun->_eos = ((eosLevel & 1) ? SBCharTypeR : SBCharTypeL);
     }
@@ -142,20 +141,24 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
 
 static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun)
 {
+    SBBidiChainRef chain = isolatingRun->bidiChain;
     SBLevelRunRef current;
+
+    SBBidiChainSetNext(chain, chain->roller, isolatingRun->_originalLink);
 
     /* Iterate over level runs and attach original subsequent links. */
     for (current = isolatingRun->baseLevelRun; current; current = current->next) {
-        SBBidiLinkReplaceNext(current->lastLink, current->subsequentLink);
+        SBBidiChainSetNext(chain, current->lastLink, current->subsequentLink);
     }
 }
 
-static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
+static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkRef roller = &isolatingRun->_dummyLink;
-    SBBidiLinkRef link;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
+    SBBidiLink roller = chain->roller;
+    SBBidiLink link;
 
-    SBBidiLinkRef priorLink;
+    SBBidiLink priorLink;
     SBCharType sos;
 
     SBCharType w1PriorType;
@@ -170,14 +173,15 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w1PriorType = sos;
     w2StrongType = sos;
 
-    for (link = roller->next; link != roller; link = link->next) {
-        SBCharType type = link->type;
+    SBBidiChainForEach(chain, link, roller) {
+        SBCharType type = SBBidiChainGetType(chain, link);
         SBBoolean forceMerge = SBFalse;
 
         /* Rule W1 */
         if (type == SBCharTypeNSM) {
             /* Change the 'type' variable as well because it can be EN on which W2 depends. */
-            link->type = type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
+            type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
+            SBBidiChainSetType(chain, link, type);
 
             /* Fix for 3rd point of rule N0. */
             if (w1PriorType == SBCharTypeON) {
@@ -189,7 +193,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
         /* Rule W2 */
         if (type == SBCharTypeEN) {
             if (w2StrongType == SBCharTypeAL) {
-                link->type = SBCharTypeAN;
+                SBBidiChainSetType(chain, link, SBCharTypeAN);
             }
         }
         /*
@@ -198,7 +202,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
          *       Even if W2 changes EN to AN, there won't be any harm.
          */
         else if (type == SBCharTypeAL) {
-            link->type = SBCharTypeR;
+            SBBidiChainSetType(chain, link, SBCharTypeR);
         }
 
         if (SBCharTypeIsStrong(type)) {
@@ -206,8 +210,8 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
             w2StrongType = type;
         }
 
-        if ((type != SBCharTypeON && priorLink->type == type) || forceMerge) {
-            SBBidiLinkMergeNext(priorLink);
+        if ((type != SBCharTypeON && SBBidiChainGetType(chain, priorLink) == type) || forceMerge) {
+            SBBidiChainAbandonNext(chain, priorLink);
         } else {
             priorLink = link;
         }
@@ -218,26 +222,28 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w5PriorType = sos;
     w7StrongType = sos;
 
-    for (link = roller->next; link != roller; link = link->next) {
-        SBCharType type = link->type;
-        SBCharType nextType = link->next->type;
+    SBBidiChainForEach(chain, link, roller) {
+        SBCharType type = SBBidiChainGetType(chain, link);
+        SBCharType nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
 
         /* Rule W4 */
-        if (link->length == 1
+        if (SBBidiChainIsSingle(chain, link)
             && SBCharTypeIsNumberSeparator(type)
             && SBCharTypeIsNumber(w4PriorType)
             && (w4PriorType == nextType)
             && (w4PriorType == SBCharTypeEN || type == SBCharTypeCS))
         {
             /* Change the current type as well because it can be EN on which W5 depends. */
-            link->type = type = w4PriorType;
+            type = w4PriorType;
+            SBBidiChainSetType(chain, link, type);
         }
         w4PriorType = type;
 
         /* Rule W5 */
         if (type == SBCharTypeET && (w5PriorType == SBCharTypeEN || nextType == SBCharTypeEN)) {
             /* Change the current type as well because it is EN on which W7 depends. */
-            link->type = type = SBCharTypeEN;
+            type = SBCharTypeEN;
+            SBBidiChainSetType(chain, link, type);
         }
         w5PriorType = type;
 
@@ -246,7 +252,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
         case SBCharTypeET:
         case SBCharTypeCS:
         case SBCharTypeES:
-            link->type = SBCharTypeON;
+            SBBidiChainSetType(chain, link, SBCharTypeON);
             break;
 
         /*
@@ -257,7 +263,7 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
          */
         case SBCharTypeEN:
             if (w7StrongType == SBCharTypeL) {
-                link->type = SBCharTypeL;
+                SBBidiChainSetType(chain, link, SBCharTypeL);
             }
             break;
 
@@ -275,8 +281,8 @@ static SBBidiLinkRef _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
             break;
         }
 
-        if (type != SBCharTypeON && priorLink->type == type) {
-            SBBidiLinkMergeNext(priorLink);
+        if (type != SBCharTypeON && SBBidiChainGetType(chain, priorLink) == type) {
+            SBBidiChainAbandonNext(chain, priorLink);
         } else {
             priorLink = link;
         }
@@ -289,18 +295,19 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 {
     const SBCodepointSequence *sequence = isolatingRun->codepointSequence;
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
-    SBBidiLinkRef roller = &isolatingRun->_dummyLink;
-    SBBidiLinkRef link;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
+    SBBidiLink roller = chain->roller;
+    SBBidiLink link;
 
-    SBBidiLinkRef priorStrongLink;
+    SBBidiLink priorStrongLink;
     SBLevel runLevel;
 
-    priorStrongLink = NULL;
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun);
+    priorStrongLink = SBBidiLinkNone;
+    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
 
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
-    for (link = roller->next; link != roller; link = link->next) {
+    SBBidiChainForEach(chain, link, roller) {
         SBUInteger stringIndex;
         SBCodepoint codepoint;
         SBCharType type;
@@ -308,11 +315,11 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
         SBCodepoint bracketValue;
         SBBracketType bracketType;
 
-        type = link->type;
+        type = SBBidiChainGetType(chain, link);
 
         switch (type) {
         case SBCharTypeON:
-            stringIndex = link->offset;
+            stringIndex = SBBidiChainGetOffset(chain, link);
             codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
             bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
 
@@ -359,20 +366,21 @@ Resolve:
 static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
 {
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
 
     SBLevel runLevel;
     SBCharType embeddingDirection;
     SBCharType oppositeDirection;
 
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun);
+    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
     embeddingDirection = SB_LEVEL_TO_EXACT_TYPE(runLevel);
     oppositeDirection = SB_LEVEL_TO_OPPOSITE_TYPE(runLevel);
 
     while (queue->count != 0) {
-        SBBidiLinkRef openingLink = SBBracketQueueGetOpeningLink(queue);
-        SBBidiLinkRef closingLink = SBBracketQueueGetClosingLink(queue);
+        SBBidiLink openingLink = SBBracketQueueGetOpeningLink(queue);
+        SBBidiLink closingLink = SBBracketQueueGetClosingLink(queue);
 
-        if (openingLink && closingLink) {
+        if ((openingLink != SBBidiLinkNone) && (closingLink != SBBidiLinkNone)) {
             SBCharType innerStrongType;
             SBCharType pairType;
 
@@ -384,28 +392,28 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
             }
             /* Rule: N0.c */
             else if (innerStrongType == oppositeDirection) {
-                SBBidiLinkRef priorStrongLink;
+                SBBidiLink priorStrongLink;
                 SBCharType priorStrongType;
 
                 priorStrongLink = SBBracketQueueGetPriorStrongLink(queue);
 
-                if (priorStrongLink) {
-                    SBBidiLinkRef link;
+                if (priorStrongLink != SBBidiLinkNone) {
+                    SBBidiLink link;
 
-                    priorStrongType = priorStrongLink->type;
+                    priorStrongType = SBBidiChainGetType(chain, priorStrongLink);
                     if (SBCharTypeIsNumber(priorStrongType)) {
                         priorStrongType = SBCharTypeR;
                     }
 
-                    link = priorStrongLink->next;
+                    link = SBBidiChainGetNext(chain, priorStrongLink);
 
                     while (link != openingLink) {
-                        SBCharType type = link->type;
+                        SBCharType type = SBBidiChainGetType(chain, link);
                         if (type == SBCharTypeL || type == SBCharTypeR) {
                             priorStrongType = type;
                         }
 
-                        link = link->next;
+                        link = SBBidiChainGetNext(chain, link);
                     }
                 } else {
                     priorStrongType = isolatingRun->_sos;
@@ -427,8 +435,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
 
             if (pairType != SBCharTypeNil) {
                 /* Do the substitution */
-                openingLink->type = pairType;
-                closingLink->type = pairType;
+                SBBidiChainSetType(chain, openingLink, pairType);
+                SBBidiChainSetType(chain, closingLink, pairType);
             }
         }
 
@@ -438,19 +446,20 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
 
 static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkRef roller = &isolatingRun->_dummyLink;
-    SBBidiLinkRef link;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
+    SBBidiLink roller = chain->roller;
+    SBBidiLink link;
 
     SBLevel runLevel;
     SBCharType strongType;
-    SBBidiLinkRef neutralLink;
+    SBBidiLink neutralLink;
 
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun);
+    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
     strongType = isolatingRun->_sos;
-    neutralLink = NULL;
+    neutralLink = SBBidiLinkNone;
 
-    for (link = roller->next; link != roller; link = link->next) {
-        SBCharType type = link->type;
+    SBBidiChainForEach(chain, link, roller) {
+        SBCharType type = SBBidiChainGetType(chain, link);
         SBCharType nextType;
 
         SBAssert(SBCharTypeIsStrongOrNumber(type) || SBCharTypeIsNeutralOrIsolate(type));
@@ -474,11 +483,11 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
         case SBCharTypeRLI:                         
         case SBCharTypeFSI:
         case SBCharTypePDI:
-            if (!neutralLink) {
+            if (neutralLink == SBBidiLinkNone) {
                 neutralLink = link;
             }
 
-            nextType = link->next->type;
+            nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
             if (SBCharTypeIsNumber(nextType)) {
                 nextType = SBCharTypeR;
             } else if (nextType == SBCharTypeNil) {
@@ -492,11 +501,11 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
                                             : SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
                 do {
-                    neutralLink->type = resolvedType;
-                    neutralLink = neutralLink->next;
-                } while (neutralLink != link->next);
+                    SBBidiChainSetType(chain, neutralLink, resolvedType);
+                    neutralLink = SBBidiChainGetNext(chain, neutralLink);
+                } while (neutralLink != SBBidiChainGetNext(chain, link));
 
-                neutralLink = NULL;
+                neutralLink = SBBidiLinkNone;
             }
             break;
         }
@@ -505,33 +514,36 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
 
 static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkRef roller = &isolatingRun->_dummyLink;
-    SBBidiLinkRef link;
+    SBBidiChainRef chain = isolatingRun->bidiChain;
+    SBBidiLink roller = chain->roller;
+    SBBidiLink link;
 
-    SBLevel runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun);
+    SBLevel runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
     
     if ((runLevel & 1) == 0) {
-        for (link = roller->next; link != roller; link = link->next) {
-            SBCharType type = link->type;
+        SBBidiChainForEach(chain, link, roller) {
+            SBCharType type = SBBidiChainGetType(chain, link);
+            SBLevel level = SBBidiChainGetLevel(chain, link);
             
             SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I1 */
             if (type == SBCharTypeR) {
-                link->level += 1;
+                SBBidiChainSetLevel(chain, link, level + 1);
             } else if (type != SBCharTypeL) {
-                link->level += 2;
+                SBBidiChainSetLevel(chain, link, level + 2);
             }
         }
     } else {
-        for (link = roller->next; link != roller; link = link->next) {
-            SBCharType type = link->type;
+        SBBidiChainForEach(chain, link, roller) {
+            SBCharType type = SBBidiChainGetType(chain, link);
+            SBLevel level = SBBidiChainGetLevel(chain, link);
             
             SBAssert(SBCharTypeIsStrongOrNumber(type));
             
             /* Rule I2 */
             if (type != SBCharTypeR) {
-                link->level += 1;
+                SBBidiChainSetLevel(chain, link, level + 1);
             }
         }
     }

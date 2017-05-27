@@ -20,7 +20,7 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 #include "SBBracketQueue.h"
 #include "SBCharType.h"
 #include "SBCodepointSequence.h"
@@ -29,10 +29,11 @@
 typedef struct _SBIsolatingRun {
     const SBCodepointSequence *codepointSequence;
     const SBCharType *charTypes;
+    SBBidiChainRef bidiChain;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;
-    SBBidiLink _dummyLink;
+    SBBidiLink _originalLink;
     SBCharType _sos;
     SBCharType _eos;
     SBLevel paragraphLevel;
