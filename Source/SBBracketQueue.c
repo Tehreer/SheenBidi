@@ -20,6 +20,7 @@
 
 #include "SBAssert.h"
 #include "SBBase.h"
+#include "SBBidiChain.h"
 #include "SBCharType.h"
 #include "SBBracketQueue.h"
 

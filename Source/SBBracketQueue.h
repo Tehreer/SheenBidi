@@ -20,6 +20,7 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
+#include "SBBidiChain.h"
 #include "SBCharType.h"
 
 #define _SB_BRACKET_QUEUE_LIST__LENGTH      8
