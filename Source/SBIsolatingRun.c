@@ -173,7 +173,7 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w1PriorType = sos;
     w2StrongType = sos;
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBCharType type = SBBidiChainGetType(chain, link);
         SBBoolean forceMerge = SBFalse;
 
@@ -222,7 +222,7 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w5PriorType = sos;
     w7StrongType = sos;
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBCharType type = SBBidiChainGetType(chain, link);
         SBCharType nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
 
@@ -307,7 +307,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
 
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBUInteger stringIndex;
         SBCodepoint codepoint;
         SBCharType type;
@@ -458,7 +458,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
     strongType = isolatingRun->_sos;
     neutralLink = SBBidiLinkNone;
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBCharType type = SBBidiChainGetType(chain, link);
         SBCharType nextType;
 
@@ -521,7 +521,7 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
     SBLevel runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
     
     if ((runLevel & 1) == 0) {
-        SBBidiChainForEach(chain, link, roller) {
+        SBBidiChainForEach(chain, roller, link) {
             SBCharType type = SBBidiChainGetType(chain, link);
             SBLevel level = SBBidiChainGetLevel(chain, link);
             
@@ -535,7 +535,7 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
             }
         }
     } else {
-        SBBidiChainForEach(chain, link, roller) {
+        SBBidiChainForEach(chain, roller, link) {
             SBCharType type = SBBidiChainGetType(chain, link);
             SBLevel level = SBBidiChainGetLevel(chain, link);
             

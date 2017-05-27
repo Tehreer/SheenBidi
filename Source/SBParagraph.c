@@ -293,7 +293,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
     SBStatusStackPush(stack, baseLevel, SBCharTypeON, SBFalse);
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBBoolean forceFinish = SBFalse;
         SBBoolean bnEquivalent = SBFalse;
         SBCharType type;
@@ -549,7 +549,7 @@ static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLev
     SBUInteger index = 0;
     SBLevel level = baseLevel;
 
-    SBBidiChainForEach(chain, link, roller) {
+    SBBidiChainForEach(chain, roller, link) {
         SBUInteger offset = SBBidiChainGetOffset(chain, link);
 
         for (; index < offset; index++) {

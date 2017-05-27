@@ -52,7 +52,7 @@ SB_INTERNAL void SBBidiChainSetNext(SBBidiChainRef chain, SBBidiLink link, SBBid
 SB_INTERNAL void SBBidiChainAbandonNext(SBBidiChainRef chain, SBBidiLink link);
 SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain, SBBidiLink first, SBBidiLink second);
 
-#define SBBidiChainForEach(chain, link, roller) \
-    for (link = chain->links[0]; link != 0; link = chain->links[link])
+#define SBBidiChainForEach(chain, roller, link) \
+    for (link = chain->links[roller]; link != roller; link = chain->links[link])
 
 #endif
