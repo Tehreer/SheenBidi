@@ -29,7 +29,7 @@ static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueu
     SBUInteger limit = 0;
 
     do {
-        limit = (list == queue->_rearList ? queue->_rearTop : _SB_BRACKET_QUEUE_LIST__MAX_INDEX);
+        limit = (list == queue->_rearList ? queue->_rearTop : _SBBracketQueueList_MaxIndex);
 
         while (++top <= limit) {
             if (list->openingLink[top] != SBBidiLinkNone
@@ -72,7 +72,7 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink prior
     /* The queue can only take a maximum of 63 elements. */
     SBAssert(queue->count < SBBracketQueueGetMaxCapacity());
 
-    if (queue->_rearTop != _SB_BRACKET_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_rearTop != _SBBracketQueueList_MaxIndex) {
         list = queue->_rearList;
         top = ++queue->_rearTop;
     } else {
@@ -106,7 +106,7 @@ SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue)
     /* The queue must NOT be empty. */
     SBAssert(queue->count != 0);
 
-    if (queue->_frontTop != _SB_BRACKET_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_frontTop != _SBBracketQueueList_MaxIndex) {
         ++queue->_frontTop;
     } else {
         _SBBracketQueueListRef frontList = queue->_frontList;
@@ -141,7 +141,7 @@ SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType
         }
 
         list = list->previous;
-        top = _SB_BRACKET_QUEUE_LIST__MAX_INDEX;
+        top = _SBBracketQueueList_MaxIndex;
     };
 }
 
@@ -190,7 +190,7 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink clo
         }
 
         list = list->previous;
-        top = _SB_BRACKET_QUEUE_LIST__MAX_INDEX;
+        top = _SBBracketQueueList_MaxIndex;
     };
 }
 

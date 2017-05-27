@@ -23,21 +23,19 @@
 #include "SBBidiChain.h"
 #include "SBCharType.h"
 
-#define _SB_BRACKET_QUEUE_LIST__LENGTH      8
-#define _SB_BRACKET_QUEUE_LIST__MAX_INDEX   (_SB_BRACKET_QUEUE_LIST__LENGTH - 1)
-
-typedef struct _SBBracketQueueList *_SBBracketQueueListRef;
+#define _SBBracketQueueList_Length      8
+#define _SBBracketQueueList_MaxIndex    (_SBBracketQueueList_Length - 1)
 
 typedef struct _SBBracketQueueList {
-    _SBBracketQueueListRef previous;
-    _SBBracketQueueListRef next;
+    struct _SBBracketQueueList *previous;
+    struct _SBBracketQueueList *next;
 
-    SBCodepoint bracket[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLink priorStrongLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLink openingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBBidiLink closingLink[_SB_BRACKET_QUEUE_LIST__LENGTH];
-    SBCharType strongType[_SB_BRACKET_QUEUE_LIST__LENGTH];
-} _SBBracketQueueList;
+    SBCodepoint bracket[_SBBracketQueueList_Length];
+    SBBidiLink priorStrongLink[_SBBracketQueueList_Length];
+    SBBidiLink openingLink[_SBBracketQueueList_Length];
+    SBBidiLink closingLink[_SBBracketQueueList_Length];
+    SBCharType strongType[_SBBracketQueueList_Length];
+} _SBBracketQueueList, *_SBBracketQueueListRef;
 
 typedef struct _SBBracketQueue {
     _SBBracketQueueList _firstList;

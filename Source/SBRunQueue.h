@@ -22,8 +22,8 @@
 #include "SBBase.h"
 #include "SBLevelRun.h"
 
-#define _SB_RUN_QUEUE_LIST__LENGTH     8
-#define _SB_RUN_QUEUE_LIST__MAX_INDEX  (_SB_RUN_QUEUE_LIST__LENGTH - 1)
+#define _SBRunQueueList_Length      8
+#define _SBRunQueueList_MaxIndex    (_SBRunQueueList_Length - 1)
 
 struct _SBRunQueueList;
 typedef struct _SBRunQueueList _SBRunQueueList;
@@ -33,7 +33,7 @@ struct _SBRunQueueList {
     _SBRunQueueListRef previous;        /**< Reference to the previous list of queue elements */
     _SBRunQueueListRef next;            /**< Reference to the next list of queue elements */
 
-    SBLevelRun levelRuns[_SB_RUN_QUEUE_LIST__LENGTH];
+    SBLevelRun levelRuns[_SBRunQueueList_Length];
 };
 
 typedef struct _SBRunQueue {

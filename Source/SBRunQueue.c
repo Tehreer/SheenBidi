@@ -24,8 +24,6 @@
 #include "SBLevelRun.h"
 #include "SBRunQueue.h"
 
-static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue);
-
 static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue)
 {
     _SBRunQueueListRef list = queue->_partialList;
@@ -44,7 +42,7 @@ static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue)
         } while (top-- > limit);
 
         list = list->previous;
-        top = _SB_RUN_QUEUE_LIST__MAX_INDEX;
+        top = _SBRunQueueList_MaxIndex;
     } while (list);
 
     queue->_partialList = NULL;
@@ -80,7 +78,7 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, SBLevelRun levelRun)
     _SBRunQueueListRef list;
     SBUInteger top;
 
-    if (queue->_rearTop != _SB_RUN_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_rearTop != _SBRunQueueList_MaxIndex) {
         list = queue->_rearList;
         top = ++queue->_rearTop;
     } else {
@@ -124,7 +122,7 @@ SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
     /* The queue should not be empty. */
     SBAssert(queue->count != 0);
 
-    if (queue->_frontTop != _SB_RUN_QUEUE_LIST__MAX_INDEX) {
+    if (queue->_frontTop != _SBRunQueueList_MaxIndex) {
         ++queue->_frontTop;
     } else {
         _SBRunQueueListRef frontList = queue->_frontList;
