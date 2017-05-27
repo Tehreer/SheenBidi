@@ -46,18 +46,12 @@
  : SBCharTypeL                          \
 )
 
-struct _SBParagraphSupport;
-typedef struct _SBParagraphSupport _SBParagraphSupport;
-typedef _SBParagraphSupport *_SBParagraphSupportRef;
-
-struct _SBParagraphSupport {
-    SBCharType *refTypes;
-    SBLevel *refLevels;
+typedef struct _SBParagraphSupport {
     SBBidiChain bidiChain;
     SBStatusStack statusStack;
     SBRunQueue runQueue;
     SBIsolatingRun isolatingRun;
-};
+} _SBParagraphSupport, *_SBParagraphSupportRef;
 
 static _SBParagraphSupportRef _SBParagraphSupportCreate(SBCharType *types, SBLevel *levels, SBUInteger length);
 static void _SBParagraphSupportDestroy(_SBParagraphSupportRef support);
@@ -89,9 +83,6 @@ static _SBParagraphSupportRef _SBParagraphSupportCreate(SBCharType *types, SBLev
     SBBidiLink *fixedLinks = (SBBidiLink *)(memory + offsetLinks);
     SBCharType *fixedTypes = (SBCharType *)(memory + offsetTypes);
 
-    support->refTypes = types;
-    support->refLevels = levels;
-
     SBBidiChainInitialize(&support->bidiChain, fixedTypes, levels, fixedLinks);
     SBStatusStackInitialize(&support->statusStack);
     SBRunQueueInitialize(&support->runQueue);
@@ -114,16 +105,16 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
 {
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
     const SBUInteger sizeLevels    = sizeof(SBLevel) * (length + 2);
-    const SBUInteger sizeMemory    = sizeParagraph
-                                   + sizeLevels;
+    const SBUInteger sizeMemory    = sizeParagraph + sizeLevels;
+
+    const SBUInteger offsetParagraph = 0;
+    const SBUInteger offsetLevels    = offsetParagraph + sizeParagraph;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
+    SBParagraphRef paragraph = (SBParagraphRef)(memory + offsetParagraph);
+    SBLevel *levels = (SBLevel *)(memory + offsetLevels);
 
-    SBUInteger offset = 0;
-    SBParagraphRef paragraph = (SBParagraphRef)(memory + offset);
-
-    offset += sizeParagraph;
-    paragraph->fixedLevels = (SBLevel *)(memory + offset);
+    paragraph->fixedLevels = levels;
 
     return paragraph;
 }
@@ -612,14 +603,13 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     support->isolatingRun.paragraphLevel = resolvedLevel;
     
     _SBDetermineLevels(support, resolvedLevel);
-    _SBSaveLevels(&support->bidiChain, support->refLevels + 1, resolvedLevel);
+    _SBSaveLevels(&support->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
     
     SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
     SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
     SB_LOG_BLOCK_CLOSER();
 
     paragraph->algorithm = SBAlgorithmRetain(algorithm);
-    paragraph->fixedLevels += 1;
     paragraph->offset = paragraphOffset;
     paragraph->length = actualLength;
     paragraph->baseLevel = resolvedLevel;

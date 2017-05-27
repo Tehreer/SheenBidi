@@ -23,22 +23,17 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
-#include "SBConfig.h"
 #include "SBPairingLookup.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
 #include "SBLine.h"
 
-struct _SBLineSupport;
-typedef struct _SBLineSupport _SBLineSupport;
-typedef _SBLineSupport *_SBLineSupportRef;
-
-struct _SBLineSupport {
+typedef struct _SBLineSupport {
     const SBCharType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
     SBLevel maxLevel;
-};
+} _SBLineSupport, *_SBLineSupportRef;
 
 static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount);
 
@@ -84,17 +79,16 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
 {
     const SBUInteger sizeSupport = sizeof(_SBLineSupport);
     const SBUInteger sizeLevels  = sizeof(SBLevel) * charCount;
+    const SBUInteger sizeMemory  = sizeSupport + sizeLevels;
 
-    const SBUInteger sizeMemory  = sizeSupport
-                                 + sizeLevels;
+    const SBUInteger offsetSupport = 0;
+    const SBUInteger offsetLevels  = offsetSupport + sizeSupport;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
+    _SBLineSupportRef support = (_SBLineSupportRef)(memory + offsetSupport);
+    SBLevel *levels = (SBLevel *)(memory + offsetLevels);
 
-    SBUInteger offset = 0;
-    _SBLineSupportRef support = (_SBLineSupportRef)(memory + offset);
-
-    offset += sizeSupport;
-    support->fixedLevels = (SBLevel *)(memory + offset);
+    support->fixedLevels = levels;
 
     return support;
 }
@@ -119,19 +113,18 @@ static void _SBLineSupportDeallocate(_SBLineSupportRef support)
 
 static SBLineRef _SBLineAllocate(SBUInteger runCount)
 {
-    const SBUInteger sizeLine = sizeof(SBLine);
-    const SBUInteger sizeRuns = sizeof(SBRun) * runCount;
+    const SBUInteger sizeLine   = sizeof(SBLine);
+    const SBUInteger sizeRuns   = sizeof(SBRun) * runCount;
+    const SBUInteger sizeMemory = sizeLine + sizeRuns;
 
-    const SBUInteger sizeMemory = sizeLine
-                                + sizeRuns;
+    const SBUInteger offsetLine = 0;
+    const SBUInteger offsetRuns = offsetLine + sizeLine;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
-    SBUInteger offset = 0;
+    SBLineRef line = (SBLineRef)(memory + offsetLine);
+    SBRun *runs = (SBRun *)(memory + offsetRuns);
 
-    SBLineRef line = (SBLineRef)(memory + offset);
-    offset += sizeLine;
-
-    line->fixedRuns = (SBRun *)(memory + offset);
+    line->fixedRuns = runs;
 
     return line;
 }
@@ -229,12 +222,9 @@ static SBUInteger _SBInitializeRuns(SBRun *runs,
 
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount)
 {
-    SBUInteger halfCount;
-    SBUInteger finalIndex;
+    SBUInteger halfCount = runCount / 2;
+    SBUInteger finalIndex = runCount - 1;
     SBUInteger index;
-
-    halfCount = runCount / 2;
-    finalIndex = runCount - 1;
 
     for (index = 0; index < halfCount; ++index) {
         SBUInteger tieIndex;
