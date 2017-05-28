@@ -35,9 +35,9 @@ SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointS
 SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 
-SB_INTERNAL void _SBPrintIsolatingRunTypes(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void _SBPrintIsolatingRunLevels(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void _SBPrintIsolatingRunRange(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void _SBPrintRunTypes(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void _SBPrintRunLevels(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void _SBPrintRunRange(SBIsolatingRunRef isolatingRun);
 
 extern int _SBLogPosition;
 
@@ -108,10 +108,9 @@ do {                                    \
 #define SB_LOG_CHAR_TYPES_ARRAY(a, l)   _SBPrintCharTypesArray(a, l)
 #define SB_LOG_LEVELS_ARRAY(a, l)       _SBPrintLevelsArray(a, l)
 
-#define SB_LOG_LINK_TYPES(r)            _SBPrintIsolatingRunTypes(r)
-#define SB_LOG_LINK_LEVELS(r)           _SBPrintIsolatingRunLevels(r)
-
-#define SB_LOG_RUN_RANGE(r)             _SBPrintIsolatingRunRange(r)
+#define SB_LOG_RUN_TYPES(r)             _SBPrintRunTypes(r)
+#define SB_LOG_RUN_LEVELS(r)            _SBPrintRunLevels(r)
+#define SB_LOG_RUN_RANGE(r)             _SBPrintRunRange(r)
 
 #else
 
@@ -144,8 +143,8 @@ do {                                    \
 #define SB_LOG_CHAR_TYPES_ARRAY(a, l)   SB_LOG_NONE()
 #define SB_LOG_LEVELS_ARRAY(a, l)       SB_LOG_NONE()
 
-#define SB_LOG_LINK_TYPES(r)            SB_LOG_NONE()
-#define SB_LOG_LINK_LEVELS(r)           SB_LOG_NONE()
+#define SB_LOG_RUN_TYPES(r)             SB_LOG_NONE()
+#define SB_LOG_RUN_LEVELS(r)            SB_LOG_NONE()
 
 #define SB_LOG_RUN_RANGE(r)             SB_LOG_NONE()
 

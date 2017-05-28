@@ -233,7 +233,7 @@ SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
     }
 }
 
-static void _SBPrintTypeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+static void _SBPrintTypesOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
 {
     SBCharType charType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
 
@@ -243,13 +243,13 @@ static void _SBPrintTypeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingCo
     }
 }
 
-SB_INTERNAL void _SBPrintIsolatingRunTypes(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void _SBPrintRunTypes(SBIsolatingRunRef isolatingRun)
 {
     _SBIsolatingContext context;
-    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintTypeOperation);
+    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintTypesOperation);
 }
 
-static void _SBPrintLevelOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+static void _SBPrintLevelsOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
 {
     SBLevel charLevel = SBBidiChainGetLevel(isolatingRun->bidiChain, context->link);
 
@@ -259,10 +259,10 @@ static void _SBPrintLevelOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingC
     }
 }
 
-SB_INTERNAL void _SBPrintIsolatingRunLevels(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void _SBPrintRunLevels(SBIsolatingRunRef isolatingRun)
 {
     _SBIsolatingContext context;
-    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintLevelOperation);
+    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintLevelsOperation);
 }
 
 typedef struct {
@@ -289,7 +289,7 @@ static void _SBPrintRangeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingC
     }
 }
 
-SB_INTERNAL void _SBPrintIsolatingRunRange(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void _SBPrintRunRange(SBIsolatingRunRef isolatingRun)
 {
     _SBIsolatingRange range = { 0, 0 };
     _SBIsolatingContext context;
