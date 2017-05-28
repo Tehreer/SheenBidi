@@ -41,15 +41,13 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
                         SBCharTypeIsIsolateInitiator(lastType),
                         SBCharTypeIsIsolateTerminator(firstType)
                      );
-}
-
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun, SBBidiChainRef bidiChain)
-{
-    return SBBidiChainGetLevel(bidiChain, levelRun->firstLink);
+    levelRun->level = SBBidiChainGetLevel(bidiChain, firstLink);
 }
 
 SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next)
 {
+    /* Only the runs of same level can be attached. */
+    SBAssert(levelRun->level == next->level);
     /* No other run can be attached with a simple run. */
     SBAssert(!SBRunKindIsSimple(levelRun->kind));
     /* No other run can be attached with a complete isolating run. */

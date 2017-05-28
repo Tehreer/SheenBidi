@@ -19,6 +19,7 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBBidiChain.h"
 #include "SBCharType.h"
 #include "SBRunExtrema.h"
@@ -31,12 +32,12 @@ typedef struct _SBLevelRun {
     SBBidiLink subsequentLink;  /**< Subsequent link of the run. */
     SBRunExtrema extrema;
     SBRunKind kind;
+    SBLevel level;
 } SBLevelRun, *SBLevelRunRef;
 
 SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
     SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
     SBCharType sor, SBCharType eor);
-SB_INTERNAL SBLevel SBLevelRunGetLevel(SBLevelRunRef levelRun, SBBidiChainRef bidiChain);
 SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next);
 
 #endif

@@ -69,7 +69,7 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
 
     SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(isolatingRun));
     SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(isolatingRun));
-    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(SBLevelRunGetLevel(isolatingRun->baseLevelRun, isolatingRun->bidiChain)));
+    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(isolatingRun->baseLevelRun->level));
     SB_LOG_STATEMENT("SOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_sos));
     SB_LOG_STATEMENT("EOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_eos));
 
@@ -133,7 +133,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
         isolatingRun->_eos = SBRunExtrema_EOR(current->extrema);
     } else {
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;
-        SBLevel runLevel = SBLevelRunGetLevel(baseLevelRun, chain);
+        SBLevel runLevel = baseLevelRun->level;
         SBLevel eosLevel = (runLevel > paragraphLevel ? runLevel : paragraphLevel);
         isolatingRun->_eos = ((eosLevel & 1) ? SBCharTypeR : SBCharTypeL);
     }
@@ -304,7 +304,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     SBLevel runLevel;
 
     priorStrongLink = SBBidiLinkNone;
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
+    runLevel = isolatingRun->baseLevelRun->level;
 
     SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
@@ -373,7 +373,7 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
     SBCharType embeddingDirection;
     SBCharType oppositeDirection;
 
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
+    runLevel = isolatingRun->baseLevelRun->level;
     embeddingDirection = SB_LEVEL_TO_EXACT_TYPE(runLevel);
     oppositeDirection = SB_LEVEL_TO_OPPOSITE_TYPE(runLevel);
 
@@ -455,7 +455,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
     SBCharType strongType;
     SBBidiLink neutralLink;
 
-    runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
+    runLevel = isolatingRun->baseLevelRun->level;
     strongType = isolatingRun->_sos;
     neutralLink = SBBidiLinkNone;
 
@@ -519,7 +519,7 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
     SBBidiLink roller = chain->roller;
     SBBidiLink link;
 
-    SBLevel runLevel = SBLevelRunGetLevel(isolatingRun->baseLevelRun, chain);
+    SBLevel runLevel = isolatingRun->baseLevelRun->level;
     
     if ((runLevel & 1) == 0) {
         SBBidiChainForEach(chain, roller, link) {
