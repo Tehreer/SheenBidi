@@ -43,12 +43,12 @@ int main(int argc, const char * argv[])
     cout << "Generating files." << endl;
 
     CharTypeLookupGenerator charTypeLookup(unicodeData);
-    charTypeLookup.setMainSegmentSize(256);
-    charTypeLookup.setBranchSegmentSize(40);
+    charTypeLookup.setMainSegmentSize(16);
+    charTypeLookup.setBranchSegmentSize(100);
     charTypeLookup.generateFile(out);
 
     PairingLookupGenerator pairingLookup(bidiMirroring, bidiBrackets);
-    pairingLookup.setSegmentSize(152);
+    pairingLookup.setSegmentSize(113);
     pairingLookup.generateFile(out);
 
     cout << "Finished.";
