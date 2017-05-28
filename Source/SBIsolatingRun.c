@@ -67,34 +67,34 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
     /* Save last subsequent link. */
     subsequentLink = isolatingRun->_lastLevelRun->subsequentLink;
 
-    SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(&isolatingRun->_dummyLink));
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(&isolatingRun->_dummyLink));
-    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(SBLevelRunGetLevel(isolatingRun->baseLevelRun)));
+    SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(isolatingRun));
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(isolatingRun));
+    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(SBLevelRunGetLevel(isolatingRun->baseLevelRun, isolatingRun->bidiChain)));
     SB_LOG_STATEMENT("SOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_sos));
     SB_LOG_STATEMENT("EOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_eos));
 
     /* Rules W1-W7 */
     lastLink = _SBResolveWeakTypes(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Weak Types");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(&isolatingRun->_dummyLink));
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rule N0 */
     _SBResolveBrackets(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Brackets");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(&isolatingRun->_dummyLink));
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rules N1, N2 */
     _SBResolveNeutrals(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Neutrals");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(&isolatingRun->_dummyLink));
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_LINK_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rules I1, I2 */
     _SBResolveImplicitLevels(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Implicit Levels");
-    SB_LOG_STATEMENT("Levels", 1, SB_LOG_LINK_LEVELS(&isolatingRun->_dummyLink));
+    SB_LOG_STATEMENT("Levels", 1, SB_LOG_LINK_LEVELS(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Re-attach original links. */

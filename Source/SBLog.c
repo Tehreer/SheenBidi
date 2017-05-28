@@ -19,7 +19,7 @@
 #ifdef SB_CONFIG_LOG
 
 #include "SBBase.h"
-#include "SBBidiLink.h"
+#include "SBBidiChain.h"
 #include "SBCharType.h"
 #include "SBIsolatingRun.h"
 #include "SBLog.h"
@@ -182,58 +182,122 @@ SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length)
     }
 }
 
-SB_INTERNAL void _SBPrintRunRange(SBBidiLinkRef roller)
+typedef struct {
+    void *object;
+    SBBidiLink link;
+    SBUInteger length;
+} _SBIsolatingContext;
+
+typedef void (*_SBIsolatingConsumer)(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context);
+
+SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
+    _SBIsolatingContext *context, _SBIsolatingConsumer consumer)
 {
-    SBUInteger offset = 0;
-    SBUInteger length = 0;
-    SBBidiLinkRef link;
+    SBBidiChainRef bidiChain = isolatingRun->bidiChain;
+    SBLevelRunRef levelRun;
 
-    for (link = roller->next; link != roller; link = link->next) {
-        if (length == 0) {
-            offset = link->offset;
-            length = link->length;
-        } else if (link->offset == (offset + length)) {
-            length += link->length;
-        } else {
-            SB_LOG_RANGE(offset, length);
-            SB_LOG_DIVIDER(1);
+    /* Iterate over individual level runs of the isolating run. */
+    for (levelRun = isolatingRun->baseLevelRun; levelRun; levelRun = levelRun->next) {
+        SBBidiLink breakLink = SBBidiChainGetNext(bidiChain, levelRun->lastLink);
+        SBBidiLink currentLink = levelRun->firstLink;
+        SBBidiLink subsequentLink = levelRun->subsequentLink;
 
-            offset = link->offset;
-            length = link->length;
+        /* Iterate over each link of the level run. */
+        while (currentLink != breakLink) {
+            SBBidiLink nextLink = SBBidiChainGetNext(bidiChain, currentLink);
+            SBUInteger linkOffset = SBBidiChainGetOffset(bidiChain, currentLink);
+            SBUInteger linkLength;
+            SBUInteger index;
+
+            if (nextLink != breakLink) {
+                linkLength = SBBidiChainGetOffset(bidiChain, nextLink) - linkOffset;
+            } else {
+                linkLength = SBBidiChainGetOffset(bidiChain, subsequentLink) - linkOffset;
+            }
+
+            /* Skip any sequence of BN character types. */
+            for (index = 1; index < linkLength; index++) {
+                SBCharType charType = SBBidiChainGetType(bidiChain, currentLink + index);
+                if (charType == SBCharTypeBN) {
+                    linkLength = index;
+                    break;
+                }
+            }
+
+            context->link = currentLink;
+            context->length = linkLength;
+            consumer(isolatingRun, context);
+            
+            currentLink = nextLink;
         }
     }
-
-    SB_LOG_RANGE(offset, length);
 }
 
-SB_INTERNAL void _SBPrintLinkTypes(SBBidiLinkRef roller)
+static void _SBPrintTypeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
 {
-    SBBidiLinkRef link;
+    SBCharType charType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
 
-    for (link = roller->next; link != roller; link = link->next) {
-        SBCharType type = link->type;
-        SBUInteger length = link->length;
-
-        while (length--) {
-            SB_LOG_CHAR_TYPE(type);
-            SB_LOG_DIVIDER(1);
-        }
+    while (context->length--) {
+        SB_LOG_CHAR_TYPE(charType);
+        SB_LOG_DIVIDER(1);
     }
 }
 
-SB_INTERNAL void _SBPrintLinkLevels(SBBidiLinkRef roller)
+SB_INTERNAL void _SBPrintIsolatingRunTypes(SBIsolatingRunRef isolatingRun)
 {
-    SBBidiLinkRef link;
+    _SBIsolatingContext context;
+    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintTypeOperation);
+}
 
-    for (link = roller->next; link != roller; link = link->next) {
-        SBLevel level = link->level;
-        SBUInteger length = link->length;
+static void _SBPrintLevelOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+{
+    SBLevel charLevel = SBBidiChainGetLevel(isolatingRun->bidiChain, context->link);
 
-        while (length--) {
-            SB_LOG_LEVEL(level);
-            SB_LOG_DIVIDER(1);
-        }
+    while (context->length--) {
+        SB_LOG_LEVEL(charLevel);
+        SB_LOG_DIVIDER(1);
     }
+}
+
+SB_INTERNAL void _SBPrintIsolatingRunLevels(SBIsolatingRunRef isolatingRun)
+{
+    _SBIsolatingContext context;
+    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintLevelOperation);
+}
+
+typedef struct {
+    SBUInteger offset;
+    SBUInteger length;
+} _SBIsolatingRange;
+
+static void _SBPrintRangeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+{
+    _SBIsolatingRange *range = context->object;
+    SBUInteger offset = SBBidiChainGetOffset(isolatingRun->bidiChain, context->link);
+
+    if (range->length == 0) {
+        range->offset = offset;
+        range->length = context->length;
+    } else if (offset == (range->offset + range->length)) {
+        range->length += context->length;
+    } else {
+        SB_LOG_RANGE(range->offset, range->length);
+        SB_LOG_DIVIDER(1);
+
+        range->offset = offset;
+        range->length = context->length;
+    }
+}
+
+SB_INTERNAL void _SBPrintIsolatingRunRange(SBIsolatingRunRef isolatingRun)
+{
+    _SBIsolatingRange range = { 0, 0 };
+    _SBIsolatingContext context;
+    context.object = &range;
+
+    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintRangeOperation);
+    SB_LOG_RANGE(range.offset, range.length);
+    SB_LOG_DIVIDER(1);
 }
 
 #endif
