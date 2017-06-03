@@ -18,7 +18,7 @@ Here are some of the advantages of SheenBidi.
 SheenBidi does not depend on any external library. It only uses standard C library headers ```stddef.h```, ```stdint.h``` and ```stdlib.h```.
 
 ## Configuration
-The configuration options are available in `Headers/SBConifg.h`.
+The configuration options are available in `Headers/SBConfig.h`.
 
 * ```SB_CONFIG_LOG``` logs every activity performed in order to apply bidirectional algorithm.
 * ```SB_CONFIG_UNITY``` builds the library as a single module and lets the compiler make decisions to inline functions.
