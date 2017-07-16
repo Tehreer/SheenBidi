@@ -95,12 +95,12 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt8 *utf8String = codepointSequence->stringBuffer;
-    SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
-    SBCodepoint header;
+    const SBUInt8 *buffer = sequence->stringBuffer;
+    SBUInteger length = sequence->stringLength;
     SBCodepoint result;
+    SBUInt8 lead;
 
     /**
      * Reference: https://en.wikipedia.org/wiki/UTF-8
@@ -118,61 +118,87 @@ static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSeq
      * +------+---------+----------+-------+----------+----------+----------+----------+
      */
 
-    header = utf8String[*stringIndex];
+    lead = buffer[(*index)++];
     result = SBCodepointFaulty;
 
-    *stringIndex += 1;
+    if (lead < 0x80) {
+        result = lead;
+    } else if (lead < 0xC0) {
+        /* Lone continuation byte. */
+    } else if (lead < 0xE0) {
+        SBCodepoint codepoint;
+        SBCodepoint bytes[2];
 
-    if (header < 0x80) {
-        result = header;
-    } else if (SBUInt8InRange(header, 0xC2, 0xDF)) {
-        if (remaining > 1) {
-            SBCodepoint byte1 = header & 0x1F;
-            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
+        bytes[0] = lead & 0x1F;
 
-            if (byte2 <= 0x3F) {
-                SBCodepoint codepoint = (byte1 << 6)
-                                      | (byte2 << 0);
+        if (((*index) < length && (bytes[1] = buffer[*index] - 0x80) < 0x40)) {
+           ++(*index);
 
+            codepoint = (bytes[0] << 6)
+                      | (bytes[1] << 0);
+
+            if (codepoint >= 0x0080) {
                 result = codepoint;
-                *stringIndex += 1;
             }
         }
-    } else if (SBUInt8InRange(header, 0xE0, 0xEF)) {
-        if (remaining > 2) {
-            SBCodepoint byte1 = header & 0xF;
-            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
-            SBCodepoint byte3 = utf8String[*stringIndex + 1] - 0x80;
+    } else if (lead < 0xF0) {
+        SBCodepoint codepoint;
+        SBCodepoint bytes[3];
 
-            if (byte2 <= 0x3F && byte3 <= 0x3F) {
-                SBCodepoint codepoint = (byte1 << 12)
-                                      | (byte2 <<  6)
-                                      | (byte3 <<  0);
+        bytes[0] = lead & 0xF;
 
-                if (codepoint > 0x0800 && !SBCodepointInRange(codepoint, 0xD800, 0xDFFF)) {
-                    result = codepoint;
-                    *stringIndex += 2;
-                }
+        if (((*index) < length && (bytes[1] = buffer[*index] - 0x80) < 0x40) &&
+          (++(*index) < length && (bytes[2] = buffer[*index] - 0x80) < 0x40)) {
+           ++(*index);
+
+            codepoint = (bytes[0] << 12)
+                      | (bytes[1] <<  6)
+                      | (bytes[2] <<  0);
+
+            if (codepoint >= 0x0800 && !SBCodepointInRange(codepoint, 0xD800, 0xDFFF)) {
+                result = codepoint;
             }
         }
-    } else if (SBUInt8InRange(header, 0xF0, 0xF4)) {
-        if (remaining > 3) {
-            SBCodepoint byte1 = header & 0x7;
-            SBCodepoint byte2 = utf8String[*stringIndex + 0] - 0x80;
-            SBCodepoint byte3 = utf8String[*stringIndex + 1] - 0x80;
-            SBCodepoint byte4 = utf8String[*stringIndex + 2] - 0x80;
+    } else if (lead < 0xF8) {
+        SBCodepoint codepoint;
+        SBCodepoint bytes[4];
 
-            if (byte2 <= 0x3F && byte3 <= 0x3F && byte4 <= 0x3F) {
-                SBCodepoint codepoint = (byte1 << 18)
-                                      | (byte2 << 12)
-                                      | (byte3 <<  6)
-                                      | (byte4 <<  0);
+        bytes[0] = lead & 0x7;
 
-                if (SBCodepointInRange(codepoint, 0x10000, 0x10FFFF)) {
-                    result = codepoint;
-                    *stringIndex += 3;
-                }
+        if (((*index) < length && (bytes[1] = buffer[*index] - 0x80) < 0x40) &&
+          (++(*index) < length && (bytes[2] = buffer[*index] - 0x80) < 0x40) &&
+          (++(*index) < length && (bytes[3] = buffer[*index] - 0x80) < 0x40)) {
+           ++(*index);
+
+            codepoint = (bytes[0] << 18)
+                      | (bytes[1] << 12)
+                      | (bytes[2] <<  6)
+                      | (bytes[3] <<  0);
+
+            if (SBCodepointInRange(codepoint, 0x10000, 0x10FFFF)) {
+                result = codepoint;
             }
+        }
+    } else if (lead < 0xFC) {
+        /* Invalid byte sequence. */
+
+        if (((*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF))) {
+          ++(*index);
+            /* The above statements will skip valid continuation bytes. */
+        }
+    } else if (lead < 0xFE) {
+        /* Invalid byte sequence. */
+
+        if (((*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF)) &&
+          (++(*index) < length && SBUInt8InRange(buffer[*index], 0x80, 0xBF))) {
+           ++(*index);
+            /* The above statements will skip valid continuation bytes. */
         }
     }
 
