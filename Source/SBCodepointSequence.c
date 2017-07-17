@@ -207,16 +207,16 @@ static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *sequence, SB
 
 static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
-    const SBUInt8 *utf8String = codepointSequence->stringBuffer;
+    const SBUInt8 *buffer = codepointSequence->stringBuffer;
     SBUInteger startIndex = *stringIndex;
     SBUInteger nextIndex;
-    SBUInteger looper;
+    SBUInteger continuation;
     SBCodepoint result;
 
-    looper = 4;
+    continuation = 7;
 
-    while (--looper && startIndex--) {
-        SBUInt8 codeunit = utf8String[startIndex];
+    while (--continuation && --startIndex) {
+        SBUInt8 codeunit = buffer[startIndex];
 
         if ((codeunit & 0xC0) != 0x80) {
             break;
