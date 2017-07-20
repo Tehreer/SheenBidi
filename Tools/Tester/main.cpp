@@ -28,6 +28,7 @@ extern "C" {
 #include <Parser/BidiCharacterTest.h>
 
 #include "CharTypeTester.h"
+#include "CodepointSequenceTester.h"
 #include "MirrorTester.h"
 #include "BracketTester.h"
 #include "AlgorithmTester.h"
@@ -46,11 +47,13 @@ int main(int argc, const char *argv[]) {
     BidiCharacterTest bidiCharacterTest(dir);
 
     CharTypeTester charTypeTester(unicodeData);
+    CodepointSequenceTester codepointSequenceTester;
     MirrorTester mirrorTester(bidiMirroring);
     BracketTester bracketTester(bidiBrackets);
     AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
 
     charTypeTester.test();
+    codepointSequenceTester.test();
     mirrorTester.test();
     bracketTester.test();
     algorithmTester.test();
