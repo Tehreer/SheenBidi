@@ -15,12 +15,11 @@
  */
 
 extern "C" {
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBCodepointSequence.h>
+#include <SBBase.h>
+#include <SBCodepointSequence.h>
 }
 
 #include <cassert>
-#include <string>
 #include <vector>
 
 #include "CodepointSequenceTester.h"
