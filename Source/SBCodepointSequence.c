@@ -220,24 +220,23 @@ static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepoin
 static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt16 *utf16String = codepointSequence->stringBuffer;
-    SBUInteger remaining = codepointSequence->stringLength - *stringIndex;
-    SBCodepoint header;
+    SBUInteger length = codepointSequence->stringLength;
+    SBCodepoint lead;
     SBCodepoint result;
 
-    header = utf16String[*stringIndex];
+    lead = utf16String[*stringIndex];
     result = SBCodepointFaulty;
 
     *stringIndex += 1;
 
-    if (!SBCodepointIsSurrogate(header)) {
-        result = header;
-    } else if (header <= 0xDBFF) {
-        if (remaining > 1) {
-            SBCodepoint high = header;
-            SBCodepoint low = utf16String[*stringIndex];
+    if (!SBCodepointIsSurrogate(lead)) {
+        result = lead;
+    } else if (lead <= 0xDBFF) {
+        if (*stringIndex < length) {
+            SBCodepoint trail = utf16String[*stringIndex];
 
-            if (SBCodepointInRange(low, 0xDC00, 0xDFFF)) {
-                result = (high << 10) + low - ((0xD800 << 10) + 0xDC00 - 0x10000);
+            if (SBCodepointInRange(trail, 0xDC00, 0xDFFF)) {
+                result = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
                 *stringIndex += 1;
             }
         }
@@ -249,25 +248,22 @@ static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSe
 static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
 {
     const SBUInt16 *utf16String = codepointSequence->stringBuffer;
-    SBUInteger remaining;
-    SBCodepoint trailer;
+    SBCodepoint trail;
     SBCodepoint result;
 
     *stringIndex -= 1;
-    remaining = codepointSequence->stringLength - *stringIndex;
 
-    trailer = utf16String[*stringIndex];
+    trail = utf16String[*stringIndex];
     result = SBCodepointFaulty;
 
-    if (!SBCodepointIsSurrogate(trailer)) {
-        result = trailer;
-    } else if (trailer >= 0xDC00) {
-        if (remaining > 1) {
-            SBCodepoint low = trailer;
-            SBCodepoint high = utf16String[*stringIndex - 1];
+    if (!SBCodepointIsSurrogate(trail)) {
+        result = trail;
+    } else if (trail >= 0xDC00) {
+        if (*stringIndex > 0) {
+            SBCodepoint lead = utf16String[*stringIndex - 1];
 
-            if (SBCodepointInRange(high, 0xD800, 0xDBFF)) {
-                result = (high << 10) + low - ((0xD800 << 10) + 0xDC00 - 0x10000);
+            if (SBCodepointInRange(lead, 0xD800, 0xDBFF)) {
+                result = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
                 *stringIndex -= 1;
             }
         }
