@@ -70,6 +70,11 @@ static void u16Test(const vector<uint16_t> &buffer, const vector<uint32_t> &code
     conductTest(SBStringEncodingUTF16, buffer, codepoints);
 }
 
+static void u32Test(const vector<uint32_t> &buffer, const vector<uint32_t> &codepoints)
+{
+    conductTest(SBStringEncodingUTF32, buffer, codepoints);
+}
+
 void CodepointSequenceTester::testUTF8()
 {
     /* Based On: https://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html */
@@ -253,7 +258,7 @@ void CodepointSequenceTester::testUTF16()
     /* Some correct UTF-16 text. */
     u16Test({ 0x0645, 0x062D, 0x0641, 0x0648, 0x0638 }, { 0x0645, 0x062D, 0x0641, 0x0648, 0x0638 });
 
-    /* Single surrogates. */
+    /* Lone surrogates. */
     u16Test({ 0xD800 }, { FAULTY });
     u16Test({ 0xD9FF }, { FAULTY });
     u16Test({ 0xDBFF }, { FAULTY });
@@ -261,7 +266,7 @@ void CodepointSequenceTester::testUTF16()
     u16Test({ 0xDDFF }, { FAULTY });
     u16Test({ 0xDFFF }, { FAULTY });
 
-    /* Lone surrogates before a space. */
+    /* Surrogates before a space. */
     u16Test({ 0xD800, 0x0020 }, { FAULTY, 0x0020 });
     u16Test({ 0xD9FF, 0x0020 }, { FAULTY, 0x0020 });
     u16Test({ 0xDBFF, 0x0020 }, { FAULTY, 0x0020 });
@@ -269,7 +274,7 @@ void CodepointSequenceTester::testUTF16()
     u16Test({ 0xDDFF, 0x0020 }, { FAULTY, 0x0020 });
     u16Test({ 0xDFFF, 0x0020 }, { FAULTY, 0x0020 });
 
-    /* Lone surrogates after a space. */
+    /* Surrogates after a space. */
     u16Test({ 0x0020, 0xD800 }, { 0x0020, FAULTY });
     u16Test({ 0x0020, 0xD9FF }, { 0x0020, FAULTY });
     u16Test({ 0x0020, 0xDBFF }, { 0x0020, FAULTY });
@@ -287,11 +292,28 @@ void CodepointSequenceTester::testUTF16()
     u16Test({ 0xDBFF, 0xDC00 }, { 0x10FC00 });
     u16Test({ 0xDBFF, 0xDDFF }, { 0x10FDFF });
     u16Test({ 0xDBFF, 0xDFFF }, { 0x10FFFF });
+
+    /* Un-paired surrogates. */
+    u16Test({ 0xD7FF, 0xDC00 }, { 0xD7FF, FAULTY });
+    u16Test({ 0xD7FF, 0xDFFF }, { 0xD7FF, FAULTY });
+    u16Test({ 0xD800, 0xE000 }, { FAULTY, 0xE000 });
+    u16Test({ 0xDBFF, 0xE000 }, { FAULTY, 0xE000 });
 }
 
 void CodepointSequenceTester::testUTF32()
 {
+    /* Invalid boundaries. */
+    u32Test({ 0xD800 }, { FAULTY });
+    u32Test({ 0xDBFF }, { FAULTY });
+    u32Test({ 0xDC00 }, { FAULTY });
+    u32Test({ 0xDFFF }, { FAULTY });
+    u32Test({ 0x110000 }, { FAULTY });
 
+    /* Valid boundaries. */
+    u32Test({ 0x0000 }, { 0x0000 });
+    u32Test({ 0xD7FF }, { 0xD7FF });
+    u32Test({ 0xE000 }, { 0xE000 });
+    u32Test({ 0x10FFFF }, { 0x10FFFF });
 }
 
 void CodepointSequenceTester::test()
