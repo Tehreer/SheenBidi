@@ -272,38 +272,32 @@ static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepoi
     return result;
 }
 
-static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt32 *utf32String = codepointSequence->stringBuffer;
-    SBCodepoint header;
-    SBCodepoint result;
+    const SBUInt32 *buffer = sequence->stringBuffer;
+    SBCodepoint codepoint;
 
-    header = utf32String[*stringIndex];
-    result = SBCodepointFaulty;
+    codepoint = buffer[*index];
+    *index += 1;
 
-    *stringIndex += 1;
-
-    if (SBCodepointIsValid(header)) {
-        result = header;
+    if (SBCodepointIsValid(codepoint)) {
+        return codepoint;
     }
     
-    return result;
+    return SBCodepointFaulty;
 }
 
-static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt32 *utf32String = codepointSequence->stringBuffer;
-    SBCodepoint header;
-    SBCodepoint result;
+    const SBUInt32 *buffer = sequence->stringBuffer;
+    SBCodepoint codepoint;
 
-    *stringIndex -= 1;
+    *index -= 1;
+    codepoint = buffer[*index];
 
-    header = utf32String[*stringIndex];
-    result = SBCodepointFaulty;
-
-    if (SBCodepointIsValid(header)) {
-        result = header;
+    if (SBCodepointIsValid(codepoint)) {
+        return codepoint;
     }
 
-    return result;
+    return SBCodepointFaulty;
 }
