@@ -186,13 +186,13 @@ static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *sequence, SB
     return SBCodepointFaulty;
 }
 
-static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt8 *buffer = codepointSequence->stringBuffer;
-    SBUInteger startIndex = *stringIndex;
-    SBUInteger nextIndex;
+    const SBUInt8 *buffer = sequence->stringBuffer;
+    SBUInteger startIndex = *index;
+    SBUInteger limitIndex;
     SBUInteger continuation;
-    SBCodepoint result;
+    SBCodepoint codepoint;
 
     continuation = 7;
 
@@ -204,72 +204,72 @@ static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepoin
         }
     }
 
-    nextIndex = startIndex;
-    result = _SBGetUTF8CodepointAt(codepointSequence, &nextIndex);
+    limitIndex = startIndex;
+    codepoint = _SBGetUTF8CodepointAt(sequence, &limitIndex);
 
-    if (nextIndex == *stringIndex) {
-        *stringIndex = startIndex;
+    if (limitIndex == *index) {
+        *index = startIndex;
     } else {
-        *stringIndex -= 1;
-        result = SBCodepointFaulty;
+        codepoint = SBCodepointFaulty;
+        *index -= 1;
     }
 
-    return result;
+    return codepoint;
 }
 
-static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt16 *utf16String = codepointSequence->stringBuffer;
-    SBUInteger length = codepointSequence->stringLength;
-    SBCodepoint lead;
-    SBCodepoint result;
+    const SBUInt16 *buffer = sequence->stringBuffer;
+    SBUInteger length = sequence->stringLength;
+    SBCodepoint codepoint;
+    SBUInt16 lead;
 
-    lead = utf16String[*stringIndex];
-    result = SBCodepointFaulty;
+    codepoint = SBCodepointFaulty;
 
-    *stringIndex += 1;
+    lead = buffer[*index];
+    *index += 1;
 
     if (!SBCodepointIsSurrogate(lead)) {
-        result = lead;
+        codepoint = lead;
     } else if (lead <= 0xDBFF) {
-        if (*stringIndex < length) {
-            SBCodepoint trail = utf16String[*stringIndex];
+        if (*index < length) {
+            SBUInt16 trail = buffer[*index];
 
-            if (SBCodepointInRange(trail, 0xDC00, 0xDFFF)) {
-                result = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
-                *stringIndex += 1;
+            if (SBUInt16InRange(trail, 0xDC00, 0xDFFF)) {
+                codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
+                *index += 1;
             }
         }
     }
 
-    return result;
+    return codepoint;
 }
 
-static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)
+static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
-    const SBUInt16 *utf16String = codepointSequence->stringBuffer;
-    SBCodepoint trail;
-    SBCodepoint result;
+    const SBUInt16 *buffer = sequence->stringBuffer;
+    SBCodepoint codepoint;
+    SBUInt16 trail;
 
-    *stringIndex -= 1;
+    codepoint = SBCodepointFaulty;
 
-    trail = utf16String[*stringIndex];
-    result = SBCodepointFaulty;
+    *index -= 1;
+    trail = buffer[*index];
 
     if (!SBCodepointIsSurrogate(trail)) {
-        result = trail;
+        codepoint = trail;
     } else if (trail >= 0xDC00) {
-        if (*stringIndex > 0) {
-            SBCodepoint lead = utf16String[*stringIndex - 1];
+        if (*index > 0) {
+            SBUInt16 lead = buffer[*index - 1];
 
-            if (SBCodepointInRange(lead, 0xD800, 0xDBFF)) {
-                result = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
-                *stringIndex -= 1;
+            if (SBUInt16InRange(lead, 0xD800, 0xDBFF)) {
+                codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
+                *index -= 1;
             }
         }
     }
     
-    return result;
+    return codepoint;
 }
 
 static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
