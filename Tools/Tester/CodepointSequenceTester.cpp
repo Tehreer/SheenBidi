@@ -65,6 +65,11 @@ static void conductTest(const vector<uint8_t> &buffer, const vector<uint32_t> &c
     conductTest(SBStringEncodingUTF8, buffer, codepoints);
 }
 
+static void u16Test(const vector<uint16_t> &buffer, const vector<uint32_t> &codepoints)
+{
+    conductTest(SBStringEncodingUTF16, buffer, codepoints);
+}
+
 void CodepointSequenceTester::testUTF8()
 {
     /* Based On: https://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html */
@@ -245,7 +250,43 @@ CodepointSequenceTester::CodepointSequenceTester()
 
 void CodepointSequenceTester::testUTF16()
 {
+    /* Some correct UTF-16 text. */
+    u16Test({ 0x0645, 0x062D, 0x0641, 0x0648, 0x0638 }, { 0x0645, 0x062D, 0x0641, 0x0648, 0x0638 });
 
+    /* Single surrogates. */
+    u16Test({ 0xD800 }, { FAULTY });
+    u16Test({ 0xD9FF }, { FAULTY });
+    u16Test({ 0xDBFF }, { FAULTY });
+    u16Test({ 0xDC00 }, { FAULTY });
+    u16Test({ 0xDDFF }, { FAULTY });
+    u16Test({ 0xDFFF }, { FAULTY });
+
+    /* Lone surrogates before a space. */
+    u16Test({ 0xD800, 0x0020 }, { FAULTY, 0x0020 });
+    u16Test({ 0xD9FF, 0x0020 }, { FAULTY, 0x0020 });
+    u16Test({ 0xDBFF, 0x0020 }, { FAULTY, 0x0020 });
+    u16Test({ 0xDC00, 0x0020 }, { FAULTY, 0x0020 });
+    u16Test({ 0xDDFF, 0x0020 }, { FAULTY, 0x0020 });
+    u16Test({ 0xDFFF, 0x0020 }, { FAULTY, 0x0020 });
+
+    /* Lone surrogates after a space. */
+    u16Test({ 0x0020, 0xD800 }, { 0x0020, FAULTY });
+    u16Test({ 0x0020, 0xD9FF }, { 0x0020, FAULTY });
+    u16Test({ 0x0020, 0xDBFF }, { 0x0020, FAULTY });
+    u16Test({ 0x0020, 0xDC00 }, { 0x0020, FAULTY });
+    u16Test({ 0x0020, 0xDDFF }, { 0x0020, FAULTY });
+    u16Test({ 0x0020, 0xDFFF }, { 0x0020, FAULTY });
+
+    /* Paired surrogates. */
+    u16Test({ 0xD800, 0xDC00 }, { 0x10000 });
+    u16Test({ 0xD800, 0xDDFF }, { 0x101FF });
+    u16Test({ 0xD800, 0xDFFF }, { 0x103FF });
+    u16Test({ 0xD9FF, 0xDC00 }, { 0x8FC00 });
+    u16Test({ 0xD9FF, 0xDDFF }, { 0x8FDFF });
+    u16Test({ 0xD9FF, 0xDFFF }, { 0x8FFFF });
+    u16Test({ 0xDBFF, 0xDC00 }, { 0x10FC00 });
+    u16Test({ 0xDBFF, 0xDDFF }, { 0x10FDFF });
+    u16Test({ 0xDBFF, 0xDFFF }, { 0x10FFFF });
 }
 
 void CodepointSequenceTester::testUTF32()
