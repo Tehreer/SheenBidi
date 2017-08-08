@@ -18,6 +18,12 @@
 #define SHEENBIDI_PARSER_UNICODE_VERSION_H
 
 #include <string>
+#ifdef major
+#undef major
+#endif
+#ifdef minor
+#undef minor
+#endif
 
 namespace SheenBidi {
 namespace Parser {
