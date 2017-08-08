@@ -52,9 +52,9 @@ static inline uint8_t getBidiClassNumber(vector<string> &obj, const string &clas
 }
 
 UnicodeData::UnicodeData(const string &directory) :
-    m_bidiClassNumbers(0x200000),
     m_firstCodePoint(0),
-    m_lastCodePoint(0)
+    m_lastCodePoint(0),
+    m_bidiClassNumbers(0x200000)
 {
     initializeBidiClassNames(m_bidiClassNames);
 

@@ -29,10 +29,10 @@ using namespace SheenBidi::Parser;
 static const string FILE_BIDI_BRACKETS = "BidiBrackets.txt";
 
 BidiBrackets::BidiBrackets(const string &directory) :
-    m_pairedBrackets(0xFFFF),
-    m_pairedBracketTypes(0xFFFF),
     m_firstCodePoint(0),
-    m_lastCodePoint(0)
+    m_lastCodePoint(0),
+    m_pairedBrackets(0xFFFF),
+    m_pairedBracketTypes(0xFFFF)
 {
     ifstream stream(directory + "/" + FILE_BIDI_BRACKETS, ios::binary);
 
