@@ -29,9 +29,9 @@ using namespace SheenBidi::Parser;
 static const string FILE_BIDI_MIRRORING = "BidiMirroring.txt";
 
 BidiMirroring::BidiMirroring(const string &directory) :
-    m_mirrors(0xFFFF),
     m_firstCodePoint(0),
-    m_lastCodePoint(0)
+    m_lastCodePoint(0),
+    m_mirrors(0xFFFF)
 {
     ifstream stream(directory + "/" + FILE_BIDI_MIRRORING, ios::binary);
 
