@@ -21,7 +21,6 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 

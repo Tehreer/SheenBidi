@@ -21,7 +21,6 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 #include "SBBracketQueue.h"
 #include "SBCodepointSequence.h"
 #include "SBLevelRun.h"

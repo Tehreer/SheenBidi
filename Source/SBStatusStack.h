@@ -18,9 +18,7 @@
 #define _SB_INTERNAL_STATUS_STACK_H
 
 #include <SBConfig.h>
-
 #include "SBBase.h"
-#include "SBBidiType.h"
 
 #define _SBStatusStackList_Length       16
 #define _SBStatusStackList_MaxIndex     (_SBStatusStackList_Length - 1)

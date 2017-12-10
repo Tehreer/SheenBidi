@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,26 +25,24 @@
  */
 #define SBInvalidIndex  (SBUInteger)(-1)
 
-#define SBUInt8InRange(v, s, e)     \
-(                                   \
-    (SBUInt8)((v) - (s))            \
- <= (SBUInt8)((e) - (s))            \
-)
-
-#define SBUInt16InRange(v, s, e)    \
-(                                   \
-    (SBUInt16)((v) - (s))           \
- <= (SBUInt16)((e) - (s))           \
-)
-
-#define SBUInt32InRange(v, s, e)    \
-(                                   \
-    (SBUInt32)((v) - (s))           \
- <= (SBUInt32)((e) - (s))           \
-)
-
 SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength);
 SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength);
+
+
+#define _SBBidiTypeIsEqual(t1, t2)          \
+(                                           \
+ (t1) == (t2)                               \
+)
+
+#define SBBidiTypeIsNumber(t)               SBUInt8InRange(t, SBBidiTypeAN, SBBidiTypeEN)
+#define SBBidiTypeIsIsolate(t)              SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDI)
+
+#define SBBidiTypeIsStrongOrNumber(t)       (SBBidiTypeIsStrong(t) || SBBidiTypeIsNumber(t))
+#define SBBidiTypeIsNumberSeparator(t)      SBUInt8InRange(t, SBBidiTypeES, SBBidiTypeCS)
+#define SBBidiTypeIsIsolateInitiator(t)     SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypeFSI)
+#define SBBidiTypeIsIsolateTerminator(t)    _SBBidiTypeIsEqual(t, SBBidiTypePDI)
+#define SBBidiTypeIsNeutralOrIsolate(t)     SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypePDI)
+
 
 #define SBCodepointMax              0x10FFFF
 

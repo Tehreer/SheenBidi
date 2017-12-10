@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include <SBConfig.h>
 
+#include "SBBidiTypeLookup.h"
 #include "SBPairingLookup.h"
 #include "SBBase.h"
 
@@ -70,6 +71,11 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger 
     SBUInteger possibleLimit = rangeOffset + rangeLength;
 
     return rangeOffset < actualLength && rangeOffset <= possibleLimit && possibleLimit <= actualLength;
+}
+
+SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
+{
+    return SBBidiTypeDetermine(codepoint);
 }
 
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint)

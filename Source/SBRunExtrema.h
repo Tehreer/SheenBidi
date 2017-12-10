@@ -18,7 +18,6 @@
 #define _SB_INTERNAL_RUN_EXTREMA_H
 
 #include "SBBase.h"
-#include "SBBidiType.h"
 
 enum {
     SBRunExtremaLeadingL  = SBBidiTypeL << 0,

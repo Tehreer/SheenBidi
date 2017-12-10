@@ -19,7 +19,6 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 #include "SBBracketQueue.h"
 #include "SBBracketType.h"
 #include "SBLevelRun.h"

@@ -21,8 +21,6 @@
 #include <SBCodepointSequence.h>
 #include <SBConfig.h>
 
-#include "SBBidiType.h"
-
 typedef struct _SBAlgorithm {
     SBCodepointSequence codepointSequence;
     SBBidiType *fixedTypes;

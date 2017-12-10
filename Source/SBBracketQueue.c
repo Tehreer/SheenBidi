@@ -21,7 +21,6 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 #include "SBBracketQueue.h"
 
 static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top)

@@ -21,7 +21,6 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 
 #define _SBBracketQueueList_Length      8
 #define _SBBracketQueueList_MaxIndex    (_SBBracketQueueList_Length - 1)

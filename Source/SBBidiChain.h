@@ -18,9 +18,7 @@
 #define _SB_INTERNAL_BIDI_CHAIN_H
 
 #include <SBConfig.h>
-
 #include "SBBase.h"
-#include "SBBidiType.h"
 
 typedef SBUInt32 SBBidiLink;
 

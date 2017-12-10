@@ -17,7 +17,6 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBBidiType.h"
 #include "SBBidiChain.h"
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,

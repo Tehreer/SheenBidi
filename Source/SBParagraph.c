@@ -23,7 +23,6 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBBidiType.h"
 #include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"

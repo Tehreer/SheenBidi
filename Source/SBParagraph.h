@@ -22,8 +22,6 @@
 #include <SBConfig.h>
 #include <SBParagraph.h>
 
-#include "SBBidiType.h"
-
 typedef struct _SBParagraph {
     SBAlgorithmRef algorithm;
     SBBidiType *refTypes;
