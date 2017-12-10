@@ -5,33 +5,33 @@
  * REQUIRED MEMORY: 4878+(2832*2)+(697*2) = 11936 Bytes
  */
 
-#include "SBCharTypeLookup.h"
+#include "SBBidiTypeLookup.h"
 
-#define AL      SBCharTypeAL 
-#define AN      SBCharTypeAN 
-#define B       SBCharTypeB  
-#define BN      SBCharTypeBN 
-#define CS      SBCharTypeCS 
-#define EN      SBCharTypeEN 
-#define ES      SBCharTypeES 
-#define ET      SBCharTypeET 
-#define FSI     SBCharTypeFSI
-#define L       SBCharTypeL  
-#define LRE     SBCharTypeLRE
-#define LRI     SBCharTypeLRI
-#define LRO     SBCharTypeLRO
-#define NSM     SBCharTypeNSM
-#define ON      SBCharTypeON 
-#define PDF     SBCharTypePDF
-#define PDI     SBCharTypePDI
-#define R       SBCharTypeR  
-#define RLE     SBCharTypeRLE
-#define RLI     SBCharTypeRLI
-#define RLO     SBCharTypeRLO
-#define S       SBCharTypeS  
-#define WS      SBCharTypeWS 
+#define AL      SBBidiTypeAL
+#define AN      SBBidiTypeAN
+#define B       SBBidiTypeB
+#define BN      SBBidiTypeBN
+#define CS      SBBidiTypeCS
+#define EN      SBBidiTypeEN
+#define ES      SBBidiTypeES
+#define ET      SBBidiTypeET
+#define FSI     SBBidiTypeFSI
+#define L       SBBidiTypeL
+#define LRE     SBBidiTypeLRE
+#define LRI     SBBidiTypeLRI
+#define LRO     SBBidiTypeLRO
+#define NSM     SBBidiTypeNSM
+#define ON      SBBidiTypeON
+#define PDF     SBBidiTypePDF
+#define PDI     SBBidiTypePDI
+#define R       SBBidiTypeR
+#define RLE     SBBidiTypeRLE
+#define RLI     SBBidiTypeRLI
+#define RLO     SBBidiTypeRLO
+#define S       SBBidiTypeS
+#define WS      SBBidiTypeWS
 
-static const SBUInt8 _SBCharTypePrimaryData[4878] = {
+static const SBUInt8 _SBBidiTypePrimaryData[4878] = {
 /* DATA_BLOCK: -- 0x0000..0x000F -- */
     BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  BN,  S,   B,   S,   WS,  B,   BN,  BN,
 /* DATA_BLOCK: -- 0x0010..0x001F -- */
@@ -644,7 +644,7 @@ static const SBUInt8 _SBCharTypePrimaryData[4878] = {
     L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L,   L
 };
 
-static const SBUInt16 _SBCharTypeMainIndexes[2832] = {
+static const SBUInt16 _SBBidiTypeMainIndexes[2832] = {
 /* INDEX_BLOCK: -- 0x0000..0x0063 -- */
     0x0000, 0x0010, 0x0020, 0x0030, 0x0040, 0x0050, 0x0040, 0x0060, 0x0070, 0x0080, 0x0090, 0x00A0,
     0x00B0, 0x00C0, 0x00B0, 0x00C0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0,
@@ -931,7 +931,7 @@ static const SBUInt16 _SBCharTypeMainIndexes[2832] = {
     0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x00B0, 0x1300
 };
 
-static const SBUInt16 _SBCharTypeBranchIndexes[697] = {
+static const SBUInt16 _SBBidiTypeBranchIndexes[697] = {
     0x0000, 0x0064, 0x00C8, 0x012C, 0x0190, 0x01F4, 0x0258, 0x02BC, 0x0320, 0x0384, 0x0384, 0x0384,
     0x03E8, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384,
     0x0384, 0x0384, 0x044C, 0x04B0, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384, 0x0384,
@@ -993,19 +993,19 @@ static const SBUInt16 _SBCharTypeBranchIndexes[697] = {
     0x0AF0
 };
 
-SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint)
+SB_INTERNAL SBBidiType SBBidiTypeDetermine(SBCodepoint codepoint)
 {
     if (codepoint <= 0x10FFFD) {
-        return _SBCharTypePrimaryData[
-                _SBCharTypeMainIndexes[
-                 _SBCharTypeBranchIndexes[
+        return _SBBidiTypePrimaryData[
+                _SBBidiTypeMainIndexes[
+                 _SBBidiTypeBranchIndexes[
                       codepoint / 0x0640
                  ] + (codepoint % 0x0640) / 0x0010
                 ] + codepoint % 0x0010
                ];
     }
 
-    return SBCharTypeL;
+    return SBBidiTypeL;
 }
 
 #undef AL

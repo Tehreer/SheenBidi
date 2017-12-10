@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "SBLine.h"
 
 typedef struct _SBLineSupport {
-    const SBCharType *refTypes;
+    const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
     SBLevel maxLevel;
@@ -38,7 +38,7 @@ typedef struct _SBLineSupport {
 static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount);
 
 static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount);
-static void _SBLineSupportInitialize(_SBLineSupportRef support, const SBCharType *types, SBLevel *levels, SBUInteger charCount);
+static void _SBLineSupportInitialize(_SBLineSupportRef support, const SBBidiType *types, SBLevel *levels, SBUInteger charCount);
 static void _SBLineSupportDeallocate(_SBLineSupportRef support);
 
 static SBLineRef _SBLineAllocate(SBUInteger runCount);
@@ -49,7 +49,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs, const SBLevel *levels, SBUInteg
 static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
 static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
 
-static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence, SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
+static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence, SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
 
 static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
@@ -94,7 +94,7 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
 }
 
 static void _SBLineSupportInitialize(_SBLineSupportRef support,
-    const SBCharType *types, SBLevel *levels, SBUInteger charCount)
+    const SBBidiType *types, SBLevel *levels, SBUInteger charCount)
 {
     SBLevel maxLevel;
     SBUInteger runCount;
@@ -140,7 +140,7 @@ static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 
 static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
 {
-    const SBCharType *types = support->refTypes;
+    const SBBidiType *types = support->refTypes;
     SBLevel *levels = support->fixedLevels;
     SBUInteger index;
     SBUInteger length;
@@ -151,31 +151,31 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
     reset = SBTrue;
 
     while (index--) {
-        SBCharType type = types[index];
+        SBBidiType type = types[index];
 
         switch (type) {
-        case SBCharTypeB:
-        case SBCharTypeS:
+        case SBBidiTypeB:
+        case SBBidiTypeS:
             _SBSetNewLevel(levels + index, length + 1, baseLevel);
             length = 0;
             reset = SBTrue;
             ++support->runCount;
             break;
 
-        case SBCharTypeLRE:
-        case SBCharTypeRLE:
-        case SBCharTypeLRO:
-        case SBCharTypeRLO:
-        case SBCharTypePDF:
-        case SBCharTypeBN:
+        case SBBidiTypeLRE:
+        case SBBidiTypeRLE:
+        case SBBidiTypeLRO:
+        case SBBidiTypeRLO:
+        case SBBidiTypePDF:
+        case SBBidiTypeBN:
             ++length;
             break;
 
-        case SBCharTypeWS:
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:
-        case SBCharTypeFSI:
-        case SBCharTypePDI:
+        case SBBidiTypeWS:
+        case SBBidiTypeLRI:
+        case SBBidiTypeRLI:
+        case SBBidiTypeFSI:
+        case SBBidiTypePDI:
             if (reset) {
                 _SBSetNewLevel(levels + index, length + 1, baseLevel);
                 length = 0;
@@ -260,7 +260,7 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
 }
 
 static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence,
-    SBCharType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+    SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     _SBLineSupportRef support;
     SBLineRef line;

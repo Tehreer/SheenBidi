@@ -25,7 +25,7 @@
 #include <Parser/BidiCharacterTest.h>
 
 #include "PairingLookupGenerator.h"
-#include "CharTypeLookupGenerator.h"
+#include "BidiTypeLookupGenerator.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -42,10 +42,10 @@ int main(int argc, const char * argv[])
 
     cout << "Generating files." << endl;
 
-    CharTypeLookupGenerator charTypeLookup(unicodeData);
-    charTypeLookup.setMainSegmentSize(16);
-    charTypeLookup.setBranchSegmentSize(100);
-    charTypeLookup.generateFile(out);
+    BidiTypeLookupGenerator bidiTypeLookup(unicodeData);
+    bidiTypeLookup.setMainSegmentSize(16);
+    bidiTypeLookup.setBranchSegmentSize(100);
+    bidiTypeLookup.generateFile(out);
 
     PairingLookupGenerator pairingLookup(bidiMirroring, bidiBrackets);
     pairingLookup.setSegmentSize(113);

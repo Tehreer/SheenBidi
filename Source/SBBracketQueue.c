@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBBracketQueue.h"
 
 static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top)
@@ -53,7 +53,7 @@ SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue)
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBCharType direction)
+SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBBidiType direction)
 {
     queue->_frontList = &queue->_firstList;
     queue->_rearList = &queue->_firstList;
@@ -98,7 +98,7 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink prior
     list->openingLink[top] = openingLink;
     list->closingLink[top] = SBBidiLinkNone;
     list->bracket[top] = bracket;
-    list->strongType[top] = SBCharTypeNil;
+    list->strongType[top] = SBBidiTypeNil;
 }
 
 SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue)
@@ -121,7 +121,7 @@ SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue)
     --queue->count;
 }
 
-SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBCharType strongType)
+SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBBidiType strongType)
 {
     _SBBracketQueueListRef list = queue->_rearList;
     SBUInteger top = queue->_rearTop;
@@ -214,7 +214,7 @@ SB_INTERNAL SBBidiLink SBBracketQueueGetClosingLink(SBBracketQueueRef queue)
     return queue->_frontList->closingLink[queue->_frontTop];
 }
 
-SB_INTERNAL SBCharType SBBracketQueueGetStrongType(SBBracketQueueRef queue)
+SB_INTERNAL SBBidiType SBBracketQueueGetStrongType(SBBracketQueueRef queue)
 {
     return queue->_frontList->strongType[queue->_frontTop];
 }

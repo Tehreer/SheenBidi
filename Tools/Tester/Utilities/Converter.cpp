@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <string>
 
 extern "C" {
-#include <Source/SBCharType.h>
+#include <Source/SBBidiType.h>
 }
 
 #include "Converter.h"
@@ -27,32 +27,32 @@ extern "C" {
 using namespace std;
 using namespace SheenBidi::Tester::Utilities;
 
-static map<SBCharType, string> createStringMap() {
-    map<SBCharType, string> map;
-    map[SBCharTypeNil] = "Nil";
-    map[SBCharTypeL]   = "L";
-    map[SBCharTypeR]   = "R";
-    map[SBCharTypeAL]  = "AL";
-    map[SBCharTypeEN]  = "EN";
-    map[SBCharTypeES]  = "ES";
-    map[SBCharTypeET]  = "ET";
-    map[SBCharTypeAN]  = "AN";
-    map[SBCharTypeCS]  = "CS";
-    map[SBCharTypeNSM] = "NSM";
-    map[SBCharTypeBN]  = "BN";
-    map[SBCharTypeB]   = "B";
-    map[SBCharTypeS]   = "S";
-    map[SBCharTypeWS]  = "WS";
-    map[SBCharTypeON]  = "ON";
-    map[SBCharTypeLRE] = "LRE";
-    map[SBCharTypeRLE] = "RLE";
-    map[SBCharTypeLRO] = "LRO";
-    map[SBCharTypeRLO] = "RLO";
-    map[SBCharTypePDF] = "PDF";
-    map[SBCharTypeLRI] = "LRI";
-    map[SBCharTypeRLI] = "RLI";
-    map[SBCharTypeFSI] = "FSI";
-    map[SBCharTypePDI] = "PDI";
+static map<SBBidiType, string> createStringMap() {
+    map<SBBidiType, string> map;
+    map[SBBidiTypeNil] = "Nil";
+    map[SBBidiTypeL]   = "L";
+    map[SBBidiTypeR]   = "R";
+    map[SBBidiTypeAL]  = "AL";
+    map[SBBidiTypeEN]  = "EN";
+    map[SBBidiTypeES]  = "ES";
+    map[SBBidiTypeET]  = "ET";
+    map[SBBidiTypeAN]  = "AN";
+    map[SBBidiTypeCS]  = "CS";
+    map[SBBidiTypeNSM] = "NSM";
+    map[SBBidiTypeBN]  = "BN";
+    map[SBBidiTypeB]   = "B";
+    map[SBBidiTypeS]   = "S";
+    map[SBBidiTypeWS]  = "WS";
+    map[SBBidiTypeON]  = "ON";
+    map[SBBidiTypeLRE] = "LRE";
+    map[SBBidiTypeRLE] = "RLE";
+    map[SBBidiTypeLRO] = "LRO";
+    map[SBBidiTypeRLO] = "RLO";
+    map[SBBidiTypePDF] = "PDF";
+    map[SBBidiTypeLRI] = "LRI";
+    map[SBBidiTypeRLI] = "RLI";
+    map[SBBidiTypeFSI] = "FSI";
+    map[SBBidiTypePDI] = "PDI";
 
     return map;
 }
@@ -86,13 +86,13 @@ static map<string, uint32_t> createCodePointMap() {
     return map;
 }
 
-static map<SBCharType, string> MAP_CHAR_TYPE_TO_STRING = createStringMap();
-static map<string, uint32_t> MAP_CHAR_TYPE_TO_CODE_POINT = createCodePointMap();
+static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = createStringMap();
+static map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = createCodePointMap();
 
-const string &Converter::toString(SBCharType charType) {
-    return MAP_CHAR_TYPE_TO_STRING[charType];
+const string &Converter::toString(SBBidiType bidiType) {
+    return MAP_BIDI_TYPE_TO_STRING[bidiType];
 }
 
-uint32_t Converter::toCodePoint(const string &charType) {
-    return MAP_CHAR_TYPE_TO_CODE_POINT[charType];
+uint32_t Converter::toCodePoint(const string &bidiType) {
+    return MAP_BIDI_TYPE_TO_CODE_POINT[bidiType];
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,22 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
+#include "SBBidiType.h"
 #include "SBBracketQueue.h"
-#include "SBCharType.h"
 #include "SBCodepointSequence.h"
 #include "SBLevelRun.h"
 
 typedef struct _SBIsolatingRun {
     const SBCodepointSequence *codepointSequence;
-    const SBCharType *charTypes;
+    const SBBidiType *bidiTypes;
     SBUInteger paragraphOffset;
     SBBidiChainRef bidiChain;
     SBLevelRunRef baseLevelRun;
     SBLevelRunRef _lastLevelRun;
     SBBracketQueue _bracketQueue;
     SBBidiLink _originalLink;
-    SBCharType _sos;
-    SBCharType _eos;
+    SBBidiType _sos;
+    SBBidiType _eos;
     SBLevel paragraphLevel;
 } SBIsolatingRun, *SBIsolatingRunRef;
 

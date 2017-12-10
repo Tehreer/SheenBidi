@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_GENERATOR_CHAR_TYPE_LOOKUP_GENERATOR_H
-#define SHEENBIDI_GENERATOR_CHAR_TYPE_LOOKUP_GENERATOR_H
+#ifndef SHEENBIDI_GENERATOR_BIDI_TYPE_LOOKUP_GENERATOR_H
+#define SHEENBIDI_GENERATOR_BIDI_TYPE_LOOKUP_GENERATOR_H
 
 #include <map>
 #include <memory>
@@ -26,9 +26,9 @@
 namespace SheenBidi {
 namespace Generator {
 
-class CharTypeLookupGenerator {
+class BidiTypeLookupGenerator {
 public:
-    CharTypeLookupGenerator(const Parser::UnicodeData &unicodeData);
+    BidiTypeLookupGenerator(const Parser::UnicodeData &unicodeData);
 
     void setMainSegmentSize(size_t);
     void setBranchSegmentSize(size_t);

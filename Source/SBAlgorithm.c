@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "SBCharType.h"
-#include "SBCharTypeLookup.h"
+#include "SBBidiType.h"
+#include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBLog.h"
 #include "SBParagraph.h"
@@ -28,7 +28,7 @@
 static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
 {
     const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
-    const SBUInteger sizeTypes     = sizeof(SBCharType) * stringLength;
+    const SBUInteger sizeTypes     = sizeof(SBBidiType) * stringLength;
 
     const SBUInteger sizeMemory    = sizeAlgorithm
                                    + sizeTypes;
@@ -39,23 +39,23 @@ static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
     SBAlgorithmRef algorithm = (SBAlgorithmRef)(memory + offset);
 
     offset += sizeAlgorithm;
-    algorithm->fixedTypes = (SBCharType *)(memory + offset);
+    algorithm->fixedTypes = (SBBidiType *)(memory + offset);
 
     return algorithm;
 }
 
-static void _SBDetermineCharTypes(const SBCodepointSequence *sequence, SBCharType *types)
+static void _SBDetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
 {
     SBUInteger stringIndex = 0;
     SBUInteger firstIndex = 0;
     SBCodepoint codepoint;
 
     while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex)) != SBCodepointInvalid) {
-        types[firstIndex] = SBCharTypeDetermine(codepoint);
+        types[firstIndex] = SBBidiTypeDetermine(codepoint);
 
         /* Subsequent code units get 'BN' type. */
         while (++firstIndex < stringIndex) {
-            types[firstIndex] = SBCharTypeBN;
+            types[firstIndex] = SBBidiTypeBN;
         }
     }
 }
@@ -74,10 +74,10 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
         algorithm->codepointSequence = *codepointSequence;
         algorithm->_retainCount = 1;
 
-        _SBDetermineCharTypes(codepointSequence, algorithm->fixedTypes);
+        _SBDetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
         SB_LOG_BLOCK_OPENER("Determined Types");
-        SB_LOG_STATEMENT("Types",  1, SB_LOG_CHAR_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
+        SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
         SB_LOG_BLOCK_CLOSER();
 
         SB_LOG_BREAKER();
@@ -117,7 +117,7 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger *acutalLength, SBUInteger *separatorLength)
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
-    SBCharType *charTypes = algorithm->fixedTypes;
+    SBBidiType *bidiTypes = algorithm->fixedTypes;
     SBUInteger limitIndex;
     SBUInteger startIndex;
 
@@ -125,9 +125,9 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     limitIndex = paragraphOffset + suggestedLength;
 
     for (startIndex = paragraphOffset; startIndex < limitIndex; startIndex++) {
-        SBCharType currentType = charTypes[startIndex];
+        SBBidiType currentType = bidiTypes[startIndex];
 
-        if (currentType == SBCharTypeB) {
+        if (currentType == SBBidiTypeB) {
             if (separatorLength) {
                 *separatorLength = SBAlgorithmDetermineSeparatorLength(algorithm, startIndex);
             }

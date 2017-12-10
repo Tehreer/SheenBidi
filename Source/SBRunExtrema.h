@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 #define _SB_INTERNAL_RUN_EXTREMA_H
 
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 
 enum {
-    SBRunExtremaLeadingL  = SBCharTypeL << 0,
-    SBRunExtremaLeadingR  = SBCharTypeR << 0,
+    SBRunExtremaLeadingL  = SBBidiTypeL << 0,
+    SBRunExtremaLeadingR  = SBBidiTypeR << 0,
     
-    SBRunExtremaTrailingL = SBCharTypeL << 4,
-    SBRunExtremaTrailingR = SBCharTypeR << 4
+    SBRunExtremaTrailingL = SBBidiTypeL << 4,
+    SBRunExtremaTrailingR = SBBidiTypeR << 4
 };
 typedef SBUInt8 SBRunExtrema;
 

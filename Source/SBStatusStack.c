@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBStatusStack.h"
 
 SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack)
@@ -31,7 +31,7 @@ SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack)
     SBStatusStackSetEmpty(stack);
 }
 
-SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus)
+SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
 {
     _SBStatusStackListRef list;
     SBUInteger top;
@@ -92,7 +92,7 @@ SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack)
     return stack->_peekList->embeddingLevel[stack->_peekTop];
 }
 
-SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack)
+SB_INTERNAL SBBidiType SBStatusStackGetOverrideStatus(SBStatusStackRef stack)
 {
     return stack->_peekList->overrideStatus[stack->_peekTop];
 }

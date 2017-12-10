@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 
 #define _SBStatusStackList_Length       16
 #define _SBStatusStackList_MaxIndex     (_SBStatusStackList_Length - 1)
@@ -30,7 +30,7 @@ typedef struct _SBStatusStackList {
     struct _SBStatusStackList *next;
 
     SBBoolean isolateStatus[_SBStatusStackList_Length];
-    SBCharType overrideStatus[_SBStatusStackList_Length];
+    SBBidiType overrideStatus[_SBStatusStackList_Length];
     SBLevel embeddingLevel[_SBStatusStackList_Length];
 } _SBStatusStackList, *_SBStatusStackListRef;
 
@@ -44,12 +44,12 @@ typedef struct _SBStatusStack {
 SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack);
 SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack);
 
-SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBCharType overrideStatus, SBBoolean isolateStatus);
+SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus);
 SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack);
 SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack);
 
 SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack);
-SB_INTERNAL SBCharType SBStatusStackGetOverrideStatus(SBStatusStackRef stack);
+SB_INTERNAL SBBidiType SBStatusStackGetOverrideStatus(SBStatusStackRef stack);
 SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack);
 
 #endif

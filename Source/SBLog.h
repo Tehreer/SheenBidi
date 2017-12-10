@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,15 @@
 #include <stdio.h>
 
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
 
 SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel);
-SB_INTERNAL void _SBPrintCharType(SBCharType type);
+SB_INTERNAL void _SBPrintBidiType(SBBidiType type);
 
 SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointSequence);
-SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length);
+SB_INTERNAL void _SBPrintBidiTypesArray(SBBidiType *types, SBUInteger length);
 SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
 
 SB_INTERNAL void _SBPrintRunTypes(SBIsolatingRunRef isolatingRun);
@@ -102,10 +102,10 @@ do {                                    \
 #define SB_LOG_BLOCK_CLOSER()           SB_LOG_END()
 
 #define SB_LOG_BASE_LEVEL(l)            _SBPrintBaseLevel(l)
-#define SB_LOG_CHAR_TYPE(t)             _SBPrintCharType(t)
+#define SB_LOG_BIDI_TYPE(t)             _SBPrintBidiType(t)
 
 #define SB_LOG_CODEPOINT_SEQUENCE(s)    _SBPrintCodepointSequence(s)
-#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   _SBPrintCharTypesArray(a, l)
+#define SB_LOG_BIDI_TYPES_ARRAY(a, l)   _SBPrintBidiTypesArray(a, l)
 #define SB_LOG_LEVELS_ARRAY(a, l)       _SBPrintLevelsArray(a, l)
 
 #define SB_LOG_RUN_TYPES(r)             _SBPrintRunTypes(r)
@@ -137,10 +137,10 @@ do {                                    \
 #define SB_LOG_BLOCK_CLOSER()           SB_LOG_NONE()
 
 #define SB_LOG_BASE_LEVEL(l)            SB_LOG_NONE()
-#define SB_LOG_CHAR_TYPE(t)             SB_LOG_NONE()
+#define SB_LOG_BIDI_TYPE(t)             SB_LOG_NONE()
 
 #define SB_LOG_CODEPOINT_SEQUENCE(s)    SB_LOG_NONE()
-#define SB_LOG_CHAR_TYPES_ARRAY(a, l)   SB_LOG_NONE()
+#define SB_LOG_BIDI_TYPES_ARRAY(a, l)   SB_LOG_NONE()
 #define SB_LOG_LEVELS_ARRAY(a, l)       SB_LOG_NONE()
 
 #define SB_LOG_RUN_TYPES(r)             SB_LOG_NONE()

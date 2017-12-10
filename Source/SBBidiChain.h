@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 
 typedef SBUInt32 SBBidiLink;
 
 #define SBBidiLinkNone (SBUInt32)(-1)
 
 typedef struct _SBBidiChain {
-    SBCharType *types;
+    SBBidiType *types;
     SBLevel *levels;
     SBBidiLink *links;
     SBBidiLink roller;
@@ -35,14 +35,14 @@ typedef struct _SBBidiChain {
 } SBBidiChain, *SBBidiChainRef;
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
-    SBCharType *types, SBLevel *levels, SBBidiLink *links);
-SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBCharType type, SBUInteger length);
+    SBBidiType *types, SBLevel *levels, SBBidiLink *links);
+SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBBidiType type, SBUInteger length);
 
 SB_INTERNAL SBUInteger SBBidiChainGetOffset(SBBidiChainRef chain, SBBidiLink link);
 SB_INTERNAL SBBoolean SBBidiChainIsSingle(SBBidiChainRef chain, SBBidiLink link);
 
-SB_INTERNAL SBCharType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBCharType type);
+SB_INTERNAL SBBidiType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBBidiType type);
 
 SB_INTERNAL SBLevel SBBidiChainGetLevel(SBBidiChainRef chain, SBBidiLink link);
 SB_INTERNAL void SBBidiChainSetLevel(SBBidiChainRef chain, SBBidiLink link, SBLevel level);

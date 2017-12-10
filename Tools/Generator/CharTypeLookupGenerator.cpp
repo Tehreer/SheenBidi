@@ -28,7 +28,7 @@
 #include "Utilities/ArrayBuilder.h"
 #include "Utilities/FileBuilder.h"
 
-#include "CharTypeLookupGenerator.h"
+#include "BidiTypeLookupGenerator.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -42,35 +42,35 @@ static const size_t MIN_BRANCH_SEGMENT_SIZE = 8;
 static const size_t MAX_BRANCH_SEGMENT_SIZE = 512;
 
 static const string DATA_ARRAY_TYPE = "static const SBUInt8";
-static const string DATA_ARRAY_NAME = "_SBCharTypePrimaryData";
+static const string DATA_ARRAY_NAME = "_SBBidiTypePrimaryData";
 
 static const string MAIN_INDEXES_ARRAY_TYPE = "static const SBUInt16";
-static const string MAIN_INDEXES_ARRAY_NAME = "_SBCharTypeMainIndexes";
+static const string MAIN_INDEXES_ARRAY_NAME = "_SBBidiTypeMainIndexes";
 
 static const string BRANCH_INDEXES_ARRAY_TYPE = "static const SBUInt16";
-static const string BRANCH_INDEXES_ARRAY_NAME = "_SBCharTypeBranchIndexes";
+static const string BRANCH_INDEXES_ARRAY_NAME = "_SBBidiTypeBranchIndexes";
 
-CharTypeLookupGenerator::MainDataSegment::MainDataSegment(size_t index, MainDataSet dataset)
+BidiTypeLookupGenerator::MainDataSegment::MainDataSegment(size_t index, MainDataSet dataset)
     : index(index)
     , dataset(dataset)
 {
 }
 
-const string CharTypeLookupGenerator::MainDataSegment::hintLine() const {
+const string BidiTypeLookupGenerator::MainDataSegment::hintLine() const {
     return ("/* DATA_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-CharTypeLookupGenerator::BranchDataSegment::BranchDataSegment(size_t index, BranchDataSet dataset)
+BidiTypeLookupGenerator::BranchDataSegment::BranchDataSegment(size_t index, BranchDataSet dataset)
     : index(index)
     , dataset(dataset)
 {
 }
 
-const string CharTypeLookupGenerator::BranchDataSegment::hintLine() const {
+const string BidiTypeLookupGenerator::BranchDataSegment::hintLine() const {
     return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-CharTypeLookupGenerator::CharTypeLookupGenerator(const UnicodeData &unicodeData)
+BidiTypeLookupGenerator::BidiTypeLookupGenerator(const UnicodeData &unicodeData)
     : m_bidiClassDetector(unicodeData)
     , m_firstCodePoint(unicodeData.firstCodePoint())
     , m_lastCodePoint(unicodeData.lastCodePoint())
@@ -79,15 +79,15 @@ CharTypeLookupGenerator::CharTypeLookupGenerator(const UnicodeData &unicodeData)
 {
 }
 
-void CharTypeLookupGenerator::setMainSegmentSize(size_t segmentSize) {
+void BidiTypeLookupGenerator::setMainSegmentSize(size_t segmentSize) {
     m_mainSegmentSize = min(MAX_MAIN_SEGMENT_SIZE, max(MIN_MAIN_SEGMENT_SIZE, segmentSize));
 }
 
-void CharTypeLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
+void BidiTypeLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
     m_branchSegmentSize = min(MAX_BRANCH_SEGMENT_SIZE, max(MIN_BRANCH_SEGMENT_SIZE, segmentSize));
 }
 
-void CharTypeLookupGenerator::displayBidiClassesFrequency() {
+void BidiTypeLookupGenerator::displayBidiClassesFrequency() {
     map<uint8_t, size_t> frequency;
 
     for (uint32_t i = 0; i < m_lastCodePoint; i++) {
@@ -99,7 +99,7 @@ void CharTypeLookupGenerator::displayBidiClassesFrequency() {
     }
 }
 
-void CharTypeLookupGenerator::analyzeData() {
+void BidiTypeLookupGenerator::analyzeData() {
     cout << "Analyzing data for char type lookup." << endl;
 
     size_t minMemory = SIZE_MAX;
@@ -135,7 +135,7 @@ void CharTypeLookupGenerator::analyzeData() {
     cout << "  Required Memory: " << minMemory << " bytes";
 }
 
-void CharTypeLookupGenerator::collectMainData() {
+void BidiTypeLookupGenerator::collectMainData() {
     size_t unicodeCount = m_lastCodePoint - m_firstCodePoint;
     size_t maxSegments = Math::FastCeil(unicodeCount, m_mainSegmentSize);
 
@@ -185,7 +185,7 @@ void CharTypeLookupGenerator::collectMainData() {
     m_mainIndexesSize = m_dataReferences.size();
 }
 
-void CharTypeLookupGenerator::collectBranchData() {
+void BidiTypeLookupGenerator::collectBranchData() {
     size_t mainIndexesCount = m_dataReferences.size() - 1;
     size_t maxSegments = Math::FastCeil(mainIndexesCount, m_branchSegmentSize);
 
@@ -228,11 +228,11 @@ void CharTypeLookupGenerator::collectBranchData() {
     m_branchIndexesSize = m_branchReferences.size();
 }
 
-void CharTypeLookupGenerator::generateFile(const std::string &directory) {
+void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     collectMainData();
     collectBranchData();
 
-    std::set<string> charTypes;
+    std::set<string> bidiTypes;
 
     ArrayBuilder arrData;
     arrData.setDataType(DATA_ARRAY_TYPE);
@@ -252,9 +252,9 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
         size_t length = segment.dataset->size();
 
         for (size_t j = 0; j < length; j++) {
-            const string &charType = m_bidiClassDetector.numberToName(segment.dataset->at(j));
-            charTypes.insert(charType);
-            arrData.appendElement(charType);
+            const string &bidiType = m_bidiClassDetector.numberToName(segment.dataset->at(j));
+            bidiTypes.insert(bidiType);
+            arrData.appendElement(bidiType);
 
             if (!isLast || j != (length - 1)) {
                 arrData.newElement();
@@ -324,40 +324,40 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
     string maxUnicode = "0x" + Converter::toHex(m_lastCodePoint, 6);
     string mainDivider = "0x" + Converter::toHex(m_mainSegmentSize, 4);
     string branchDivider = "0x" + Converter::toHex(m_mainSegmentSize * m_branchSegmentSize, 4);
-    lookupFunction.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint)").newLine();
+    lookupFunction.append("SB_INTERNAL SBBidiType SBBidiTypeDetermine(SBCodepoint codepoint)").newLine();
     lookupFunction.append("{").newLine();
     lookupFunction.appendTabs(1).append("if (codepoint <= " + maxUnicode + ") {").newLine();
-    lookupFunction.appendTabs(2).append("return _SBCharTypePrimaryData[").newLine();
-    lookupFunction.appendTabs(2).append("        _SBCharTypeMainIndexes[").newLine();
-    lookupFunction.appendTabs(2).append("         _SBCharTypeBranchIndexes[").newLine();
+    lookupFunction.appendTabs(2).append("return _SBBidiTypePrimaryData[").newLine();
+    lookupFunction.appendTabs(2).append("        _SBBidiTypeMainIndexes[").newLine();
+    lookupFunction.appendTabs(2).append("         _SBBidiTypeBranchIndexes[").newLine();
     lookupFunction.appendTabs(2).append("              codepoint / " + branchDivider).newLine();
     lookupFunction.appendTabs(2).append("         ] + (codepoint % " + branchDivider + ") / " + mainDivider).newLine();
     lookupFunction.appendTabs(2).append("        ] + codepoint % " + mainDivider).newLine();
     lookupFunction.appendTabs(2).append("       ];").newLine();
     lookupFunction.appendTabs(1).append("}").newLine();
     lookupFunction.newLine();
-    lookupFunction.appendTabs(1).append("return SBCharTypeL;").newLine();
+    lookupFunction.appendTabs(1).append("return SBBidiTypeL;").newLine();
     lookupFunction.append("}").newLine();
 
-    FileBuilder header(directory + "/SBCharTypeLookup.h");
+    FileBuilder header(directory + "/SBBidiTypeLookup.h");
     header.append("/*").newLine();
     header.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     header.append(" * DO NOT EDIT!!").newLine();
     header.append(" */").newLine();
     header.newLine();
-    header.append("#ifndef _SB_INTERNAL_CHAR_TYPE_LOOKUP_H").newLine();
-    header.append("#define _SB_INTERNAL_CHAR_TYPE_LOOKUP_H").newLine();
+    header.append("#ifndef _SB_INTERNAL_BIDI_TYPE_LOOKUP_H").newLine();
+    header.append("#define _SB_INTERNAL_BIDI_TYPE_LOOKUP_H").newLine();
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.newLine();
     header.append("#include \"SBBase.h\"").newLine();
-    header.append("#include \"SBCharType.h\"").newLine();
+    header.append("#include \"SBBidiType.h\"").newLine();
     header.newLine();
-    header.append("SB_INTERNAL SBCharType SBCharTypeDetermine(SBCodepoint codepoint);").newLine();
+    header.append("SB_INTERNAL SBBidiType SBBidiTypeDetermine(SBCodepoint codepoint);").newLine();
     header.newLine();
     header.append("#endif").newLine();
 
-    FileBuilder source(directory + "/SBCharTypeLookup.c");
+    FileBuilder source(directory + "/SBBidiTypeLookup.c");
     source.append("/*").newLine();
     source.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     source.append(" * DO NOT EDIT!!").newLine();
@@ -369,18 +369,18 @@ void CharTypeLookupGenerator::generateFile(const std::string &directory) {
                   + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
-    source.append("#include \"SBCharTypeLookup.h\"").newLine();
+    source.append("#include \"SBBidiTypeLookup.h\"").newLine();
     source.newLine();
-    for (auto ct : charTypes) {
+    for (auto ct : bidiTypes) {
         string str = ct + string(3 - ct.length(), ' ');
-        source.append("#define " + str).appendTab().append(" SBCharType" + str).newLine();
+        source.append("#define " + str).appendTab().append(" SBBidiType" + str).newLine();
     }
     source.newLine();
     source.append(arrData).newLine();
     source.append(arrMainIndexes).newLine();
     source.append(arrBranchIndexes).newLine();
     source.append(lookupFunction).newLine();
-    for (auto ct : charTypes) {
+    for (auto ct : bidiTypes) {
         source.append("#undef " + ct).newLine();
     }
 }

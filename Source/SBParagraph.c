@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBCharType.h"
-#include "SBCharTypeLookup.h"
+#include "SBBidiType.h"
+#include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
 #include "SBLevelRun.h"
@@ -42,8 +42,8 @@
 #define SB_LEVEL_TO_TYPE(l)             \
 (                                       \
    ((l) & 1)                            \
- ? SBCharTypeR                          \
- : SBCharTypeL                          \
+ ? SBBidiTypeR                          \
+ : SBBidiTypeL                          \
 )
 
 typedef struct _SBParagraphSupport {
@@ -53,11 +53,11 @@ typedef struct _SBParagraphSupport {
     SBIsolatingRun isolatingRun;
 } _SBParagraphSupport, *_SBParagraphSupportRef;
 
-static _SBParagraphSupportRef _SBParagraphSupportCreate(SBCharType *types, SBLevel *levels, SBUInteger length);
+static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length);
 static void _SBParagraphSupportDestroy(_SBParagraphSupportRef support);
 
 static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
-static void _SBPopulateBidiChain(SBBidiChainRef chain, SBCharType *types, SBUInteger length);
+static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length);
 
 static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink);
 static SBLevel _SBDetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink, SBLevel defaultLevel, SBBoolean isIsolate);
@@ -67,11 +67,11 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
 static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel);
 
-static _SBParagraphSupportRef _SBParagraphSupportCreate(SBCharType *types, SBLevel *levels, SBUInteger length)
+static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
     const SBUInteger sizeSupport = sizeof(_SBParagraphSupport);
     const SBUInteger sizeLinks   = sizeof(SBBidiLink) * (length + 2);
-    const SBUInteger sizeTypes   = sizeof(SBCharType) * (length + 2);
+    const SBUInteger sizeTypes   = sizeof(SBBidiType) * (length + 2);
     const SBUInteger sizeMemory  = sizeSupport + sizeLinks + sizeTypes;
 
     const SBUInteger offsetSupport = 0;
@@ -81,7 +81,7 @@ static _SBParagraphSupportRef _SBParagraphSupportCreate(SBCharType *types, SBLev
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
     _SBParagraphSupportRef support = (_SBParagraphSupportRef)(memory + offsetSupport);
     SBBidiLink *fixedLinks = (SBBidiLink *)(memory + offsetLinks);
-    SBCharType *fixedTypes = (SBCharType *)(memory + offsetTypes);
+    SBBidiType *fixedTypes = (SBBidiType *)(memory + offsetTypes);
 
     SBBidiChainInitialize(&support->bidiChain, fixedTypes, levels, fixedLinks);
     SBStatusStackInitialize(&support->statusStack);
@@ -121,12 +121,12 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
 
 static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
 {
-    SBCharType *charTypes = algorithm->fixedTypes;
+    SBBidiType *bidiTypes = algorithm->fixedTypes;
     SBUInteger suggestedLimit = paragraphOffset + suggestedLength;
     SBUInteger stringIndex;
 
     for (stringIndex = paragraphOffset; stringIndex < suggestedLimit; stringIndex++) {
-        if (charTypes[stringIndex] == SBCharTypeB) {
+        if (bidiTypes[stringIndex] == SBBidiTypeB) {
             goto Return;
         }
     }
@@ -137,32 +137,32 @@ Return:
     return (stringIndex - paragraphOffset);
 }
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, SBCharType *types, SBUInteger length)
+static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length)
 {
-    SBCharType type = SBCharTypeNil;
+    SBBidiType type = SBBidiTypeNil;
     SBUInteger priorIndex = SBInvalidIndex;
     SBUInteger index;
 
     for (index = 0; index < length; index++) {
-        SBCharType priorType = type;
+        SBBidiType priorType = type;
         type = types[index];
 
         switch (type) {
-        case SBCharTypeB:
-        case SBCharTypeON:
-        case SBCharTypeLRE:
-        case SBCharTypeRLE:
-        case SBCharTypeLRO:
-        case SBCharTypeRLO:
-        case SBCharTypePDF:
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:
-        case SBCharTypeFSI:
-        case SBCharTypePDI:
+        case SBBidiTypeB:
+        case SBBidiTypeON:
+        case SBBidiTypeLRE:
+        case SBBidiTypeRLE:
+        case SBBidiTypeLRO:
+        case SBBidiTypeRLO:
+        case SBBidiTypePDF:
+        case SBBidiTypeLRI:
+        case SBBidiTypeRLI:
+        case SBBidiTypeFSI:
+        case SBBidiTypePDI:
             SBBidiChainAdd(chain, type, index - priorIndex);
             priorIndex = index;
 
-            if (type == SBCharTypeB) {
+            if (type == SBBidiTypeB) {
                 index = length;
                 goto AddLast;
             }
@@ -178,7 +178,7 @@ static void _SBPopulateBidiChain(SBBidiChainRef chain, SBCharType *types, SBUInt
     }
 
 AddLast:
-    SBBidiChainAdd(chain, SBCharTypeNil, index - priorIndex);
+    SBBidiChainAdd(chain, SBBidiTypeNil, index - priorIndex);
 }
 
 static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink)
@@ -187,16 +187,16 @@ static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink,
     SBUInteger depth = 1;
 
     while ((link = SBBidiChainGetNext(chain, link)) != breakLink) {
-        SBCharType type = SBBidiChainGetType(chain, link);
+        SBBidiType type = SBBidiChainGetType(chain, link);
 
         switch (type) {
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:
-        case SBCharTypeFSI:
+        case SBBidiTypeLRI:
+        case SBBidiTypeRLI:
+        case SBBidiTypeFSI:
             ++depth;
             break;
 
-        case SBCharTypePDI:
+        case SBBidiTypePDI:
             if (--depth == 0) {
                 return link;
             }
@@ -213,26 +213,26 @@ static SBLevel _SBDetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, 
 
     /* Rules P2, P3 */
     while ((link = SBBidiChainGetNext(chain, link)) != breakLink) {
-        SBCharType type = SBBidiChainGetType(chain, link);
+        SBBidiType type = SBBidiChainGetType(chain, link);
 
         switch (type) {
-        case SBCharTypeL:
+        case SBBidiTypeL:
             return 0;
 
-        case SBCharTypeAL:
-        case SBCharTypeR:
+        case SBBidiTypeAL:
+        case SBBidiTypeR:
             return 1;
 
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:
-        case SBCharTypeFSI:
+        case SBBidiTypeLRI:
+        case SBBidiTypeRLI:
+        case SBBidiTypeFSI:
             link = _SBSkipIsolatingRun(chain, link, breakLink);
             if (link == SBBidiLinkNone) {
                 goto Default;
             }
             break;
 
-        case SBCharTypePDI:
+        case SBBidiTypePDI:
             if (isIsolate) {
                 /*
                  * In case of isolating run, the PDI will be the last code point.
@@ -272,8 +272,8 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     SBBidiLink lastLink;
 
     SBLevel priorLevel;
-    SBCharType sor;
-    SBCharType eor;
+    SBBidiType sor;
+    SBBidiType eor;
 
     SBUInteger overIsolate;
     SBUInteger overEmbedding;
@@ -284,19 +284,19 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     lastLink = SBBidiLinkNone;
 
     priorLevel = baseLevel;
-    sor = SBCharTypeNil;
+    sor = SBBidiTypeNil;
 
     /* Rule X1 */
     overIsolate = 0;
     overEmbedding = 0;
     validIsolate = 0;
 
-    SBStatusStackPush(stack, baseLevel, SBCharTypeON, SBFalse);
+    SBStatusStackPush(stack, baseLevel, SBBidiTypeON, SBFalse);
 
     SBBidiChainForEach(chain, roller, link) {
         SBBoolean forceFinish = SBFalse;
         SBBoolean bnEquivalent = SBFalse;
-        SBCharType type;
+        SBBidiType type;
 
         type = SBBidiChainGetType(chain, link);
 
@@ -335,7 +335,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
 #define SB_PUSH_ISOLATE(l, o)                                               \
 {                                                                           \
-        SBCharType priorStatus = SBStatusStackGetOverrideStatus(stack);     \
+        SBBidiType priorStatus = SBStatusStackGetOverrideStatus(stack);     \
         SBLevel newLevel = l;                                               \
                                                                             \
         SBBidiChainSetLevel(chain, link,                                    \
@@ -348,7 +348,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             ++overIsolate;                                                  \
         }                                                                   \
                                                                             \
-        if (priorStatus != SBCharTypeON) {                                  \
+        if (priorStatus != SBBidiTypeON) {                                  \
             SBBidiChainSetType(chain, link, priorStatus);                   \
             SB_MERGE_LINK_IF_NEEDED();                                      \
         }                                                                   \
@@ -356,43 +356,43 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
 
         switch (type) {
         /* Rule X2 */
-        case SBCharTypeRLE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBCharTypeON);
+        case SBBidiTypeRLE:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeON);
             break;
 
         /* Rule X3 */
-        case SBCharTypeLRE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBCharTypeON);
+        case SBBidiTypeLRE:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeON);
             break;
 
         /* Rule X4 */
-        case SBCharTypeRLO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBCharTypeR);
+        case SBBidiTypeRLO:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeR);
             break;
 
         /* Rule X5 */
-        case SBCharTypeLRO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBCharTypeL);
+        case SBBidiTypeLRO:
+            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeL);
             break;
 
         /* Rule X5a */
-        case SBCharTypeRLI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_ODD_LEVEL(), SBCharTypeON);
+        case SBBidiTypeRLI:
+            SB_PUSH_ISOLATE(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeON);
             break;
 
         /* Rule X5b */
-        case SBCharTypeLRI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_EVEN_LEVEL(), SBCharTypeON);
+        case SBBidiTypeLRI:
+            SB_PUSH_ISOLATE(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeON);
             break;
 
         /* Rule X5c */
-        case SBCharTypeFSI:
+        case SBBidiTypeFSI:
         {
             SBBoolean isRTL = (_SBDetermineBaseLevel(chain, link, roller, 0, SBTrue) == 1);
             SB_PUSH_ISOLATE(isRTL
                              ? SB_LEAST_GREATER_ODD_LEVEL()
                              : SB_LEAST_GREATER_EVEN_LEVEL(),
-                            SBCharTypeON);
+                            SBBidiTypeON);
             break;
         }
 
@@ -400,16 +400,16 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         default:
             SBBidiChainSetLevel(chain, link, SBStatusStackGetEmbeddingLevel(stack));
 
-            if (SBStatusStackGetOverrideStatus(stack) != SBCharTypeON) {
+            if (SBStatusStackGetOverrideStatus(stack) != SBBidiTypeON) {
                 SBBidiChainSetType(chain, link, SBStatusStackGetOverrideStatus(stack));
                 SB_MERGE_LINK_IF_NEEDED();
             }
             break;
 
         /* Rule X6a */
-        case SBCharTypePDI:
+        case SBBidiTypePDI:
         {
-            SBCharType overrideStatus;
+            SBBidiType overrideStatus;
 
             if (overIsolate != 0) {
                 --overIsolate;
@@ -429,7 +429,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             SBBidiChainSetLevel(chain, link, SBStatusStackGetEmbeddingLevel(stack));
             overrideStatus = SBStatusStackGetOverrideStatus(stack);
 
-            if (overrideStatus != SBCharTypeON) {
+            if (overrideStatus != SBBidiTypeON) {
                 SBBidiChainSetType(chain, link, overrideStatus);
                 SB_MERGE_LINK_IF_NEEDED();
             }
@@ -437,7 +437,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         }
 
         /* Rule X7 */
-        case SBCharTypePDF:
+        case SBBidiTypePDF:
             bnEquivalent = SBTrue;
 
             if (overIsolate != 0) {
@@ -450,13 +450,13 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             break;
 
         /* Rule X8 */
-        case SBCharTypeB:
+        case SBBidiTypeB:
             /*
              * These values are reset for clarity, in this implementation B can only occur as the
              * last code in the array.
              */
             SBStatusStackSetEmpty(stack);
-            SBStatusStackPush(stack, baseLevel, SBCharTypeON, SBFalse);
+            SBStatusStackPush(stack, baseLevel, SBBidiTypeON, SBFalse);
 
             overIsolate = 0;
             overEmbedding = 0;
@@ -465,11 +465,11 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             SBBidiChainSetLevel(chain, link, baseLevel);
             break;
 
-        case SBCharTypeBN:
+        case SBBidiTypeBN:
             bnEquivalent = SBTrue;
             break;
 
-        case SBCharTypeNil:
+        case SBBidiTypeNil:
             forceFinish = SBTrue;
             SBBidiChainSetLevel(chain, link, baseLevel);
             break;
@@ -478,12 +478,12 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         /* Rule X9 */
         if (bnEquivalent) {
             /* The type of this link is BN equivalent, so abandon it and continue the loop. */
-            SBBidiChainSetType(chain, link, SBCharTypeBN);
+            SBBidiChainSetType(chain, link, SBBidiTypeBN);
             SBBidiChainAbandonNext(chain, priorLink);
             continue;
         }
 
-        if (sor == SBCharTypeNil) {
+        if (sor == SBBidiTypeNil) {
             sor = SB_LEVEL_TO_TYPE(SB_MAX(baseLevel, SBBidiChainGetLevel(chain, link)));
             firstLink = link;
             priorLevel = SBBidiChainGetLevel(chain, link);
@@ -599,7 +599,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
 
     support->isolatingRun.codepointSequence = codepointSequence;
     support->isolatingRun.paragraphOffset = paragraphOffset;
-    support->isolatingRun.charTypes = paragraph->refTypes;
+    support->isolatingRun.bidiTypes = paragraph->refTypes;
     support->isolatingRun.bidiChain = &support->bidiChain;
     support->isolatingRun.paragraphLevel = resolvedLevel;
     

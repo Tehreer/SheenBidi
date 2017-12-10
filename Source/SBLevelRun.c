@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@
 
 #include "SBAssert.h"
 #include "SBBidiChain.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 #include "SBLevelRun.h"
 
 SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
     SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
-    SBCharType sor, SBCharType eor)
+    SBBidiType sor, SBBidiType eor)
 {
-    SBCharType firstType = SBBidiChainGetType(bidiChain, firstLink);
-    SBCharType lastType = SBBidiChainGetType(bidiChain, lastLink);
+    SBBidiType firstType = SBBidiChainGetType(bidiChain, firstLink);
+    SBBidiType lastType = SBBidiChainGetType(bidiChain, lastLink);
 
     levelRun->next = NULL;
     levelRun->firstLink = firstLink;
@@ -38,8 +38,8 @@ SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
     levelRun->extrema = SBRunExtremaMake(sor, eor);
     levelRun->kind = SBRunKindMake
                      (
-                        SBCharTypeIsIsolateInitiator(lastType),
-                        SBCharTypeIsIsolateTerminator(firstType)
+                        SBBidiTypeIsIsolateInitiator(lastType),
+                        SBBidiTypeIsIsolateTerminator(firstType)
                      );
     levelRun->level = SBBidiChainGetLevel(bidiChain, firstLink);
 }

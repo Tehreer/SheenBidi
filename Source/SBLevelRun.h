@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 
@@ -37,7 +37,7 @@ typedef struct _SBLevelRun {
 
 SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
     SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
-    SBCharType sor, SBCharType eor);
+    SBBidiType sor, SBBidiType eor);
 SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next);
 
 #endif

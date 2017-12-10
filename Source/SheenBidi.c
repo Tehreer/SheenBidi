@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include "SBAlgorithm.c"
 #include "SBBase.c"
 #include "SBBidiChain.c"
+#include "SBBidiTypeLookup.c"
 #include "SBBracketQueue.c"
-#include "SBCharTypeLookup.c"
 #include "SBCodepointSequence.c"
 #include "SBIsolatingRun.c"
 #include "SBLevelRun.c"

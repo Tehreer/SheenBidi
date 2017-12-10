@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBBidiChain.h"
+#include "SBBidiType.h"
 #include "SBBracketQueue.h"
 #include "SBBracketType.h"
-#include "SBCharType.h"
 #include "SBLevelRun.h"
 #include "SBLog.h"
 #include "SBPairingLookup.h"
@@ -30,15 +30,15 @@
 #define SB_LEVEL_TO_EXACT_TYPE(l)       \
 (                                       \
    ((l) & 1)                            \
- ? SBCharTypeR                          \
- : SBCharTypeL                          \
+ ? SBBidiTypeR                          \
+ : SBBidiTypeL                          \
 )
 
 #define SB_LEVEL_TO_OPPOSITE_TYPE(l)    \
 (                                       \
  ((l) & 1)                              \
- ? SBCharTypeL                          \
- : SBCharTypeR                          \
+ ? SBBidiTypeL                          \
+ : SBBidiTypeR                          \
 )
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
@@ -70,8 +70,8 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
     SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(isolatingRun));
     SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
     SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(isolatingRun->baseLevelRun->level));
-    SB_LOG_STATEMENT("SOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_sos));
-    SB_LOG_STATEMENT("EOS", 1, SB_LOG_CHAR_TYPE(isolatingRun->_eos));
+    SB_LOG_STATEMENT("SOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_sos));
+    SB_LOG_STATEMENT("EOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_eos));
 
     /* Rules W1-W7 */
     lastLink = _SBResolveWeakTypes(isolatingRun);
@@ -135,7 +135,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
         SBLevel paragraphLevel = isolatingRun->paragraphLevel;
         SBLevel runLevel = baseLevelRun->level;
         SBLevel eosLevel = (runLevel > paragraphLevel ? runLevel : paragraphLevel);
-        isolatingRun->_eos = ((eosLevel & 1) ? SBCharTypeR : SBCharTypeL);
+        isolatingRun->_eos = ((eosLevel & 1) ? SBBidiTypeR : SBBidiTypeL);
     }
 }
 
@@ -159,13 +159,13 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     SBBidiLink link;
 
     SBBidiLink priorLink;
-    SBCharType sos;
+    SBBidiType sos;
 
-    SBCharType w1PriorType;
-    SBCharType w2StrongType;
-    SBCharType w4PriorType;
-    SBCharType w5PriorType;
-    SBCharType w7StrongType;
+    SBBidiType w1PriorType;
+    SBBidiType w2StrongType;
+    SBBidiType w4PriorType;
+    SBBidiType w5PriorType;
+    SBBidiType w7StrongType;
 
     priorLink = roller;
     sos = isolatingRun->_sos;
@@ -174,26 +174,26 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w2StrongType = sos;
 
     SBBidiChainForEach(chain, roller, link) {
-        SBCharType type = SBBidiChainGetType(chain, link);
+        SBBidiType type = SBBidiChainGetType(chain, link);
         SBBoolean forceMerge = SBFalse;
 
         /* Rule W1 */
-        if (type == SBCharTypeNSM) {
+        if (type == SBBidiTypeNSM) {
             /* Change the 'type' variable as well because it can be EN on which W2 depends. */
-            type = (SBCharTypeIsIsolate(w1PriorType) ? SBCharTypeON : w1PriorType);
+            type = (SBBidiTypeIsIsolate(w1PriorType) ? SBBidiTypeON : w1PriorType);
             SBBidiChainSetType(chain, link, type);
 
             /* Fix for 3rd point of rule N0. */
-            if (w1PriorType == SBCharTypeON) {
+            if (w1PriorType == SBBidiTypeON) {
                 forceMerge = SBTrue;
             }
         }
         w1PriorType = type;
 
         /* Rule W2 */
-        if (type == SBCharTypeEN) {
-            if (w2StrongType == SBCharTypeAL) {
-                SBBidiChainSetType(chain, link, SBCharTypeAN);
+        if (type == SBBidiTypeEN) {
+            if (w2StrongType == SBBidiTypeAL) {
+                SBBidiChainSetType(chain, link, SBBidiTypeAN);
             }
         }
         /*
@@ -201,16 +201,16 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
          * NOTE: It is safe to apply W3 in 'else-if' statement because it only depends on type AL.
          *       Even if W2 changes EN to AN, there won't be any harm.
          */
-        else if (type == SBCharTypeAL) {
-            SBBidiChainSetType(chain, link, SBCharTypeR);
+        else if (type == SBBidiTypeAL) {
+            SBBidiChainSetType(chain, link, SBBidiTypeR);
         }
 
-        if (SBCharTypeIsStrong(type)) {
+        if (SBBidiTypeIsStrong(type)) {
             /* Save the strong type as it is checked in W2. */
             w2StrongType = type;
         }
 
-        if ((type != SBCharTypeON && SBBidiChainGetType(chain, priorLink) == type) || forceMerge) {
+        if ((type != SBBidiTypeON && SBBidiChainGetType(chain, priorLink) == type) || forceMerge) {
             SBBidiChainAbandonNext(chain, priorLink);
         } else {
             priorLink = link;
@@ -223,15 +223,15 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     w7StrongType = sos;
 
     SBBidiChainForEach(chain, roller, link) {
-        SBCharType type = SBBidiChainGetType(chain, link);
-        SBCharType nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
+        SBBidiType type = SBBidiChainGetType(chain, link);
+        SBBidiType nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
 
         /* Rule W4 */
         if (SBBidiChainIsSingle(chain, link)
-            && SBCharTypeIsNumberSeparator(type)
-            && SBCharTypeIsNumber(w4PriorType)
+            && SBBidiTypeIsNumberSeparator(type)
+            && SBBidiTypeIsNumber(w4PriorType)
             && (w4PriorType == nextType)
-            && (w4PriorType == SBCharTypeEN || type == SBCharTypeCS))
+            && (w4PriorType == SBBidiTypeEN || type == SBBidiTypeCS))
         {
             /* Change the current type as well because it can be EN on which W5 depends. */
             type = w4PriorType;
@@ -240,19 +240,19 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
         w4PriorType = type;
 
         /* Rule W5 */
-        if (type == SBCharTypeET && (w5PriorType == SBCharTypeEN || nextType == SBCharTypeEN)) {
+        if (type == SBBidiTypeET && (w5PriorType == SBBidiTypeEN || nextType == SBBidiTypeEN)) {
             /* Change the current type as well because it is EN on which W7 depends. */
-            type = SBCharTypeEN;
+            type = SBBidiTypeEN;
             SBBidiChainSetType(chain, link, type);
         }
         w5PriorType = type;
 
         switch (type) {
         /* Rule W6 */
-        case SBCharTypeET:
-        case SBCharTypeCS:
-        case SBCharTypeES:
-            SBBidiChainSetType(chain, link, SBCharTypeON);
+        case SBBidiTypeET:
+        case SBBidiTypeCS:
+        case SBBidiTypeES:
+            SBBidiChainSetType(chain, link, SBBidiTypeON);
             break;
 
         /*
@@ -261,9 +261,9 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
          *       reason is that W6 can only create the type ON which is not tested in W7 by any
          *       means. So it won't affect the algorithm.
          */
-        case SBCharTypeEN:
-            if (w7StrongType == SBCharTypeL) {
-                SBBidiChainSetType(chain, link, SBCharTypeL);
+        case SBBidiTypeEN:
+            if (w7StrongType == SBBidiTypeL) {
+                SBBidiChainSetType(chain, link, SBBidiTypeL);
             }
             break;
 
@@ -275,13 +275,13 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
          *       EN types. This means that even if W7 creates a strong type, it will be saved in
          *       next iteration.
          */
-        case SBCharTypeL:
-        case SBCharTypeR:
+        case SBBidiTypeL:
+        case SBBidiTypeR:
             w7StrongType = type;
             break;
         }
 
-        if (type != SBCharTypeON && SBBidiChainGetType(chain, priorLink) == type) {
+        if (type != SBBidiTypeON && SBBidiChainGetType(chain, priorLink) == type) {
             SBBidiChainAbandonNext(chain, priorLink);
         } else {
             priorLink = link;
@@ -311,7 +311,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     SBBidiChainForEach(chain, roller, link) {
         SBUInteger stringIndex;
         SBCodepoint codepoint;
-        SBCharType type;
+        SBBidiType type;
 
         SBCodepoint bracketValue;
         SBBracketType bracketType;
@@ -319,7 +319,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
         type = SBBidiChainGetType(chain, link);
 
         switch (type) {
-        case SBCharTypeON:
+        case SBBidiTypeON:
             stringIndex = SBBidiChainGetOffset(chain, link) + paragraphOffset;
             codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
             bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
@@ -345,12 +345,12 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
             }
             break;
 
-        case SBCharTypeEN:
-        case SBCharTypeAN:
-            type = SBCharTypeR;
+        case SBBidiTypeEN:
+        case SBBidiTypeAN:
+            type = SBBidiTypeR;
 
-        case SBCharTypeR:
-        case SBCharTypeL:
+        case SBBidiTypeR:
+        case SBBidiTypeL:
             if (queue->count != 0) {
                 SBBracketQueueSetStrongType(queue, type);
             }
@@ -370,8 +370,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
     SBBidiChainRef chain = isolatingRun->bidiChain;
 
     SBLevel runLevel;
-    SBCharType embeddingDirection;
-    SBCharType oppositeDirection;
+    SBBidiType embeddingDirection;
+    SBBidiType oppositeDirection;
 
     runLevel = isolatingRun->baseLevelRun->level;
     embeddingDirection = SB_LEVEL_TO_EXACT_TYPE(runLevel);
@@ -382,8 +382,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
         SBBidiLink closingLink = SBBracketQueueGetClosingLink(queue);
 
         if ((openingLink != SBBidiLinkNone) && (closingLink != SBBidiLinkNone)) {
-            SBCharType innerStrongType;
-            SBCharType pairType;
+            SBBidiType innerStrongType;
+            SBBidiType pairType;
 
             innerStrongType = SBBracketQueueGetStrongType(queue);
 
@@ -394,7 +394,7 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
             /* Rule: N0.c */
             else if (innerStrongType == oppositeDirection) {
                 SBBidiLink priorStrongLink;
-                SBCharType priorStrongType;
+                SBBidiType priorStrongType;
 
                 priorStrongLink = SBBracketQueueGetPriorStrongLink(queue);
 
@@ -402,15 +402,15 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
                     SBBidiLink link;
 
                     priorStrongType = SBBidiChainGetType(chain, priorStrongLink);
-                    if (SBCharTypeIsNumber(priorStrongType)) {
-                        priorStrongType = SBCharTypeR;
+                    if (SBBidiTypeIsNumber(priorStrongType)) {
+                        priorStrongType = SBBidiTypeR;
                     }
 
                     link = SBBidiChainGetNext(chain, priorStrongLink);
 
                     while (link != openingLink) {
-                        SBCharType type = SBBidiChainGetType(chain, link);
-                        if (type == SBCharTypeL || type == SBCharTypeR) {
+                        SBBidiType type = SBBidiChainGetType(chain, link);
+                        if (type == SBBidiTypeL || type == SBBidiTypeR) {
                             priorStrongType = type;
                         }
 
@@ -431,10 +431,10 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
             }
             /* Rule: N0.d */
             else {
-                pairType = SBCharTypeNil;
+                pairType = SBBidiTypeNil;
             }
 
-            if (pairType != SBCharTypeNil) {
+            if (pairType != SBBidiTypeNil) {
                 /* Do the substitution */
                 SBBidiChainSetType(chain, openingLink, pairType);
                 SBBidiChainSetType(chain, closingLink, pairType);
@@ -452,7 +452,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
     SBBidiLink link;
 
     SBLevel runLevel;
-    SBCharType strongType;
+    SBBidiType strongType;
     SBBidiLink neutralLink;
 
     runLevel = isolatingRun->baseLevelRun->level;
@@ -460,44 +460,44 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
     neutralLink = SBBidiLinkNone;
 
     SBBidiChainForEach(chain, roller, link) {
-        SBCharType type = SBBidiChainGetType(chain, link);
-        SBCharType nextType;
+        SBBidiType type = SBBidiChainGetType(chain, link);
+        SBBidiType nextType;
 
-        SBAssert(SBCharTypeIsStrongOrNumber(type) || SBCharTypeIsNeutralOrIsolate(type));
+        SBAssert(SBBidiTypeIsStrongOrNumber(type) || SBBidiTypeIsNeutralOrIsolate(type));
 
         switch (type) {
-        case SBCharTypeL:
-            strongType = SBCharTypeL;
+        case SBBidiTypeL:
+            strongType = SBBidiTypeL;
             break;
 
-        case SBCharTypeR:
-        case SBCharTypeEN:
-        case SBCharTypeAN:
-            strongType = SBCharTypeR;
+        case SBBidiTypeR:
+        case SBBidiTypeEN:
+        case SBBidiTypeAN:
+            strongType = SBBidiTypeR;
             break;
 
-        case SBCharTypeB:                           
-        case SBCharTypeS:
-        case SBCharTypeWS:
-        case SBCharTypeON:
-        case SBCharTypeLRI:
-        case SBCharTypeRLI:                         
-        case SBCharTypeFSI:
-        case SBCharTypePDI:
+        case SBBidiTypeB:                           
+        case SBBidiTypeS:
+        case SBBidiTypeWS:
+        case SBBidiTypeON:
+        case SBBidiTypeLRI:
+        case SBBidiTypeRLI:                         
+        case SBBidiTypeFSI:
+        case SBBidiTypePDI:
             if (neutralLink == SBBidiLinkNone) {
                 neutralLink = link;
             }
 
             nextType = SBBidiChainGetType(chain, SBBidiChainGetNext(chain, link));
-            if (SBCharTypeIsNumber(nextType)) {
-                nextType = SBCharTypeR;
-            } else if (nextType == SBCharTypeNil) {
+            if (SBBidiTypeIsNumber(nextType)) {
+                nextType = SBBidiTypeR;
+            } else if (nextType == SBBidiTypeNil) {
                 nextType = isolatingRun->_eos;
             }
 
-            if (SBCharTypeIsStrong(nextType)) {
+            if (SBBidiTypeIsStrong(nextType)) {
                 /* Rules N1, N2 */
-                SBCharType resolvedType = (strongType == nextType
+                SBBidiType resolvedType = (strongType == nextType
                                             ? strongType
                                             : SB_LEVEL_TO_EXACT_TYPE(runLevel));
 
@@ -523,27 +523,27 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
     
     if ((runLevel & 1) == 0) {
         SBBidiChainForEach(chain, roller, link) {
-            SBCharType type = SBBidiChainGetType(chain, link);
+            SBBidiType type = SBBidiChainGetType(chain, link);
             SBLevel level = SBBidiChainGetLevel(chain, link);
             
-            SBAssert(SBCharTypeIsStrongOrNumber(type));
+            SBAssert(SBBidiTypeIsStrongOrNumber(type));
             
             /* Rule I1 */
-            if (type == SBCharTypeR) {
+            if (type == SBBidiTypeR) {
                 SBBidiChainSetLevel(chain, link, level + 1);
-            } else if (type != SBCharTypeL) {
+            } else if (type != SBBidiTypeL) {
                 SBBidiChainSetLevel(chain, link, level + 2);
             }
         }
     } else {
         SBBidiChainForEach(chain, roller, link) {
-            SBCharType type = SBBidiChainGetType(chain, link);
+            SBBidiType type = SBBidiChainGetType(chain, link);
             SBLevel level = SBBidiChainGetLevel(chain, link);
             
-            SBAssert(SBCharTypeIsStrongOrNumber(type));
+            SBAssert(SBBidiTypeIsStrongOrNumber(type));
             
             /* Rule I2 */
-            if (type != SBCharTypeR) {
+            if (type != SBBidiTypeR) {
                 SBBidiChainSetLevel(chain, link, level + 1);
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBBidiChain.h"
 
 SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
-    SBCharType *types, SBLevel *levels, SBBidiLink *links)
+    SBBidiType *types, SBLevel *levels, SBBidiLink *links)
 {
     chain->types = types;
     chain->levels = levels;
@@ -30,12 +30,12 @@ SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
     chain->last = 0;
 
     /* Make first link empty. */
-    chain->types[0] = SBCharTypeNil;
+    chain->types[0] = SBBidiTypeNil;
     chain->levels[0] = SBLevelInvalid;
     chain->links[0] = SBBidiLinkNone;
 }
 
-SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBCharType type, SBUInteger length)
+SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBBidiType type, SBUInteger length)
 {
     SBBidiLink last = chain->last;
     SBBidiLink current = last + length;
@@ -58,7 +58,7 @@ SB_INTERNAL SBBoolean SBBidiChainIsSingle(SBBidiChainRef chain, SBBidiLink link)
 
     /* Check the type of in between code units. */
     while (++link != next) {
-        if (chain->types[link] != SBCharTypeBN) {
+        if (chain->types[link] != SBBidiTypeBN) {
             return SBFalse;
         }
     }
@@ -66,12 +66,12 @@ SB_INTERNAL SBBoolean SBBidiChainIsSingle(SBBidiChainRef chain, SBBidiLink link)
     return SBTrue;
 }
 
-SB_INTERNAL SBCharType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link)
+SB_INTERNAL SBBidiType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link)
 {
     return chain->types[link];
 }
 
-SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBCharType type)
+SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBBidiType type)
 {
     chain->types[link] = type;
 }

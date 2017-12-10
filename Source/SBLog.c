@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include "SBBase.h"
 #include "SBBidiChain.h"
-#include "SBCharType.h"
+#include "SBBidiType.h"
 #include "SBIsolatingRun.h"
 #include "SBLog.h"
 
@@ -51,102 +51,102 @@ SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel)
     }
 }
 
-SB_INTERNAL void _SBPrintCharType(SBCharType type)
+SB_INTERNAL void _SBPrintBidiType(SBBidiType type)
 {
     switch (type) {
-    case SBCharTypeNil:
+    case SBBidiTypeNil:
         SB_LOG_STRING("Nil");
         break;
 
-    case SBCharTypeL:
+    case SBBidiTypeL:
         SB_LOG_STRING("L");
         break;
 
-    case SBCharTypeR:
+    case SBBidiTypeR:
         SB_LOG_STRING("R");
         break;
 
-    case SBCharTypeAL:
+    case SBBidiTypeAL:
         SB_LOG_STRING("AL");
         break;
 
-    case SBCharTypeEN:
+    case SBBidiTypeEN:
         SB_LOG_STRING("EN");
         break;
 
-    case SBCharTypeES:
+    case SBBidiTypeES:
         SB_LOG_STRING("ES");
         break;
 
-    case SBCharTypeET:
+    case SBBidiTypeET:
         SB_LOG_STRING("EN");
         break;
 
-    case SBCharTypeAN:
+    case SBBidiTypeAN:
         SB_LOG_STRING("AN");
         break;
 
-    case SBCharTypeCS:
+    case SBBidiTypeCS:
         SB_LOG_STRING("CS");
         break;
 
-    case SBCharTypeNSM:
+    case SBBidiTypeNSM:
         SB_LOG_STRING("NSM");
         break;
 
-    case SBCharTypeBN:
+    case SBBidiTypeBN:
         SB_LOG_STRING("BN");
         break;
 
-    case SBCharTypeB:
+    case SBBidiTypeB:
         SB_LOG_STRING("B");
         break;
 
-    case SBCharTypeS:
+    case SBBidiTypeS:
         SB_LOG_STRING("S");
         break;
 
-    case SBCharTypeWS:
+    case SBBidiTypeWS:
         SB_LOG_STRING("WS");
         break;
 
-    case SBCharTypeON:
+    case SBBidiTypeON:
         SB_LOG_STRING("ON");
         break;
 
-    case SBCharTypeLRE:
+    case SBBidiTypeLRE:
         SB_LOG_STRING("LRE");
         break;
 
-    case SBCharTypeRLE:
+    case SBBidiTypeRLE:
         SB_LOG_STRING("RLE");
         break;
 
-    case SBCharTypeLRO:
+    case SBBidiTypeLRO:
         SB_LOG_STRING("LRO");
         break;
 
-    case SBCharTypeRLO:
+    case SBBidiTypeRLO:
         SB_LOG_STRING("RLO");
         break;
 
-    case SBCharTypePDF:
+    case SBBidiTypePDF:
         SB_LOG_STRING("PDF");
         break;
 
-    case SBCharTypeLRI:
+    case SBBidiTypeLRI:
         SB_LOG_STRING("LRI");
         break;
 
-    case SBCharTypeRLI:
+    case SBBidiTypeRLI:
         SB_LOG_STRING("RLI");
         break;
 
-    case SBCharTypeFSI:
+    case SBBidiTypeFSI:
         SB_LOG_STRING("FSI");
         break;
 
-    case SBCharTypePDI:
+    case SBBidiTypePDI:
         SB_LOG_STRING("PDI");
         break;
     }
@@ -162,12 +162,12 @@ SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointS
     }
 }
 
-SB_INTERNAL void _SBPrintCharTypesArray(SBCharType *types, SBUInteger length)
+SB_INTERNAL void _SBPrintBidiTypesArray(SBBidiType *types, SBUInteger length)
 {
     SBUInteger index;
 
     for (index = 0; index < length; ++index) {
-        SB_LOG_CHAR_TYPE(types[index]);
+        SB_LOG_BIDI_TYPE(types[index]);
         SB_LOG_DIVIDER(1);
     }
 }
@@ -217,8 +217,8 @@ SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
 
             /* Skip any sequence of BN character types. */
             for (index = 1; index < linkLength; index++) {
-                SBCharType charType = SBBidiChainGetType(bidiChain, currentLink + index);
-                if (charType == SBCharTypeBN) {
+                SBBidiType bidiType = SBBidiChainGetType(bidiChain, currentLink + index);
+                if (bidiType == SBBidiTypeBN) {
                     linkLength = index;
                     break;
                 }
@@ -235,10 +235,10 @@ SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
 
 static void _SBPrintTypesOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
 {
-    SBCharType charType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
+    SBBidiType bidiType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
 
     while (context->length--) {
-        SB_LOG_CHAR_TYPE(charType);
+        SB_LOG_BIDI_TYPE(bidiType);
         SB_LOG_DIVIDER(1);
     }
 }

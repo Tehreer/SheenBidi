@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 extern "C" {
 #include <SBConfig.h>
-#include <Source/SBCharType.h>
-#include <Source/SBCharTypeLookup.h>
+#include <Source/SBBidiType.h>
+#include <Source/SBBidiTypeLookup.h>
 }
 
 #include <cstdint>
@@ -30,7 +30,7 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "CharTypeTester.h"
+#include "BidiTypeTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -39,12 +39,12 @@ using namespace SheenBidi::Tester::Utilities;
 
 static const string &BIDI_CLASS_DEFAULT = "L";
 
-CharTypeTester::CharTypeTester(const UnicodeData &unicodeData)
+BidiTypeTester::BidiTypeTester(const UnicodeData &unicodeData)
     : m_unicodeData(unicodeData)
 {
 }
 
-void CharTypeTester::test() {
+void BidiTypeTester::test() {
 #ifdef SB_CONFIG_UNITY
     cout << "Cannot run char type tester in unity mode." << endl;
 #else
@@ -56,8 +56,8 @@ void CharTypeTester::test() {
         const string &uniClass = m_unicodeData.bidiClassForCodePoint(codePoint);
         const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
 
-        SBCharType charType = SBCharTypeDetermine(codePoint);
-        const string &genClass = Converter::toString(charType);
+        SBBidiType bidiType = SBBidiTypeDetermine(codePoint);
+        const string &genClass = Converter::toString(bidiType);
 
         if (expClass != genClass) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
