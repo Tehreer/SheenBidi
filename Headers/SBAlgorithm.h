@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,17 @@ typedef struct _SBAlgorithm *SBAlgorithmRef;
  *      A reference to an algorithm object if the call was successful, NULL otherwise.
  */
 SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence);
+
+/**
+ * Returns a direct pointer to the bidirectional types of code units stored in the algorithm object.
+ *
+ * @param algorithm
+ *      The algorithm object from which to access the bidirectional types of code units.
+ * @return
+ *      A valid pointer to an array of SBBidiType structures, whose length will be equal to that of
+ *      string buffer.
+ */
+const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm);
 
 /**
  * Determines the boundary of the first paragraph within the given range.

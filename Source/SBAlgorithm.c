@@ -87,6 +87,11 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
     return NULL;
 }
 
+const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm)
+{
+    return algorithm->fixedTypes;
+}
+
 SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
