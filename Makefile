@@ -29,8 +29,8 @@ RELEASE = Release
 DEBUG_SOURCES = $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBBase.c \
                 $(SOURCE_DIR)/SBBidiChain.c \
+                $(SOURCE_DIR)/SBBidiTypeLookup.c \
                 $(SOURCE_DIR)/SBBracketQueue.c \
-                $(SOURCE_DIR)/SBCharTypeLookup.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
                 $(SOURCE_DIR)/SBIsolatingRun.c \
                 $(SOURCE_DIR)/SBLevelRun.c \
