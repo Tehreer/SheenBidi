@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2017 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ extern "C" {
 #include <Parser/BidiBrackets.h>
 #include <Parser/BidiMirroring.h>
 
-#include "Utilities/Converter.h"
+#include "Utilities/Convert.h"
 
 #include "Configuration.h"
 #include "AlgorithmTester.h"
@@ -135,7 +135,7 @@ void AlgorithmTester::loadCharacters(const vector<string> &types) {
     SBCodepoint *chars = m_genChars;
 
     for (auto &t : types) {
-        *(chars++) = Converter::toCodePoint(t);
+        *(chars++) = Convert::toCodePoint(t);
     }
 
     m_charCount = types.size();

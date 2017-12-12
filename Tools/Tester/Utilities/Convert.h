@@ -21,14 +21,14 @@
 #include <string>
 
 extern "C" {
-#include <Source/SBBidiType.h>
+#include <SBBase.h>
 }
 
 namespace SheenBidi {
 namespace Tester {
 namespace Utilities {
 
-class Converter {
+class Convert {
 public:
     static const std::string &toString(SBBidiType bidiType);
     static uint32_t toCodePoint(const std::string &bidiType);

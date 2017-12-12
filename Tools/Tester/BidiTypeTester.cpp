@@ -15,8 +15,8 @@
  */
 
 extern "C" {
+#include <SBBase.h>
 #include <SBConfig.h>
-#include <Source/SBBidiType.h>
 #include <Source/SBBidiTypeLookup.h>
 }
 
@@ -26,7 +26,7 @@ extern "C" {
 
 #include <Parser/UnicodeData.h>
 
-#include "Utilities/Converter.h"
+#include "Utilities/Convert.h"
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
@@ -57,7 +57,7 @@ void BidiTypeTester::test() {
         const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
 
         SBBidiType bidiType = SBBidiTypeDetermine(codePoint);
-        const string &genClass = Converter::toString(bidiType);
+        const string &genClass = Convert::toString(bidiType);
 
         if (expClass != genClass) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
