@@ -6,13 +6,13 @@ TESTER      = $(DEBUG)/Tester
 TESTER_UTIL = $(TESTER)/Utilities
 
 TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
+              $(TESTER_DIR)/BidiTypeTester.cpp \
               $(TESTER_DIR)/BracketTester.cpp \
-              $(TESTER_DIR)/CharTypeTester.cpp \
               $(TESTER_DIR)/CodepointSequenceTester.cpp \
               $(TESTER_DIR)/Configuration.cpp \
               $(TESTER_DIR)/main.cpp \
               $(TESTER_DIR)/MirrorTester.cpp \
-              $(TESTER_DIR)/Utilities/Converter.cpp \
+              $(TESTER_DIR)/Utilities/Convert.cpp \
               $(TESTER_DIR)/Utilities/Unicode.cpp
 
 TESTER_OBJS = $(TESTER_SRCS:$(TESTER_DIR)/%.cpp=$(TESTER)/%.o)
