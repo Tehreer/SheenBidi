@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 
 extern "C" {
 #include <SBBase.h>
+#include <SBScript.h>
 }
 
 namespace SheenBidi {
@@ -31,6 +32,7 @@ namespace Utilities {
 class Convert {
 public:
     static const std::string &toString(SBBidiType bidiType);
+    static const std::string &scriptToString(SBScript script);
     static uint32_t toCodePoint(const std::string &bidiType);
 };
 
