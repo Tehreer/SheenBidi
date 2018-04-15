@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "UnicodeVersion.h"
 #include "Scripts.h"
