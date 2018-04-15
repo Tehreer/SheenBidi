@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ static void encTest(SBStringEncoding encoding, const vector<CodeUnitType> &buffe
 {
     SBCodepointSequence sequence;
     sequence.stringEncoding = encoding;
-    sequence.stringBuffer = (void *)&buffer[0];
+    sequence.stringBuffer = (void *)buffer.data();
     sequence.stringLength = buffer.size();
 
     SBUInteger index = 0;
@@ -73,6 +73,10 @@ static void u16Test(const vector<uint16_t> &buffer, const vector<uint32_t> &code
 static void u32Test(const vector<uint32_t> &buffer, const vector<uint32_t> &codepoints)
 {
     encTest(SBStringEncodingUTF32, buffer, codepoints);
+}
+
+CodepointSequenceTester::CodepointSequenceTester()
+{
 }
 
 void CodepointSequenceTester::testUTF8()
@@ -249,10 +253,6 @@ void CodepointSequenceTester::testUTF8()
     /* Other illegal code positions. */
     u8Test({ 0xEF, 0xBF, 0xBE }, { 0xFFFE });
     u8Test({ 0xEF, 0xBF, 0xBF }, { 0xFFFF });
-}
-
-CodepointSequenceTester::CodepointSequenceTester()
-{
 }
 
 void CodepointSequenceTester::testUTF16()
