@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 
 #include <SBConfig.h>
 
+#include "SBBase.h"
 #include "SBBidiTypeLookup.h"
 #include "SBPairingLookup.h"
-#include "SBBase.h"
+#include "SBScriptLookup.h"
 
 SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength)
 {
@@ -81,4 +82,9 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint)
 {
     return SBPairingDetermineMirror(codepoint);
+}
+
+SBScript SBCodepointGetScript(SBCodepoint codepoint)
+{
+    return SBScriptDetermine(codepoint);
 }
