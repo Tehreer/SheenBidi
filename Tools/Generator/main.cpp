@@ -18,14 +18,17 @@
 #include <iostream>
 #include <string>
 
-#include <Parser/UnicodeVersion.h>
-#include <Parser/BidiMirroring.h>
 #include <Parser/BidiBrackets.h>
-#include <Parser/UnicodeData.h>
 #include <Parser/BidiCharacterTest.h>
+#include <Parser/BidiMirroring.h>
+#include <Parser/PropertyValueAliases.h>
+#include <Parser/Scripts.h>
+#include <Parser/UnicodeData.h>
+#include <Parser/UnicodeVersion.h>
 
-#include "PairingLookupGenerator.h"
 #include "BidiTypeLookupGenerator.h"
+#include "PairingLookupGenerator.h"
+#include "ScriptLookupGenerator.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -39,6 +42,8 @@ int main(int argc, const char * argv[])
     UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);
     BidiBrackets bidiBrackets(in);
+    Scripts scripts(in);
+    PropertyValueAliases propertyValueAliases(in);
 
     cout << "Generating files." << endl;
 
@@ -50,6 +55,11 @@ int main(int argc, const char * argv[])
     PairingLookupGenerator pairingLookup(bidiMirroring, bidiBrackets);
     pairingLookup.setSegmentSize(113);
     pairingLookup.generateFile(out);
+
+    ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);
+    scriptLookup.setMainSegmentSize(8);
+    scriptLookup.setBranchSegmentSize(16);
+    scriptLookup.generateFile(out);
 
     cout << "Finished.";
 
