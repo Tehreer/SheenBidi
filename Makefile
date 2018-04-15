@@ -40,6 +40,7 @@ DEBUG_SOURCES = $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBPairingLookup.c \
                 $(SOURCE_DIR)/SBParagraph.c \
                 $(SOURCE_DIR)/SBRunQueue.c \
+                $(SOURCE_DIR)/SBScriptLookup.c \
                 $(SOURCE_DIR)/SBStatusStack.c
 RELEASE_SOURCES = $(SOURCE_DIR)/SheenBidi.c
 
