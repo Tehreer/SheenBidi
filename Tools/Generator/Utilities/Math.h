@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef SHEENBIDI_GENERATOR_UTILITIES_MATH_H
 #define SHEENBIDI_GENERATOR_UTILITIES_MATH_H
 
-#include <cstdint>
+#include <cstddef>
 
 namespace SheenBidi {
 namespace Generator {
