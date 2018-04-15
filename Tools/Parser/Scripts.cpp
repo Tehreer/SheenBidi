@@ -17,8 +17,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "UnicodeVersion.h"
@@ -84,7 +82,7 @@ Scripts::Scripts(const string &directory) :
     m_firstCodePoint(0),
     m_lastCodePoint(0),
     m_scriptNames(),
-    m_scriptNumbers(0x7F000)
+    m_scriptNumbers(0x200000)
 {
     initializeScriptNames(m_scriptNames);
     ifstream stream(directory + "/" + FILE_SCRIPTS, ios::binary);
@@ -108,6 +106,8 @@ Scripts::Scripts(const string &directory) :
             for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
                 m_scriptNumbers[codePoint] = scriptNumber;
             }
+
+            m_lastCodePoint = lastCodePoint;
         }
     }
 }
