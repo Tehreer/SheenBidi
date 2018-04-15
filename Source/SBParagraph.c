@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,19 +52,8 @@ typedef struct _SBParagraphSupport {
     SBIsolatingRun isolatingRun;
 } _SBParagraphSupport, *_SBParagraphSupportRef;
 
-static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length);
-static void _SBParagraphSupportDestroy(_SBParagraphSupportRef support);
-
-static SBParagraphRef _SBParagraphAllocate(SBUInteger length);
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length);
-
-static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink);
-static SBLevel _SBDetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink, SBLevel defaultLevel, SBBoolean isIsolate);
-static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBLevel baseLevel);
-
-static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel);
 static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
-static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel);
 
 static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
