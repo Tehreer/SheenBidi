@@ -33,6 +33,7 @@
 #include "SBPairingLookup.c"
 #include "SBParagraph.c"
 #include "SBRunQueue.c"
+#include "SBScriptLookup.c"
 #include "SBStatusStack.c"
 
 #endif
