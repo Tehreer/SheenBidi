@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,22 +34,6 @@ typedef struct _SBLineSupport {
     SBUInteger runCount;
     SBLevel maxLevel;
 } _SBLineSupport, *_SBLineSupportRef;
-
-static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount);
-
-static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount);
-static void _SBLineSupportInitialize(_SBLineSupportRef support, const SBBidiType *types, SBLevel *levels, SBUInteger charCount);
-static void _SBLineSupportDeallocate(_SBLineSupportRef support);
-
-static SBLineRef _SBLineAllocate(SBUInteger runCount);
-static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel);
-static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount);
-
-static SBUInteger _SBInitializeRuns(SBRun *runs, const SBLevel *levels, SBUInteger length, SBUInteger lineOffset);
-static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount);
-static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel);
-
-static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence, SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel);
 
 static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
