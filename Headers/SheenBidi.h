@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
 
 #include "SBAlgorithm.h"
 #include "SBBase.h"
+#include "SBBidiType.h"
 #include "SBCodepointSequence.h"
 #include "SBLine.h"
 #include "SBMirrorLocator.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
+#include "SBScript.h"
 
 #endif
