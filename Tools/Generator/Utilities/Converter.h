@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ class Converter {
 public:
     static std::string toHex(size_t number, size_t length = SIZE_MAX);
     static std::string toString(int number);
+    static void toUpper(std::string &str);
 };
 
 }

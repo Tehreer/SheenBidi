@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,4 +36,13 @@ string Converter::toString(int number) {
     stream << number;
 
     return stream.str();
+}
+
+void Converter::toUpper(string &str) {
+    auto begin = str.begin();
+    auto end = str.end();
+
+    for (; begin < end; begin++) {
+        *begin = toupper(*begin);
+    }
 }
