@@ -17,8 +17,6 @@
 #ifndef _SB_PUBLIC_SCRIPT_H
 #define _SB_PUBLIC_SCRIPT_H
 
-#include "SBBase.h"
-
 /**
  * Constants that specify the script of a character.
  */
@@ -198,9 +196,5 @@ enum {
     SBScriptSOYO = 0x8C,    /**< Soyombo */
     SBScriptZANB = 0x8D     /**< Zanabazar_Square */
 };
-/**
- * A type to represent the script of a character.
- */
-typedef SBUInt8 SBScript;
 
 #endif

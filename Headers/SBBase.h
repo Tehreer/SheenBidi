@@ -147,6 +147,12 @@ typedef SBUInt8 SBBidiType;
 
 
 /**
+ * A type to represent the script of a character.
+ */
+typedef SBUInt8 SBScript;
+
+
+/**
  * A type to represent a unicode code point.
  */
 typedef SBUInt32                    SBCodepoint;
@@ -180,5 +186,15 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
  *      The mirror of the provided code point if available, 0 otherwise.
  */
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
+
+/**
+ * Returns the script of a code point.
+ *
+ * @param codepoint
+ *      The code point whose script is returned.
+ * @return
+ *      The script of the provided code point.
+ */
+SBScript SBCodepointGetScript(SBCodepoint codepoint);
 
 #endif
