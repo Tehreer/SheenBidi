@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-#include <cstdio>
 #include <iostream>
 
 extern "C" {
 #include <SheenBidi.h>
 }
 
-#include <Parser/UnicodeData.h>
-#include <Parser/BidiMirroring.h>
 #include <Parser/BidiBrackets.h>
-#include <Parser/BidiTest.h>
 #include <Parser/BidiCharacterTest.h>
+#include <Parser/BidiMirroring.h>
+#include <Parser/BidiTest.h>
+#include <Parser/PropertyValueAliases.h>
+#include <Parser/Scripts.h>
+#include <Parser/UnicodeData.h>
 
+#include "AlgorithmTester.h"
 #include "BidiTypeTester.h"
+#include "BracketTester.h"
 #include "CodepointSequenceTester.h"
 #include "MirrorTester.h"
-#include "BracketTester.h"
-#include "AlgorithmTester.h"
+#include "ScriptTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -45,17 +47,21 @@ int main(int argc, const char *argv[]) {
     BidiBrackets bidiBrackets(dir);
     BidiTest bidiTest(dir);
     BidiCharacterTest bidiCharacterTest(dir);
+    Scripts scripts(dir);
+    PropertyValueAliases propertyValueAliases(dir);
 
     BidiTypeTester bidiTypeTester(unicodeData);
     CodepointSequenceTester codepointSequenceTester;
     MirrorTester mirrorTester(bidiMirroring);
     BracketTester bracketTester(bidiBrackets);
+    ScriptTester scriptTester(scripts, propertyValueAliases);
     AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
 
     bidiTypeTester.test();
     codepointSequenceTester.test();
     mirrorTester.test();
     bracketTester.test();
+    scriptTester.test();
     algorithmTester.test();
 
     return 0;
