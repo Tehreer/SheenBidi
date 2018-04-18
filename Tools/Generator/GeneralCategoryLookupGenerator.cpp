@@ -343,8 +343,8 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
     header.append(" * DO NOT EDIT!!").newLine();
     header.append(" */").newLine();
     header.newLine();
-    header.append("#ifndef _SB_GENERAL_CATEGORY_LOOKUP_H").newLine();
-    header.append("#define _SB_GENERAL_CATEGORY_LOOKUP_H").newLine();
+    header.append("#ifndef _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H").newLine();
+    header.append("#define _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H").newLine();
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.newLine();
@@ -367,10 +367,6 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
                   + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
-    source.append("#include <SBConfig.h>").newLine();
-    source.newLine();
-    source.append("#include \"SBBase.h\"").newLine();
-    source.append("#include \"SBGeneralCategory.h\"").newLine();
     source.append("#include \"SBGeneralCategoryLookup.h\"").newLine();
     source.newLine();
 
