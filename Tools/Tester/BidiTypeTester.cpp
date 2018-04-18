@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-static const string &BIDI_CLASS_DEFAULT = "L";
+static const string &BIDI_CLASS_DEFAULT = "ON";
 
 BidiTypeTester::BidiTypeTester(const UnicodeData &unicodeData)
     : m_unicodeData(unicodeData)
@@ -51,9 +51,10 @@ void BidiTypeTester::test() {
     cout << "Running char type tester." << endl;
 
     size_t failCounter = 0;
+    string uniClass;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        const string &uniClass = m_unicodeData.bidiClassForCodePoint(codePoint);
+        m_unicodeData.getBidirectionalCategory(codePoint, uniClass);
         const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
 
         SBBidiType bidiType = SBBidiTypeDetermine(codePoint);
