@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,10 @@ BidiClassDetector::BidiClassDetector(const UnicodeData &unicodeData)
     uint32_t last = m_unicodeData.lastCodePoint();
 
     for (uint32_t codePoint = 0; codePoint <= last; codePoint++) {
-        const string &name = m_unicodeData.bidiClassForCodePoint(codePoint);
+        string name;
         uint8_t number;
+
+        m_unicodeData.getBidirectionalCategory(codePoint, name);
 
         auto match = m_nameToNumber.find(name);
         if (match != m_nameToNumber.end()) {
