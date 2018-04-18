@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "UnicodeData.h"
 
@@ -25,72 +29,118 @@ using namespace std;
 using namespace SheenBidi::Parser;
 
 static const string FILE_UNICODE_DATA = "UnicodeData.txt";
-static const string STRING_EMPTY = "";
 
-static inline void initializeBidiClassNames(vector<string> &obj) {
-    obj.reserve(25);
-    obj.push_back(STRING_EMPTY);
-}
+static inline void getField(const string &data, size_t offset, int field, string &result) {
+    result.clear();
 
-static inline const string &getBidiClassName(vector<string> &obj, uint8_t classNumber) {
-    return obj.at(classNumber);
-}
+    if (offset != SIZE_MAX) {
+        size_t start = offset;
+        size_t end = offset;
 
-static inline uint8_t getBidiClassNumber(vector<string> &obj, const string &className) {
-    auto begin = obj.begin();
-    auto end = obj.end();
-    auto match = find(begin, end, className);
-    if (match != end) {
-        return distance(begin, match);
-        
+        for (int i = 0; i < field; i++) {
+            start = end + 1;
+            end = data.find(';', start);
+        }
+
+        result.append(data.c_str() + start, end - start);
     }
-
-    uint8_t number = obj.size();
-    obj.push_back(className);
-
-    return number;
 }
 
 UnicodeData::UnicodeData(const string &directory) :
-    m_firstCodePoint(0),
-    m_lastCodePoint(0),
-    m_bidiClassNumbers(0x200000)
+    m_offsets(0x110000, SIZE_MAX),
+    m_lastCodePoint(0)
 {
-    initializeBidiClassNames(m_bidiClassNames);
+    ifstream fileStream(directory + "/" + FILE_UNICODE_DATA, ios::binary);
+    char buffer[4096];
 
-    ifstream stream(directory + "/" + FILE_UNICODE_DATA, ios::binary);
-    string bidiClassName;
+    while (fileStream.read(buffer, sizeof(buffer))) {
+        m_data.append(buffer, sizeof(buffer));
+    }
+    m_data.append(buffer, (size_t)fileStream.gcount());
 
-    while (!stream.eof()) {
-        uint32_t codePoint;
-        stream >> hex >> setw(6) >> codePoint;
+    istringstream dataStream(m_data, ios::binary);
+    uint32_t codePoint;
 
-        m_lastCodePoint = codePoint;
+    while (dataStream >> hex >> setw(6) >> codePoint) {
+        streamoff offset = dataStream.tellg();
+        m_offsets[codePoint] = (size_t)offset;
 
-        stream.ignore(128, ';');
-        stream.ignore(128, ';');
-        stream.ignore(128, ';');
-        stream.ignore(128, ';');
+        if (codePoint > m_lastCodePoint) {
+            m_lastCodePoint = codePoint;
+        }
 
-        getline(stream, bidiClassName, ';');
-        m_bidiClassNumbers[codePoint] = getBidiClassNumber(m_bidiClassNames, bidiClassName);
-
-        stream.ignore(1024, '\n');
+        dataStream.ignore(1024, '\n');
     }
 }
 
 uint32_t UnicodeData::firstCodePoint() const {
-    return m_firstCodePoint;
+    return 0;
 }
 
 uint32_t UnicodeData::lastCodePoint() const {
     return m_lastCodePoint;
 }
 
-const string &UnicodeData::bidiClassForCodePoint(uint32_t codePoint) const {
+size_t UnicodeData::offset(uint32_t codePoint) const {
     if (codePoint <= m_lastCodePoint) {
-        return m_bidiClassNames.at(m_bidiClassNumbers.at(codePoint));
+        return m_offsets[codePoint];
     }
 
-    return STRING_EMPTY;
+    return SIZE_MAX;
+}
+
+void UnicodeData::getCharacterName(uint32_t codePoint, string &characterName) const {
+    getField(m_data, offset(codePoint), 1, characterName);
+}
+
+void UnicodeData::getGeneralCategory(uint32_t codePoint, string &generalCategory) const {
+    getField(m_data, offset(codePoint), 2, generalCategory);
+}
+
+void UnicodeData::getCombiningClass(uint32_t codePoint, string &combiningClass) const {
+    getField(m_data, offset(codePoint), 3, combiningClass);
+}
+
+void UnicodeData::getBidirectionalCategory(uint32_t codePoint, string &bidirectionalCategory) const {
+    getField(m_data, offset(codePoint), 4, bidirectionalCategory);
+}
+
+void UnicodeData::getDecompositionMapping(uint32_t codePoint, string &decompositionMapping) const {
+    getField(m_data, offset(codePoint), 5, decompositionMapping);
+}
+
+void UnicodeData::getDecimalDigitValue(uint32_t codePoint, string &decimalDigitValue) const {
+    getField(m_data, offset(codePoint), 6, decimalDigitValue);
+}
+
+void UnicodeData::getDigitValue(uint32_t codePoint, string &digitValue) const {
+    getField(m_data, offset(codePoint), 7, digitValue);
+}
+
+void UnicodeData::getNumericValue(uint32_t codePoint, string &numericValue) const {
+    getField(m_data, offset(codePoint), 8, numericValue);
+}
+
+void UnicodeData::getMirrored(uint32_t codePoint, string &mirrored) const {
+    getField(m_data, offset(codePoint), 9, mirrored);
+}
+
+void UnicodeData::getOldName(uint32_t codePoint, string &oldName) const {
+    getField(m_data, offset(codePoint), 10, oldName);
+}
+
+void UnicodeData::getCommentField(uint32_t codePoint, string &commentField) const {
+    getField(m_data, offset(codePoint), 11, commentField);
+}
+
+void UnicodeData::getUppercaseMapping(uint32_t codePoint, string &uppercaseMapping) const {
+    getField(m_data, offset(codePoint), 12, uppercaseMapping);
+}
+
+void UnicodeData::getLowercaseMapping(uint32_t codePoint, string &lowercaseMapping) const {
+    getField(m_data, offset(codePoint), 13, lowercaseMapping);
+}
+
+void UnicodeData::getTitlecaseMapping(uint32_t codePoint, string &titlecaseMapping) const {
+    getField(m_data, offset(codePoint), 14, titlecaseMapping);
 }
