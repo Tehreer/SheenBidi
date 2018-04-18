@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,7 @@ private:
     };
 
     const Utilities::BidiClassDetector m_bidiClassDetector;
-    const uint32_t m_firstCodePoint;
-    const uint32_t m_lastCodePoint;
+    uint32_t m_lastCodePoint;
 
     size_t m_mainSegmentSize;
     size_t m_branchSegmentSize;

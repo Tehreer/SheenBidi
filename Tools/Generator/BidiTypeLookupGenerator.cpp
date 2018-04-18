@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,11 +72,21 @@ const string BidiTypeLookupGenerator::BranchDataSegment::hintLine() const {
 
 BidiTypeLookupGenerator::BidiTypeLookupGenerator(const UnicodeData &unicodeData)
     : m_bidiClassDetector(unicodeData)
-    , m_firstCodePoint(unicodeData.firstCodePoint())
     , m_lastCodePoint(unicodeData.lastCodePoint())
     , m_mainSegmentSize(0)
     , m_branchSegmentSize(0)
 {
+    uint32_t codePoint = unicodeData.lastCodePoint();
+    string bidiType;
+
+    do {
+        unicodeData.getBidirectionalCategory(codePoint, bidiType);
+        if (bidiType.length() != 0) {
+            break;
+        }
+    } while (codePoint--);
+
+    m_lastCodePoint = codePoint;
 }
 
 void BidiTypeLookupGenerator::setMainSegmentSize(size_t segmentSize) {
@@ -90,7 +100,7 @@ void BidiTypeLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
 void BidiTypeLookupGenerator::displayBidiClassesFrequency() {
     map<uint8_t, size_t> frequency;
 
-    for (uint32_t i = 0; i < m_lastCodePoint; i++) {
+    for (uint32_t i = 0; i <= m_lastCodePoint; i++) {
         frequency[m_bidiClassDetector.numberForCodePoint(i)]++;
     }
 
@@ -136,8 +146,7 @@ void BidiTypeLookupGenerator::analyzeData() {
 }
 
 void BidiTypeLookupGenerator::collectMainData() {
-    size_t unicodeCount = m_lastCodePoint - m_firstCodePoint;
-    size_t maxSegments = Math::FastCeil(unicodeCount, m_mainSegmentSize);
+    size_t maxSegments = Math::FastCeil(m_lastCodePoint, m_mainSegmentSize);
 
     m_dataSegments.clear();
     m_dataSegments.reserve(maxSegments);
@@ -147,10 +156,10 @@ void BidiTypeLookupGenerator::collectMainData() {
 
     m_dataSize = 0;
 
-    uint8_t defaultBidiClass = m_bidiClassDetector.nameToNumber("L");
+    uint8_t defaultBidiClass = m_bidiClassDetector.nameToNumber("ON");
 
     for (size_t i = 0; i < maxSegments; i++) {
-        uint32_t segmentStart = m_firstCodePoint + (uint32_t)(i * m_mainSegmentSize);
+        uint32_t segmentStart = (uint32_t)(i * m_mainSegmentSize);
         uint32_t segmentEnd = min(m_lastCodePoint, (uint32_t)(segmentStart + m_mainSegmentSize - 1));
 
         MainDataSet dataset(new UnsafeMainDataSet());
@@ -271,7 +280,7 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     arrMainIndexes.setName(MAIN_INDEXES_ARRAY_NAME);
     arrMainIndexes.setSizeDescriptor(Converter::toString((int)m_mainIndexesSize));
 
-    size_t segmentStart = m_firstCodePoint;
+    size_t segmentStart = 0;
     auto mainIndexPtr = m_branchSegments.begin();
     auto mainIndexEnd = m_branchSegments.end();
     for (; mainIndexPtr != mainIndexEnd; mainIndexPtr++) {
@@ -336,7 +345,7 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     lookupFunction.appendTabs(2).append("       ];").newLine();
     lookupFunction.appendTabs(1).append("}").newLine();
     lookupFunction.newLine();
-    lookupFunction.appendTabs(1).append("return SBBidiTypeL;").newLine();
+    lookupFunction.appendTabs(1).append("return SBBidiTypeON;").newLine();
     lookupFunction.append("}").newLine();
 
     FileBuilder header(directory + "/SBBidiTypeLookup.h");
