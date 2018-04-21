@@ -89,6 +89,39 @@ static map<string, uint32_t> createCodePointMap() {
 static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = createStringMap();
 static map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = createCodePointMap();
 
+static map<SBGeneralCategory, string> MAP_GENERAL_CATEGORY_TO_STRING = {
+    {SBGeneralCategoryLU, "Lu"},
+    {SBGeneralCategoryLL, "Ll"},
+    {SBGeneralCategoryLT, "Lt"},
+    {SBGeneralCategoryLM, "Lm"},
+    {SBGeneralCategoryLO, "Lo"},
+    {SBGeneralCategoryMN, "Mn"},
+    {SBGeneralCategoryMC, "Mc"},
+    {SBGeneralCategoryME, "Me"},
+    {SBGeneralCategoryND, "Nd"},
+    {SBGeneralCategoryNL, "Nl"},
+    {SBGeneralCategoryNO, "No"},
+    {SBGeneralCategoryPC, "Pc"},
+    {SBGeneralCategoryPD, "Pd"},
+    {SBGeneralCategoryPS, "Ps"},
+    {SBGeneralCategoryPE, "Pe"},
+    {SBGeneralCategoryPI, "Pi"},
+    {SBGeneralCategoryPF, "Pf"},
+    {SBGeneralCategoryPO, "Po"},
+    {SBGeneralCategorySM, "Sm"},
+    {SBGeneralCategorySC, "Sc"},
+    {SBGeneralCategorySK, "Sk"},
+    {SBGeneralCategorySO, "So"},
+    {SBGeneralCategoryZS, "Zs"},
+    {SBGeneralCategoryZL, "Zl"},
+    {SBGeneralCategoryZP, "Zp"},
+    {SBGeneralCategoryCC, "Cc"},
+    {SBGeneralCategoryCF, "Cf"},
+    {SBGeneralCategoryCS, "Cs"},
+    {SBGeneralCategoryCO, "Co"},
+    {SBGeneralCategoryCN, "Cn"}
+};
+
 static map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptZINH, "Zinh"},
     {SBScriptZYYY, "Zyyy"},
@@ -238,7 +271,11 @@ const string &Convert::toString(SBBidiType bidiType) {
     return MAP_BIDI_TYPE_TO_STRING[bidiType];
 }
 
-const std::string &Convert::scriptToString(SBScript script) {
+const string &Convert::generalCategoryToString(SBGeneralCategory generalCategory) {
+    return MAP_GENERAL_CATEGORY_TO_STRING[generalCategory];
+}
+
+const string &Convert::scriptToString(SBScript script) {
     return MAP_SCRIPT_TO_STRING[script];
 }
 

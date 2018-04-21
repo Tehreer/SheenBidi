@@ -22,6 +22,7 @@
 
 extern "C" {
 #include <SBBase.h>
+#include <SBGeneralCategory.h>
 #include <SBScript.h>
 }
 
@@ -32,6 +33,7 @@ namespace Utilities {
 class Convert {
 public:
     static const std::string &toString(SBBidiType bidiType);
+    static const std::string &generalCategoryToString(SBGeneralCategory generalCategory);
     static const std::string &scriptToString(SBScript script);
     static uint32_t toCodePoint(const std::string &bidiType);
 };
