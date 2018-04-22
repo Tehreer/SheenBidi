@@ -32,6 +32,7 @@ DEBUG_SOURCES = $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBBidiTypeLookup.c \
                 $(SOURCE_DIR)/SBBracketQueue.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
+                $(SOURCE_DIR)/SBGeneralCategoryLookup.c \
                 $(SOURCE_DIR)/SBIsolatingRun.c \
                 $(SOURCE_DIR)/SBLevelRun.c \
                 $(SOURCE_DIR)/SBLine.c \
@@ -40,7 +41,9 @@ DEBUG_SOURCES = $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBPairingLookup.c \
                 $(SOURCE_DIR)/SBParagraph.c \
                 $(SOURCE_DIR)/SBRunQueue.c \
+                $(SOURCE_DIR)/SBScriptLocator.c \
                 $(SOURCE_DIR)/SBScriptLookup.c \
+                $(SOURCE_DIR)/SBScriptStack.c \
                 $(SOURCE_DIR)/SBStatusStack.c
 RELEASE_SOURCES = $(SOURCE_DIR)/SheenBidi.c
 
