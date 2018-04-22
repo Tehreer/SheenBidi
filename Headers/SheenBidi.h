@@ -21,10 +21,12 @@
 #include "SBBase.h"
 #include "SBBidiType.h"
 #include "SBCodepointSequence.h"
+#include "SBGeneralCategory.h"
 #include "SBLine.h"
 #include "SBMirrorLocator.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
 #include "SBScript.h"
+#include "SBScriptLocator.h"
 
 #endif
