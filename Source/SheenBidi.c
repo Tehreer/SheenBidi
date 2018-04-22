@@ -25,6 +25,7 @@
 #include "SBBidiTypeLookup.c"
 #include "SBBracketQueue.c"
 #include "SBCodepointSequence.c"
+#include "SBGeneralCategoryLookup.c"
 #include "SBIsolatingRun.c"
 #include "SBLevelRun.c"
 #include "SBLine.c"
@@ -33,7 +34,9 @@
 #include "SBPairingLookup.c"
 #include "SBParagraph.c"
 #include "SBRunQueue.c"
+#include "SBScriptLocator.c"
 #include "SBScriptLookup.c"
+#include "SBScriptStack.c"
 #include "SBStatusStack.c"
 
 #endif
