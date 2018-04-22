@@ -27,6 +27,7 @@
 #include <Parser/UnicodeVersion.h>
 
 #include "BidiTypeLookupGenerator.h"
+#include "GeneralCategoryLookupGenerator.h"
 #include "PairingLookupGenerator.h"
 #include "ScriptLookupGenerator.h"
 
@@ -49,12 +50,17 @@ int main(int argc, const char * argv[])
 
     BidiTypeLookupGenerator bidiTypeLookup(unicodeData);
     bidiTypeLookup.setMainSegmentSize(16);
-    bidiTypeLookup.setBranchSegmentSize(100);
+    bidiTypeLookup.setBranchSegmentSize(64);
     bidiTypeLookup.generateFile(out);
 
     PairingLookupGenerator pairingLookup(bidiMirroring, bidiBrackets);
     pairingLookup.setSegmentSize(113);
     pairingLookup.generateFile(out);
+
+    GeneralCategoryLookupGenerator generalCategoryLookup(unicodeData);
+    generalCategoryLookup.setMainSegmentSize(16);
+    generalCategoryLookup.setBranchSegmentSize(64);
+    generalCategoryLookup.generateFile(out);
 
     ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);
     scriptLookup.setMainSegmentSize(8);
