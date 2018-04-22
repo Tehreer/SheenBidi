@@ -147,6 +147,20 @@ typedef SBUInt8 SBBidiType;
 
 
 /**
+ * A type to represent the general category of a character.
+ */
+typedef SBUInt8 SBGeneralCategory;
+
+#define SBGeneralCategoryIsLetter(gc)       SBUInt8InRange(gc, SBGeneralCategoryLU, SBGeneralCategoryLO)
+#define SBGeneralCategoryIsMark(gc)         SBUInt8InRange(gc, SBGeneralCategoryMN, SBGeneralCategoryME)
+#define SBGeneralCategoryIsNumber(gc)       SBUInt8InRange(gc, SBGeneralCategoryND, SBGeneralCategoryNO)
+#define SBGeneralCategoryIsPunctuation(gc)  SBUInt8InRange(gc, SBGeneralCategoryPC, SBGeneralCategoryPO)
+#define SBGeneralCategoryIsSymbol(gc)       SBUInt8InRange(gc, SBGeneralCategorySM, SBGeneralCategorySO)
+#define SBGeneralCategoryIsSeparator(gc)    SBUInt8InRange(gc, SBGeneralCategoryZS, SBGeneralCategoryZP)
+#define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
+
+
+/**
  * A type to represent the script of a character.
  */
 typedef SBUInt8 SBScript;

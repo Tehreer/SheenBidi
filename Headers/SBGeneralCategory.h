@@ -62,6 +62,5 @@ enum {
     SBGeneralCategoryCO  = 0x1D, /**< Other: Private_Use */
     SBGeneralCategoryCN  = 0x1E  /**< Other: Unassigned */
 };
-typedef SBUInt8 SBGeneralCategory;
 
 #endif
