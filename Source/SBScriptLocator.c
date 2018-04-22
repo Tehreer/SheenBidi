@@ -154,7 +154,7 @@ void SBScriptLocatorReset(SBScriptLocatorRef locator)
     SBScriptStackReset(&locator->_scriptStack);
     locator->agent.offset = SBInvalidIndex;
     locator->agent.length = 0;
-    locator->agent.script = SBScriptZZZZ;
+    locator->agent.script = SBScriptNil;
 }
 
 SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator)
