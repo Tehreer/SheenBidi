@@ -22,20 +22,60 @@
 
 typedef struct _SBScriptLocator *SBScriptLocatorRef;
 
+/**
+ * A structure containing the information about a run of code points having same script.
+ */
 typedef struct _SBScriptAgent {
-    SBUInteger offset;
-    SBUInteger length;
-    SBScript script;
+    SBUInteger offset; /**< The index to the first code unit of the run in source string. */
+    SBUInteger length; /**< The number of code units covering the length of the run. */
+    SBScript script;   /**< The script of the run. */
 } SBScriptAgent, *SBScriptAgentRef;
 
+/**
+ * Creates a script locator object which can be used to find script runs in a string.
+ *
+ * @return
+ *      A reference to a script locator object.
+ */
 SBScriptLocatorRef SBScriptLocatorCreate(void);
 
+/**
+ * Loads a code point sequence in the locator so that its script runs can be located.
+ *
+ * @param locator
+ *      The locator in which the code point sequence will be loaded.
+ * @param codepointSequence
+ *      The code point sequence which will be loaded in the locator.
+ */
 void SBScriptLocatorLoadCodepoints(SBScriptLocatorRef locator, const SBCodepointSequence *codepointSequence);
 
+/**
+ * Returns the agent containing the information of current located script run.
+ *
+ * @param locator
+ *      The locator whose agent is returned.
+ */
 SBScriptAgentRef SBScriptLocatorGetAgent(SBScriptLocatorRef locator);
 
+/**
+ * Instructs the locator to find next script run in the loaded code point sequence.
+ *
+ * @param locator
+ *      The locator whom you want to instruct.
+ * @return
+ *      SBTrue if another script run is available, SBFalse otherwise.
+ * @note
+ *      The locator will be reset after locating last script run.
+ */
 SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator);
 
+/**
+ * Instructs the locator to reset itself so that script runs of the loaded line can be obatained
+ * from the beginning.
+ *
+ * @param locator
+ *      The locator whom you want to reset.
+ */
 void SBScriptLocatorReset(SBScriptLocatorRef locator);
 
 SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator);
