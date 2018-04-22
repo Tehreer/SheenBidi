@@ -20,6 +20,7 @@ extern "C" {
 #include <Source/SBScriptLookup.h>
 }
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -37,8 +38,6 @@ using namespace std;
 using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
-
-static const string &BIDI_CLASS_DEFAULT = "L";
 
 ScriptTester::ScriptTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases)
     : m_scripts(scripts)
