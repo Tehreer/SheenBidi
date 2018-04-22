@@ -25,6 +25,33 @@
  */
 #define SBInvalidIndex  (SBUInteger)(-1)
 
+#define SBNumberLimitIncrement(number, limit)   \
+(                                               \
+   (number) < (limit)                           \
+ ? (number) + (1)                               \
+ : (limit)                                      \
+)
+
+#define SBNumberLimitDecrement(number, limit)   \
+(                                               \
+   (number) > (limit)                           \
+ ? (number) - (1)                               \
+ : (limit)                                      \
+)
+
+#define SBNumberRingAdd(number, count, capacity) \
+    (((number) + (count)) % (capacity))
+
+#define SBNumberRingIncrement(number, capacity) \
+    SBNumberRingAdd(number, 1, capacity)
+
+#define SBNumberRingSubtract(number, count, capacity) \
+    (((number) + (capacity) - (count)) % (capacity))
+
+#define SBNumberRingDecrement(number, capacity) \
+    SBNumberRingSubtract(number, 1, capacity)
+
+
 SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength);
 SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength);
 
@@ -45,11 +72,11 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger 
 
 
 #define SBCodepointMax              0x10FFFF
-
 #define SBCodepointInRange(v, s, e) SBUInt32InRange(v, s, e)
-
 #define SBCodepointIsSurrogate(c)   SBCodepointInRange(c, 0xD800, 0xDFFF)
-
 #define SBCodepointIsValid(c)       (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
+
+
+#define SBScriptIsCommonOrInherited(s)      ((s) <= SBScriptZYYY)
 
 #endif
