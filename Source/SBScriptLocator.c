@@ -145,6 +145,7 @@ SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator)
         return SBTrue;
     }
 
+    SBScriptLocatorReset(locator);
     return SBFalse;
 }
 
