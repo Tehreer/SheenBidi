@@ -14,48 +14,18 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <map>
-#include <string>
-
 extern "C" {
 #include <SBBase.h>
 }
+
+#include <cstdint>
+#include <map>
+#include <string>
 
 #include "Convert.h"
 
 using namespace std;
 using namespace SheenBidi::Tester::Utilities;
-
-static map<SBBidiType, string> createStringMap() {
-    map<SBBidiType, string> map;
-    map[SBBidiTypeNil] = "Nil";
-    map[SBBidiTypeL]   = "L";
-    map[SBBidiTypeR]   = "R";
-    map[SBBidiTypeAL]  = "AL";
-    map[SBBidiTypeEN]  = "EN";
-    map[SBBidiTypeES]  = "ES";
-    map[SBBidiTypeET]  = "ET";
-    map[SBBidiTypeAN]  = "AN";
-    map[SBBidiTypeCS]  = "CS";
-    map[SBBidiTypeNSM] = "NSM";
-    map[SBBidiTypeBN]  = "BN";
-    map[SBBidiTypeB]   = "B";
-    map[SBBidiTypeS]   = "S";
-    map[SBBidiTypeWS]  = "WS";
-    map[SBBidiTypeON]  = "ON";
-    map[SBBidiTypeLRE] = "LRE";
-    map[SBBidiTypeRLE] = "RLE";
-    map[SBBidiTypeLRO] = "LRO";
-    map[SBBidiTypeRLO] = "RLO";
-    map[SBBidiTypePDF] = "PDF";
-    map[SBBidiTypeLRI] = "LRI";
-    map[SBBidiTypeRLI] = "RLI";
-    map[SBBidiTypeFSI] = "FSI";
-    map[SBBidiTypePDI] = "PDI";
-
-    return map;
-}
 
 static map<string, uint32_t> createCodePointMap() {
     map<string, uint32_t> map;
@@ -86,8 +56,34 @@ static map<string, uint32_t> createCodePointMap() {
     return map;
 }
 
-static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = createStringMap();
 static map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = createCodePointMap();
+
+static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = {
+    {SBBidiTypeNil, "Nil"},
+    {SBBidiTypeL, "L"},
+    {SBBidiTypeR, "R"},
+    {SBBidiTypeAL, "AL"},
+    {SBBidiTypeEN, "EN"},
+    {SBBidiTypeES, "ES"},
+    {SBBidiTypeET, "ET"},
+    {SBBidiTypeAN, "AN"},
+    {SBBidiTypeCS, "CS"},
+    {SBBidiTypeNSM, "NSM"},
+    {SBBidiTypeBN, "BN"},
+    {SBBidiTypeB, "B"},
+    {SBBidiTypeS, "S"},
+    {SBBidiTypeWS, "WS"},
+    {SBBidiTypeON, "ON"},
+    {SBBidiTypeLRE, "LRE"},
+    {SBBidiTypeRLE, "RLE"},
+    {SBBidiTypeLRO, "LRO"},
+    {SBBidiTypeRLO, "RLO"},
+    {SBBidiTypePDF, "PDF"},
+    {SBBidiTypeLRI, "LRI"},
+    {SBBidiTypeRLI, "RLI"},
+    {SBBidiTypeFSI, "FSI"},
+    {SBBidiTypePDI, "PDI"}
+};
 
 static map<SBGeneralCategory, string> MAP_GENERAL_CATEGORY_TO_STRING = {
     {SBGeneralCategoryLU, "Lu"},
