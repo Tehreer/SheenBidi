@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_BRACKET_TESTER_H
-#define SHEENBIDI_TESTER_BRACKET_TESTER_H
+#ifndef _SHEENBIDI__TESTER__BRACKET_LOOKUP_TESTER_H
+#define _SHEENBIDI__TESTER__BRACKET_LOOKUP_TESTER_H
 
 #include <Parser/BidiBrackets.h>
 
 namespace SheenBidi {
 namespace Tester {
     
-class BracketTester {
-private:
-    const Parser::BidiBrackets &m_BidiBrackets;
-    
+class BracketLookupTester {
 public:
-    BracketTester(const Parser::BidiBrackets &bidiBrackets);
+    BracketLookupTester(const Parser::BidiBrackets &bidiBrackets);
 
     void test();
+
+private:
+    const Parser::BidiBrackets &m_BidiBrackets;
 };
 
 }

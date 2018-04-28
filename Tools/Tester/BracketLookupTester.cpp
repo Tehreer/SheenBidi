@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,49 +14,52 @@
  * limitations under the License.
  */
 
-#include <iostream>
-
 extern "C" {
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <Headers/SBBase.h>
+#include <Headers/SBConfig.h>
 #include <Source/SBBracketType.h>
 #include <Source/SBPairingLookup.h>
 }
+
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
 
 #include <Parser/BidiBrackets.h>
 
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "BracketTester.h"
+#include "BracketLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-BracketTester::BracketTester(const BidiBrackets &bidiBrackets)
-    : m_BidiBrackets(bidiBrackets)
+BracketLookupTester::BracketLookupTester(const BidiBrackets &bidiBrackets) :
+    m_BidiBrackets(bidiBrackets)
 {
 }
 
-void BracketTester::test() {
+void BracketLookupTester::test() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run bracket tester in unity mode." << endl;
+    cout << "Cannot run bracket lookup tester in unity mode." << endl;
 #else
-    cout << "Running bracket tester." << endl;
+    cout << "Running bracket lookup tester." << endl;
 
     size_t failCounter = 0;
 
-    for (uint32_t codePoint = 0; codePoint < Unicode::MAX_CODE_POINT; codePoint++) {
+    for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
         uint32_t expBracket = m_BidiBrackets.pairedBracketForCodePoint(codePoint);
         char expType = m_BidiBrackets.pairedBracketTypeForCodePoint(codePoint);
 
-        SBBracketType type;
-        SBUInt32 genBracket = SBPairingDetermineBracketPair(codePoint, &type);
+        SBBracketType valType;
+        SBUInt32 genBracket = SBPairingDetermineBracketPair(codePoint, &valType);
 
         char genType;
-        switch (type) {
+        switch (valType) {
         case SBBracketTypeOpen:
             genType = 'o';
             break;
@@ -70,7 +73,7 @@ void BracketTester::test() {
             break;
         }
 
-        if (expBracket != genBracket || expType != genType) {
+        if (genBracket != expBracket || genType != expType) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Invalid bracket pair found: " << endl
                      << "  Code Point: " << codePoint << endl
@@ -85,7 +88,6 @@ void BracketTester::test() {
     }
 
     cout << failCounter << " error/s." << endl;
-#endif
-
     cout << endl;
+#endif
 }
