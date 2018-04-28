@@ -88,4 +88,10 @@ void ScriptLocatorTester::test()
     /* Test with a different script in brackets. */
     u32Test(U"اس نے کہا: (Haste makes waste)۔",
             { {0, 12, SBScriptARAB}, {12, 17, SBScriptLATN}, {29, 2, SBScriptARAB} });
+    /* Test with nested bracket pairs. */
+    u32Test(U"اس نے کہا: (I heard: {اتفاق میں برکت ہے})۔",
+            { {0, 12, SBScriptARAB}, {12, 10, SBScriptLATN}, {22, 17, SBScriptARAB},
+              {39, 1, SBScriptLATN}, {40, 2, SBScriptARAB} });
+    /* Test with a starting bracket pair. */
+    u32Test(U"[All is well]", { {0, 13, SBScriptLATN} });
 }
