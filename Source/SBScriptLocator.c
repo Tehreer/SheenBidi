@@ -152,7 +152,7 @@ SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator)
 void SBScriptLocatorReset(SBScriptLocatorRef locator)
 {
     SBScriptStackReset(&locator->_scriptStack);
-    locator->agent.offset = SBInvalidIndex;
+    locator->agent.offset = 0;
     locator->agent.length = 0;
     locator->agent.script = SBScriptNil;
 }
