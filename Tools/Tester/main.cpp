@@ -30,7 +30,7 @@ extern "C" {
 
 #include "AlgorithmTester.h"
 #include "BidiTypeLookupTester.h"
-#include "BracketTester.h"
+#include "BracketLookupTester.h"
 #include "CodepointSequenceTester.h"
 #include "GeneralCategoryLookupTester.h"
 #include "MirrorLookupTester.h"
@@ -54,7 +54,7 @@ int main(int argc, const char *argv[]) {
     BidiTypeLookupTester bidiTypeLookupTester(unicodeData);
     CodepointSequenceTester codepointSequenceTester;
     MirrorLookupTester mirrorLookupTester(bidiMirroring);
-    BracketTester bracketTester(bidiBrackets);
+    BracketLookupTester bracketLookupTester(bidiBrackets);
     GeneralCategoryLookupTester generalCategoryLookupTester(unicodeData);
     ScriptLookupTester scriptLookupTester(scripts, propertyValueAliases);
     AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
@@ -62,7 +62,7 @@ int main(int argc, const char *argv[]) {
     bidiTypeLookupTester.test();
     codepointSequenceTester.test();
     mirrorLookupTester.test();
-    bracketTester.test();
+    bracketLookupTester.test();
     generalCategoryLookupTester.test();
     scriptLookupTester.test();
     algorithmTester.test();
