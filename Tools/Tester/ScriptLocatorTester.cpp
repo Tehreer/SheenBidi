@@ -30,13 +30,13 @@ using namespace std;
 using namespace SheenBidi::Tester;
 
 struct run {
-    SBUInteger start;
-    SBUInteger end;
+    SBUInteger offset;
+    SBUInteger length;
     SBScript script;
 
     bool operator ==(const run& other) const {
-        return start == other.start
-            && end == other.end
+        return offset == other.offset
+            && length == other.length
             && script == other.script;
     }
 };
@@ -55,7 +55,7 @@ static void u32Test(const u32string string, const vector<run> runs)
 
     vector<run> output;
     while (SBScriptLocatorMoveNext(locator)) {
-        output.push_back({agent->offset, agent->offset + agent->length, agent->script});
+        output.push_back({agent->offset, agent->length, agent->script});
     }
 
     SBScriptLocatorRelease(locator);
@@ -75,5 +75,17 @@ void ScriptLocatorTester::test()
     /* Test with a single script in ascii, UTF-16 and UTF-32 ranges. */
     u32Test(U"Script", { {0, 6, SBScriptLATN} });
     u32Test(U"تحریر", { {0, 5, SBScriptARAB} });
-    u32Test(U"\U0001D84C\U0001D84D\U0001D84E\U0001D84F\U0001D850\U0001D851\U0001D852", { {0, 7, SBScriptSGNW} });
+    u32Test(U"\U0001D84C\U0001D84D\U0001D84E\U0001D84F\U0001D850\U0001D851\U0001D852",
+            { {0, 7, SBScriptSGNW} });
+
+    /* Test with different scripts. */
+    u32Test(U"Scriptتحریر\U0001D84C\U0001D84D\U0001D84E\U0001D84F\U0001D850\U0001D851\U0001D852",
+            { {0, 6, SBScriptLATN}, {6, 5, SBScriptARAB}, {11, 7, SBScriptSGNW} });
+
+    /* Test with a common script among strong scripts. */
+    u32Test(U"A simple line.ایک سادہ سی لائن۔", { {0, 14, SBScriptLATN}, {14, 17, SBScriptARAB} });
+
+    /* Test with a different script in brackets. */
+    u32Test(U"اس نے کہا: (Haste makes waste)۔",
+            { {0, 12, SBScriptARAB}, {12, 17, SBScriptLATN}, {29, 2, SBScriptARAB} });
 }
