@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_SCRIPT_TESTER_H
-#define SHEENBIDI_TESTER_SCRIPT_TESTER_H
-
-#include <string>
-#include <vector>
+#ifndef _SHEENBIDI__TESTER__SCRIPT_LOOKUP_TESTER_H
+#define _SHEENBIDI__TESTER__SCRIPT_LOOKUP_TESTER_H
 
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
@@ -26,9 +23,9 @@
 namespace SheenBidi {
 namespace Tester {
 
-class ScriptTester {
+class ScriptLookupTester {
 public:
-    ScriptTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases);
+    ScriptLookupTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases);
 
     void test();
 

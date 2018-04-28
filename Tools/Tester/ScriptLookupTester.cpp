@@ -15,11 +15,12 @@
  */
 
 extern "C" {
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <Headers/SBBase.h>
+#include <Headers/SBConfig.h>
 #include <Source/SBScriptLookup.h>
 }
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -32,20 +33,20 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "ScriptTester.h"
+#include "ScriptLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-ScriptTester::ScriptTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases)
-    : m_scripts(scripts)
-    , m_propertyValueAliases(propertyValueAliases)
+ScriptLookupTester::ScriptLookupTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases) :
+    m_scripts(scripts),
+    m_propertyValueAliases(propertyValueAliases)
 {
 }
 
-void ScriptTester::test() {
+void ScriptLookupTester::test() {
 #ifdef SB_CONFIG_UNITY
     cout << "Cannot run script tester in unity mode." << endl;
 #else
@@ -54,8 +55,8 @@ void ScriptTester::test() {
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        const string &scriptName = m_scripts.scriptForCodePoint(codePoint);
-        const string &expScript = m_propertyValueAliases.abbreviationForScript(scriptName);
+        const string &uniScript = m_scripts.scriptForCodePoint(codePoint);
+        const string &expScript = m_propertyValueAliases.abbreviationForScript(uniScript);
 
         SBScript valScript = SBScriptDetermine(codePoint);
         const string &genScript = Convert::scriptToString(valScript);
@@ -73,7 +74,6 @@ void ScriptTester::test() {
     }
 
     cout << failCounter << " error/s." << endl;
-#endif
-
     cout << endl;
+#endif
 }
