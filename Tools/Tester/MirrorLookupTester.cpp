@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,48 +14,50 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <iostream>
-
 extern "C" {
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <Headers/SBBase.h>
+#include <Headers/SBConfig.h>
 #include <Source/SBPairingLookup.h>
 }
+
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
 
 #include <Parser/BidiMirroring.h>
 
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "MirrorTester.h"
+#include "MirrorLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-MirrorTester::MirrorTester(const BidiMirroring &bidiMirroring) :
+MirrorLookupTester::MirrorLookupTester(const BidiMirroring &bidiMirroring) :
     m_BidiMirroring(bidiMirroring)
 {
 }
 
-void MirrorTester::test() {
+void MirrorLookupTester::test() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run mirror tester in unity mode." << endl;
+    cout << "Cannot run mirror lookup tester in unity mode." << endl;
 #else
-    cout << "Running mirror tester." << endl;
+    cout << "Running mirror lookup tester." << endl;
 
     size_t failCounter = 0;
 
-    for (uint32_t codepoint = 0; codepoint < Unicode::MAX_CODE_POINT; codepoint++) {
-        uint32_t expMirror = m_BidiMirroring.mirrorForCodePoint(codepoint);
-        SBUInt32 genMirror = SBPairingDetermineMirror(codepoint);
+    for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
+        uint32_t expMirror = m_BidiMirroring.mirrorForCodePoint(codePoint);
+        SBUInt32 genMirror = SBPairingDetermineMirror(codePoint);
 
-        if (expMirror != genMirror) {
+        if (genMirror != expMirror) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Invalid mirror found: " << endl
-                     << "  Code Point: " << codepoint << endl
+                     << "  Code Point: " << codePoint << endl
                      << "  Generated Mirror: " << genMirror << endl
                      << "  Expected Mirror: " << expMirror << endl;
             }
@@ -65,7 +67,6 @@ void MirrorTester::test() {
     }
 
     cout << failCounter << " error/s." << endl;
-#endif
-
     cout << endl;
+#endif
 }
