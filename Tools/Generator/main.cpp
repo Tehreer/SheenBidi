@@ -63,8 +63,8 @@ int main(int argc, const char * argv[])
     generalCategoryLookup.generateFile(out);
 
     ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);
-    scriptLookup.setMainSegmentSize(8);
-    scriptLookup.setBranchSegmentSize(16);
+    scriptLookup.setMainSegmentSize(16);
+    scriptLookup.setBranchSegmentSize(32);
     scriptLookup.generateFile(out);
 
     cout << "Finished.";
