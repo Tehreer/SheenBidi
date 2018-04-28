@@ -48,9 +48,9 @@ ScriptLookupTester::ScriptLookupTester(const Parser::Scripts &scripts, const Par
 
 void ScriptLookupTester::test() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run script tester in unity mode." << endl;
+    cout << "Cannot run script lookup tester in unity mode." << endl;
 #else
-    cout << "Running script tester." << endl;
+    cout << "Running script lookup tester." << endl;
 
     size_t failCounter = 0;
 
