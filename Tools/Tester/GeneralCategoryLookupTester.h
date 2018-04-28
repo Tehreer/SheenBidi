@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_GENERAL_CATEGORY_TESTER_H
-#define SHEENBIDI_TESTER_GENERAL_CATEGORY_TESTER_H
+#ifndef _SHEENBIDI__TESTER__GENERAL_CATEGORY_TESTER_H
+#define _SHEENBIDI__TESTER__GENERAL_CATEGORY_TESTER_H
 
 #include <Parser/UnicodeData.h>
 
 namespace SheenBidi {
 namespace Tester {
 
-class GeneralCategoryTester {
+class GeneralCategoryLookupTester {
 public:
-    GeneralCategoryTester(const Parser::UnicodeData &unicodeData);
+    GeneralCategoryLookupTester(const Parser::UnicodeData &unicodeData);
 
     void test();
 

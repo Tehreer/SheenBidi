@@ -15,12 +15,13 @@
  */
 
 extern "C" {
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <Headers/SBBase.h>
+#include <Headers/SBConfig.h>
 #include <Source/SBGeneralCategoryLookup.h>
 }
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 
@@ -30,7 +31,7 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "GeneralCategoryTester.h"
+#include "GeneralCategoryLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -39,17 +40,17 @@ using namespace SheenBidi::Tester::Utilities;
 
 static const string &DEFAULT_GENERAL_CATEGORY = "Cn";
 
-GeneralCategoryTester::GeneralCategoryTester(const UnicodeData &unicodeData) :
+GeneralCategoryLookupTester::GeneralCategoryLookupTester(const UnicodeData &unicodeData) :
     m_unicodeData(unicodeData)
 {
 }
 
-void GeneralCategoryTester::test()
+void GeneralCategoryLookupTester::test()
 {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run general category tester in unity mode." << endl;
+    cout << "Cannot run general category lookup tester in unity mode." << endl;
 #else
-    cout << "Running general category tester." << endl;
+    cout << "Running general category lookup tester." << endl;
 
     size_t failCounter = 0;
     string uniGeneralCategory;
