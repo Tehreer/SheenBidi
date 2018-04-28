@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
                         locator->_stringIndex = stringIndex;
                         locator->agent.index = initialIndex;
                         locator->agent.mirror = mirror;
+                        locator->agent.codepoint = codepoint;
 
                         return SBTrue;
                     }

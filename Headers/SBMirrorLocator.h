@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,9 @@ typedef struct _SBMirrorLocator *SBMirrorLocatorRef;
  * A structure containing the information about a code point having Bidi_Mirrored property.
  */
 typedef struct _SBMirrorAgent {
-    SBUInteger index;   /**< The absolute index of the code point. */
-    SBCodepoint mirror; /**< The mirrored of the code point. */
+    SBUInteger index;      /**< The absolute index of the code point. */
+    SBCodepoint mirror;    /**< The mirrored code point. */
+    SBCodepoint codepoint; /**< The actual code point. */
 } SBMirrorAgent, *SBMirrorAgentRef;
 
 /**

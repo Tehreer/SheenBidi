@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 #define _SB_INTERNAL_MIRROR_LOCATOR_H
 
 #include <SBBase.h>
-#include <SBCodepointSequence.h>
 #include <SBMirrorLocator.h>
 #include <SBLine.h>
 
