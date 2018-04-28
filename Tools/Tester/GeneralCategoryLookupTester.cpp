@@ -38,7 +38,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-static const string &DEFAULT_GENERAL_CATEGORY = "Cn";
+static const string DEFAULT_GENERAL_CATEGORY = "Cn";
 
 GeneralCategoryLookupTester::GeneralCategoryLookupTester(const UnicodeData &unicodeData) :
     m_unicodeData(unicodeData)
@@ -55,19 +55,19 @@ void GeneralCategoryLookupTester::test()
     size_t failCounter = 0;
     string uniGeneralCategory;
 
-    for (uint32_t codepoint = 0; codepoint < Unicode::MAX_CODE_POINT; codepoint++) {
-        m_unicodeData.getGeneralCategory(codepoint, uniGeneralCategory);
-        const string &expected = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
+    for (uint32_t codePoint = 0; codePoint < Unicode::MAX_CODE_POINT; codePoint++) {
+        m_unicodeData.getGeneralCategory(codePoint, uniGeneralCategory);
+        const string &expGeneralCategory = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
 
-        SBGeneralCategory libGeneralCategory = SBGeneralCategoryDetermine(codepoint);
-        const string &actual = Convert::generalCategoryToString(libGeneralCategory);
+        SBGeneralCategory valGeneralCategory = SBGeneralCategoryDetermine(codePoint);
+        const string &genGeneralCategory = Convert::generalCategoryToString(valGeneralCategory);
 
-        if (actual != expected) {
+        if (genGeneralCategory != expGeneralCategory) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Invalid general category found: " << endl
-                     << "  Code Point: " << codepoint << endl
-                     << "  Expected General Category: " << expected << endl
-                     << "  Generated General Category: " << actual << endl;
+                     << "  Code Point: " << codePoint << endl
+                     << "  Expected General Category: " << expGeneralCategory << endl
+                     << "  Generated General Category: " << genGeneralCategory << endl;
             }
 
             failCounter++;
