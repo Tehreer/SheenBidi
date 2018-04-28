@@ -20,6 +20,7 @@ extern "C" {
 #include <Source/SBBidiTypeLookup.h>
 }
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -38,7 +39,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-static const string &BIDI_CLASS_DEFAULT = "ON";
+static const string BIDI_TYPE_DEFAULT = "ON";
 
 BidiTypeLookupTester::BidiTypeLookupTester(const UnicodeData &unicodeData) :
     m_unicodeData(unicodeData)
@@ -52,21 +53,21 @@ void BidiTypeLookupTester::test() {
     cout << "Running bidi type lookup tester." << endl;
 
     size_t failCounter = 0;
-    string uniClass;
+    string uniBidiType;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        m_unicodeData.getBidirectionalCategory(codePoint, uniClass);
-        const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
+        m_unicodeData.getBidirectionalCategory(codePoint, uniBidiType);
+        const string &expBidiType = (uniBidiType.length() ? uniBidiType : BIDI_TYPE_DEFAULT);
 
-        SBBidiType bidiType = SBBidiTypeDetermine(codePoint);
-        const string &genClass = Convert::bidiTypeToString(bidiType);
+        SBBidiType valBidiType = SBBidiTypeDetermine(codePoint);
+        const string &genBidiType = Convert::bidiTypeToString(valBidiType);
 
-        if (expClass != genClass) {
+        if (genBidiType != expBidiType) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Invalid char type found: " << endl
                      << "  Code Point: " << codePoint << endl
-                     << "  Expected Char Type: " << expClass << endl
-                     << "  Generated Char Type: " << genClass << endl;
+                     << "  Expected Char Type: " << expBidiType << endl
+                     << "  Generated Char Type: " << genBidiType << endl;
             }
 
             failCounter++;
@@ -74,7 +75,6 @@ void BidiTypeLookupTester::test() {
     }
 
     cout << failCounter << " error/s." << endl;
-#endif
-
     cout << endl;
+#endif
 }
