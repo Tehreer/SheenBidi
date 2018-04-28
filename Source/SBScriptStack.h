@@ -34,7 +34,6 @@ typedef struct _SBScriptStack {
     SBUInteger open;
 } SBScriptStack, *SBScriptStackRef;
 
-SB_INTERNAL void SBScriptStackInitialize(SBScriptStackRef stack);
 SB_INTERNAL void SBScriptStackReset(SBScriptStackRef stack);
 
 SB_INTERNAL void SBScriptStackPush(SBScriptStackRef stack, SBScript script, SBCodepoint mirror);

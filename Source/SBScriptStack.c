@@ -20,11 +20,6 @@
 #include "SBBase.h"
 #include "SBScriptStack.h"
 
-SB_INTERNAL void SBScriptStackInitialize(SBScriptStackRef stack)
-{
-    SBScriptStackReset(stack);
-}
-
 SB_INTERNAL void SBScriptStackReset(SBScriptStackRef stack)
 {
     stack->top = -1;
@@ -49,6 +44,7 @@ SB_INTERNAL void SBScriptStackPop(SBScriptStackRef stack)
 
     stack->count -= 1;
     stack->open = SBNumberLimitDecrement(stack->open, 0);
+    stack->top = SBNumberRingDecrement(stack->top, _SBScriptStackCapacity);
 
     if (SBScriptStackIsEmpty(stack)) {
         stack->top = -1;
@@ -64,9 +60,10 @@ SB_INTERNAL void SBScriptStackSealPairs(SBScriptStackRef stack, SBScript script)
 {
     SBInteger index = SBNumberRingSubtract(stack->top, (SBInteger)stack->open, _SBScriptStackCapacity);
 
-    while (stack->open--) {
+    while (stack->open) {
         index = SBNumberRingIncrement(index, _SBScriptStackCapacity);
         stack->_elements[index].script = script;
+        stack->open -= 1;
     }
 }
 
