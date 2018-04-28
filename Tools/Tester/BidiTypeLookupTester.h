@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_BIDI_TYPE_TESTER_H
-#define SHEENBIDI_TESTER_BIDI_TYPE_TESTER_H
-
-#include <string>
-#include <vector>
+#ifndef _SHEENBIDI__TESTER__BIDI_TYPE_LOOKUP_TESTER_H
+#define _SHEENBIDI__TESTER__BIDI_TYPE_LOOKUP_TESTER_H
 
 #include <Parser/UnicodeData.h>
 
 namespace SheenBidi {
 namespace Tester {
 
-class BidiTypeTester {
+class BidiTypeLookupTester {
 public:
-    BidiTypeTester(const Parser::UnicodeData &unicodeData);
+    BidiTypeLookupTester(const Parser::UnicodeData &unicodeData);
 
     void test();
 

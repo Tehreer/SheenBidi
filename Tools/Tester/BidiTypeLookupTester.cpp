@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 
 extern "C" {
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <Headers/SBBase.h>
+#include <Headers/SBConfig.h>
 #include <Source/SBBidiTypeLookup.h>
 }
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -30,7 +31,7 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "BidiTypeTester.h"
+#include "BidiTypeLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -39,16 +40,16 @@ using namespace SheenBidi::Tester::Utilities;
 
 static const string &BIDI_CLASS_DEFAULT = "ON";
 
-BidiTypeTester::BidiTypeTester(const UnicodeData &unicodeData)
-    : m_unicodeData(unicodeData)
+BidiTypeLookupTester::BidiTypeLookupTester(const UnicodeData &unicodeData) :
+    m_unicodeData(unicodeData)
 {
 }
 
-void BidiTypeTester::test() {
+void BidiTypeLookupTester::test() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run char type tester in unity mode." << endl;
+    cout << "Cannot run bidi type lookup tester in unity mode." << endl;
 #else
-    cout << "Running char type tester." << endl;
+    cout << "Running bidi type lookup tester." << endl;
 
     size_t failCounter = 0;
     string uniClass;
@@ -58,7 +59,7 @@ void BidiTypeTester::test() {
         const string &expClass = (uniClass.length() ? uniClass : BIDI_CLASS_DEFAULT);
 
         SBBidiType bidiType = SBBidiTypeDetermine(codePoint);
-        const string &genClass = Convert::toString(bidiType);
+        const string &genClass = Convert::bidiTypeToString(bidiType);
 
         if (expClass != genClass) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
@@ -67,7 +68,7 @@ void BidiTypeTester::test() {
                      << "  Expected Char Type: " << expClass << endl
                      << "  Generated Char Type: " << genClass << endl;
             }
-                
+
             failCounter++;
         }
     }
