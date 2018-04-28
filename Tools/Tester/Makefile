@@ -13,6 +13,7 @@ TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
               $(TESTER_DIR)/GeneralCategoryLookupTester.cpp \
               $(TESTER_DIR)/main.cpp \
               $(TESTER_DIR)/MirrorLookupTester.cpp \
+              $(TESTER_DIR)/ScriptLocatorTester.cpp \
               $(TESTER_DIR)/ScriptLookupTester.cpp \
               $(TESTER_DIR)/Utilities/Convert.cpp \
               $(TESTER_DIR)/Utilities/Unicode.cpp
