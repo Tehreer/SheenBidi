@@ -109,7 +109,9 @@ Scripts::Scripts(const string &directory) :
                 m_scriptNumbers[codePoint] = scriptNumber;
             }
 
-            m_lastCodePoint = lastCodePoint;
+            if (lastCodePoint > m_lastCodePoint) {
+                m_lastCodePoint = lastCodePoint;
+            }
         }
     }
 }
