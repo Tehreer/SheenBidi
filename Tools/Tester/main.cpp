@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include <iostream>
-
 extern "C" {
-#include <SheenBidi.h>
+#include <Headers/SheenBidi.h>
 }
+
+#include <iostream>
 
 #include <Parser/BidiBrackets.h>
 #include <Parser/BidiCharacterTest.h>
@@ -29,12 +29,12 @@ extern "C" {
 #include <Parser/UnicodeData.h>
 
 #include "AlgorithmTester.h"
-#include "BidiTypeTester.h"
+#include "BidiTypeLookupTester.h"
 #include "BracketTester.h"
 #include "CodepointSequenceTester.h"
-#include "GeneralCategoryTester.h"
-#include "MirrorTester.h"
-#include "ScriptTester.h"
+#include "GeneralCategoryLookupTester.h"
+#include "MirrorLookupTester.h"
+#include "ScriptLookupTester.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
@@ -51,20 +51,20 @@ int main(int argc, const char *argv[]) {
     Scripts scripts(dir);
     PropertyValueAliases propertyValueAliases(dir);
 
-    BidiTypeTester bidiTypeTester(unicodeData);
+    BidiTypeLookupTester bidiTypeLookupTester(unicodeData);
     CodepointSequenceTester codepointSequenceTester;
-    MirrorTester mirrorTester(bidiMirroring);
+    MirrorLookupTester mirrorLookupTester(bidiMirroring);
     BracketTester bracketTester(bidiBrackets);
-    GeneralCategoryTester generalCategoryTester(unicodeData);
-    ScriptTester scriptTester(scripts, propertyValueAliases);
+    GeneralCategoryLookupTester generalCategoryLookupTester(unicodeData);
+    ScriptLookupTester scriptLookupTester(scripts, propertyValueAliases);
     AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
 
-    bidiTypeTester.test();
+    bidiTypeLookupTester.test();
     codepointSequenceTester.test();
-    mirrorTester.test();
+    mirrorLookupTester.test();
     bracketTester.test();
-    generalCategoryTester.test();
-    scriptTester.test();
+    generalCategoryLookupTester.test();
+    scriptLookupTester.test();
     algorithmTester.test();
 
     return 0;
