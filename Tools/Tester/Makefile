@@ -6,14 +6,14 @@ TESTER      = $(DEBUG)/Tester
 TESTER_UTIL = $(TESTER)/Utilities
 
 TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
-              $(TESTER_DIR)/BidiTypeTester.cpp \
-              $(TESTER_DIR)/BracketTester.cpp \
+              $(TESTER_DIR)/BidiTypeLookupTester.cpp \
+              $(TESTER_DIR)/BracketLookupTester.cpp \
               $(TESTER_DIR)/CodepointSequenceTester.cpp \
               $(TESTER_DIR)/Configuration.cpp \
-              $(TESTER_DIR)/GeneralCategoryTester.cpp \
+              $(TESTER_DIR)/GeneralCategoryLookupTester.cpp \
               $(TESTER_DIR)/main.cpp \
-              $(TESTER_DIR)/MirrorTester.cpp \
-              $(TESTER_DIR)/ScriptTester.cpp \
+              $(TESTER_DIR)/MirrorLookupTester.cpp \
+              $(TESTER_DIR)/ScriptLookupTester.cpp \
               $(TESTER_DIR)/Utilities/Convert.cpp \
               $(TESTER_DIR)/Utilities/Unicode.cpp
 
