@@ -34,6 +34,7 @@ extern "C" {
 #include "CodepointSequenceTester.h"
 #include "GeneralCategoryLookupTester.h"
 #include "MirrorLookupTester.h"
+#include "ScriptLocatorTester.h"
 #include "ScriptLookupTester.h"
 
 using namespace std;
@@ -58,6 +59,7 @@ int main(int argc, const char *argv[]) {
     GeneralCategoryLookupTester generalCategoryLookupTester(unicodeData);
     ScriptLookupTester scriptLookupTester(scripts, propertyValueAliases);
     AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    ScriptLocatorTester scriptLocatorTester;
 
     bidiTypeLookupTester.test();
     codepointSequenceTester.test();
@@ -66,6 +68,7 @@ int main(int argc, const char *argv[]) {
     generalCategoryLookupTester.test();
     scriptLookupTester.test();
     algorithmTester.test();
+    scriptLocatorTester.test();
 
     return 0;
 }
