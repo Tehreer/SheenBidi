@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "SBBidiType.h"
+#include "SBGeneralCategory.h"
 #include "SBScript.h"
 
 /**
@@ -126,22 +127,22 @@ typedef SBUInt8                     SBLevel;
 typedef SBUInt8 SBBidiType;
 
 /**
- * Checks whether specified bidirectional type is strong or not.
+ * Checks whether specified bidirectional type is strong.
  */
 #define SBBidiTypeIsStrong(t)               SBUInt8InRange(t, SBBidiTypeL, SBBidiTypeAL)
 
 /**
- * Checks whether specified bidirectional type is weak or not.
+ * Checks whether specified bidirectional type is weak.
  */
 #define SBBidiTypeIsWeak(t)                 SBUInt8InRange(t, SBBidiTypeBN, SBBidiTypeCS)
 
 /**
- * Checks whether specified bidirectional type is neutral or not.
+ * Checks whether specified bidirectional type is neutral.
  */
 #define SBBidiTypeIsNeutral(t)              SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypeON)
 
 /**
- * Checks whether specified bidirectional type is format or not.
+ * Checks whether specified bidirectional type is format.
  */
 #define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
 
@@ -151,12 +152,39 @@ typedef SBUInt8 SBBidiType;
  */
 typedef SBUInt8 SBGeneralCategory;
 
+/**
+ * Checks whether specified general category is letter.
+ */
 #define SBGeneralCategoryIsLetter(gc)       SBUInt8InRange(gc, SBGeneralCategoryLU, SBGeneralCategoryLO)
+
+/**
+ * Checks whether specified general category is mark.
+ */
 #define SBGeneralCategoryIsMark(gc)         SBUInt8InRange(gc, SBGeneralCategoryMN, SBGeneralCategoryME)
+
+/**
+ * Checks whether specified general category is number.
+ */
 #define SBGeneralCategoryIsNumber(gc)       SBUInt8InRange(gc, SBGeneralCategoryND, SBGeneralCategoryNO)
+
+/**
+ * Checks whether specified general category is punctuation.
+ */
 #define SBGeneralCategoryIsPunctuation(gc)  SBUInt8InRange(gc, SBGeneralCategoryPC, SBGeneralCategoryPO)
+
+/**
+ * Checks whether specified general category is symbol.
+ */
 #define SBGeneralCategoryIsSymbol(gc)       SBUInt8InRange(gc, SBGeneralCategorySM, SBGeneralCategorySO)
+
+/**
+ * Checks whether specified general category is separator.
+ */
 #define SBGeneralCategoryIsSeparator(gc)    SBUInt8InRange(gc, SBGeneralCategoryZS, SBGeneralCategoryZP)
+
+/**
+ * Checks whether specified general category is other.
+ */
 #define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
 
 
@@ -187,7 +215,7 @@ typedef SBUInt32                    SBCodepoint;
  * @param codepoint
  *      The code point whose bidirectional type is returned.
  * @return
- *      The bidirectional type of the provided code point.
+ *      The bidirectional type of specified code point.
  */
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
 
@@ -197,7 +225,7 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
  * @param codepoint
  *      The code point whose mirror is returned.
  * @return
- *      The mirror of the provided code point if available, 0 otherwise.
+ *      The mirror of specified code point if available, 0 otherwise.
  */
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
 
@@ -207,7 +235,7 @@ SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
  * @param codepoint
  *      The code point whose script is returned.
  * @return
- *      The script of the provided code point.
+ *      The script of specified code point.
  */
 SBScript SBCodepointGetScript(SBCodepoint codepoint);
 
