@@ -40,7 +40,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-ScriptLookupTester::ScriptLookupTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases) :
+ScriptLookupTester::ScriptLookupTester(const Scripts &scripts, const PropertyValueAliases &propertyValueAliases) :
     m_scripts(scripts),
     m_propertyValueAliases(propertyValueAliases)
 {
