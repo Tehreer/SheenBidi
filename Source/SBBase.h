@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,13 @@
  * A value that indicates an invalid unsigned index.
  */
 #define SBInvalidIndex  (SBUInteger)(-1)
+
+SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength,
+    SBUInteger *rangeOffset, SBUInteger *rangeLength);
+
+SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
+    SBUInteger rangeOffset, SBUInteger rangeLength);
+
 
 #define SBNumberLimitIncrement(number, limit)   \
 (                                               \
@@ -52,14 +59,7 @@
     SBNumberRingSubtract(number, 1, capacity)
 
 
-SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength);
-SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength);
-
-
-#define _SBBidiTypeIsEqual(t1, t2)          \
-(                                           \
- (t1) == (t2)                               \
-)
+#define _SBBidiTypeIsEqual(t1, t2)          ((t1) == (t2))
 
 #define SBBidiTypeIsNumber(t)               SBUInt8InRange(t, SBBidiTypeAN, SBBidiTypeEN)
 #define SBBidiTypeIsIsolate(t)              SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDI)
@@ -71,10 +71,10 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger 
 #define SBBidiTypeIsNeutralOrIsolate(t)     SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypePDI)
 
 
-#define SBCodepointMax              0x10FFFF
-#define SBCodepointInRange(v, s, e) SBUInt32InRange(v, s, e)
-#define SBCodepointIsSurrogate(c)   SBCodepointInRange(c, 0xD800, 0xDFFF)
-#define SBCodepointIsValid(c)       (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
+#define SBCodepointMax                      0x10FFFF
+#define SBCodepointInRange(v, s, e)         SBUInt32InRange(v, s, e)
+#define SBCodepointIsSurrogate(c)           SBCodepointInRange(c, 0xD800, 0xDFFF)
+#define SBCodepointIsValid(c)               (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
 
 
 #define SBScriptIsCommonOrInherited(s)      ((s) <= SBScriptZYYY)

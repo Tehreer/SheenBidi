@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@
 #include "SBPairingLookup.h"
 #include "SBScriptLookup.h"
 
-SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *rangeOffset, SBUInteger *rangeLength)
+SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength,
+    SBUInteger *rangeOffset, SBUInteger *rangeLength)
 {
     /**
      * Assume:
@@ -67,11 +68,14 @@ SB_INTERNAL void SBUIntegerNormalizeRange(SBUInteger actualLength, SBUInteger *r
     }
 }
 
-SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength, SBUInteger rangeOffset, SBUInteger rangeLength)
+SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
+    SBUInteger rangeOffset, SBUInteger rangeLength)
 {
     SBUInteger possibleLimit = rangeOffset + rangeLength;
 
-    return rangeOffset < actualLength && rangeOffset <= possibleLimit && possibleLimit <= actualLength;
+    return rangeOffset < actualLength
+        && rangeOffset <= possibleLimit
+        && possibleLimit <= actualLength;
 }
 
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
