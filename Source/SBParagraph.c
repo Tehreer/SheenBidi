@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ typedef struct _SBParagraphSupport {
 } _SBParagraphSupport, *_SBParagraphSupportRef;
 
 static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length);
-static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish);
+static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish);
 
 static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
@@ -493,7 +493,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             eor = SB_LEVEL_TO_TYPE(SB_MAX(priorLevel, currentLevel));
 
             SBLevelRunInitialize(&levelRun, chain, firstLink, lastLink, sor, eor);
-            _SBProcessRun(support, levelRun, forceFinish);
+            _SBProcessRun(support, &levelRun, forceFinish);
 
             /* The sor of next run (if any) should be technically equal to eor of this run. */
             sor = eor;
@@ -507,7 +507,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     };
 }
 
-static void _SBProcessRun(_SBParagraphSupportRef support, SBLevelRun levelRun, SBBoolean forceFinish)
+static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish)
 {
     SBRunQueueRef queue = &support->runQueue;
     SBRunQueueEnqueue(queue, levelRun);
