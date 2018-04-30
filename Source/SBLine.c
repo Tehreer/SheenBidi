@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 #include <SBConfig.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -35,7 +34,8 @@ typedef struct _SBLineSupport {
     SBLevel maxLevel;
 } _SBLineSupport, *_SBLineSupportRef;
 
-static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
+static SBLevel _SBCopyLevels(SBLevel *destination,
+    const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
     SBLevel lastLevel = SBLevelInvalid;
     SBLevel maxLevel = 0;
@@ -46,7 +46,7 @@ static SBLevel _SBCopyLevels(SBLevel *destination, const SBLevel *source, SBUInt
         *(destination++) = level;
 
         if (level != lastLevel) {
-            ++totalRuns;
+            totalRuns += 1;
 
             if (level > maxLevel) {
                 maxLevel = level;
@@ -143,7 +143,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
             _SBSetNewLevel(levels + index, length + 1, baseLevel);
             length = 0;
             reset = SBTrue;
-            ++support->runCount;
+            support->runCount += 1;
             break;
 
         case SBBidiTypeLRE:
@@ -152,7 +152,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
         case SBBidiTypeRLO:
         case SBBidiTypePDF:
         case SBBidiTypeBN:
-            ++length;
+            length += 1;
             break;
 
         case SBBidiTypeWS:
@@ -164,7 +164,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
                 _SBSetNewLevel(levels + index, length + 1, baseLevel);
                 length = 0;
 
-                ++support->runCount;
+                support->runCount += 1;
             }
             break;
 
@@ -185,7 +185,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs,
     (*runs).offset = lineOffset;
     (*runs).level = levels[0];
 
-    for (index = 0; index < length; ++index) {
+    for (index = 0; index < length; index++) {
         SBLevel level = levels[index];
 
         if (level != (*runs).level) {
@@ -195,7 +195,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs,
             (*runs).offset = lineOffset + index;
             (*runs).level = level;
 
-            ++runCount;
+            runCount += 1;
         }
     }
 
@@ -210,7 +210,7 @@ static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount)
     SBUInteger finalIndex = runCount - 1;
     SBUInteger index;
 
-    for (index = 0; index < halfCount; ++index) {
+    for (index = 0; index < halfCount; index++) {
         SBUInteger tieIndex;
         SBRun tempRun;
 
@@ -226,18 +226,18 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
 {
     SBLevel newLevel;
 
-    for (newLevel = maxLevel; newLevel; --newLevel) {
+    for (newLevel = maxLevel; newLevel; newLevel--) {
         SBUInteger start = runCount;
 
         while (start--) {
             if (runs[start].level >= newLevel) {
                 SBUInteger count = 1;
 
-                for (; start && runs[start - 1].level >= newLevel; --start) {
-                    ++count;
+                for (; start && runs[start - 1].level >= newLevel; start--) {
+                    count += 1;
                 }
 
-                _SBReverseRunSequence(runs+ start, count);
+                _SBReverseRunSequence(runs + start, count);
             }
         }
     }
@@ -268,7 +268,8 @@ static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence,
     return line;
 }
 
-SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength)
+SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
+    SBUInteger lineOffset, SBUInteger lineLength)
 {
     SBUInteger innerOffset;
 
@@ -309,7 +310,7 @@ const SBRun *SBLineGetRunsPtr(SBLineRef line)
 SBLineRef SBLineRetain(SBLineRef line)
 {
     if (line) {
-        ++line->_retainCount;
+        line->_retainCount += 1;
     }
     
     return line;
