@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
 SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBBidiType type, SBUInteger length)
 {
     SBBidiLink last = chain->last;
-    SBBidiLink current = last + length;
+    SBBidiLink current = last + (SBUInt32)length;
 
     chain->types[current] = type;
     chain->links[current] = chain->roller;
@@ -103,7 +103,8 @@ SB_INTERNAL void SBBidiChainAbandonNext(SBBidiChainRef chain, SBBidiLink link)
     chain->links[link] = limit;
 }
 
-SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain, SBBidiLink first, SBBidiLink second)
+SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain,
+    SBBidiLink first, SBBidiLink second)
 {
     if (chain->types[first] == chain->types[second]
         && chain->levels[first] == chain->levels[second]) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ SB_INTERNAL void SBBidiChainSetLevel(SBBidiChainRef chain, SBBidiLink link, SBLe
 SB_INTERNAL SBBidiLink SBBidiChainGetNext(SBBidiChainRef chain, SBBidiLink link);
 SB_INTERNAL void SBBidiChainSetNext(SBBidiChainRef chain, SBBidiLink link, SBBidiLink next);
 SB_INTERNAL void SBBidiChainAbandonNext(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain, SBBidiLink first, SBBidiLink second);
+SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain,
+    SBBidiLink first, SBBidiLink second);
 
 #define SBBidiChainForEach(chain, roller, link) \
     for (link = chain->links[roller]; link != roller; link = chain->links[link])
