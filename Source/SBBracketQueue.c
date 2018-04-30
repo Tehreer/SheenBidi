@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,17 @@
 #include "SBBidiChain.h"
 #include "SBBracketQueue.h"
 
-static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBUInteger top)
+static void _SBBracketQueueFinalizePairs(SBBracketQueueRef queue, _SBBracketQueueListRef list, SBInteger top)
 {
-    SBUInteger limit = 0;
-
     do {
-        limit = (list == queue->_rearList ? queue->_rearTop : _SBBracketQueueList_MaxIndex);
+        SBInteger limit = (list == queue->_rearList ? queue->_rearTop : _SBBracketQueueList_MaxIndex);
 
         while (++top <= limit) {
             if (list->openingLink[top] != SBBidiLinkNone
                 && list->closingLink[top] == SBBidiLinkNone) {
                 list->openingLink[top] = SBBidiLinkNone;
             }
-        };
+        }
 
         list = list->next;
         top = 0;
@@ -57,16 +55,17 @@ SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBBidiType directi
     queue->_frontList = &queue->_firstList;
     queue->_rearList = &queue->_firstList;
     queue->_frontTop = 0;
-    queue->_rearTop = SBInvalidIndex;
+    queue->_rearTop = -1;
     queue->count = 0;
     queue->shouldDequeue = SBFalse;
     queue->_direction = direction;
 }
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket)
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue,
+   SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket)
 {
     _SBBracketQueueListRef list;
-    SBUInteger top;
+    SBInteger top;
 
     /* The queue can only take a maximum of 63 elements. */
     SBAssert(queue->count < SBBracketQueueGetMaxCapacity());
@@ -91,7 +90,7 @@ SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink prior
         queue->_rearList = list;
         queue->_rearTop = top = 0;
     }
-    ++queue->count;
+    queue->count += 1;
 
     list->priorStrongLink[top] = priorStrongLink;
     list->openingLink[top] = openingLink;
@@ -106,31 +105,33 @@ SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue)
     SBAssert(queue->count != 0);
 
     if (queue->_frontTop != _SBBracketQueueList_MaxIndex) {
-        ++queue->_frontTop;
+        queue->_frontTop += 1;
     } else {
         _SBBracketQueueListRef frontList = queue->_frontList;
+
         if (frontList == queue->_rearList) {
-            queue->_rearTop = SBInvalidIndex;
+            queue->_rearTop = -1;
         } else {
             queue->_frontList = frontList->next;
         }
 
         queue->_frontTop = 0;
     }
-    --queue->count;
+
+    queue->count -= 1;
 }
 
 SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBBidiType strongType)
 {
     _SBBracketQueueListRef list = queue->_rearList;
-    SBUInteger top = queue->_rearTop;
-    SBUInteger limit = 0;
+    SBInteger top = queue->_rearTop;
 
-    for (; ;) {
-        limit = (list == queue->_frontList ? queue->_frontTop : 0);
+    while (1) {
+        SBInteger limit = (list == queue->_frontList ? queue->_frontTop : 0);
 
         do {
-            if (list->closingLink[top] == SBBidiLinkNone && list->strongType[top] != queue->_direction) {
+            if (list->closingLink[top] == SBBidiLinkNone
+                && list->strongType[top] != queue->_direction) {
                 list->strongType[top] = strongType;
             }
         } while (top-- > limit);
@@ -141,14 +142,13 @@ SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBBidiType
 
         list = list->previous;
         top = _SBBracketQueueList_MaxIndex;
-    };
+    }
 }
 
 SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink closingLink, SBCodepoint bracket)
 {
     _SBBracketQueueListRef list = queue->_rearList;
-    SBUInteger top = queue->_rearTop;
-    SBUInteger limit = 0;
+    SBInteger top = queue->_rearTop;
     SBCodepoint canonical;
 
     switch (bracket) {
@@ -165,9 +165,9 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink clo
         break;
     }
 
-    for (; ;) {
-        SBBoolean is_frontList = (list == queue->_frontList);
-        limit = (is_frontList ? queue->_frontTop : 0);
+    while (1) {
+        SBBoolean isFrontList = (list == queue->_frontList);
+        SBInteger limit = (isFrontList ? queue->_frontTop : 0);
 
         do {
             if (list->openingLink[top] != SBBidiLinkNone
@@ -176,7 +176,7 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink clo
                 list->closingLink[top] = closingLink;
                 _SBBracketQueueFinalizePairs(queue, list, top);
 
-                if (is_frontList && top == queue->_frontTop) {
+                if (isFrontList && top == queue->_frontTop) {
                     queue->shouldDequeue = SBTrue;
                 }
 
@@ -184,13 +184,13 @@ SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink clo
             }
         } while (top-- > limit);
 
-        if (is_frontList) {
+        if (isFrontList) {
             break;
         }
 
         list = list->previous;
         top = _SBBracketQueueList_MaxIndex;
-    };
+    }
 }
 
 SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue)
@@ -221,11 +221,10 @@ SB_INTERNAL SBBidiType SBBracketQueueGetStrongType(SBBracketQueueRef queue)
 SB_INTERNAL void SBBracketQueueFinalize(SBBracketQueueRef queue)
 {
     _SBBracketQueueListRef list = queue->_firstList.next;
-    
+
     while (list) {
         _SBBracketQueueListRef next = list->next;
         free(list);
-        
         list = next;
-    };
+    }
 }

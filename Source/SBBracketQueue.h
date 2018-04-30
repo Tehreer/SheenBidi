@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +26,22 @@
 #define _SBBracketQueueList_MaxIndex    (_SBBracketQueueList_Length - 1)
 
 typedef struct _SBBracketQueueList {
-    struct _SBBracketQueueList *previous;
-    struct _SBBracketQueueList *next;
-
     SBCodepoint bracket[_SBBracketQueueList_Length];
     SBBidiLink priorStrongLink[_SBBracketQueueList_Length];
     SBBidiLink openingLink[_SBBracketQueueList_Length];
     SBBidiLink closingLink[_SBBracketQueueList_Length];
     SBBidiType strongType[_SBBracketQueueList_Length];
+
+    struct _SBBracketQueueList *previous;
+    struct _SBBracketQueueList *next;
 } _SBBracketQueueList, *_SBBracketQueueListRef;
 
 typedef struct _SBBracketQueue {
     _SBBracketQueueList _firstList;
     _SBBracketQueueListRef _frontList;
     _SBBracketQueueListRef _rearList;
-    SBUInteger _frontTop;
-    SBUInteger _rearTop;
+    SBInteger _frontTop;
+    SBInteger _rearTop;
     SBUInteger count;
     SBBoolean shouldDequeue;
     SBBidiType _direction;
@@ -52,11 +52,13 @@ typedef struct _SBBracketQueue {
 SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue);
 SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBBidiType direction);
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue, SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket);
+SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue,
+    SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket);
 SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue);
 
 SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBBidiType strongType);
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue, SBBidiLink closingLink, SBCodepoint bracket);
+SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue,
+    SBBidiLink closingLink, SBCodepoint bracket);
 
 SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue);
 
