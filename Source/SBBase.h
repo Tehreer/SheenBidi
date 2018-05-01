@@ -32,6 +32,13 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
     SBUInteger rangeOffset, SBUInteger rangeLength);
 
 
+#define SBNumberGetMax(first, second)           \
+(                                               \
+   (first) > (second)                           \
+ ? (first)                                      \
+ : (second)                                     \
+)
+
 #define SBNumberLimitIncrement(number, limit)   \
 (                                               \
    (number) < (limit)                           \
@@ -57,6 +64,21 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 
 #define SBNumberRingDecrement(number, capacity) \
     SBNumberRingSubtract(number, 1, capacity)
+
+
+#define SBLevelAsNormalBidiType(level)      \
+(                                           \
+   ((level) & 1)                            \
+ ? SBBidiTypeR                              \
+ : SBBidiTypeL                              \
+)
+
+#define SBLevelAsOppositeBidiType(level)    \
+(                                           \
+   ((level) & 1)                            \
+ ? SBBidiTypeL                              \
+ : SBBidiTypeR                              \
+)
 
 
 #define _SBBidiTypeIsEqual(t1, t2)          ((t1) == (t2))
