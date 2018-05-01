@@ -168,7 +168,7 @@ static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink,
         case SBBidiTypeLRI:
         case SBBidiTypeRLI:
         case SBBidiTypeFSI:
-            ++depth;
+            depth += 1;
             break;
 
         case SBBidiTypePDI:
@@ -303,7 +303,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             SBStatusStackPush(stack, newLevel, o, SBFalse);                 \
         } else {                                                            \
             if (!overIsolate) {                                             \
-                ++overEmbedding;                                            \
+                overEmbedding += 1;                                         \
             }                                                               \
         }                                                                   \
 }
@@ -317,10 +317,10 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
                             SBStatusStackGetEmbeddingLevel(stack));         \
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
-            ++validIsolate;                                                 \
+            validIsolate += 1;                                              \
             SBStatusStackPush(stack, newLevel, o, SBTrue);                  \
         } else {                                                            \
-            ++overIsolate;                                                  \
+            overIsolate += 1;                                               \
         }                                                                   \
                                                                             \
         if (priorStatus != SBBidiTypeON) {                                  \
@@ -387,7 +387,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             SBBidiType overrideStatus;
 
             if (overIsolate != 0) {
-                --overIsolate;
+                overIsolate -= 1;
             } else if (validIsolate == 0) {
                 /* Do nothing */
             } else {
@@ -398,7 +398,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
                 };
                 SBStatusStackPop(stack);
 
-                --validIsolate;
+                validIsolate -= 1;
             }
 
             SBBidiChainSetLevel(chain, link, SBStatusStackGetEmbeddingLevel(stack));
@@ -418,7 +418,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             if (overIsolate != 0) {
                 /* do nothing */
             } else if (overEmbedding != 0) {
-                --overEmbedding;
+                overEmbedding -= 1;
             } else if (!SBStatusStackGetIsolateStatus(stack) && stack->count >= 2) {
                 SBStatusStackPop(stack);
             }
@@ -635,7 +635,7 @@ SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset,
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
 {
     if (paragraph) {
-        ++paragraph->_retainCount;
+        paragraph->_retainCount += 1;
     }
     
     return paragraph;
