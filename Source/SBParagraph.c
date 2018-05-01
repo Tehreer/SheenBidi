@@ -39,10 +39,10 @@ typedef struct _SBParagraphSupport {
     SBIsolatingRun isolatingRun;
 } _SBParagraphSupport, *_SBParagraphSupportRef;
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length);
+static void _SBPopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length);
 static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish);
 
-static _SBParagraphSupportRef _SBParagraphSupportCreate(SBBidiType *types, SBLevel *levels, SBUInteger length)
+static _SBParagraphSupportRef _SBParagraphSupportCreate(const SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
     const SBUInteger sizeSupport = sizeof(_SBParagraphSupport);
     const SBUInteger sizeLinks   = sizeof(SBBidiLink) * (length + 2);
@@ -112,7 +112,7 @@ Return:
     return (stringIndex - paragraphOffset);
 }
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, SBBidiType *types, SBUInteger length)
+static void _SBPopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length)
 {
     SBBidiType type = SBBidiTypeNil;
     SBUInteger priorIndex = SBInvalidIndex;
