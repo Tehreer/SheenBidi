@@ -244,7 +244,7 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
 }
 
 static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence,
-    SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+    const SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     _SBLineSupportRef support;
     SBLineRef line;
