@@ -15,7 +15,6 @@
  */
 
 #include <SBConfig.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -120,7 +119,7 @@ static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger para
     }
 
 Return:
-    stringIndex += SBAlgorithmDetermineSeparatorLength(algorithm, stringIndex);
+    stringIndex += SBAlgorithmGetSeparatorLength(algorithm, stringIndex);
 
     return (stringIndex - paragraphOffset);
 }
