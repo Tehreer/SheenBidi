@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm)
     return algorithm->fixedTypes;
 }
 
-SB_INTERNAL SBUInteger SBAlgorithmDetermineSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
+SB_INTERNAL SBUInteger SBAlgorithmGetSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringIndex = separatorIndex;
@@ -133,7 +133,7 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
 
         if (currentType == SBBidiTypeB) {
             if (separatorLength) {
-                *separatorLength = SBAlgorithmDetermineSeparatorLength(algorithm, startIndex);
+                *separatorLength = SBAlgorithmGetSeparatorLength(algorithm, startIndex);
             }
             break;
         }
@@ -162,7 +162,7 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
 SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 {
     if (algorithm) {
-        ++algorithm->_retainCount;
+        algorithm->_retainCount += 1;
     }
 
     return algorithm;
