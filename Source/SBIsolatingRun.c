@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,20 +25,6 @@
 #include "SBLog.h"
 #include "SBPairingLookup.h"
 #include "SBIsolatingRun.h"
-
-#define SB_LEVEL_TO_EXACT_TYPE(l)       \
-(                                       \
-   ((l) & 1)                            \
- ? SBBidiTypeR                          \
- : SBBidiTypeL                          \
-)
-
-#define SB_LEVEL_TO_OPPOSITE_TYPE(l)    \
-(                                       \
- ((l) & 1)                              \
- ? SBBidiTypeL                          \
- : SBBidiTypeR                          \
-)
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
 static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun);
@@ -305,7 +291,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     priorStrongLink = SBBidiLinkNone;
     runLevel = isolatingRun->baseLevelRun->level;
 
-    SBBracketQueueReset(queue, SB_LEVEL_TO_EXACT_TYPE(runLevel));
+    SBBracketQueueReset(queue, SBLevelAsNormalBidiType(runLevel));
 
     SBBidiChainForEach(chain, roller, link) {
         SBUInteger stringIndex;
@@ -373,8 +359,8 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
     SBBidiType oppositeDirection;
 
     runLevel = isolatingRun->baseLevelRun->level;
-    embeddingDirection = SB_LEVEL_TO_EXACT_TYPE(runLevel);
-    oppositeDirection = SB_LEVEL_TO_OPPOSITE_TYPE(runLevel);
+    embeddingDirection = SBLevelAsNormalBidiType(runLevel);
+    oppositeDirection = SBLevelAsOppositeBidiType(runLevel);
 
     while (queue->count != 0) {
         SBBidiLink openingLink = SBBracketQueueGetOpeningLink(queue);
@@ -497,8 +483,8 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
             if (SBBidiTypeIsStrong(nextType)) {
                 /* Rules N1, N2 */
                 SBBidiType resolvedType = (strongType == nextType
-                                            ? strongType
-                                            : SB_LEVEL_TO_EXACT_TYPE(runLevel));
+                                           ? strongType
+                                           : SBLevelAsNormalBidiType(runLevel));
 
                 do {
                     SBBidiChainSetType(chain, neutralLink, resolvedType);
