@@ -32,18 +32,6 @@
 #include "SBStatusStack.h"
 #include "SBParagraph.h"
 
-#define SB_MAX(a, b)                    \
-(                                       \
- (a) > (b) ? (a) : (b)                  \
-)
-
-#define SB_LEVEL_TO_TYPE(l)             \
-(                                       \
-   ((l) & 1)                            \
- ? SBBidiTypeR                          \
- : SBBidiTypeL                          \
-)
-
 typedef struct _SBParagraphSupport {
     SBBidiChain bidiChain;
     SBStatusStack statusStack;
@@ -471,7 +459,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         }
 
         if (sor == SBBidiTypeNil) {
-            sor = SB_LEVEL_TO_TYPE(SB_MAX(baseLevel, SBBidiChainGetLevel(chain, link)));
+            sor = SBLevelAsNormalBidiType(SBNumberGetMax(baseLevel, SBBidiChainGetLevel(chain, link)));
             firstLink = link;
             priorLevel = SBBidiChainGetLevel(chain, link);
         } else if (priorLevel != SBBidiChainGetLevel(chain, link) || forceFinish) {
@@ -489,7 +477,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
              * NOTE:
              *      sor of the run has been already determined at this stage.
              */
-            eor = SB_LEVEL_TO_TYPE(SB_MAX(priorLevel, currentLevel));
+            eor = SBLevelAsNormalBidiType(SBNumberGetMax(priorLevel, currentLevel));
 
             SBLevelRunInitialize(&levelRun, chain, firstLink, lastLink, sor, eor);
             _SBProcessRun(support, &levelRun, forceFinish);
@@ -585,9 +573,9 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_BLOCK_CLOSER();
 
     support->isolatingRun.codepointSequence = codepointSequence;
-    support->isolatingRun.paragraphOffset = paragraphOffset;
     support->isolatingRun.bidiTypes = paragraph->refTypes;
     support->isolatingRun.bidiChain = &support->bidiChain;
+    support->isolatingRun.paragraphOffset = paragraphOffset;
     support->isolatingRun.paragraphLevel = resolvedLevel;
     
     _SBDetermineLevels(support, resolvedLevel);
