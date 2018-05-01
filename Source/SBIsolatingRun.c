@@ -26,74 +26,7 @@
 #include "SBPairingLookup.h"
 #include "SBIsolatingRun.h"
 
-static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun);
-static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun);
-
-static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun);
-static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun);
 static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
-static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun);
-static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun);
-
-SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun)
-{
-    SBBracketQueueInitialize(&isolatingRun->_bracketQueue);
-}
-
-SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
-{
-    SBBidiLink lastLink;
-    SBBidiLink subsequentLink;
-
-    SB_LOG_BLOCK_OPENER("Identified Isolating Run");
-
-    /* Attach level run links to form isolating run. */
-    _SBAttachLevelRunLinks(isolatingRun);
-    /* Save last subsequent link. */
-    subsequentLink = isolatingRun->_lastLevelRun->subsequentLink;
-
-    SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(isolatingRun));
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
-    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(isolatingRun->baseLevelRun->level));
-    SB_LOG_STATEMENT("SOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_sos));
-    SB_LOG_STATEMENT("EOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_eos));
-
-    /* Rules W1-W7 */
-    lastLink = _SBResolveWeakTypes(isolatingRun);
-    SB_LOG_BLOCK_OPENER("Resolved Weak Types");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
-    SB_LOG_BLOCK_CLOSER();
-
-    /* Rule N0 */
-    _SBResolveBrackets(isolatingRun);
-    SB_LOG_BLOCK_OPENER("Resolved Brackets");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
-    SB_LOG_BLOCK_CLOSER();
-
-    /* Rules N1, N2 */
-    _SBResolveNeutrals(isolatingRun);
-    SB_LOG_BLOCK_OPENER("Resolved Neutrals");
-    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
-    SB_LOG_BLOCK_CLOSER();
-
-    /* Rules I1, I2 */
-    _SBResolveImplicitLevels(isolatingRun);
-    SB_LOG_BLOCK_OPENER("Resolved Implicit Levels");
-    SB_LOG_STATEMENT("Levels", 1, SB_LOG_RUN_LEVELS(isolatingRun));
-    SB_LOG_BLOCK_CLOSER();
-
-    /* Re-attach original links. */
-    _SBAttachOriginalLinks(isolatingRun);
-    /* Attach new final link (of isolating run) with last subsequent link. */
-    SBBidiChainSetNext(isolatingRun->bidiChain, lastLink, subsequentLink);
-
-    SB_LOG_BLOCK_CLOSER();
-}
-
-SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun)
-{
-    SBBracketQueueFinalize(&isolatingRun->_bracketQueue);
-}
 
 static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
 {
@@ -533,4 +466,64 @@ static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
             }
         }
     }
+}
+
+SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun)
+{
+    SBBracketQueueInitialize(&isolatingRun->_bracketQueue);
+}
+
+SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
+{
+    SBBidiLink lastLink;
+    SBBidiLink subsequentLink;
+
+    SB_LOG_BLOCK_OPENER("Identified Isolating Run");
+
+    /* Attach level run links to form isolating run. */
+    _SBAttachLevelRunLinks(isolatingRun);
+    /* Save last subsequent link. */
+    subsequentLink = isolatingRun->_lastLevelRun->subsequentLink;
+
+    SB_LOG_STATEMENT("Range", 1, SB_LOG_RUN_RANGE(isolatingRun));
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
+    SB_LOG_STATEMENT("Level", 1, SB_LOG_LEVEL(isolatingRun->baseLevelRun->level));
+    SB_LOG_STATEMENT("SOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_sos));
+    SB_LOG_STATEMENT("EOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_eos));
+
+    /* Rules W1-W7 */
+    lastLink = _SBResolveWeakTypes(isolatingRun);
+    SB_LOG_BLOCK_OPENER("Resolved Weak Types");
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
+    SB_LOG_BLOCK_CLOSER();
+
+    /* Rule N0 */
+    _SBResolveBrackets(isolatingRun);
+    SB_LOG_BLOCK_OPENER("Resolved Brackets");
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
+    SB_LOG_BLOCK_CLOSER();
+
+    /* Rules N1, N2 */
+    _SBResolveNeutrals(isolatingRun);
+    SB_LOG_BLOCK_OPENER("Resolved Neutrals");
+    SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
+    SB_LOG_BLOCK_CLOSER();
+
+    /* Rules I1, I2 */
+    _SBResolveImplicitLevels(isolatingRun);
+    SB_LOG_BLOCK_OPENER("Resolved Implicit Levels");
+    SB_LOG_STATEMENT("Levels", 1, SB_LOG_RUN_LEVELS(isolatingRun));
+    SB_LOG_BLOCK_CLOSER();
+
+    /* Re-attach original links. */
+    _SBAttachOriginalLinks(isolatingRun);
+    /* Attach new final link (of isolating run) with last subsequent link. */
+    SBBidiChainSetNext(isolatingRun->bidiChain, lastLink, subsequentLink);
+
+    SB_LOG_BLOCK_CLOSER();
+}
+
+SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun)
+{
+    SBBracketQueueFinalize(&isolatingRun->_bracketQueue);
 }
