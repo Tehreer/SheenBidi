@@ -12,7 +12,9 @@ Here are some of the advantages of SheenBidi.
 * Optimized to the core.
 * Designed to be thread safe.
 * Lightweight API for interaction.
-* Clear differentiation of public and private API.
+
+## API
+<img src="https://user-images.githubusercontent.com/2664112/39660778-1a09e544-505f-11e8-851a-887c19b32348.png" width="320">
 
 ## Dependency
 SheenBidi does not depend on any external library. It only uses standard C library headers ```stddef.h```, ```stdint.h``` and ```stdlib.h```.
