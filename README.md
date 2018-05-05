@@ -12,9 +12,26 @@ Here are some of the advantages of SheenBidi.
 * Optimized to the core.
 * Designed to be thread safe.
 * Lightweight API for interaction.
+* Supports UTF-8, UTF-16 and UTF-32 encodings.
 
 ## API
 <img src="https://user-images.githubusercontent.com/2664112/39660778-1a09e544-505f-11e8-851a-887c19b32348.png" width="320">
+The above screenshot depicts a visual representation of the API on a sample text.
+
+### SBAlgorithm
+It provides bidirectional type of each code unit in source string. Paragraph boundaries can be quried from it as determined by rule [P1](https://www.unicode.org/reports/tr9/#P1). Individual paragraph objects can be created from it by explicitly specifying the base level or deriving it from rules [P2](https://www.unicode.org/reports/tr9/#P2)-[P3](https://www.unicode.org/reports/tr9/#P3).
+
+### SBParagraph
+It represents a single paragraph of text processed with rules [X1](https://www.unicode.org/reports/tr9/#X1)-[I2](https://www.unicode.org/reports/tr9/#I2). It provides resolved embedding levels of all the code units of a paragraph.
+
+### SBLine
+It represents a single line of text processed with rules [L1](https://www.unicode.org/reports/tr9/#L1)-[L2](https://www.unicode.org/reports/tr9/#L2). However, it provides reordered level runs instead of reordered characters.
+
+### SBRun
+It represents a sequence of characters which have the same embedding level. The direction of a run would be right-to-left, if its embedding level is odd.
+
+### SBMirrorLocator
+It provides the facility to find out the mirrored characters in a line as determined by rule [L4](https://www.unicode.org/reports/tr9/proposed.html#L4).
 
 ## Dependency
 SheenBidi does not depend on any external library. It only uses standard C library headers ```stddef.h```, ```stdint.h``` and ```stdlib.h```.
@@ -30,7 +47,7 @@ SheenBidi can be compiled with any C compiler. The best way for compiling is to 
 
 ## Example
 Here is a simple example written in C11.
-```
+```c
 #include <stdio.h>
 #include <string.h>
 
