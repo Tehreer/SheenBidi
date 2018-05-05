@@ -33,6 +33,9 @@ It represents a sequence of characters which have the same embedding level. The 
 ### SBMirrorLocator
 It provides the facility to find out the mirrored characters in a line as determined by rule [L4](https://www.unicode.org/reports/tr9/proposed.html#L4).
 
+### SBScriptLocator
+Not directly related to UBA but can be useful for text shaping. It provides the facility to find out the script runs as specified in [UAX #24](https://www.unicode.org/reports/tr24/).
+
 ## Dependency
 SheenBidi does not depend on any external library. It only uses standard C library headers ```stddef.h```, ```stdint.h``` and ```stdlib.h```.
 
@@ -73,8 +76,8 @@ int main(int argc, const char * argv[]) {
     /* Log the details of each run in the line. */
     for (SBUInteger i = 0; i < runCount; i++) {
         printf("Run Offset: %ld\n", (long)runArray[i].offset);
-        printf("Run Length: %ld\n\n", (long)runArray[i].length);
-        printf("Run Level: %ld\n", (long)runArray[i].level);
+        printf("Run Length: %ld\n", (long)runArray[i].length);
+        printf("Run Level: %ld\n\n", (long)runArray[i].level);
     }
 
     /* Create a mirror locator and load the line in it. */
