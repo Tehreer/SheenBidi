@@ -63,4 +63,44 @@ enum {
     SBGeneralCategoryCN  = 0x1E  /**< Other: Unassigned */
 };
 
+/**
+ * A type to represent the general category of a character.
+ */
+typedef SBUInt8 SBGeneralCategory;
+
+/**
+ * Checks whether specified general category is letter.
+ */
+#define SBGeneralCategoryIsLetter(gc)       SBUInt8InRange(gc, SBGeneralCategoryLU, SBGeneralCategoryLO)
+
+/**
+ * Checks whether specified general category is mark.
+ */
+#define SBGeneralCategoryIsMark(gc)         SBUInt8InRange(gc, SBGeneralCategoryMN, SBGeneralCategoryME)
+
+/**
+ * Checks whether specified general category is number.
+ */
+#define SBGeneralCategoryIsNumber(gc)       SBUInt8InRange(gc, SBGeneralCategoryND, SBGeneralCategoryNO)
+
+/**
+ * Checks whether specified general category is punctuation.
+ */
+#define SBGeneralCategoryIsPunctuation(gc)  SBUInt8InRange(gc, SBGeneralCategoryPC, SBGeneralCategoryPO)
+
+/**
+ * Checks whether specified general category is symbol.
+ */
+#define SBGeneralCategoryIsSymbol(gc)       SBUInt8InRange(gc, SBGeneralCategorySM, SBGeneralCategorySO)
+
+/**
+ * Checks whether specified general category is separator.
+ */
+#define SBGeneralCategoryIsSeparator(gc)    SBUInt8InRange(gc, SBGeneralCategoryZS, SBGeneralCategoryZP)
+
+/**
+ * Checks whether specified general category is other.
+ */
+#define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
+
 #endif
