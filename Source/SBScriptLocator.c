@@ -52,7 +52,7 @@ void SBScriptLocatorLoadCodepoints(SBScriptLocatorRef locator, const SBCodepoint
     SBScriptLocatorReset(locator);
 }
 
-SBScriptAgentRef SBScriptLocatorGetAgent(SBScriptLocatorRef locator)
+const SBScriptAgent *SBScriptLocatorGetAgent(SBScriptLocatorRef locator)
 {
     return &locator->agent;
 }

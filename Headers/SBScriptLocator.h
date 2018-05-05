@@ -29,7 +29,7 @@ typedef struct _SBScriptAgent {
     SBUInteger offset; /**< The index to the first code unit of the run in source string. */
     SBUInteger length; /**< The number of code units covering the length of the run. */
     SBScript script;   /**< The script of the run. */
-} SBScriptAgent, *SBScriptAgentRef;
+} SBScriptAgent;
 
 /**
  * Creates a script locator object which can be used to find script runs in a string.
@@ -55,7 +55,7 @@ void SBScriptLocatorLoadCodepoints(SBScriptLocatorRef locator, const SBCodepoint
  * @param locator
  *      The locator whose agent is returned.
  */
-SBScriptAgentRef SBScriptLocatorGetAgent(SBScriptLocatorRef locator);
+const SBScriptAgent *SBScriptLocatorGetAgent(SBScriptLocatorRef locator);
 
 /**
  * Instructs the locator to find next script run in the loaded code point sequence.
