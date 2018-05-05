@@ -17,6 +17,8 @@
 #ifndef _SB_PUBLIC_BIDI_TYPE_H
 #define _SB_PUBLIC_BIDI_TYPE_H
 
+#include "SBBase.h"
+
 /**
  * Constants that specify the bidirectional types of a character.
  */
@@ -50,5 +52,30 @@ enum {
     SBBidiTypeRLO = 0x16,   /**< Format: Right-to-Left Override */
     SBBidiTypePDF = 0x17    /**< Format: Pop Directional Formatting */
 };
+
+/**
+ * A type to represent the bidirectional type of a character.
+ */
+typedef SBUInt8 SBBidiType;
+
+/**
+ * Checks whether specified bidirectional type is strong.
+ */
+#define SBBidiTypeIsStrong(t)               SBUInt8InRange(t, SBBidiTypeL, SBBidiTypeAL)
+
+/**
+ * Checks whether specified bidirectional type is weak.
+ */
+#define SBBidiTypeIsWeak(t)                 SBUInt8InRange(t, SBBidiTypeBN, SBBidiTypeCS)
+
+/**
+ * Checks whether specified bidirectional type is neutral.
+ */
+#define SBBidiTypeIsNeutral(t)              SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypeON)
+
+/**
+ * Checks whether specified bidirectional type is format.
+ */
+#define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
 
 #endif
