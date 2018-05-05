@@ -49,7 +49,7 @@ static void u32Test(const u32string string, const vector<run> runs)
     sequence.stringLength = string.length();
 
     SBScriptLocatorRef locator = SBScriptLocatorCreate();
-    SBScriptAgentRef agent = SBScriptLocatorGetAgent(locator);
+    const SBScriptAgent *agent = SBScriptLocatorGetAgent(locator);
 
     SBScriptLocatorLoadCodepoints(locator, &sequence);
 

@@ -278,7 +278,7 @@ bool AlgorithmTester::testOrder() const {
 }
 
 bool AlgorithmTester::testMirrors() const {
-    const SBMirrorAgentRef agent = SBMirrorLocatorGetAgent(m_mirrorLocator);
+    const SBMirrorAgent *agent = SBMirrorLocatorGetAgent(m_mirrorLocator);
     SBMirrorLocatorReset(m_mirrorLocator);
 
     size_t locatedMirrors = 0;
