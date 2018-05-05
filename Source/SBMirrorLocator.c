@@ -45,7 +45,7 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *s
     SBMirrorLocatorReset(locator);
 }
 
-SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
+const SBMirrorAgent *SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator)
 {
     return &locator->agent;
 }

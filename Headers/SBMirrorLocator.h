@@ -29,7 +29,7 @@ typedef struct _SBMirrorAgent {
     SBUInteger index;      /**< The absolute index of the code point. */
     SBCodepoint mirror;    /**< The mirrored code point. */
     SBCodepoint codepoint; /**< The actual code point. */
-} SBMirrorAgent, *SBMirrorAgentRef;
+} SBMirrorAgent;
 
 /**
  * Creates a mirror locator object which can be used to find mirrors in a line.
@@ -57,7 +57,7 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *s
  * @param locator
  *      The locator whose agent is returned.
  */
-SBMirrorAgentRef SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
+const SBMirrorAgent *SBMirrorLocatorGetAgent(SBMirrorLocatorRef locator);
 
 /**
  * Instructs the locator to find next mirror in the loaded line.
