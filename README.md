@@ -15,7 +15,7 @@ Here are some of the advantages of SheenBidi.
 * Supports UTF-8, UTF-16 and UTF-32 encodings.
 
 ## API
-<img src="https://user-images.githubusercontent.com/2664112/39660778-1a09e544-505f-11e8-851a-887c19b32348.png" width="320">
+<img src="https://user-images.githubusercontent.com/2664112/39663208-716af1c4-5088-11e8-855c-ababe3e58c58.png" width="350">
 The above screenshot depicts a visual representation of the API on a sample text.
 
 ### SBAlgorithm
@@ -47,41 +47,54 @@ SheenBidi can be compiled with any C compiler. The best way for compiling is to 
 
 ## Example
 Here is a simple example written in C11.
+
 ```c
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <SheenBidi.h>
 
 int main(int argc, const char * argv[]) {
-    const char *bidiText = u8"یہ ایک )car( ہے۔";
+    /* Create code point sequence for a sample bidirectional text. */
+    const char *bidiText = "یہ ایک )car( ہے۔";
+    SBCodepointSequence codepointSequence = { SBStringEncodingUTF8, (void *)bidiText, strlen(bidiText) };
 
-    SBCodepointSequence sequence = { SBStringEncodingUTF8, (void *)bidiText, strlen(bidiText) };
-    SBAlgorithmRef algorithm = SBAlgorithmCreate(&sequence);
-    SBParagraphRef paragraph = SBAlgorithmCreateParagraph(algorithm, 0, sequence.stringLength, SBLevelDefaultLTR);
-    SBLineRef line = SBParagraphCreateLine(paragraph, 0, sequence.stringLength);
+    /* Extract the first bidirectional paragraph. */
+    SBAlgorithmRef bidiAlgorithm = SBAlgorithmCreate(&codepointSequence);
+    SBParagraphRef firstParagraph = SBAlgorithmCreateParagraph(bidiAlgorithm, 0, INT32_MAX, SBLevelDefaultLTR);
+    SBUInteger paragraphLength = SBParagraphGetLength(firstParagraph);
 
-    SBUInteger runCount = SBLineGetRunCount(line);
-    const SBRun *runArray = SBLineGetRunsPtr(line);
+    /* Create a line consisting of whole paragraph and get its runs. */
+    SBLineRef paragraphLine = SBParagraphCreateLine(firstParagraph, 0, paragraphLength);
+    SBUInteger runCount = SBLineGetRunCount(paragraphLine);
+    const SBRun *runArray = SBLineGetRunsPtr(paragraphLine);
+
+    /* Log the details of each run in the line. */
     for (SBUInteger i = 0; i < runCount; i++) {
-        printf("Run Level: %ld\n", (long)runArray[i].level);
         printf("Run Offset: %ld\n", (long)runArray[i].offset);
         printf("Run Length: %ld\n\n", (long)runArray[i].length);
+        printf("Run Level: %ld\n", (long)runArray[i].level);
     }
 
-    SBMirrorLocatorRef locator = SBMirrorLocatorCreate();
-    SBMirrorLocatorLoadLine(locator, line, sequence.stringBuffer);
-    const SBMirrorAgentRef agent = SBMirrorLocatorGetAgent(locator);
-    while (SBMirrorLocatorMoveNext(locator)) {
-        printf("Mirror Location: %ld\n", (long)agent->index);
-        printf("Mirror Code Point: %ld\n\n", (long)agent->mirror);
-    }
-    SBMirrorLocatorRelease(locator);
+    /* Create a mirror locator and load the line in it. */
+    SBMirrorLocatorRef mirrorLocator = SBMirrorLocatorCreate();
+    SBMirrorLocatorLoadLine(mirrorLocator, paragraphLine, (void *)bidiText);
+    const SBMirrorAgent *mirrorAgent = SBMirrorLocatorGetAgent(mirrorLocator);
 
-    SBLineRelease(line);
-    SBParagraphRelease(paragraph);
-    SBAlgorithmRelease(algorithm);
-    
+    /* Log the details of each mirror in the line. */
+    while (SBMirrorLocatorMoveNext(mirrorLocator)) {
+        printf("Mirror Index: %ld\n", (long)mirrorAgent->index);
+        printf("Actual Code Point: %ld\n", (long)mirrorAgent->codepoint);
+        printf("Mirrored Code Point: %ld\n\n", (long)mirrorAgent->mirror);
+    }
+
+    /* Release all objects. */
+    SBMirrorLocatorRelease(mirrorLocator);
+    SBLineRelease(paragraphLine);
+    SBParagraphRelease(firstParagraph);
+    SBAlgorithmRelease(bidiAlgorithm);
+
     return 0;
 }
 ```
