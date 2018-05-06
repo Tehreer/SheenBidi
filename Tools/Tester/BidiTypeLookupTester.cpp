@@ -16,6 +16,7 @@
 
 extern "C" {
 #include <Headers/SBBase.h>
+#include <Headers/SBBidiType.h>
 #include <Headers/SBConfig.h>
 #include <Source/SBBidiTypeLookup.h>
 }

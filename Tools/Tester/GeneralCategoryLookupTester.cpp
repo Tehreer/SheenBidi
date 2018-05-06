@@ -17,6 +17,7 @@
 extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
+#include <Headers/SBGeneralCategory.h>
 #include <Source/SBGeneralCategoryLookup.h>
 }
 
