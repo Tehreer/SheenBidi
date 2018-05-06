@@ -18,7 +18,11 @@
 #define _SB_INTERNAL_BASE_H
 
 #include <SBBase.h>
+#include <SBBidiType.h>
+#include <SBCodepoint.h>
 #include <SBConfig.h>
+#include <SBGeneralCategory.h>
+#include <SBScript.h>
 
 /**
  * A value that indicates an invalid unsigned index.
