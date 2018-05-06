@@ -19,6 +19,7 @@
 
 #include <SBAlgorithm.h>
 #include <SBBase.h>
+#include <SBBidiType.h>
 #include <SBCodepointSequence.h>
 #include <SBConfig.h>
 

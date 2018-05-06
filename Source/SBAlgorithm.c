@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "SBBase.h"
 #include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBLog.h"
