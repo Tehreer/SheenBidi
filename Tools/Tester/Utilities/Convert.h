@@ -21,9 +21,9 @@
 #include <string>
 
 extern "C" {
-#include <SBBase.h>
-#include <SBGeneralCategory.h>
-#include <SBScript.h>
+#include <Headers/SBBidiType.h>
+#include <Headers/SBGeneralCategory.h>
+#include <Headers/SBScript.h>
 }
 
 namespace SheenBidi {

@@ -15,7 +15,9 @@
  */
 
 extern "C" {
-#include <SBBase.h>
+#include <Headers/SBBidiType.h>
+#include <Headers/SBGeneralCategory.h>
+#include <Headers/SBScript.h>
 }
 
 #include <cstdint>
