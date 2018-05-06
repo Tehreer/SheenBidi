@@ -18,6 +18,7 @@
 
 #include "SBBase.h"
 #include "SBBidiTypeLookup.h"
+#include "SBGeneralCategoryLookup.h"
 #include "SBPairingLookup.h"
 #include "SBScriptLookup.h"
 
@@ -81,6 +82,11 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
 {
     return SBBidiTypeDetermine(codepoint);
+}
+
+SBCodepoint SBCodepointGetGeneralCategory(SBCodepoint codepoint)
+{
+    return SBGeneralCategoryDetermine(codepoint);
 }
 
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint)

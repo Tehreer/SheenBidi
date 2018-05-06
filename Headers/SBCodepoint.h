@@ -48,6 +48,16 @@ typedef SBUInt32                    SBCodepoint;
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
 
 /**
+ * Returns the general category of a code point.
+ *
+ * @param codepoint
+ *      The code point whose general category is returned.
+ * @return
+ *      The general category of specified code point.
+ */
+SBCodepoint SBCodepointGetGeneralCategory(SBCodepoint codepoint);
+
+/**
  * Returns the mirror of a code point.
  *
  * @param codepoint
