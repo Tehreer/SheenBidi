@@ -78,7 +78,23 @@ SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator);
  */
 void SBScriptLocatorReset(SBScriptLocatorRef locator);
 
+/**
+ * Increments the reference count of a script locator object.
+ *
+ * @param locator
+ *      The script locator object whose reference count will be incremented.
+ * @return
+ *      The same script locator object passed in as the parameter.
+ */
 SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator);
+
+/**
+ * Decrements the reference count of a script locator object. The object will be deallocated when
+ * its reference count reaches zero.
+ *
+ * @param locator
+ *      The script locator object whose reference count will be decremented.
+ */
 void SBScriptLocatorRelease(SBScriptLocatorRef locator);
 
 #endif

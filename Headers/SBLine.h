@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@
 #define _SB_PUBLIC_LINE_H
 
 #include "SBBase.h"
-#include "SBCodepointSequence.h"
 #include "SBRun.h"
 
 typedef struct _SBLine *SBLineRef;
 
 /**
- * Returns the index to first code unit of the line in source string.
+ * Returns the index to the first code unit of the line in source string.
  *
  * @param line
  *      The line whose offset is returned.
@@ -44,17 +43,17 @@ SBUInteger SBLineGetOffset(SBLineRef line);
 SBUInteger SBLineGetLength(SBLineRef line);
 
 /**
- * Returns the total run count of the line.
+ * Returns the number of runs in the line.
  *
  * @param line
  *      The line whose run count is returned.
  * @return
- *      The total number of runs of the line passed in.
+ *      The number of runs in the line passed in.
  */
 SBUInteger SBLineGetRunCount(SBLineRef line);
 
 /**
- * Returns a direct pointer for the run array stored in the line.
+ * Returns a direct pointer to the run array, stored in the line.
  *
  * @param line
  *      The line from which to access the runs.
@@ -63,7 +62,23 @@ SBUInteger SBLineGetRunCount(SBLineRef line);
  */
 const SBRun *SBLineGetRunsPtr(SBLineRef line);
 
+/**
+ * Increments the reference count of a line object.
+ *
+ * @param line
+ *      The line object whose reference count will be incremented.
+ * @return
+ *      The same line object passed in as the parameter.
+ */
 SBLineRef SBLineRetain(SBLineRef line);
+
+/**
+ * Decrements the reference count of a line object. The object will be deallocated when its
+ * reference count reaches zero.
+ *
+ * @param line
+ *      The line object whose reference count will be decremented.
+ */
 void SBLineRelease(SBLineRef line);
 
 #endif

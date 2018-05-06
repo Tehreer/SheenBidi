@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@
 #define _SB_PUBLIC_ALGORITHM_H
 
 #include "SBBase.h"
+#include "SBBidiType.h"
 #include "SBCodepointSequence.h"
 #include "SBParagraph.h"
 
 typedef struct _SBAlgorithm *SBAlgorithmRef;
 
 /**
- * Creates an algorithm object for the given code point sequence. The source string inside the code
- * point sequence should not be freed till the algorithm object is in use.
+ * Creates an algorithm object for the specified code point sequence. The source string inside the
+ * code point sequence should not be freed until the algorithm object is in use.
  *
  * @param codepointSequence
  *      The code point sequence to apply bidirectional algorithm on.
@@ -35,7 +36,8 @@ typedef struct _SBAlgorithm *SBAlgorithmRef;
 SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence);
 
 /**
- * Returns a direct pointer to the bidirectional types of code units stored in the algorithm object.
+ * Returns a direct pointer to the bidirectional types of code units, stored in the algorithm
+ * object.
  *
  * @param algorithm
  *      The algorithm object from which to access the bidirectional types of code units.
@@ -46,10 +48,10 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence);
 const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm);
 
 /**
- * Determines the boundary of the first paragraph within the given range.
+ * Determines the boundary of first paragraph within the specified range.
  *
  * The boundary of the paragraph occurs after a code point whose bidirectional type is Paragraph
- * Separator (B), or the suggestedLength if no such code point exists before it. The exception to
+ * Separator (B), or at the suggestedLength if no such code point exists before it. The exception to
  * this rule is when a Carriage Return (CR) is followed by a Line Feed (LF). Both CR and LF are
  * paragraph separators, but in that case, the boundary of the paragraph is considered after LF code
  * point.
@@ -87,14 +89,31 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
  * @param suggestedLength
  *      The number of code units covering the suggested length of the paragraph.
  * @param baseLevel
- *      The desired base level of the paragraph.
+ *      The desired base level of the paragraph. Rules P2-P3 would be ignored if it is neither
+ *      SBLevelDefaultLTR nor SBLevelDefaultRTL.
  * @return
  *      A reference to a paragraph object if the call was successful, NULL otherwise.
  */
 SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel);
 
+/**
+ * Increments the reference count of an algorithm object.
+ *
+ * @param algorithm
+ *      The algorithm object whose reference count will be incremented.
+ * @return
+ *      The same algorithm object passed in as the parameter.
+ */
 SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm);
+
+/**
+ * Decrements the reference count of an algorithm object. The object will be deallocated when its
+ * reference count reaches zero.
+ *
+ * @param algorithm
+ *      The algorithm object whose reference count will be decremented.
+ */
 void SBAlgorithmRelease(SBAlgorithmRef algorithm);
 
 #endif

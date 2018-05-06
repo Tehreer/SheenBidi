@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@
 #define _SB_PUBLIC_PARAGRAPH_H
 
 #include "SBBase.h"
-#include "SBCodepointSequence.h"
 #include "SBLine.h"
 
 typedef struct _SBParagraph *SBParagraphRef;
 
 /**
- * Returns the index to first code unit of the paragraph in source string.
+ * Returns the index to the first code unit of the paragraph in source string.
  *
  * @param paragraph
  *      The paragraph whose offset is returned.
@@ -54,7 +53,7 @@ SBUInteger SBParagraphGetLength(SBParagraphRef paragraph);
 SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph);
 
 /**
- * Returns a direct pointer for the embedding levels stored in the paragraph.
+ * Returns a direct pointer to the embedding levels, stored in the paragraph.
  *
  * @param paragraph
  *      The paragraph from which to access the embedding levels.
@@ -79,7 +78,23 @@ const SBLevel *SBParagraphGetLevelsPtr(SBParagraphRef paragraph);
  */
 SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset, SBUInteger lineLength);
 
+/**
+ * Increments the reference count of a paragraph object.
+ *
+ * @param paragraph
+ *      The paragraph object whose reference count will be incremented.
+ * @return
+ *      The same paragraph object passed in as the parameter.
+ */
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph);
+
+/**
+ * Decrements the reference count of a paragraph object. The object will be deallocated when its
+ * reference count reaches zero.
+ *
+ * @param paragraph
+ *      The paragraph object whose reference count will be decremented.
+ */
 void SBParagraphRelease(SBParagraphRef paragraph);
 
 #endif

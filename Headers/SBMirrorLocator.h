@@ -80,7 +80,23 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator);
  */
 void SBMirrorLocatorReset(SBMirrorLocatorRef locator);
 
+/**
+ * Increments the reference count of a mirror locator object.
+ *
+ * @param locator
+ *      The mirror locator object whose reference count will be incremented.
+ * @return
+ *      The same mirror locator object passed in as the parameter.
+ */
 SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator);
+
+/**
+ * Decrements the reference count of a mirror locator object. The object will be deallocated when
+ * its reference count reaches zero.
+ *
+ * @param locator
+ *      The mirror locator object whose reference count will be decremented.
+ */
 void SBMirrorLocatorRelease(SBMirrorLocatorRef locator);
 
 #endif
