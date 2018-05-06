@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2018 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define _SB_PUBLIC_CODEPOINT_SEQUENCE_H
 
 #include "SBBase.h"
+#include "SBCodepoint.h"
 
 enum {
     SBStringEncodingUTF8 = 0,  /**< An 8-bit representation of Unicode code points. */
