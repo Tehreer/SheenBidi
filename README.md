@@ -18,6 +18,9 @@ Here are some of the advantages of SheenBidi.
 <img src="https://user-images.githubusercontent.com/2664112/39663208-716af1c4-5088-11e8-855c-ababe3e58c58.png" width="350">
 The above screenshot depicts a visual representation of the API on a sample text.
 
+### SBCodepointSequence
+It works as a code point decoder by accepting a string buffer in specified encoding.
+
 ### SBAlgorithm
 It provides bidirectional type of each code unit in source string. Paragraph boundaries can be quried from it as determined by rule [P1](https://www.unicode.org/reports/tr9/#P1). Individual paragraph objects can be created from it by explicitly specifying the base level or deriving it from rules [P2](https://www.unicode.org/reports/tr9/#P2)-[P3](https://www.unicode.org/reports/tr9/#P3).
 
@@ -31,7 +34,7 @@ It represents a single line of text processed with rules [L1](https://www.unicod
 It represents a sequence of characters which have the same embedding level. The direction of a run would be right-to-left, if its embedding level is odd.
 
 ### SBMirrorLocator
-It provides the facility to find out the mirrored characters in a line as determined by rule [L4](https://www.unicode.org/reports/tr9/proposed.html#L4).
+It provides the facility to find out the mirrored characters in a line as determined by rule [L4](https://www.unicode.org/reports/tr9/#L4).
 
 ### SBScriptLocator
 Not directly related to UBA but can be useful for text shaping. It provides the facility to find out the script runs as specified in [UAX #24](https://www.unicode.org/reports/tr24/).
