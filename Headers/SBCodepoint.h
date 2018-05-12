@@ -55,7 +55,7 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
  * @return
  *      The general category of specified code point.
  */
-SBCodepoint SBCodepointGetGeneralCategory(SBCodepoint codepoint);
+SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint);
 
 /**
  * Returns the mirror of a code point.

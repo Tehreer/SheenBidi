@@ -84,7 +84,7 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
     return SBBidiTypeDetermine(codepoint);
 }
 
-SBCodepoint SBCodepointGetGeneralCategory(SBCodepoint codepoint)
+SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint)
 {
     return SBGeneralCategoryDetermine(codepoint);
 }
