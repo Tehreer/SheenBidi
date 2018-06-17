@@ -206,4 +206,6 @@ enum {
  */
 typedef SBUInt8 SBScript;
 
+SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
+
 #endif
