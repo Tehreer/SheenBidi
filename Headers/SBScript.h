@@ -198,7 +198,16 @@ enum {
     SBScriptGONM = 0x8B,    /**< Masaram_Gondi */
     SBScriptNSHU = 0x8C,    /**< Nushu */
     SBScriptSOYO = 0x8D,    /**< Soyombo */
-    SBScriptZANB = 0x8E     /**< Zanabazar_Square */
+    SBScriptZANB = 0x8E,    /**< Zanabazar_Square */
+
+    /* Unicode 11.0 */
+    SBScriptDOGR = 0x8F,    /* Dogra */
+    SBScriptGONG = 0x90,    /* Gunjala_Gondi */
+    SBScriptMAKA = 0x91,    /* Makasar */
+    SBScriptMEDF = 0x92,    /* Medefaidrin */
+    SBScriptROHG = 0x93,    /* Hanifi_Rohingya */
+    SBScriptSOGD = 0x94,    /* Sogdian */
+    SBScriptSOGO = 0x95     /* Old_Sogdian */
 };
 
 /**
