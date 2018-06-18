@@ -19,6 +19,7 @@
 
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
+#include "SBScript.h"
 
 typedef struct _SBScriptLocator *SBScriptLocatorRef;
 
