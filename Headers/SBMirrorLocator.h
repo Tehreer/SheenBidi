@@ -18,6 +18,7 @@
 #define _SB_PUBLIC_MIRROR_LOCATOR_H
 
 #include "SBBase.h"
+#include "SBCodepoint.h"
 #include "SBLine.h"
 
 typedef struct _SBMirrorLocator *SBMirrorLocatorRef;
