@@ -215,6 +215,21 @@ enum {
  */
 typedef SBUInt8 SBScript;
 
+/**
+ * Returns the OpenType tag of a script as UInt32 in big endian byte order. The association between
+ * Unicode Script property and OpenType script tags is taken from the specification:
+ * https://docs.microsoft.com/en-us/typography/opentype/spec/scripttags.
+ *
+ * If more than one tag is associated with a script, then the latest one is retured. For example,
+ * Devanagari script has two tags, `deva` and `dev2`. So in this case, `dev2` will be returned.
+ *
+ * If no tag is associated with a script, then `DFLT` is returned.
+ *
+ * @param script
+ *      The script whose OpenType tag is returned.
+ * @return
+ *      The OpenType tag of specified script as UInt32 in big endian byte order.
+ */
 SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
 
 #endif
