@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SheenBidiTester", "SheenBidiTester.vcxproj", "{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198} = {632BCFC0-EA6E-4E33-B234-4BCF76E25198}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SheenBidiParser", "SheenBidiParser.vcxproj", "{8F70BD74-3355-4381-A691-7E99D10C196B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SheenBidi", "SheenBidi.vcxproj", "{632BCFC0-EA6E-4E33-B234-4BCF76E25198}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|ARM = Release|ARM
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|ARM.ActiveCfg = Debug|ARM
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|ARM.Build.0 = Debug|ARM
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|Win32.Build.0 = Debug|Win32
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|x64.ActiveCfg = Debug|x64
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Debug|x64.Build.0 = Debug|x64
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|ARM.ActiveCfg = Release|ARM
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|ARM.Build.0 = Release|ARM
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|Win32.ActiveCfg = Release|Win32
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|Win32.Build.0 = Release|Win32
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|x64.ActiveCfg = Release|x64
+		{25ACAD44-C206-4F57-8C23-B4B6CCB5AFAF}.Release|x64.Build.0 = Release|x64
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|ARM.Build.0 = Debug|ARM
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|Win32.Build.0 = Debug|Win32
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|x64.ActiveCfg = Debug|x64
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Debug|x64.Build.0 = Debug|x64
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|ARM.ActiveCfg = Release|ARM
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|ARM.Build.0 = Release|ARM
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|Win32.ActiveCfg = Release|Win32
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|Win32.Build.0 = Release|Win32
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|x64.ActiveCfg = Release|x64
+		{8F70BD74-3355-4381-A691-7E99D10C196B}.Release|x64.Build.0 = Release|x64
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|ARM.ActiveCfg = Debug|ARM
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|ARM.Build.0 = Debug|ARM
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|Win32.ActiveCfg = Debug|Win32
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|Win32.Build.0 = Debug|Win32
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|x64.ActiveCfg = Debug|x64
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Debug|x64.Build.0 = Debug|x64
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|ARM.ActiveCfg = Release|ARM
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|ARM.Build.0 = Release|ARM
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|Win32.ActiveCfg = Release|Win32
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|Win32.Build.0 = Release|Win32
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|x64.ActiveCfg = Release|x64
+		{632BCFC0-EA6E-4E33-B234-4BCF76E25198}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {250BE0EB-6891-43EE-878D-E92966EDACD1}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{955d353d-048f-479f-a706-a4202d694a68}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Tools\Tester\Utilities\Convert.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tools\Tester\Utilities\Unicode.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tools\Tester\AlgorithmTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\BidiTypeLookupTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\BracketLookupTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\CodepointSequenceTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\Configuration.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\GeneralCategoryLookupTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\main.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\MirrorLookupTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\ScriptLocatorTester.cpp" />
+    <ClCompile Include="..\..\Tools\Tester\ScriptLookupTester.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Tools\Tester\Utilities\Convert.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tools\Tester\Utilities\Unicode.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tools\Tester\AlgorithmTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\BidiTypeLookupTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\BracketLookupTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\CodepointSequenceTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\Configuration.h" />
+    <ClInclude Include="..\..\Tools\Tester\GeneralCategoryLookupTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\MirrorLookupTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\ScriptLocatorTester.h" />
+    <ClInclude Include="..\..\Tools\Tester\ScriptLookupTester.h" />
+  </ItemGroup>
+</Project>
