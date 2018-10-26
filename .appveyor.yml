@@ -1,0 +1,20 @@
+#version: {build}
+
+build:
+  parallel: true
+  project: Projects/VS_2017/SheenBidi.sln
+
+platform:
+  - x64
+  - Win32
+
+configuration:
+  - Debug
+  - Release
+
+image:
+  - Visual Studio 2017
+
+test_script:
+  - Projects\VS_2017\%platform%\%configuration%\SheenBidiTester.exe Tools\Unicode
+ 
