@@ -68,7 +68,7 @@ PropertyValueAliases::PropertyValueAliases(const string &directory) :
     m_lastCodePoint(0),
     m_scriptMap()
 {
-    ifstream stream(directory + "/" + FILE_PROPERTY_VALUE_ALIASES, ios::binary);
+    ifstream stream(directory + "/" + FILE_PROPERTY_VALUE_ALIASES, ios::in);
 
     string versionLine;
     getline(stream, versionLine);
@@ -76,7 +76,7 @@ PropertyValueAliases::PropertyValueAliases(const string &directory) :
 
     string line;
     while (getline(stream, line)) {
-        if (line[0] != '\0' && line[0] != '#') {
+        if (!line.empty() && line[0] != '#') {
             string propertyName;
             string abbreviation;
             string longName;
@@ -87,7 +87,7 @@ PropertyValueAliases::PropertyValueAliases(const string &directory) :
             if (propertyName == "sc") {
                 field = readAbbreviation(field, &abbreviation);
                 field = readLongName(field, &longName);
-                
+
                 m_scriptMap[longName] = abbreviation;
             }
         }

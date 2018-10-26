@@ -87,7 +87,7 @@ Scripts::Scripts(const string &directory) :
     m_scriptNumbers(0x200000)
 {
     initializeScriptNames(m_scriptNames);
-    ifstream stream(directory + "/" + FILE_SCRIPTS, ios::binary);
+    ifstream stream(directory + "/" + FILE_SCRIPTS, ios::in);
 
     string versionLine;
     getline(stream, versionLine);
@@ -95,7 +95,7 @@ Scripts::Scripts(const string &directory) :
 
     string line;
     while (getline(stream, line)) {
-        if (line[0] != '\0' && line[0] != '#') {
+        if (!line.empty() && line[0] != '#') {
             uint32_t firstCodePoint = 0;
             uint32_t lastCodePoint = 0;
             string scriptName;
