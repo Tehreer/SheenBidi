@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,16 @@
 #include "SBCodepointSequence.h"
 #include "SBIsolatingRun.h"
 
-SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel);
-SB_INTERNAL void _SBPrintBidiType(SBBidiType type);
+SB_INTERNAL void PrintBaseLevel(SBLevel baseLevel);
+SB_INTERNAL void PrintBidiType(SBBidiType type);
 
-SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointSequence);
-SB_INTERNAL void _SBPrintBidiTypesArray(SBBidiType *types, SBUInteger length);
-SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length);
+SB_INTERNAL void PrintCodepointSequence(const SBCodepointSequence *codepointSequence);
+SB_INTERNAL void PrintBidiTypesArray(SBBidiType *types, SBUInteger length);
+SB_INTERNAL void PrintLevelsArray(SBLevel *levels, SBUInteger length);
 
-SB_INTERNAL void _SBPrintRunTypes(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void _SBPrintRunLevels(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void _SBPrintRunRange(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunTypes(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunLevels(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunRange(SBIsolatingRunRef isolatingRun);
 
 extern int _SBLogPosition;
 
@@ -101,16 +101,16 @@ do {                                    \
 
 #define SB_LOG_BLOCK_CLOSER()           SB_LOG_END()
 
-#define SB_LOG_BASE_LEVEL(l)            _SBPrintBaseLevel(l)
-#define SB_LOG_BIDI_TYPE(t)             _SBPrintBidiType(t)
+#define SB_LOG_BASE_LEVEL(l)            PrintBaseLevel(l)
+#define SB_LOG_BIDI_TYPE(t)             PrintBidiType(t)
 
-#define SB_LOG_CODEPOINT_SEQUENCE(s)    _SBPrintCodepointSequence(s)
-#define SB_LOG_BIDI_TYPES_ARRAY(a, l)   _SBPrintBidiTypesArray(a, l)
-#define SB_LOG_LEVELS_ARRAY(a, l)       _SBPrintLevelsArray(a, l)
+#define SB_LOG_CODEPOINT_SEQUENCE(s)    PrintCodepointSequence(s)
+#define SB_LOG_BIDI_TYPES_ARRAY(a, l)   PrintBidiTypesArray(a, l)
+#define SB_LOG_LEVELS_ARRAY(a, l)       PrintLevelsArray(a, l)
 
-#define SB_LOG_RUN_TYPES(r)             _SBPrintRunTypes(r)
-#define SB_LOG_RUN_LEVELS(r)            _SBPrintRunLevels(r)
-#define SB_LOG_RUN_RANGE(r)             _SBPrintRunRange(r)
+#define SB_LOG_RUN_TYPES(r)             PrintRunTypes(r)
+#define SB_LOG_RUN_LEVELS(r)            PrintRunLevels(r)
+#define SB_LOG_RUN_RANGE(r)             PrintRunRange(r)
 
 #else
 

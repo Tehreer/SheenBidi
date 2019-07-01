@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,26 @@
 #include "SBBase.h"
 #include "SBLevelRun.h"
 
-#define _SBRunQueueList_Length      8
-#define _SBRunQueueList_MaxIndex    (_SBRunQueueList_Length - 1)
+#define RunQueueList_Length         8
+#define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
 
-typedef struct _SBRunQueueList {
-    SBLevelRun elements[_SBRunQueueList_Length];
+typedef struct _RunQueueList {
+    SBLevelRun elements[RunQueueList_Length];
 
-    struct _SBRunQueueList *previous;   /**< Reference to the previous list of queue elements */
-    struct _SBRunQueueList *next;       /**< Reference to the next list of queue elements */
-} _SBRunQueueList, *_SBRunQueueListRef;
+    struct _RunQueueList *previous; /**< Reference to the previous list of queue elements */
+    struct _RunQueueList *next;     /**< Reference to the next list of queue elements */
+} RunQueueList, *RunQueueListRef;
 
 typedef struct _SBRunQueue {
-    _SBRunQueueList _firstList;         /**< First list of elements, which is part of the queue */
-    _SBRunQueueListRef _frontList;      /**< The list containing front element of the queue */
-    _SBRunQueueListRef _rearList;       /**< The list containing rear element of the queue */
-    _SBRunQueueListRef _partialList;    /**< The list containing latest partial isolating run */
-    SBInteger _frontTop;                /**< Index of front element in front list */
-    SBInteger _rearTop;                 /**< Index of rear element in rear list */
-    SBInteger _partialTop;              /**< Index of partial run in partial list */
-    SBLevelRunRef peek;                 /**< Peek element of the queue */
-    SBUInteger count;                   /**< Number of elements the queue contains */
+    RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
+    RunQueueListRef _frontList;     /**< The list containing front element of the queue */
+    RunQueueListRef _rearList;      /**< The list containing rear element of the queue */
+    RunQueueListRef _partialList;   /**< The list containing latest partial isolating run */
+    SBInteger _frontTop;            /**< Index of front element in front list */
+    SBInteger _rearTop;             /**< Index of rear element in rear list */
+    SBInteger _partialTop;          /**< Index of partial run in partial list */
+    SBLevelRunRef peek;             /**< Peek element of the queue */
+    SBUInteger count;               /**< Number of elements the queue contains */
     SBBoolean shouldDequeue;
 } SBRunQueue, *SBRunQueueRef;
 

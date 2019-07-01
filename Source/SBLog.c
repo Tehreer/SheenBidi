@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 
 int _SBLogPosition = 0;
 
-SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel)
+SB_INTERNAL void PrintBaseLevel(SBLevel baseLevel)
 {
     switch (baseLevel) {
     case SBLevelDefaultLTR:
@@ -51,7 +51,7 @@ SB_INTERNAL void _SBPrintBaseLevel(SBLevel baseLevel)
     }
 }
 
-SB_INTERNAL void _SBPrintBidiType(SBBidiType type)
+SB_INTERNAL void PrintBidiType(SBBidiType type)
 {
     switch (type) {
     case SBBidiTypeNil:
@@ -152,7 +152,7 @@ SB_INTERNAL void _SBPrintBidiType(SBBidiType type)
     }
 }
 
-SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointSequence)
+SB_INTERNAL void PrintCodepointSequence(const SBCodepointSequence *codepointSequence)
 {
     SBUInteger stringIndex = 0;
     SBCodepoint codepoint;
@@ -162,7 +162,7 @@ SB_INTERNAL void _SBPrintCodepointSequence(const SBCodepointSequence *codepointS
     }
 }
 
-SB_INTERNAL void _SBPrintBidiTypesArray(SBBidiType *types, SBUInteger length)
+SB_INTERNAL void PrintBidiTypesArray(SBBidiType *types, SBUInteger length)
 {
     SBUInteger index;
 
@@ -172,7 +172,7 @@ SB_INTERNAL void _SBPrintBidiTypesArray(SBBidiType *types, SBUInteger length)
     }
 }
 
-SB_INTERNAL void _SBPrintLevelsArray(SBLevel *levels, SBUInteger length)
+SB_INTERNAL void PrintLevelsArray(SBLevel *levels, SBUInteger length)
 {
     SBUInteger index;
 
@@ -186,12 +186,12 @@ typedef struct {
     void *object;
     SBBidiLink link;
     SBUInteger length;
-} _SBIsolatingContext;
+} IsolatingContext;
 
-typedef void (*_SBIsolatingConsumer)(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context);
+typedef void (*IsolatingConsumer)(SBIsolatingRunRef isolatingRun, IsolatingContext *context);
 
-SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
-    _SBIsolatingContext *context, _SBIsolatingConsumer consumer)
+SB_INTERNAL void IsolatingRunForEach(SBIsolatingRunRef isolatingRun,
+    IsolatingContext *context, IsolatingConsumer consumer)
 {
     SBBidiChainRef bidiChain = isolatingRun->bidiChain;
     SBLevelRunRef levelRun;
@@ -233,7 +233,7 @@ SB_INTERNAL void _SBIsolatingRunForEach(SBIsolatingRunRef isolatingRun,
     }
 }
 
-static void _SBPrintTypesOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+static void PrintTypesOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
 {
     SBBidiType bidiType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
 
@@ -243,13 +243,13 @@ static void _SBPrintTypesOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingC
     }
 }
 
-SB_INTERNAL void _SBPrintRunTypes(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunTypes(SBIsolatingRunRef isolatingRun)
 {
-    _SBIsolatingContext context;
-    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintTypesOperation);
+    IsolatingContext context;
+    IsolatingRunForEach(isolatingRun, &context, _SBPrintTypesOperation);
 }
 
-static void _SBPrintLevelsOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+static void PrintLevelsOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
 {
     SBLevel charLevel = SBBidiChainGetLevel(isolatingRun->bidiChain, context->link);
 
@@ -259,20 +259,20 @@ static void _SBPrintLevelsOperation(SBIsolatingRunRef isolatingRun, _SBIsolating
     }
 }
 
-SB_INTERNAL void _SBPrintRunLevels(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunLevels(SBIsolatingRunRef isolatingRun)
 {
-    _SBIsolatingContext context;
-    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintLevelsOperation);
+    IsolatingContext context;
+    IsolatingRunForEach(isolatingRun, &context, _SBPrintLevelsOperation);
 }
 
 typedef struct {
     SBUInteger offset;
     SBUInteger length;
-} _SBIsolatingRange;
+} IsolatingRange;
 
-static void _SBPrintRangeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingContext *context)
+static void PrintRangeOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
 {
-    _SBIsolatingRange *range = context->object;
+    IsolatingRange *range = context->object;
     SBUInteger offset = SBBidiChainGetOffset(isolatingRun->bidiChain, context->link);
 
     if (range->length == 0) {
@@ -289,13 +289,13 @@ static void _SBPrintRangeOperation(SBIsolatingRunRef isolatingRun, _SBIsolatingC
     }
 }
 
-SB_INTERNAL void _SBPrintRunRange(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunRange(SBIsolatingRunRef isolatingRun)
 {
-    _SBIsolatingRange range = { 0, 0 };
-    _SBIsolatingContext context;
+    IsolatingRange range = { 0, 0 };
+    IsolatingContext context;
     context.object = &range;
 
-    _SBIsolatingRunForEach(isolatingRun, &context, _SBPrintRangeOperation);
+    IsolatingRunForEach(isolatingRun, &context, _SBPrintRangeOperation);
     SB_LOG_RANGE(range.offset, range.length);
     SB_LOG_DIVIDER(1);
 }

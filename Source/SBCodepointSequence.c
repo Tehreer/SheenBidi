@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ typedef struct {
     SBUInt8 total;
     SBUInt8 start;
     SBUInt8 end;
-} _SBUTF8State;
+} UTF8State;
 
-static const _SBUTF8State _SBUTF8StateTable[9] = {
+static const UTF8State UTF8StateTable[9] = {
     {1,0,0x00,0x00}, {0,0,0x00,0x00}, {1,2,0x80,0xBF}, {1,3,0xA0,0xBF}, {1,3,0x80,0xBF},
     {1,3,0x80,0x9F}, {1,4,0x90,0xBF}, {1,4,0x80,0xBF}, {1,4,0x80,0x8F}
 };
 
-static const SBUInt8 _SBUTF8LookupTable[256] = {
+static const SBUInt8 UTF8LookupTable[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -73,12 +73,12 @@ static const SBUInt8 _SBUTF8LookupTable[256] = {
     1, 1
 };
 
-static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
-static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF8CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF8CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF16CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF16CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF32CodepointAt(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
+static SBCodepoint GetUTF32CodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
 SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence)
 {
@@ -106,15 +106,15 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
     if ((*stringIndex - 1) < codepointSequence->stringLength) {
         switch (codepointSequence->stringEncoding) {
         case SBStringEncodingUTF8:
-            codepoint = _SBGetUTF8CodepointBefore(codepointSequence, stringIndex);
+            codepoint = GetUTF8CodepointBefore(codepointSequence, stringIndex);
             break;
 
         case SBStringEncodingUTF16:
-            codepoint = _SBGetUTF16CodepointBefore(codepointSequence, stringIndex);
+            codepoint = GetUTF16CodepointBefore(codepointSequence, stringIndex);
             break;
 
         case SBStringEncodingUTF32:
-            codepoint = _SBGetUTF32CodepointBefore(codepointSequence, stringIndex);
+            codepoint = GetUTF32CodepointBefore(codepointSequence, stringIndex);
             break;
         }
     }
@@ -129,15 +129,15 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
     if (*stringIndex < codepointSequence->stringLength) {
         switch (codepointSequence->stringEncoding) {
         case SBStringEncodingUTF8:
-            codepoint = _SBGetUTF8CodepointAt(codepointSequence, stringIndex);
+            codepoint = GetUTF8CodepointAt(codepointSequence, stringIndex);
             break;
 
         case SBStringEncodingUTF16:
-            codepoint = _SBGetUTF16CodepointAt(codepointSequence, stringIndex);
+            codepoint = GetUTF16CodepointAt(codepointSequence, stringIndex);
             break;
 
         case SBStringEncodingUTF32:
-            codepoint = _SBGetUTF32CodepointAt(codepointSequence, stringIndex);
+            codepoint = GetUTF32CodepointAt(codepointSequence, stringIndex);
             break;
         }
     }
@@ -145,17 +145,17 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF8CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt8 *buffer = sequence->stringBuffer;
     SBUInteger length = sequence->stringLength;
     SBUInt8 lead;
-    _SBUTF8State state;
+    UTF8State state;
     SBUInteger limit;
     SBCodepoint codepoint;
 
     lead = buffer[*index];
-    state = _SBUTF8StateTable[_SBUTF8LookupTable[lead]];
+    state = UTF8StateTable[UTF8LookupTable[lead]];
     limit = *index + state.total;
 
     if (limit > length) {
@@ -186,7 +186,7 @@ static SBCodepoint _SBGetUTF8CodepointAt(const SBCodepointSequence *sequence, SB
     return SBCodepointFaulty;
 }
 
-static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF8CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt8 *buffer = sequence->stringBuffer;
     SBUInteger startIndex = *index;
@@ -205,7 +205,7 @@ static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *sequence
     }
 
     limitIndex = startIndex;
-    codepoint = _SBGetUTF8CodepointAt(sequence, &limitIndex);
+    codepoint = GetUTF8CodepointAt(sequence, &limitIndex);
 
     if (limitIndex == *index) {
         *index = startIndex;
@@ -217,7 +217,7 @@ static SBCodepoint _SBGetUTF8CodepointBefore(const SBCodepointSequence *sequence
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF16CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt16 *buffer = sequence->stringBuffer;
     SBUInteger length = sequence->stringLength;
@@ -245,7 +245,7 @@ static SBCodepoint _SBGetUTF16CodepointAt(const SBCodepointSequence *sequence, S
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF16CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt16 *buffer = sequence->stringBuffer;
     SBCodepoint codepoint;
@@ -272,7 +272,7 @@ static SBCodepoint _SBGetUTF16CodepointBefore(const SBCodepointSequence *sequenc
     return codepoint;
 }
 
-static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF32CodepointAt(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt32 *buffer = sequence->stringBuffer;
     SBCodepoint codepoint;
@@ -287,7 +287,7 @@ static SBCodepoint _SBGetUTF32CodepointAt(const SBCodepointSequence *sequence, S
     return SBCodepointFaulty;
 }
 
-static SBCodepoint _SBGetUTF32CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
+static SBCodepoint GetUTF32CodepointBefore(const SBCodepointSequence *sequence, SBUInteger *index)
 {
     const SBUInt32 *buffer = sequence->stringBuffer;
     SBCodepoint codepoint;

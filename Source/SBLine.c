@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@
 #include "SBRun.h"
 #include "SBLine.h"
 
-typedef struct _SBLineSupport {
+typedef struct _LineSupport {
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
     SBLevel maxLevel;
-} _SBLineSupport, *_SBLineSupportRef;
+} LineSupport, *LineSupportRef;
 
-static SBLevel _SBCopyLevels(SBLevel *destination,
+static SBLevel CopyLevels(SBLevel *destination,
     const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
 {
     SBLevel lastLevel = SBLevelInvalid;
@@ -59,9 +59,9 @@ static SBLevel _SBCopyLevels(SBLevel *destination,
     return maxLevel;
 }
 
-static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
+static LineSupportRef LineSupportAllocate(SBUInteger charCount)
 {
-    const SBUInteger sizeSupport = sizeof(_SBLineSupport);
+    const SBUInteger sizeSupport = sizeof(LineSupport);
     const SBUInteger sizeLevels  = sizeof(SBLevel) * charCount;
     const SBUInteger sizeMemory  = sizeSupport + sizeLevels;
 
@@ -69,7 +69,7 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
     const SBUInteger offsetLevels  = offsetSupport + sizeSupport;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
-    _SBLineSupportRef support = (_SBLineSupportRef)(memory + offsetSupport);
+    LineSupportRef support = (LineSupportRef)(memory + offsetSupport);
     SBLevel *levels = (SBLevel *)(memory + offsetLevels);
 
     support->fixedLevels = levels;
@@ -77,25 +77,25 @@ static _SBLineSupportRef _SBLineSupportAllocate(SBUInteger charCount)
     return support;
 }
 
-static void _SBLineSupportInitialize(_SBLineSupportRef support,
+static void LineSupportInitialize(LineSupportRef support,
     const SBBidiType *types, SBLevel *levels, SBUInteger charCount)
 {
     SBLevel maxLevel;
     SBUInteger runCount;
 
-    maxLevel = _SBCopyLevels(support->fixedLevels, levels, charCount, &runCount);
+    maxLevel = CopyLevels(support->fixedLevels, levels, charCount, &runCount);
 
     support->refTypes = types;
     support->runCount = runCount;
     support->maxLevel = maxLevel;
 }
 
-static void _SBLineSupportDeallocate(_SBLineSupportRef support)
+static void LineSupportDeallocate(LineSupportRef support)
 {
     free(support);
 }
 
-static SBLineRef _SBLineAllocate(SBUInteger runCount)
+static SBLineRef LineAllocate(SBUInteger runCount)
 {
     const SBUInteger sizeLine   = sizeof(SBLine);
     const SBUInteger sizeRuns   = sizeof(SBRun) * runCount;
@@ -113,7 +113,7 @@ static SBLineRef _SBLineAllocate(SBUInteger runCount)
     return line;
 }
 
-static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
+static void SetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 {
     SBUInteger index = length;
 
@@ -122,7 +122,7 @@ static void _SBSetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
     }
 }
 
-static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
+static void ResetLevels(LineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
 {
     const SBBidiType *types = support->refTypes;
     SBLevel *levels = support->fixedLevels;
@@ -140,7 +140,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
         switch (type) {
         case SBBidiTypeB:
         case SBBidiTypeS:
-            _SBSetNewLevel(levels + index, length + 1, baseLevel);
+            SetNewLevel(levels + index, length + 1, baseLevel);
             length = 0;
             reset = SBTrue;
             support->runCount += 1;
@@ -161,7 +161,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
         case SBBidiTypeFSI:
         case SBBidiTypePDI:
             if (reset) {
-                _SBSetNewLevel(levels + index, length + 1, baseLevel);
+                SetNewLevel(levels + index, length + 1, baseLevel);
                 length = 0;
 
                 support->runCount += 1;
@@ -176,7 +176,7 @@ static void _SBResetLevels(_SBLineSupportRef support, SBLevel baseLevel, SBUInte
     }
 }
 
-static SBUInteger _SBInitializeRuns(SBRun *runs,
+static SBUInteger InitializeRuns(SBRun *runs,
     const SBLevel *levels, SBUInteger length, SBUInteger lineOffset)
 {
     SBUInteger index;
@@ -204,7 +204,7 @@ static SBUInteger _SBInitializeRuns(SBRun *runs,
     return runCount;
 }
 
-static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount)
+static void ReverseRunSequence(SBRun *runs, SBUInteger runCount)
 {
     SBUInteger halfCount = runCount / 2;
     SBUInteger finalIndex = runCount - 1;
@@ -222,7 +222,7 @@ static void _SBReverseRunSequence(SBRun *runs, SBUInteger runCount)
     }
 }
 
-static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
+static void ReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
 {
     SBLevel newLevel;
 
@@ -237,33 +237,33 @@ static void _SBReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
                     count += 1;
                 }
 
-                _SBReverseRunSequence(runs + start, count);
+                ReverseRunSequence(runs + start, count);
             }
         }
     }
 }
 
-static SBLineRef _SBLineCreate(const SBCodepointSequence *codepointSequence,
+static SBLineRef LineCreate(const SBCodepointSequence *codepointSequence,
     const SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
-    _SBLineSupportRef support;
+    LineSupportRef support;
     SBLineRef line;
 
-    support = _SBLineSupportAllocate(length);
-    _SBLineSupportInitialize(support, types, levels, length);
+    support = LineSupportAllocate(length);
+    LineSupportInitialize(support, types, levels, length);
 
-    _SBResetLevels(support, baseLevel, length);
+    ResetLevels(support, baseLevel, length);
 
-    line = _SBLineAllocate(support->runCount);
-    line->runCount = _SBInitializeRuns(line->fixedRuns, support->fixedLevels, length, offset);
-    _SBReorderRuns(line->fixedRuns, line->runCount, support->maxLevel);
+    line = LineAllocate(support->runCount);
+    line->runCount = InitializeRuns(line->fixedRuns, support->fixedLevels, length, offset);
+    ReorderRuns(line->fixedRuns, line->runCount, support->maxLevel);
 
     line->codepointSequence = *codepointSequence;
     line->offset = offset;
     line->length = length;
     line->_retainCount = 1;
 
-    _SBLineSupportDeallocate(support);
+    LineSupportDeallocate(support);
 
     return line;
 }
@@ -282,9 +282,9 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
 
     innerOffset = lineOffset - paragraph->offset;
 
-    return _SBLineCreate(&paragraph->algorithm->codepointSequence,
-                         paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
-                         lineOffset, lineLength, paragraph->baseLevel);
+    return LineCreate(&paragraph->algorithm->codepointSequence,
+                      paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
+                      lineOffset, lineLength, paragraph->baseLevel);
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line)

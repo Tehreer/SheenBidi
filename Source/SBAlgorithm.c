@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include "SBParagraph.h"
 #include "SBAlgorithm.h"
 
-static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
+static SBAlgorithmRef AlgorithmAllocate(SBUInteger stringLength)
 {
     const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
     const SBUInteger sizeTypes     = sizeof(SBBidiType) * stringLength;
@@ -44,7 +44,7 @@ static SBAlgorithmRef _SBAlgorithmAllocate(SBUInteger stringLength)
     return algorithm;
 }
 
-static void _SBDetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
+static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
 {
     SBUInteger stringIndex = 0;
     SBUInteger firstIndex = 0;
@@ -70,11 +70,11 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
         SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
         SB_LOG_BLOCK_CLOSER();
 
-        algorithm = _SBAlgorithmAllocate(stringLength);
+        algorithm = AlgorithmAllocate(stringLength);
         algorithm->codepointSequence = *codepointSequence;
         algorithm->_retainCount = 1;
 
-        _SBDetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
+        DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
         SB_LOG_BLOCK_OPENER("Determined Types");
         SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));

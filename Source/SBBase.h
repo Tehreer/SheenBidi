@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 )
 
 
-#define _SBBidiTypeIsEqual(t1, t2)          ((t1) == (t2))
+#define SBBidiTypeIsEqual(t1, t2)           ((t1) == (t2))
 
 #define SBBidiTypeIsNumber(t)               SBUInt8InRange(t, SBBidiTypeAN, SBBidiTypeEN)
 #define SBBidiTypeIsIsolate(t)              SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDI)
@@ -93,7 +93,7 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 #define SBBidiTypeIsStrongOrNumber(t)       (SBBidiTypeIsStrong(t) || SBBidiTypeIsNumber(t))
 #define SBBidiTypeIsNumberSeparator(t)      SBUInt8InRange(t, SBBidiTypeES, SBBidiTypeCS)
 #define SBBidiTypeIsIsolateInitiator(t)     SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypeFSI)
-#define SBBidiTypeIsIsolateTerminator(t)    _SBBidiTypeIsEqual(t, SBBidiTypePDI)
+#define SBBidiTypeIsIsolateTerminator(t)    SBBidiTypeIsEqual(t, SBBidiTypePDI)
 #define SBBidiTypeIsNeutralOrIsolate(t)     SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypePDI)
 
 

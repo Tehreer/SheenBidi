@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
 #include "SBPairingLookup.h"
 #include "SBIsolatingRun.h"
 
-static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
+static void ResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun);
 
-static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
+static void AttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
 {
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBLevelRunRef baseLevelRun = isolatingRun->baseLevelRun;
@@ -57,7 +57,7 @@ static void _SBAttachLevelRunLinks(SBIsolatingRunRef isolatingRun)
     }
 }
 
-static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun)
+static void AttachOriginalLinks(SBIsolatingRunRef isolatingRun)
 {
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBLevelRunRef current;
@@ -70,7 +70,7 @@ static void _SBAttachOriginalLinks(SBIsolatingRunRef isolatingRun)
     }
 }
 
-static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
+static SBBidiLink ResolveWeakTypes(SBIsolatingRunRef isolatingRun)
 {
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBBidiLink roller = chain->roller;
@@ -209,7 +209,7 @@ static SBBidiLink _SBResolveWeakTypes(SBIsolatingRunRef isolatingRun)
     return priorLink;
 }
 
-static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
+static void ResolveBrackets(SBIsolatingRunRef isolatingRun)
 {
     const SBCodepointSequence *sequence = isolatingRun->codepointSequence;
     SBUInteger paragraphOffset = isolatingRun->paragraphOffset;
@@ -256,7 +256,7 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
                     SBBracketQueueClosePair(queue, link, codepoint);
 
                     if (SBBracketQueueShouldDequeue(queue)) {
-                        _SBResolveAvailableBracketPairs(isolatingRun);
+                        ResolveAvailableBracketPairs(isolatingRun);
                     }
                 }
                 break;
@@ -279,10 +279,10 @@ static void _SBResolveBrackets(SBIsolatingRunRef isolatingRun)
     }
 
 Resolve:
-    _SBResolveAvailableBracketPairs(isolatingRun);
+    ResolveAvailableBracketPairs(isolatingRun);
 }
 
-static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
+static void ResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
 {
     SBBracketQueueRef queue = &isolatingRun->_bracketQueue;
     SBBidiChainRef chain = isolatingRun->bidiChain;
@@ -363,7 +363,7 @@ static void _SBResolveAvailableBracketPairs(SBIsolatingRunRef isolatingRun)
     }
 }
 
-static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
+static void ResolveNeutrals(SBIsolatingRunRef isolatingRun)
 {
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBBidiLink roller = chain->roller;
@@ -431,7 +431,7 @@ static void _SBResolveNeutrals(SBIsolatingRunRef isolatingRun)
     }
 }
 
-static void _SBResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
+static void ResolveImplicitLevels(SBIsolatingRunRef isolatingRun)
 {
     SBBidiChainRef chain = isolatingRun->bidiChain;
     SBBidiLink roller = chain->roller;
@@ -481,7 +481,7 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
     SB_LOG_BLOCK_OPENER("Identified Isolating Run");
 
     /* Attach level run links to form isolating run. */
-    _SBAttachLevelRunLinks(isolatingRun);
+    AttachLevelRunLinks(isolatingRun);
     /* Save last subsequent link. */
     subsequentLink = isolatingRun->_lastLevelRun->subsequentLink;
 
@@ -492,31 +492,31 @@ SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun)
     SB_LOG_STATEMENT("EOS", 1, SB_LOG_BIDI_TYPE(isolatingRun->_eos));
 
     /* Rules W1-W7 */
-    lastLink = _SBResolveWeakTypes(isolatingRun);
+    lastLink = ResolveWeakTypes(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Weak Types");
     SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rule N0 */
-    _SBResolveBrackets(isolatingRun);
+    ResolveBrackets(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Brackets");
     SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rules N1, N2 */
-    _SBResolveNeutrals(isolatingRun);
+    ResolveNeutrals(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Neutrals");
     SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Rules I1, I2 */
-    _SBResolveImplicitLevels(isolatingRun);
+    ResolveImplicitLevels(isolatingRun);
     SB_LOG_BLOCK_OPENER("Resolved Implicit Levels");
     SB_LOG_STATEMENT("Levels", 1, SB_LOG_RUN_LEVELS(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
 
     /* Re-attach original links. */
-    _SBAttachOriginalLinks(isolatingRun);
+    AttachOriginalLinks(isolatingRun);
     /* Attach new final link (of isolating run) with last subsequent link. */
     SBBidiChainSetNext(isolatingRun->bidiChain, lastLink, subsequentLink);
 

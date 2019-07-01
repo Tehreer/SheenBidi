@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include "SBScriptStack.h"
 #include "SBScriptLocator.h"
 
-static SBBoolean _SBIsSimilarScript(SBScript lhs, SBScript rhs)
+static SBBoolean IsSimilarScript(SBScript lhs, SBScript rhs)
 {
     return SBScriptIsCommonOrInherited(lhs)
         || SBScriptIsCommonOrInherited(rhs)
@@ -57,7 +57,7 @@ const SBScriptAgent *SBScriptLocatorGetAgent(SBScriptLocatorRef locator)
     return &locator->agent;
 }
 
-static void _SBResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
+static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
 {
     const SBCodepointSequence *sequence = &locator->_codepointSequence;
     SBScriptStackRef stack = &locator->_scriptStack;
@@ -108,7 +108,7 @@ static void _SBResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
             }
         }
 
-        if (_SBIsSimilarScript(result, script)) {
+        if (IsSimilarScript(result, script)) {
             if (SBScriptIsCommonOrInherited(result) && !SBScriptIsCommonOrInherited(script)) {
                 /* Set the concrete script of this code point as the result. */
                 result = script;
@@ -141,7 +141,7 @@ SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator)
     SBUInteger offset = locator->agent.offset + locator->agent.length;
 
     if (offset < locator->_codepointSequence.stringLength) {
-        _SBResolveScriptRun(locator, offset);
+        ResolveScriptRun(locator, offset);
         return SBTrue;
     }
 

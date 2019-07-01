@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,24 @@
 #include "SBBase.h"
 #include "SBBidiChain.h"
 
-#define _SBBracketQueueList_Length      8
-#define _SBBracketQueueList_MaxIndex    (_SBBracketQueueList_Length - 1)
+#define BracketQueueList_Length         8
+#define BracketQueueList_MaxIndex       (BracketQueueList_Length - 1)
 
-typedef struct _SBBracketQueueList {
-    SBCodepoint bracket[_SBBracketQueueList_Length];
-    SBBidiLink priorStrongLink[_SBBracketQueueList_Length];
-    SBBidiLink openingLink[_SBBracketQueueList_Length];
-    SBBidiLink closingLink[_SBBracketQueueList_Length];
-    SBBidiType strongType[_SBBracketQueueList_Length];
+typedef struct _BracketQueueList {
+    SBCodepoint bracket[BracketQueueList_Length];
+    SBBidiLink priorStrongLink[BracketQueueList_Length];
+    SBBidiLink openingLink[BracketQueueList_Length];
+    SBBidiLink closingLink[BracketQueueList_Length];
+    SBBidiType strongType[BracketQueueList_Length];
 
-    struct _SBBracketQueueList *previous;
-    struct _SBBracketQueueList *next;
-} _SBBracketQueueList, *_SBBracketQueueListRef;
+    struct _BracketQueueList *previous;
+    struct _BracketQueueList *next;
+} BracketQueueList, *BracketQueueListRef;
 
 typedef struct _SBBracketQueue {
-    _SBBracketQueueList _firstList;
-    _SBBracketQueueListRef _frontList;
-    _SBBracketQueueListRef _rearList;
+    BracketQueueList _firstList;
+    BracketQueueListRef _frontList;
+    BracketQueueListRef _rearList;
     SBInteger _frontTop;
     SBInteger _rearTop;
     SBUInteger count;

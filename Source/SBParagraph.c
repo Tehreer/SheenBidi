@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,19 +32,19 @@
 #include "SBStatusStack.h"
 #include "SBParagraph.h"
 
-typedef struct _SBParagraphSupport {
+typedef struct _ParagraphSupport {
     SBBidiChain bidiChain;
     SBStatusStack statusStack;
     SBRunQueue runQueue;
     SBIsolatingRun isolatingRun;
-} _SBParagraphSupport, *_SBParagraphSupportRef;
+} ParagraphSupport, *ParagraphSupportRef;
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length);
-static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish);
+static void PopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length);
+static void ProcessRun(ParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish);
 
-static _SBParagraphSupportRef _SBParagraphSupportCreate(const SBBidiType *types, SBLevel *levels, SBUInteger length)
+static ParagraphSupportRef ParagraphSupportCreate(const SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
-    const SBUInteger sizeSupport = sizeof(_SBParagraphSupport);
+    const SBUInteger sizeSupport = sizeof(ParagraphSupport);
     const SBUInteger sizeLinks   = sizeof(SBBidiLink) * (length + 2);
     const SBUInteger sizeTypes   = sizeof(SBBidiType) * (length + 2);
     const SBUInteger sizeMemory  = sizeSupport + sizeLinks + sizeTypes;
@@ -54,7 +54,7 @@ static _SBParagraphSupportRef _SBParagraphSupportCreate(const SBBidiType *types,
     const SBUInteger offsetTypes   = offsetLinks + sizeLinks;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
-    _SBParagraphSupportRef support = (_SBParagraphSupportRef)(memory + offsetSupport);
+    ParagraphSupportRef support = (ParagraphSupportRef)(memory + offsetSupport);
     SBBidiLink *fixedLinks = (SBBidiLink *)(memory + offsetLinks);
     SBBidiType *fixedTypes = (SBBidiType *)(memory + offsetTypes);
 
@@ -63,12 +63,12 @@ static _SBParagraphSupportRef _SBParagraphSupportCreate(const SBBidiType *types,
     SBRunQueueInitialize(&support->runQueue);
     SBIsolatingRunInitialize(&support->isolatingRun);
 
-    _SBPopulateBidiChain(&support->bidiChain, types, length);
+    PopulateBidiChain(&support->bidiChain, types, length);
 
     return support;
 }
 
-static void _SBParagraphSupportDestroy(_SBParagraphSupportRef support)
+static void ParagraphSupportDestroy(ParagraphSupportRef support)
 {
     SBStatusStackFinalize(&support->statusStack);
     SBRunQueueFinalize(&support->runQueue);
@@ -76,7 +76,7 @@ static void _SBParagraphSupportDestroy(_SBParagraphSupportRef support)
     free(support);
 }
 
-static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
+static SBParagraphRef ParagraphAllocate(SBUInteger length)
 {
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
     const SBUInteger sizeLevels    = sizeof(SBLevel) * (length + 2);
@@ -94,7 +94,7 @@ static SBParagraphRef _SBParagraphAllocate(SBUInteger length)
     return paragraph;
 }
 
-static SBUInteger _SBDetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
+static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
 {
     SBBidiType *bidiTypes = algorithm->fixedTypes;
     SBUInteger suggestedLimit = paragraphOffset + suggestedLength;
@@ -112,7 +112,7 @@ Return:
     return (stringIndex - paragraphOffset);
 }
 
-static void _SBPopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length)
+static void PopulateBidiChain(SBBidiChainRef chain, const SBBidiType *types, SBUInteger length)
 {
     SBBidiType type = SBBidiTypeNil;
     SBUInteger priorIndex = SBInvalidIndex;
@@ -156,7 +156,7 @@ AddLast:
     SBBidiChainAdd(chain, SBBidiTypeNil, index - priorIndex);
 }
 
-static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink)
+static SBBidiLink SkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink)
 {
     SBBidiLink link = skipLink;
     SBUInteger depth = 1;
@@ -182,7 +182,7 @@ static SBBidiLink _SBSkipIsolatingRun(SBBidiChainRef chain, SBBidiLink skipLink,
     return SBBidiLinkNone;
 }
 
-static SBLevel _SBDetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink, SBLevel defaultLevel, SBBoolean isIsolate)
+static SBLevel DetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, SBBidiLink breakLink, SBLevel defaultLevel, SBBoolean isIsolate)
 {
     SBBidiLink link = skipLink;
 
@@ -201,7 +201,7 @@ static SBLevel _SBDetermineBaseLevel(SBBidiChainRef chain, SBBidiLink skipLink, 
         case SBBidiTypeLRI:
         case SBBidiTypeRLI:
         case SBBidiTypeFSI:
-            link = _SBSkipIsolatingRun(chain, link, breakLink);
+            link = SkipIsolatingRun(chain, link, breakLink);
             if (link == SBBidiLinkNone) {
                 goto Default;
             }
@@ -224,18 +224,18 @@ Default:
     return defaultLevel;
 }
 
-static SBLevel _SBDetermineParagraphLevel(SBBidiChainRef chain, SBLevel baseLevel)
+static SBLevel DetermineParagraphLevel(SBBidiChainRef chain, SBLevel baseLevel)
 {
     if (baseLevel >= SBLevelMax) {
-        return _SBDetermineBaseLevel(chain, chain->roller, chain->roller,
-                                     (baseLevel != SBLevelDefaultRTL ? 0 : 1),
-                                     SBFalse);
+        return DetermineBaseLevel(chain, chain->roller, chain->roller,
+                                  (baseLevel != SBLevelDefaultRTL ? 0 : 1),
+                                  SBFalse);
     }
 
     return baseLevel;
 }
 
-static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel)
+static void DetermineLevels(ParagraphSupportRef support, SBLevel baseLevel)
 {
     SBBidiChainRef chain = &support->bidiChain;
     SBStatusStackRef stack = &support->statusStack;
@@ -363,7 +363,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
         /* Rule X5c */
         case SBBidiTypeFSI:
         {
-            SBBoolean isRTL = (_SBDetermineBaseLevel(chain, link, roller, 0, SBTrue) == 1);
+            SBBoolean isRTL = (DetermineBaseLevel(chain, link, roller, 0, SBTrue) == 1);
             SB_PUSH_ISOLATE(isRTL
                              ? SB_LEAST_GREATER_ODD_LEVEL()
                              : SB_LEAST_GREATER_EVEN_LEVEL(),
@@ -480,7 +480,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
             eor = SBLevelAsNormalBidiType(SBNumberGetMax(priorLevel, currentLevel));
 
             SBLevelRunInitialize(&levelRun, chain, firstLink, lastLink, sor, eor);
-            _SBProcessRun(support, &levelRun, forceFinish);
+            ProcessRun(support, &levelRun, forceFinish);
 
             /* The sor of next run (if any) should be technically equal to eor of this run. */
             sor = eor;
@@ -494,7 +494,7 @@ static void _SBDetermineLevels(_SBParagraphSupportRef support, SBLevel baseLevel
     };
 }
 
-static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish)
+static void ProcessRun(ParagraphSupportRef support, const SBLevelRunRef levelRun, SBBoolean forceFinish)
 {
     SBRunQueueRef queue = &support->runQueue;
     SBRunQueueEnqueue(queue, levelRun);
@@ -516,7 +516,7 @@ static void _SBProcessRun(_SBParagraphSupportRef support, const SBLevelRunRef le
     }
 }
 
-static void _SBSaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
+static void SaveLevels(SBBidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
 {
     SBBidiLink roller = chain->roller;
     SBBidiLink link;
@@ -543,7 +543,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger actualLength;
 
     SBParagraphRef paragraph;
-    _SBParagraphSupportRef support;
+    ParagraphSupportRef support;
     SBLevel resolvedLevel;
 
     /* The given range MUST be valid. */
@@ -555,18 +555,18 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_STATEMENT("Base Direction",   1, SB_LOG_BASE_LEVEL(baseLevel));
     SB_LOG_BLOCK_CLOSER();
 
-    actualLength = _SBDetermineBoundary(algorithm, paragraphOffset, suggestedLength);
+    actualLength = DetermineBoundary(algorithm, paragraphOffset, suggestedLength);
 
     SB_LOG_BLOCK_OPENER("Determined Paragraph Boundary");
     SB_LOG_STATEMENT("Actual Length", 1, SB_LOG_NUMBER(actualLength));
     SB_LOG_BLOCK_CLOSER();
 
-    paragraph = _SBParagraphAllocate(actualLength);
+    paragraph = ParagraphAllocate(actualLength);
     paragraph->refTypes = algorithm->fixedTypes + paragraphOffset;
 
-    support = _SBParagraphSupportCreate(paragraph->refTypes, paragraph->fixedLevels, actualLength);
+    support = ParagraphSupportCreate(paragraph->refTypes, paragraph->fixedLevels, actualLength);
     
-    resolvedLevel = _SBDetermineParagraphLevel(&support->bidiChain, baseLevel);
+    resolvedLevel = DetermineParagraphLevel(&support->bidiChain, baseLevel);
     
     SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
     SB_LOG_STATEMENT("Base Level", 1, SB_LOG_LEVEL(resolvedLevel));
@@ -578,8 +578,8 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     support->isolatingRun.paragraphOffset = paragraphOffset;
     support->isolatingRun.paragraphLevel = resolvedLevel;
     
-    _SBDetermineLevels(support, resolvedLevel);
-    _SBSaveLevels(&support->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
+    DetermineLevels(support, resolvedLevel);
+    SaveLevels(&support->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
     
     SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
     SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
@@ -591,7 +591,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     paragraph->baseLevel = resolvedLevel;
     paragraph->_retainCount = 1;
     
-    _SBParagraphSupportDestroy(support);
+    ParagraphSupportDestroy(support);
     
     SB_LOG_BREAKER();
     

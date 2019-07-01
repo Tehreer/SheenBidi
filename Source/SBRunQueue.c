@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
 #include "SBLevelRun.h"
 #include "SBRunQueue.h"
 
-static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue)
+static void FindPreviousPartialRun(SBRunQueueRef queue)
 {
-    _SBRunQueueListRef list = queue->_partialList;
+    RunQueueListRef list = queue->_partialList;
     SBInteger top = queue->_partialTop;
 
     do {
@@ -42,7 +42,7 @@ static void _SBRunQueueFindPreviousPartialRun(SBRunQueueRef queue)
         } while (top-- > limit);
 
         list = list->previous;
-        top = _SBRunQueueList_MaxIndex;
+        top = RunQueueList_MaxIndex;
     } while (list);
 
     queue->_partialList = NULL;
@@ -76,14 +76,14 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, const SBLevelRunRef leve
 {
     SBLevelRunRef element;
 
-    if (queue->_rearTop != _SBRunQueueList_MaxIndex) {
+    if (queue->_rearTop != RunQueueList_MaxIndex) {
         element = &queue->_rearList->elements[++queue->_rearTop];
     } else {
-        _SBRunQueueListRef previousList = queue->_rearList;
-        _SBRunQueueListRef rearList = previousList->next;
+        RunQueueListRef previousList = queue->_rearList;
+        RunQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = malloc(sizeof(_SBRunQueueList));
+            rearList = malloc(sizeof(RunQueueList));
             rearList->previous = previousList;
             rearList->next = NULL;
 
@@ -104,7 +104,7 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, const SBLevelRunRef leve
     if (queue->_partialTop != -1 && SBRunKindIsTerminating(element->kind)) {
         SBLevelRunRef incompleteRun = &queue->_partialList->elements[queue->_partialTop];
         SBLevelRunAttach(incompleteRun, element);
-        _SBRunQueueFindPreviousPartialRun(queue);
+        FindPreviousPartialRun(queue);
     }
 
     /* Save the location of the isolating run */
@@ -119,10 +119,10 @@ SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
     /* The queue should not be empty. */
     SBAssert(queue->count != 0);
 
-    if (queue->_frontTop != _SBRunQueueList_MaxIndex) {
+    if (queue->_frontTop != RunQueueList_MaxIndex) {
         queue->_frontTop += 1;
     } else {
-        _SBRunQueueListRef frontList = queue->_frontList;
+        RunQueueListRef frontList = queue->_frontList;
 
         if (frontList == queue->_rearList) {
             queue->_rearTop = -1;
@@ -139,10 +139,10 @@ SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
 
 SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue)
 {
-    _SBRunQueueListRef list = queue->_firstList.next;
+    RunQueueListRef list = queue->_firstList.next;
 
     while (list) {
-        _SBRunQueueListRef next = list->next;
+        RunQueueListRef next = list->next;
         free(list);
         list = next;
     };
