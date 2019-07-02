@@ -35,9 +35,9 @@ SB_INTERNAL void PrintCodepointSequence(const SBCodepointSequence *codepointSequ
 SB_INTERNAL void PrintBidiTypesArray(SBBidiType *types, SBUInteger length);
 SB_INTERNAL void PrintLevelsArray(SBLevel *levels, SBUInteger length);
 
-SB_INTERNAL void PrintRunTypes(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void PrintRunLevels(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void PrintRunRange(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunTypes(IsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunLevels(IsolatingRunRef isolatingRun);
+SB_INTERNAL void PrintRunRange(IsolatingRunRef isolatingRun);
 
 extern int _SBLogPosition;
 

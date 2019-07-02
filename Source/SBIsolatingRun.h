@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,23 @@
 #include "SBCodepointSequence.h"
 #include "SBLevelRun.h"
 
-typedef struct _SBIsolatingRun {
+typedef struct _IsolatingRun {
     const SBCodepointSequence *codepointSequence;
     const SBBidiType *bidiTypes;
-    SBBidiChainRef bidiChain;
-    SBLevelRunRef baseLevelRun;
-    SBLevelRunRef _lastLevelRun;
-    SBBracketQueue _bracketQueue;
+    BidiChainRef bidiChain;
+    LevelRunRef baseLevelRun;
+    LevelRunRef _lastLevelRun;
+    BracketQueue _bracketQueue;
     SBUInteger paragraphOffset;
-    SBBidiLink _originalLink;
+    BidiLink _originalLink;
     SBBidiType _sos;
     SBBidiType _eos;
     SBLevel paragraphLevel;
-} SBIsolatingRun, *SBIsolatingRunRef;
+} IsolatingRun, *IsolatingRunRef;
 
-SB_INTERNAL void SBIsolatingRunInitialize(SBIsolatingRunRef isolatingRun);
-SB_INTERNAL void SBIsolatingRunResolve(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun);
+SB_INTERNAL void IsolatingRunResolve(IsolatingRunRef isolatingRun);
 
-SB_INTERNAL void SBIsolatingRunFinalize(SBIsolatingRunRef isolatingRun);
+SB_INTERNAL void IsolatingRunFinalize(IsolatingRunRef isolatingRun);
 
 #endif

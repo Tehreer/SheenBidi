@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 #include "SBBase.h"
 #include "SBScriptStack.h"
 
-SB_INTERNAL void SBScriptStackReset(SBScriptStackRef stack)
+SB_INTERNAL void ScriptStackReset(ScriptStackRef stack)
 {
     stack->top = -1;
     stack->count = 0;
     stack->open = 0;
 }
 
-SB_INTERNAL void SBScriptStackPush(SBScriptStackRef stack, SBScript script, SBCodepoint mirror)
+SB_INTERNAL void ScriptStackPush(ScriptStackRef stack, SBScript script, SBCodepoint mirror)
 {
     stack->count = SBNumberLimitIncrement(stack->count, _SBScriptStackCapacity);
     stack->open = SBNumberLimitIncrement(stack->open, _SBScriptStackCapacity);
@@ -37,7 +37,7 @@ SB_INTERNAL void SBScriptStackPush(SBScriptStackRef stack, SBScript script, SBCo
     stack->_elements[stack->top].mirror = mirror;
 }
 
-SB_INTERNAL void SBScriptStackPop(SBScriptStackRef stack)
+SB_INTERNAL void ScriptStackPop(ScriptStackRef stack)
 {
     /* There must be at least one entry in the stack. */
     SBAssert(stack->count > 0);
@@ -46,17 +46,17 @@ SB_INTERNAL void SBScriptStackPop(SBScriptStackRef stack)
     stack->open = SBNumberLimitDecrement(stack->open, 0);
     stack->top = SBNumberRingDecrement(stack->top, _SBScriptStackCapacity);
 
-    if (SBScriptStackIsEmpty(stack)) {
+    if (ScriptStackIsEmpty(stack)) {
         stack->top = -1;
     }
 }
 
-SB_INTERNAL void SBScriptStackLeavePairs(SBScriptStackRef stack)
+SB_INTERNAL void ScriptStackLeavePairs(ScriptStackRef stack)
 {
     stack->open = 0;
 }
 
-SB_INTERNAL void SBScriptStackSealPairs(SBScriptStackRef stack, SBScript script)
+SB_INTERNAL void ScriptStackSealPairs(ScriptStackRef stack, SBScript script)
 {
     SBInteger index = SBNumberRingSubtract(stack->top, (SBInteger)stack->open, _SBScriptStackCapacity);
 
@@ -67,17 +67,17 @@ SB_INTERNAL void SBScriptStackSealPairs(SBScriptStackRef stack, SBScript script)
     }
 }
 
-SB_INTERNAL SBBoolean SBScriptStackIsEmpty(SBScriptStackRef stack)
+SB_INTERNAL SBBoolean ScriptStackIsEmpty(ScriptStackRef stack)
 {
     return (stack->count == 0);
 }
 
-SB_INTERNAL SBScript SBScriptStackGetScript(SBScriptStackRef stack)
+SB_INTERNAL SBScript ScriptStackGetScript(ScriptStackRef stack)
 {
     return stack->_elements[stack->top].script;
 }
 
-SB_INTERNAL SBCodepoint SBScriptStackGetMirror(SBScriptStackRef stack)
+SB_INTERNAL SBCodepoint ScriptStackGetMirror(ScriptStackRef stack)
 {
     return stack->_elements[stack->top].mirror;
 }

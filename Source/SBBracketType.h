@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@
 #include "SBBase.h"
 
 enum {
-    SBBracketTypeNone  = 0x00,
-    SBBracketTypeOpen  = 0x40,  /**< Opening paired bracket. */
-    SBBracketTypeClose = 0x80,  /**< Closing paired bracket. */
+    BracketTypeNone  = 0x00,
+    BracketTypeOpen  = 0x40,    /**< Opening paired bracket. */
+    BracketTypeClose = 0x80,    /**< Closing paired bracket. */
 
-    SBBracketTypePrimaryMask = SBBracketTypeOpen | SBBracketTypeClose,
-    SBBracketTypeInverseMask = ~SBBracketTypePrimaryMask
+    BracketTypePrimaryMask = BracketTypeOpen | BracketTypeClose,
+    BracketTypeInverseMask = ~BracketTypePrimaryMask
 };
-typedef SBUInt8 SBBracketType;
+typedef SBUInt8 BracketType;
 
 #endif

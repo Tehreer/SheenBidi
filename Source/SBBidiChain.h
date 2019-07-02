@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,38 +20,37 @@
 #include <SBConfig.h>
 #include "SBBase.h"
 
-typedef SBUInt32 SBBidiLink;
+typedef SBUInt32 BidiLink;
 
-#define SBBidiLinkNone (SBUInt32)(-1)
+#define BidiLinkNone    (SBUInt32)(-1)
 
-typedef struct _SBBidiChain {
+typedef struct _BidiChain {
     SBBidiType *types;
     SBLevel *levels;
-    SBBidiLink *links;
-    SBBidiLink roller;
-    SBBidiLink last;
-} SBBidiChain, *SBBidiChainRef;
+    BidiLink *links;
+    BidiLink roller;
+    BidiLink last;
+} BidiChain, *BidiChainRef;
 
-SB_INTERNAL void SBBidiChainInitialize(SBBidiChainRef chain,
-    SBBidiType *types, SBLevel *levels, SBBidiLink *links);
-SB_INTERNAL void SBBidiChainAdd(SBBidiChainRef chain, SBBidiType type, SBUInteger length);
+SB_INTERNAL void BidiChainInitialize(BidiChainRef chain,
+    SBBidiType *types, SBLevel *levels, BidiLink *links);
+SB_INTERNAL void BidiChainAdd(BidiChainRef chain, SBBidiType type, SBUInteger length);
 
-SB_INTERNAL SBUInteger SBBidiChainGetOffset(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL SBBoolean SBBidiChainIsSingle(SBBidiChainRef chain, SBBidiLink link);
+SB_INTERNAL SBUInteger BidiChainGetOffset(BidiChainRef chain, BidiLink link);
+SB_INTERNAL SBBoolean BidiChainIsSingle(BidiChainRef chain, BidiLink link);
 
-SB_INTERNAL SBBidiType SBBidiChainGetType(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL void SBBidiChainSetType(SBBidiChainRef chain, SBBidiLink link, SBBidiType type);
+SB_INTERNAL SBBidiType BidiChainGetType(BidiChainRef chain, BidiLink link);
+SB_INTERNAL void BidiChainSetType(BidiChainRef chain, BidiLink link, SBBidiType type);
 
-SB_INTERNAL SBLevel SBBidiChainGetLevel(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL void SBBidiChainSetLevel(SBBidiChainRef chain, SBBidiLink link, SBLevel level);
+SB_INTERNAL SBLevel BidiChainGetLevel(BidiChainRef chain, BidiLink link);
+SB_INTERNAL void BidiChainSetLevel(BidiChainRef chain, BidiLink link, SBLevel level);
 
-SB_INTERNAL SBBidiLink SBBidiChainGetNext(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL void SBBidiChainSetNext(SBBidiChainRef chain, SBBidiLink link, SBBidiLink next);
-SB_INTERNAL void SBBidiChainAbandonNext(SBBidiChainRef chain, SBBidiLink link);
-SB_INTERNAL SBBoolean SBBidiChainMergeIfEqual(SBBidiChainRef chain,
-    SBBidiLink first, SBBidiLink second);
+SB_INTERNAL BidiLink BidiChainGetNext(BidiChainRef chain, BidiLink link);
+SB_INTERNAL void BidiChainSetNext(BidiChainRef chain, BidiLink link, BidiLink next);
+SB_INTERNAL void BidiChainAbandonNext(BidiChainRef chain, BidiLink link);
+SB_INTERNAL SBBoolean BidiChainMergeIfEqual(BidiChainRef chain, BidiLink first, BidiLink second);
 
-#define SBBidiChainForEach(chain, roller, link) \
+#define BidiChainForEach(chain, roller, link) \
     for (link = chain->links[roller]; link != roller; link = chain->links[link])
 
 #endif

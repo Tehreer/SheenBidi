@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,62 +20,62 @@
 #include "SBBase.h"
 
 enum {
-    SBRunKindSimple         = 0x00,
+    RunKindSimple         = 0x00,
 
-    SBRunKindIsolate        = 0x01,
-    SBRunKindPartial        = 0x02,
-    SBRunKindPartialIsolate = SBRunKindIsolate | SBRunKindPartial,
+    RunKindIsolate        = 0x01,
+    RunKindPartial        = 0x02,
+    RunKindPartialIsolate = RunKindIsolate | RunKindPartial,
 
-    SBRunKindTerminating    = 0x04,
-    SBRunKindAttached       = 0x08
+    RunKindTerminating    = 0x04,
+    RunKindAttached       = 0x08
 };
-typedef SBUInt8 SBRunKind;
+typedef SBUInt8 RunKind;
 
-#define SBRunKindMake(i, t)                 \
+#define RunKindMake(i, t)                   \
 (                                           \
-   ((i) ? SBRunKindPartialIsolate : 0)      \
- | ((t) ? SBRunKindTerminating : 0)         \
+   ((i) ? RunKindPartialIsolate : 0)        \
+ | ((t) ? RunKindTerminating : 0)           \
 )
 
-#define SBRunKindMakeComplete(k)            \
+#define RunKindMakeComplete(k)              \
 (                                           \
- (k) &= ~SBRunKindPartial                   \
+ (k) &= ~RunKindPartial                     \
 )
 
-#define SBRunKindMakeAttached(k)            \
+#define RunKindMakeAttached(k)              \
 (                                           \
- (k) |= SBRunKindAttached                   \
+ (k) |= RunKindAttached                     \
 )
 
-#define SBRunKindIsSimple(k)                \
+#define RunKindIsSimple(k)                  \
 (                                           \
- (k) == SBRunKindSimple                     \
+ (k) == RunKindSimple                       \
 )
 
-#define SBRunKindIsIsolate(k)               \
+#define RunKindIsIsolate(k)                 \
 (                                           \
- (k) & SBRunKindIsolate                     \
+ (k) & RunKindIsolate                       \
 )
 
-#define SBRunKindIsTerminating(k)           \
+#define RunKindIsTerminating(k)             \
 (                                           \
- (k) & SBRunKindTerminating                 \
+ (k) & RunKindTerminating                   \
 )
 
-#define SBRunKindIsPartialIsolate(k)        \
+#define RunKindIsPartialIsolate(k)          \
 (                                           \
- (k) & SBRunKindPartial                     \
+ (k) & RunKindPartial                       \
 )
 
-#define SBRunKindIsCompleteIsolate(k)       \
+#define RunKindIsCompleteIsolate(k)         \
 (                                           \
-    ((k) & SBRunKindPartialIsolate)         \
- == SBRunKindIsolate                        \
+    ((k) & RunKindPartialIsolate)           \
+ == RunKindIsolate                          \
 )
 
-#define SBRunKindIsAttachedTerminating(k)   \
+#define RunKindIsAttachedTerminating(k)     \
 (                                           \
- (k) & SBRunKindAttached                    \
+ (k) & RunKindAttached                      \
 )
 
 #endif

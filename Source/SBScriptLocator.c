@@ -60,7 +60,7 @@ const SBScriptAgent *SBScriptLocatorGetAgent(SBScriptLocatorRef locator)
 static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
 {
     const SBCodepointSequence *sequence = &locator->_codepointSequence;
-    SBScriptStackRef stack = &locator->_scriptStack;
+    ScriptStackRef stack = &locator->_scriptStack;
     SBScript result = SBScriptZYYY;
     SBUInteger current = offset;
     SBUInteger next = offset;
@@ -82,7 +82,7 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
                 SBCodepoint mirror = SBPairingDetermineMirror(codepoint);
                 if (mirror) {
                     /* A closing pair exists for this punctuation, so push it onto the stack. */
-                    SBScriptStackPush(stack, result, mirror);
+                    ScriptStackPush(stack, result, mirror);
                 }
             }
             /* Check if current code point is a close punctuation. */
@@ -90,19 +90,19 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
                 SBBoolean isMirrored = (SBPairingDetermineMirror(codepoint) != 0);
                 if (isMirrored) {
                     /* Find the matching entry in the stack, while popping the unmatched ones. */
-                    while (!SBScriptStackIsEmpty(stack)) {
-                        SBCodepoint mirror = SBScriptStackGetMirror(stack);
+                    while (!ScriptStackIsEmpty(stack)) {
+                        SBCodepoint mirror = ScriptStackGetMirror(stack);
                         if (mirror != codepoint) {
-                            SBScriptStackPop(stack);
+                            ScriptStackPop(stack);
                         } else {
                             break;
                         }
                     }
 
-                    if (!SBScriptStackIsEmpty(stack)) {
+                    if (!ScriptStackIsEmpty(stack)) {
                         isStacked = SBTrue;
                         /* Paired punctuation match the script of enclosing text. */
-                        script = SBScriptStackGetScript(stack);
+                        script = ScriptStackGetScript(stack);
                     }
                 }
             }
@@ -113,12 +113,12 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
                 /* Set the concrete script of this code point as the result. */
                 result = script;
                 /* Seal the pending punctuations with the result. */
-                SBScriptStackSealPairs(stack, result);
+                ScriptStackSealPairs(stack, result);
             }
 
             if (isStacked) {
                 /* Pop the paired punctuation from the stack. */
-                SBScriptStackPop(stack);
+                ScriptStackPop(stack);
             }
         } else {
             /* The current code point has a different script, so finish the run. */
@@ -128,7 +128,7 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
         current = next;
     }
 
-    SBScriptStackLeavePairs(stack);
+    ScriptStackLeavePairs(stack);
 
     /* Set the run info in agent. */
     locator->agent.offset = offset;
@@ -151,7 +151,7 @@ SBBoolean SBScriptLocatorMoveNext(SBScriptLocatorRef locator)
 
 void SBScriptLocatorReset(SBScriptLocatorRef locator)
 {
-    SBScriptStackReset(&locator->_scriptStack);
+    ScriptStackReset(&locator->_scriptStack);
     locator->agent.offset = 0;
     locator->agent.length = 0;
     locator->agent.script = SBScriptNil;

@@ -184,40 +184,40 @@ SB_INTERNAL void PrintLevelsArray(SBLevel *levels, SBUInteger length)
 
 typedef struct {
     void *object;
-    SBBidiLink link;
+    BidiLink link;
     SBUInteger length;
 } IsolatingContext;
 
-typedef void (*IsolatingConsumer)(SBIsolatingRunRef isolatingRun, IsolatingContext *context);
+typedef void (*IsolatingConsumer)(IsolatingRunRef isolatingRun, IsolatingContext *context);
 
-SB_INTERNAL void IsolatingRunForEach(SBIsolatingRunRef isolatingRun,
+SB_INTERNAL void IsolatingRunForEach(IsolatingRunRef isolatingRun,
     IsolatingContext *context, IsolatingConsumer consumer)
 {
-    SBBidiChainRef bidiChain = isolatingRun->bidiChain;
-    SBLevelRunRef levelRun;
+    BidiChainRef bidiChain = isolatingRun->bidiChain;
+    LevelRunRef levelRun;
 
     /* Iterate over individual level runs of the isolating run. */
     for (levelRun = isolatingRun->baseLevelRun; levelRun; levelRun = levelRun->next) {
-        SBBidiLink breakLink = SBBidiChainGetNext(bidiChain, levelRun->lastLink);
-        SBBidiLink currentLink = levelRun->firstLink;
-        SBBidiLink subsequentLink = levelRun->subsequentLink;
+        BidiLink breakLink = BidiChainGetNext(bidiChain, levelRun->lastLink);
+        BidiLink currentLink = levelRun->firstLink;
+        BidiLink subsequentLink = levelRun->subsequentLink;
 
         /* Iterate over each link of the level run. */
         while (currentLink != breakLink) {
-            SBBidiLink nextLink = SBBidiChainGetNext(bidiChain, currentLink);
-            SBUInteger linkOffset = SBBidiChainGetOffset(bidiChain, currentLink);
+            BidiLink nextLink = BidiChainGetNext(bidiChain, currentLink);
+            SBUInteger linkOffset = BidiChainGetOffset(bidiChain, currentLink);
             SBUInteger linkLength;
             SBUInteger index;
 
             if (nextLink != breakLink) {
-                linkLength = SBBidiChainGetOffset(bidiChain, nextLink) - linkOffset;
+                linkLength = BidiChainGetOffset(bidiChain, nextLink) - linkOffset;
             } else {
-                linkLength = SBBidiChainGetOffset(bidiChain, subsequentLink) - linkOffset;
+                linkLength = BidiChainGetOffset(bidiChain, subsequentLink) - linkOffset;
             }
 
             /* Skip any sequence of BN character types. */
             for (index = 1; index < linkLength; index++) {
-                SBBidiType bidiType = SBBidiChainGetType(bidiChain, currentLink + index);
+                SBBidiType bidiType = BidiChainGetType(bidiChain, currentLink + index);
                 if (bidiType == SBBidiTypeBN) {
                     linkLength = index;
                     break;
@@ -233,9 +233,9 @@ SB_INTERNAL void IsolatingRunForEach(SBIsolatingRunRef isolatingRun,
     }
 }
 
-static void PrintTypesOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
+static void PrintTypesOperation(IsolatingRunRef isolatingRun, IsolatingContext *context)
 {
-    SBBidiType bidiType = SBBidiChainGetType(isolatingRun->bidiChain, context->link);
+    SBBidiType bidiType = BidiChainGetType(isolatingRun->bidiChain, context->link);
 
     while (context->length--) {
         SB_LOG_BIDI_TYPE(bidiType);
@@ -243,15 +243,15 @@ static void PrintTypesOperation(SBIsolatingRunRef isolatingRun, IsolatingContext
     }
 }
 
-SB_INTERNAL void PrintRunTypes(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunTypes(IsolatingRunRef isolatingRun)
 {
     IsolatingContext context;
     IsolatingRunForEach(isolatingRun, &context, _SBPrintTypesOperation);
 }
 
-static void PrintLevelsOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
+static void PrintLevelsOperation(IsolatingRunRef isolatingRun, IsolatingContext *context)
 {
-    SBLevel charLevel = SBBidiChainGetLevel(isolatingRun->bidiChain, context->link);
+    SBLevel charLevel = BidiChainGetLevel(isolatingRun->bidiChain, context->link);
 
     while (context->length--) {
         SB_LOG_LEVEL(charLevel);
@@ -259,7 +259,7 @@ static void PrintLevelsOperation(SBIsolatingRunRef isolatingRun, IsolatingContex
     }
 }
 
-SB_INTERNAL void PrintRunLevels(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunLevels(IsolatingRunRef isolatingRun)
 {
     IsolatingContext context;
     IsolatingRunForEach(isolatingRun, &context, _SBPrintLevelsOperation);
@@ -270,10 +270,10 @@ typedef struct {
     SBUInteger length;
 } IsolatingRange;
 
-static void PrintRangeOperation(SBIsolatingRunRef isolatingRun, IsolatingContext *context)
+static void PrintRangeOperation(IsolatingRunRef isolatingRun, IsolatingContext *context)
 {
     IsolatingRange *range = context->object;
-    SBUInteger offset = SBBidiChainGetOffset(isolatingRun->bidiChain, context->link);
+    SBUInteger offset = BidiChainGetOffset(isolatingRun->bidiChain, context->link);
 
     if (range->length == 0) {
         range->offset = offset;
@@ -289,7 +289,7 @@ static void PrintRangeOperation(SBIsolatingRunRef isolatingRun, IsolatingContext
     }
 }
 
-SB_INTERNAL void PrintRunRange(SBIsolatingRunRef isolatingRun)
+SB_INTERNAL void PrintRunRange(IsolatingRunRef isolatingRun)
 {
     IsolatingRange range = { 0, 0 };
     IsolatingContext context;

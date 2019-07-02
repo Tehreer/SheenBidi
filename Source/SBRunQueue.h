@@ -26,13 +26,13 @@
 #define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
 
 typedef struct _RunQueueList {
-    SBLevelRun elements[RunQueueList_Length];
+    LevelRun elements[RunQueueList_Length];
 
     struct _RunQueueList *previous; /**< Reference to the previous list of queue elements */
     struct _RunQueueList *next;     /**< Reference to the next list of queue elements */
 } RunQueueList, *RunQueueListRef;
 
-typedef struct _SBRunQueue {
+typedef struct _RunQueue {
     RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
     RunQueueListRef _frontList;     /**< The list containing front element of the queue */
     RunQueueListRef _rearList;      /**< The list containing rear element of the queue */
@@ -40,16 +40,16 @@ typedef struct _SBRunQueue {
     SBInteger _frontTop;            /**< Index of front element in front list */
     SBInteger _rearTop;             /**< Index of rear element in rear list */
     SBInteger _partialTop;          /**< Index of partial run in partial list */
-    SBLevelRunRef peek;             /**< Peek element of the queue */
+    LevelRunRef peek;               /**< Peek element of the queue */
     SBUInteger count;               /**< Number of elements the queue contains */
     SBBoolean shouldDequeue;
-} SBRunQueue, *SBRunQueueRef;
+} RunQueue, *RunQueueRef;
 
-SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue);
+SB_INTERNAL void RunQueueInitialize(RunQueueRef queue);
 
-SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, const SBLevelRunRef levelRun);
-SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue);
+SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
+SB_INTERNAL void RunQueueDequeue(RunQueueRef queue);
 
-SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue);
+SB_INTERNAL void RunQueueFinalize(RunQueueRef queue);
 
 #endif

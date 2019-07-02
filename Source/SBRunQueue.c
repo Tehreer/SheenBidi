@@ -15,7 +15,6 @@
  */
 
 #include <SBConfig.h>
-
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -24,7 +23,7 @@
 #include "SBLevelRun.h"
 #include "SBRunQueue.h"
 
-static void FindPreviousPartialRun(SBRunQueueRef queue)
+static void FindPreviousPartialRun(RunQueueRef queue)
 {
     RunQueueListRef list = queue->_partialList;
     SBInteger top = queue->_partialTop;
@@ -33,8 +32,8 @@ static void FindPreviousPartialRun(SBRunQueueRef queue)
         SBInteger limit = (list == queue->_frontList ? queue->_frontTop : 0);
 
         do {
-            SBLevelRunRef levelRun = &list->elements[top];
-            if (SBRunKindIsPartialIsolate(levelRun->kind)) {
+            LevelRunRef levelRun = &list->elements[top];
+            if (RunKindIsPartialIsolate(levelRun->kind)) {
                 queue->_partialList = list;
                 queue->_partialTop = top;
                 return;
@@ -50,7 +49,7 @@ static void FindPreviousPartialRun(SBRunQueueRef queue)
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue)
+SB_INTERNAL void RunQueueInitialize(RunQueueRef queue)
 {
     /* Initialize first list. */
     queue->_firstList.previous = NULL;
@@ -72,9 +71,9 @@ SB_INTERNAL void SBRunQueueInitialize(SBRunQueueRef queue)
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, const SBLevelRunRef levelRun)
+SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
 {
-    SBLevelRunRef element;
+    LevelRunRef element;
 
     if (queue->_rearTop != RunQueueList_MaxIndex) {
         element = &queue->_rearList->elements[++queue->_rearTop];
@@ -101,20 +100,20 @@ SB_INTERNAL void SBRunQueueEnqueue(SBRunQueueRef queue, const SBLevelRunRef leve
     *element = *levelRun;
 
     /* Complete the latest isolating run with this terminating run */
-    if (queue->_partialTop != -1 && SBRunKindIsTerminating(element->kind)) {
-        SBLevelRunRef incompleteRun = &queue->_partialList->elements[queue->_partialTop];
-        SBLevelRunAttach(incompleteRun, element);
+    if (queue->_partialTop != -1 && RunKindIsTerminating(element->kind)) {
+        LevelRunRef incompleteRun = &queue->_partialList->elements[queue->_partialTop];
+        LevelRunAttach(incompleteRun, element);
         FindPreviousPartialRun(queue);
     }
 
     /* Save the location of the isolating run */
-    if (SBRunKindIsIsolate(element->kind)) {
+    if (RunKindIsIsolate(element->kind)) {
         queue->_partialList = queue->_rearList;
         queue->_partialTop = queue->_rearTop;
     }
 }
 
-SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
+SB_INTERNAL void RunQueueDequeue(RunQueueRef queue)
 {
     /* The queue should not be empty. */
     SBAssert(queue->count != 0);
@@ -137,7 +136,7 @@ SB_INTERNAL void SBRunQueueDequeue(SBRunQueueRef queue)
     queue->peek = &queue->_frontList->elements[queue->_frontTop];
 }
 
-SB_INTERNAL void SBRunQueueFinalize(SBRunQueueRef queue)
+SB_INTERNAL void RunQueueFinalize(RunQueueRef queue)
 {
     RunQueueListRef list = queue->_firstList.next;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,29 @@
 #include "SBBase.h"
 
 enum {
-    SBRunExtremaLeadingL  = SBBidiTypeL << 0,
-    SBRunExtremaLeadingR  = SBBidiTypeR << 0,
+    RunExtremaLeadingL  = SBBidiTypeL << 0,
+    RunExtremaLeadingR  = SBBidiTypeR << 0,
     
-    SBRunExtremaTrailingL = SBBidiTypeL << 4,
-    SBRunExtremaTrailingR = SBBidiTypeR << 4
+    RunExtremaTrailingL = SBBidiTypeL << 4,
+    RunExtremaTrailingR = SBBidiTypeR << 4
 };
-typedef SBUInt8 SBRunExtrema;
+typedef SBUInt8 RunExtrema;
 
-#define SBRunExtremaMake(sor, eor)          \
-(SBRunExtrema)                              \
+#define RunExtremaMake(sor, eor)            \
+(RunExtrema)                                \
 (                                           \
    ((sor) << 0)                             \
  | ((eor) << 4)                             \
 )
 
-#define SBRunExtrema_SOR(e)                 \
-(SBRunExtrema)                              \
+#define RunExtrema_SOR(e)                   \
+(RunExtrema)                                \
 (                                           \
  (e) & 0xF                                  \
 )
 
-#define SBRunExtrema_EOR(e)                 \
-(SBRunExtrema)                              \
+#define RunExtrema_EOR(e)                   \
+(RunExtrema)                                \
 (                                           \
  (e) >> 4                                   \
 )

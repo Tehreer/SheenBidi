@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,19 @@
 #include "SBRunExtrema.h"
 #include "SBRunKind.h"
 
-typedef struct _SBLevelRun {
-    struct _SBLevelRun *next;   /**< Reference to the next sequence of run links. */
-    SBBidiLink firstLink;       /**< First link of the run. */
-    SBBidiLink lastLink;        /**< Last link of the run. */
-    SBBidiLink subsequentLink;  /**< Subsequent link of the run. */
-    SBRunExtrema extrema;
-    SBRunKind kind;
+typedef struct _LevelRun {
+    struct _LevelRun *next;   /**< Reference to the next sequence of run links. */
+    BidiLink firstLink;       /**< First link of the run. */
+    BidiLink lastLink;        /**< Last link of the run. */
+    BidiLink subsequentLink;  /**< Subsequent link of the run. */
+    RunExtrema extrema;
+    RunKind kind;
     SBLevel level;
-} SBLevelRun, *SBLevelRunRef;
+} LevelRun, *LevelRunRef;
 
-SB_INTERNAL void SBLevelRunInitialize(SBLevelRunRef levelRun,
-    SBBidiChainRef bidiChain, SBBidiLink firstLink, SBBidiLink lastLink,
+SB_INTERNAL void LevelRunInitialize(LevelRunRef levelRun,
+    BidiChainRef bidiChain, BidiLink firstLink, BidiLink lastLink,
     SBBidiType sor, SBBidiType eor);
-SB_INTERNAL void SBLevelRunAttach(SBLevelRunRef levelRun, SBLevelRunRef next);
+SB_INTERNAL void LevelRunAttach(LevelRunRef levelRun, LevelRunRef next);
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,18 +32,18 @@ typedef struct _SBScriptStack {
     SBInteger top;
     SBUInteger count;
     SBUInteger open;
-} SBScriptStack, *SBScriptStackRef;
+} ScriptStack, *ScriptStackRef;
 
-SB_INTERNAL void SBScriptStackReset(SBScriptStackRef stack);
+SB_INTERNAL void ScriptStackReset(ScriptStackRef stack);
 
-SB_INTERNAL void SBScriptStackPush(SBScriptStackRef stack, SBScript script, SBCodepoint mirror);
-SB_INTERNAL void SBScriptStackPop(SBScriptStackRef stack);
+SB_INTERNAL void ScriptStackPush(ScriptStackRef stack, SBScript script, SBCodepoint mirror);
+SB_INTERNAL void ScriptStackPop(ScriptStackRef stack);
 
-SB_INTERNAL void SBScriptStackLeavePairs(SBScriptStackRef stack);
-SB_INTERNAL void SBScriptStackSealPairs(SBScriptStackRef stack, SBScript script);
+SB_INTERNAL void ScriptStackLeavePairs(ScriptStackRef stack);
+SB_INTERNAL void ScriptStackSealPairs(ScriptStackRef stack, SBScript script);
 
-SB_INTERNAL SBBoolean SBScriptStackIsEmpty(SBScriptStackRef stack);
-SB_INTERNAL SBScript SBScriptStackGetScript(SBScriptStackRef stack);
-SB_INTERNAL SBCodepoint SBScriptStackGetMirror(SBScriptStackRef stack);
+SB_INTERNAL SBBoolean ScriptStackIsEmpty(ScriptStackRef stack);
+SB_INTERNAL SBScript ScriptStackGetScript(ScriptStackRef stack);
+SB_INTERNAL SBCodepoint ScriptStackGetMirror(ScriptStackRef stack);
 
 #endif

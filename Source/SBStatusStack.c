@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@
 #include "SBBase.h"
 #include "SBStatusStack.h"
 
-SB_INTERNAL void SBStatusStackInitialize(SBStatusStackRef stack)
+SB_INTERNAL void StatusStackInitialize(StatusStackRef stack)
 {
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
     
-    SBStatusStackSetEmpty(stack);
+    StatusStackSetEmpty(stack);
 }
 
-SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
+SB_INTERNAL void StatusStackPush(StatusStackRef stack, SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
 {
     _SBStatusStackElementRef element;
 
@@ -63,7 +63,7 @@ SB_INTERNAL void SBStatusStackPush(SBStatusStackRef stack, SBLevel embeddingLeve
     element->isolateStatus = isolateStatus;
 }
 
-SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack)
+SB_INTERNAL void StatusStackPop(StatusStackRef stack)
 {
     /* The stack should not be empty. */
     SBAssert(stack->count != 0);
@@ -77,29 +77,29 @@ SB_INTERNAL void SBStatusStackPop(SBStatusStackRef stack)
     stack->count -= 1;
 }
 
-SB_INTERNAL void SBStatusStackSetEmpty(SBStatusStackRef stack)
+SB_INTERNAL void StatusStackSetEmpty(StatusStackRef stack)
 {
     stack->_peekList = &stack->_firstList;
     stack->_peekTop = 0;
     stack->count = 0;
 }
 
-SB_INTERNAL SBLevel SBStatusStackGetEmbeddingLevel(SBStatusStackRef stack)
+SB_INTERNAL SBLevel StatusStackGetEmbeddingLevel(StatusStackRef stack)
 {
     return stack->_peekList->elements[stack->_peekTop].embeddingLevel;
 }
 
-SB_INTERNAL SBBidiType SBStatusStackGetOverrideStatus(SBStatusStackRef stack)
+SB_INTERNAL SBBidiType StatusStackGetOverrideStatus(StatusStackRef stack)
 {
     return stack->_peekList->elements[stack->_peekTop].overrideStatus;
 }
 
-SB_INTERNAL SBBoolean SBStatusStackGetIsolateStatus(SBStatusStackRef stack)
+SB_INTERNAL SBBoolean StatusStackGetIsolateStatus(StatusStackRef stack)
 {
     return stack->_peekList->elements[stack->_peekTop].isolateStatus;
 }
 
-SB_INTERNAL void SBStatusStackFinalize(SBStatusStackRef stack)
+SB_INTERNAL void StatusStackFinalize(StatusStackRef stack)
 {
     _SBStatusStackListRef list = stack->_firstList.next;
 

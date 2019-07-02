@@ -27,16 +27,16 @@
 
 typedef struct _BracketQueueList {
     SBCodepoint bracket[BracketQueueList_Length];
-    SBBidiLink priorStrongLink[BracketQueueList_Length];
-    SBBidiLink openingLink[BracketQueueList_Length];
-    SBBidiLink closingLink[BracketQueueList_Length];
+    BidiLink priorStrongLink[BracketQueueList_Length];
+    BidiLink openingLink[BracketQueueList_Length];
+    BidiLink closingLink[BracketQueueList_Length];
     SBBidiType strongType[BracketQueueList_Length];
 
     struct _BracketQueueList *previous;
     struct _BracketQueueList *next;
 } BracketQueueList, *BracketQueueListRef;
 
-typedef struct _SBBracketQueue {
+typedef struct _BracketQueue {
     BracketQueueList _firstList;
     BracketQueueListRef _frontList;
     BracketQueueListRef _rearList;
@@ -45,28 +45,28 @@ typedef struct _SBBracketQueue {
     SBUInteger count;
     SBBoolean shouldDequeue;
     SBBidiType _direction;
-} SBBracketQueue, *SBBracketQueueRef;
+} BracketQueue, *BracketQueueRef;
 
-#define SBBracketQueueGetMaxCapacity()      63
+#define BracketQueueGetMaxCapacity()        63
 
-SB_INTERNAL void SBBracketQueueInitialize(SBBracketQueueRef queue);
-SB_INTERNAL void SBBracketQueueReset(SBBracketQueueRef queue, SBBidiType direction);
+SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue);
+SB_INTERNAL void BracketQueueReset(BracketQueueRef queue, SBBidiType direction);
 
-SB_INTERNAL void SBBracketQueueEnqueue(SBBracketQueueRef queue,
-    SBBidiLink priorStrongLink, SBBidiLink openingLink, SBCodepoint bracket);
-SB_INTERNAL void SBBracketQueueDequeue(SBBracketQueueRef queue);
+SB_INTERNAL void BracketQueueEnqueue(BracketQueueRef queue,
+    BidiLink priorStrongLink, BidiLink openingLink, SBCodepoint bracket);
+SB_INTERNAL void BracketQueueDequeue(BracketQueueRef queue);
 
-SB_INTERNAL void SBBracketQueueSetStrongType(SBBracketQueueRef queue, SBBidiType strongType);
-SB_INTERNAL void SBBracketQueueClosePair(SBBracketQueueRef queue,
-    SBBidiLink closingLink, SBCodepoint bracket);
+SB_INTERNAL void BracketQueueSetStrongType(BracketQueueRef queue, SBBidiType strongType);
+SB_INTERNAL void BracketQueueClosePair(BracketQueueRef queue,
+    BidiLink closingLink, SBCodepoint bracket);
 
-SB_INTERNAL SBBoolean SBBracketQueueShouldDequeue(SBBracketQueueRef queue);
+SB_INTERNAL SBBoolean BracketQueueShouldDequeue(BracketQueueRef queue);
 
-SB_INTERNAL SBBidiLink SBBracketQueueGetPriorStrongLink(SBBracketQueueRef queue);
-SB_INTERNAL SBBidiLink SBBracketQueueGetOpeningLink(SBBracketQueueRef queue);
-SB_INTERNAL SBBidiLink SBBracketQueueGetClosingLink(SBBracketQueueRef queue);
-SB_INTERNAL SBBidiType SBBracketQueueGetStrongType(SBBracketQueueRef queue);
+SB_INTERNAL BidiLink BracketQueueGetPriorStrongLink(BracketQueueRef queue);
+SB_INTERNAL BidiLink BracketQueueGetOpeningLink(BracketQueueRef queue);
+SB_INTERNAL BidiLink BracketQueueGetClosingLink(BracketQueueRef queue);
+SB_INTERNAL SBBidiType BracketQueueGetStrongType(BracketQueueRef queue);
 
-SB_INTERNAL void SBBracketQueueFinalize(SBBracketQueueRef queue);
+SB_INTERNAL void BracketQueueFinalize(BracketQueueRef queue);
 
 #endif
