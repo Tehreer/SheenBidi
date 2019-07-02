@@ -18,10 +18,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "LevelRun.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBLevelRun.h"
-#include "SBRunQueue.h"
+#include "RunQueue.h"
 
 static void FindPreviousPartialRun(RunQueueRef queue)
 {

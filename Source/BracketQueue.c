@@ -18,10 +18,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "BidiChain.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
-#include "SBBracketQueue.h"
+#include "BracketQueue.h"
 
 static void BracketQueueFinalizePairs(BracketQueueRef queue, BracketQueueListRef list, SBInteger top)
 {

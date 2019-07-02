@@ -19,11 +19,11 @@
 
 #include <SBConfig.h>
 
+#include "BidiChain.h"
+#include "BracketQueue.h"
+#include "LevelRun.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
-#include "SBBracketQueue.h"
 #include "SBCodepointSequence.h"
-#include "SBLevelRun.h"
 
 typedef struct _IsolatingRun {
     const SBCodepointSequence *codepointSequence;

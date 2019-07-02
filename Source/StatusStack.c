@@ -20,7 +20,7 @@
 
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBStatusStack.h"
+#include "StatusStack.h"
 
 SB_INTERNAL void StatusStackInitialize(StatusStackRef stack)
 {

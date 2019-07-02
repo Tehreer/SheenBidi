@@ -21,7 +21,7 @@
 #include <SBCodepointSequence.h>
 #include <SBScriptLocator.h>
 
-#include "SBScriptStack.h"
+#include "ScriptStack.h"
 
 typedef struct _SBScriptLocator {
     SBCodepointSequence _codepointSequence;

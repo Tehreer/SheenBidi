@@ -19,10 +19,10 @@
 
 #include <SBConfig.h>
 
+#include "BidiChain.h"
+#include "RunExtrema.h"
+#include "RunKind.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
-#include "SBRunExtrema.h"
-#include "SBRunKind.h"
 
 typedef struct _LevelRun {
     struct _LevelRun *next;   /**< Reference to the next sequence of run links. */

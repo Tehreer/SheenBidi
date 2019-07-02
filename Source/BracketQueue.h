@@ -19,8 +19,8 @@
 
 #include <SBConfig.h>
 
+#include "BidiChain.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
 
 #define BracketQueueList_Length         8
 #define BracketQueueList_MaxIndex       (BracketQueueList_Length - 1)

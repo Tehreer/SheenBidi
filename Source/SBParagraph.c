@@ -18,18 +18,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "BidiChain.h"
+#include "IsolatingRun.h"
+#include "LevelRun.h"
+#include "RunQueue.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
 #include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
-#include "SBIsolatingRun.h"
-#include "SBLevelRun.h"
 #include "SBLine.h"
 #include "SBLog.h"
-#include "SBRunQueue.h"
-#include "SBStatusStack.h"
+#include "StatusStack.h"
 #include "SBParagraph.h"
 
 typedef struct _ParagraphSupport {

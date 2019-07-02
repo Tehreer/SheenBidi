@@ -17,11 +17,11 @@
 #include <SBConfig.h>
 #include <stddef.h>
 
+#include "BidiChain.h"
+#include "RunExtrema.h"
+#include "RunKind.h"
 #include "SBAssert.h"
-#include "SBBidiChain.h"
-#include "SBRunExtrema.h"
-#include "SBRunKind.h"
-#include "SBLevelRun.h"
+#include "LevelRun.h"
 
 SB_INTERNAL void LevelRunInitialize(LevelRunRef levelRun,
     BidiChainRef bidiChain, BidiLink firstLink, BidiLink lastLink,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,24 @@
 
 #ifdef SB_CONFIG_UNITY
 
+#include "BidiChain.c"
+#include "BracketQueue.c"
+#include "IsolatingRun.c"
+#include "LevelRun.c"
+#include "RunQueue.c"
 #include "SBAlgorithm.c"
 #include "SBBase.c"
-#include "SBBidiChain.c"
 #include "SBBidiTypeLookup.c"
-#include "SBBracketQueue.c"
 #include "SBCodepointSequence.c"
 #include "SBGeneralCategoryLookup.c"
-#include "SBIsolatingRun.c"
-#include "SBLevelRun.c"
 #include "SBLine.c"
 #include "SBLog.c"
 #include "SBMirrorLocator.c"
 #include "SBPairingLookup.c"
 #include "SBParagraph.c"
-#include "SBRunQueue.c"
 #include "SBScriptLocator.c"
 #include "SBScriptLookup.c"
-#include "SBScriptStack.c"
-#include "SBStatusStack.c"
+#include "ScriptStack.c"
+#include "StatusStack.c"
 
 #endif

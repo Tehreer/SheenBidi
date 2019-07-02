@@ -18,7 +18,7 @@
 
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBScriptStack.h"
+#include "ScriptStack.h"
 
 SB_INTERNAL void ScriptStackReset(ScriptStackRef stack)
 {

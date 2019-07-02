@@ -16,15 +16,15 @@
 
 #include <SBConfig.h>
 
+#include "BidiChain.h"
+#include "BracketQueue.h"
+#include "BracketType.h"
+#include "LevelRun.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBBidiChain.h"
-#include "SBBracketQueue.h"
-#include "SBBracketType.h"
-#include "SBLevelRun.h"
 #include "SBLog.h"
 #include "SBPairingLookup.h"
-#include "SBIsolatingRun.h"
+#include "IsolatingRun.h"
 
 static void ResolveAvailableBracketPairs(IsolatingRunRef isolatingRun);
 

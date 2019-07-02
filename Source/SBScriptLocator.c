@@ -22,7 +22,7 @@
 #include "SBGeneralCategoryLookup.h"
 #include "SBPairingLookup.h"
 #include "SBScriptLookup.h"
-#include "SBScriptStack.h"
+#include "ScriptStack.h"
 #include "SBScriptLocator.h"
 
 static SBBoolean IsSimilarScript(SBScript lhs, SBScript rhs)

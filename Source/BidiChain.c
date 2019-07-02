@@ -17,7 +17,7 @@
 #include <SBConfig.h>
 
 #include "SBBase.h"
-#include "SBBidiChain.h"
+#include "BidiChain.h"
 
 SB_INTERNAL void BidiChainInitialize(BidiChainRef chain,
     SBBidiType *types, SBLevel *levels, BidiLink *links)

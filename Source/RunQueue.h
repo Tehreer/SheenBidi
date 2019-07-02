@@ -19,8 +19,8 @@
 
 #include <SBConfig.h>
 
+#include "LevelRun.h"
 #include "SBBase.h"
-#include "SBLevelRun.h"
 
 #define RunQueueList_Length         8
 #define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
