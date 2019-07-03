@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <vector>
 
 extern "C" {
-#include <Source/SBBracketType.h>
+#include <Source/BracketType.h>
 }
 
 #include "Utilities/Math.h"
@@ -40,13 +40,13 @@ static const size_t MIN_SEGMENT_SIZE = 8;
 static const size_t MAX_SEGMENT_SIZE = 512;
 
 static const string DIFFERENCES_ARRAY_TYPE = "static const SBInt16";
-static const string DIFFERENCES_ARRAY_NAME = "_SBPairDifferences";
+static const string DIFFERENCES_ARRAY_NAME = "PairDifferences";
 
 static const string DATA_ARRAY_TYPE = "static const SBUInt8";
-static const string DATA_ARRAY_NAME = "_SBPairData";
+static const string DATA_ARRAY_NAME = "PairData";
 
 static const string INDEXES_ARRAY_TYPE = "static const SBUInt16";
-static const string INDEXES_ARRAY_NAME = "_SBPairIndexes";
+static const string INDEXES_ARRAY_NAME = "PairIndexes";
 
 PairingLookupGenerator::DataSegment::DataSegment(size_t index, DataSet dataset)
     : index(index)
@@ -147,11 +147,11 @@ void PairingLookupGenerator::collectData() {
 
             switch (bracketType) {
             case 'o':
-                data |= SBBracketTypeOpen;
+                data |= BracketTypeOpen;
                 break;
 
             case 'c':
-                data |= SBBracketTypeClose;
+                data |= BracketTypeClose;
                 break;
             }
 
@@ -253,15 +253,15 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     string maxCodePoint = "0x" + Converter::toHex(m_lastCodePoint, 4);
     string segmentSize = "0x" + Converter::toHex(m_segmentSize, 3);
     mirror.append("").newLine();
-    mirror.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint)").newLine();
+    mirror.append("SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint)").newLine();
     mirror.append("{").newLine();
     mirror.appendTabs(1).append("if (codepoint <= " + maxCodePoint + ") {").newLine();
-    mirror.appendTabs(2).append("SBInt16 diff = _SBPairDifferences[").newLine();
-    mirror.appendTabs(2).append("                _SBPairData[").newLine();
-    mirror.appendTabs(2).append("                 _SBPairIndexes[").newLine();
+    mirror.appendTabs(2).append("SBInt16 diff = PairDifferences[").newLine();
+    mirror.appendTabs(2).append("                PairData[").newLine();
+    mirror.appendTabs(2).append("                 PairIndexes[").newLine();
     mirror.appendTabs(2).append("                      codepoint / " + segmentSize).newLine();
     mirror.appendTabs(2).append("                 ] + (codepoint % " + segmentSize + ")").newLine();
-    mirror.appendTabs(2).append("                ] & SBBracketTypeInverseMask").newLine();
+    mirror.appendTabs(2).append("                ] & BracketTypeInverseMask").newLine();
     mirror.appendTabs(2).append("               ];").newLine();
     mirror.newLine();
     mirror.appendTabs(2).append("if (diff != 0) {").newLine();
@@ -273,30 +273,30 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     mirror.append("}").newLine();
 
     TextBuilder bracket;
-    bracket.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *type)").newLine();
+    bracket.append("SB_INTERNAL SBCodepoint LookupBracketPair(SBCodepoint codepoint, BracketType *type)").newLine();
     bracket.append("{").newLine();
     bracket.appendTabs(1).append("if (codepoint <= " + maxCodePoint + ") {").newLine();
-    bracket.appendTabs(2).append("SBUInt8 data = _SBPairData[").newLine();
-    bracket.appendTabs(2).append("                _SBPairIndexes[").newLine();
+    bracket.appendTabs(2).append("SBUInt8 data = PairData[").newLine();
+    bracket.appendTabs(2).append("                PairIndexes[").newLine();
     bracket.appendTabs(2).append("                     codepoint / " + segmentSize).newLine();
     bracket.appendTabs(2).append("                ] + (codepoint % " + segmentSize + ")").newLine();
     bracket.appendTabs(2).append("               ];").newLine();
-    bracket.appendTabs(2).append("*type = (data & SBBracketTypePrimaryMask);").newLine();
+    bracket.appendTabs(2).append("*type = (data & BracketTypePrimaryMask);").newLine();
     bracket.newLine();
     bracket.appendTabs(2).append("if (*type != 0) {").newLine();
-    bracket.appendTabs(3).append("SBInt16 diff = _SBPairDifferences[").newLine();
-    bracket.appendTabs(3).append("                data & SBBracketTypeInverseMask").newLine();
+    bracket.appendTabs(3).append("SBInt16 diff = PairDifferences[").newLine();
+    bracket.appendTabs(3).append("                data & BracketTypeInverseMask").newLine();
     bracket.appendTabs(3).append("               ];").newLine();
     bracket.appendTabs(3).append("return (codepoint + diff);").newLine();
     bracket.appendTabs(2).append("}").newLine();
     bracket.appendTabs(1).append("} else {").newLine();
-    bracket.appendTabs(2).append("*type = SBBracketTypeNone;").newLine();
+    bracket.appendTabs(2).append("*type = BracketTypeNone;").newLine();
     bracket.appendTabs(1).append("}").newLine();
     bracket.newLine();
     bracket.appendTabs(1).append("return 0;").newLine();
     bracket.append("}").newLine();
 
-    FileBuilder header(directory + "/SBPairingLookup.h");
+    FileBuilder header(directory + "/PairingLookup.h");
     header.append("/*").newLine();
     header.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     header.append(" * DO NOT EDIT!!").newLine();
@@ -307,15 +307,15 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
     header.newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.newLine();
+    header.append("#include \"BracketType.h\"").newLine();
     header.append("#include \"SBBase.h\"").newLine();
-    header.append("#include \"SBBracketType.h\"").newLine();
     header.newLine();
-    header.append("SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);").newLine();
-    header.append("SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, SBBracketType *bracketType);").newLine();
+    header.append("SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint);").newLine();
+    header.append("SB_INTERNAL SBCodepoint LookupBracketPair(SBCodepoint codepoint, BracketType *bracketType);").newLine();
     header.newLine();
     header.append("#endif").newLine();
 
-    FileBuilder source(directory + "/SBPairingLookup.c");
+    FileBuilder source(directory + "/PairingLookup.c");
     source.append("/*").newLine();
     source.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     source.append(" * DO NOT EDIT!!").newLine();
@@ -327,7 +327,7 @@ void PairingLookupGenerator::generateFile(const std::string &directory) {
                   + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
-    source.append("#include \"SBPairingLookup.h\"").newLine();
+    source.append("#include \"PairingLookup.h\"").newLine();
     source.newLine();
     source.append(arrDifferences);
     source.newLine();
