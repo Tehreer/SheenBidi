@@ -20,10 +20,10 @@
 #include "BracketQueue.h"
 #include "BracketType.h"
 #include "LevelRun.h"
+#include "PairingLookup.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBLog.h"
-#include "SBPairingLookup.h"
 #include "IsolatingRun.h"
 
 static void ResolveAvailableBracketPairs(IsolatingRunRef isolatingRun);

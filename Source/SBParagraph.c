@@ -19,13 +19,13 @@
 #include <stdlib.h>
 
 #include "BidiChain.h"
+#include "BidiTypeLookup.h"
 #include "IsolatingRun.h"
 #include "LevelRun.h"
 #include "RunQueue.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBLine.h"
 #include "SBLog.h"

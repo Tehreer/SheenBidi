@@ -5,7 +5,7 @@
  * REQUIRED MEMORY: (37)+2326+(579*2) = 3558 Bytes
  */
 
-#include "SBPairingLookup.h"
+#include "PairingLookup.h"
 
 static const SBInt16 _SBPairDifferences[37] = {
     0,     1,     -1,    2,     -2,    16,    -16,   3,     -3,    2016,  2527,  1923,  1914,  1918,

@@ -17,11 +17,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "GeneralCategoryLookup.h"
+#include "PairingLookup.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
-#include "SBGeneralCategoryLookup.h"
-#include "SBPairingLookup.h"
-#include "SBScriptLookup.h"
+#include "ScriptLookup.h"
 #include "ScriptStack.h"
 #include "SBScriptLocator.h"
 

@@ -5,7 +5,7 @@
  * REQUIRED MEMORY: 9856+(3807*2)+(897*2) = 19264 Bytes
  */
 
-#include "SBScriptLookup.h"
+#include "ScriptLookup.h"
 
 #define Adlm     SBScriptADLM
 #define Aghb     SBScriptAGHB

@@ -18,11 +18,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "PairingLookup.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
-#include "SBPairingLookup.h"
 #include "SBParagraph.h"
 #include "SBRun.h"
 #include "SBLine.h"

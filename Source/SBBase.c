@@ -16,11 +16,11 @@
 
 #include <SBConfig.h>
 
+#include "BidiTypeLookup.h"
+#include "GeneralCategoryLookup.h"
+#include "PairingLookup.h"
+#include "ScriptLookup.h"
 #include "SBBase.h"
-#include "SBBidiTypeLookup.h"
-#include "SBGeneralCategoryLookup.h"
-#include "SBPairingLookup.h"
-#include "SBScriptLookup.h"
 
 #define TAG(a, b, c, d) \
 (SBUInt32)              \

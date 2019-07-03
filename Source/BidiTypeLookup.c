@@ -5,7 +5,7 @@
  * REQUIRED MEMORY: 6606+(3776*2)+(1088*2) = 16334 Bytes
  */
 
-#include "SBBidiTypeLookup.h"
+#include "BidiTypeLookup.h"
 
 #define AL      SBBidiTypeAL
 #define AN      SBBidiTypeAN

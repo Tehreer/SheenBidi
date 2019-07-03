@@ -5,7 +5,7 @@
  * REQUIRED MEMORY: 10222+(4032*2)+(1088*2) = 20462 Bytes
  */
 
-#include "SBGeneralCategoryLookup.h"
+#include "GeneralCategoryLookup.h"
 
 #define Cc     SBGeneralCategoryCC
 #define Cf     SBGeneralCategoryCF

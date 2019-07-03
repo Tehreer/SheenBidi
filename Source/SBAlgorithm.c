@@ -18,8 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "BidiTypeLookup.h"
 #include "SBBase.h"
-#include "SBBidiTypeLookup.h"
 #include "SBCodepointSequence.h"
 #include "SBLog.h"
 #include "SBParagraph.h"
