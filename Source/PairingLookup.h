@@ -11,7 +11,7 @@
 #include "BracketType.h"
 #include "SBBase.h"
 
-SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint);
-SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, BracketType *bracketType);
+SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint);
+SB_INTERNAL SBCodepoint LookupBracketPair(SBCodepoint codepoint, BracketType *bracketType);
 
 #endif

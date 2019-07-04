@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,22 +90,22 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
 {
-    return SBBidiTypeDetermine(codepoint);
+    return LookupBidiType(codepoint);
 }
 
 SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint)
 {
-    return SBGeneralCategoryDetermine(codepoint);
+    return LookupGeneralCategory(codepoint);
 }
 
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint)
 {
-    return SBPairingDetermineMirror(codepoint);
+    return LookupMirror(codepoint);
 }
 
 SBScript SBCodepointGetScript(SBCodepoint codepoint)
 {
-    return SBScriptDetermine(codepoint);
+    return LookupScript(codepoint);
 }
 
 SBUInt32 SBScriptGetOpenTypeTag(SBScript script)

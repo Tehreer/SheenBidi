@@ -240,7 +240,7 @@ static void ResolveBrackets(IsolatingRunRef isolatingRun)
         case SBBidiTypeON:
             stringIndex = BidiChainGetOffset(chain, link) + paragraphOffset;
             codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
-            bracketValue = SBPairingDetermineBracketPair(codepoint, &bracketType);
+            bracketValue = LookupBracketPair(codepoint, &bracketType);
 
             switch (bracketType) {
             case BracketTypeOpen:

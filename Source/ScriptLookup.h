@@ -7,10 +7,10 @@
 #define _SB_INTERNAL_SCRIPT_LOOKUP_H
 
 #include <SBConfig.h>
+#include <SBScript.h>
 
 #include "SBBase.h"
-#include "SBScript.h"
 
-SB_INTERNAL SBScript SBScriptDetermine(SBCodepoint codepoint);
+SB_INTERNAL SBScript LookupScript(SBCodepoint codepoint);
 
 #endif

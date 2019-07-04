@@ -7,10 +7,10 @@
 #define _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H
 
 #include <SBConfig.h>
+#include <SBGeneralCategory.h>
 
 #include "SBBase.h"
-#include "SBGeneralCategory.h"
 
-SB_INTERNAL SBGeneralCategory SBGeneralCategoryDetermine(SBCodepoint codepoint);
+SB_INTERNAL SBGeneralCategory LookupGeneralCategory(SBCodepoint codepoint);
 
 #endif

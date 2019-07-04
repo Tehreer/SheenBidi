@@ -51,7 +51,7 @@ static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *
     SBCodepoint codepoint;
 
     while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex)) != SBCodepointInvalid) {
-        types[firstIndex] = SBBidiTypeDetermine(codepoint);
+        types[firstIndex] = LookupBidiType(codepoint);
 
         /* Subsequent code units get 'BN' type. */
         while (++firstIndex < stringIndex) {

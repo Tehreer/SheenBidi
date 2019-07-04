@@ -71,15 +71,15 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
         SBBoolean isStacked = SBFalse;
         SBScript script;
 
-        script = SBScriptDetermine(codepoint);
+        script = LookupScript(codepoint);
 
         /* Handle paired punctuations in case of a common script. */
         if (script == SBScriptZYYY) {
-            SBGeneralCategory generalCategory = SBGeneralCategoryDetermine(codepoint);
+            SBGeneralCategory generalCategory = LookupGeneralCategory(codepoint);
 
             /* Check if current code point is an open punctuation. */
             if (generalCategory == SBGeneralCategoryPS) {
-                SBCodepoint mirror = SBPairingDetermineMirror(codepoint);
+                SBCodepoint mirror = LookupMirror(codepoint);
                 if (mirror) {
                     /* A closing pair exists for this punctuation, so push it onto the stack. */
                     ScriptStackPush(stack, result, mirror);
@@ -87,7 +87,7 @@ static void ResolveScriptRun(SBScriptLocatorRef locator, SBUInteger offset)
             }
             /* Check if current code point is a close punctuation. */
             else if (generalCategory == SBGeneralCategoryPE) {
-                SBBoolean isMirrored = (SBPairingDetermineMirror(codepoint) != 0);
+                SBBoolean isMirrored = (LookupMirror(codepoint) != 0);
                 if (isMirrored) {
                     /* Find the matching entry in the stack, while popping the unmatched ones. */
                     while (!ScriptStackIsEmpty(stack)) {

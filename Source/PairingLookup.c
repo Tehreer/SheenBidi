@@ -7,13 +7,13 @@
 
 #include "PairingLookup.h"
 
-static const SBInt16 _SBPairDifferences[37] = {
+static const SBInt16 PairDifferences[37] = {
     0,     1,     -1,    2,     -2,    16,    -16,   3,     -3,    2016,  2527,  1923,  1914,  1918,
     2250,  138,   7,     -7,    1824,  2104,  2108,  2106,  1316,  -138,  8,     -8,    -1316,
     -1914, -1918, -1923, -1824, -2016, -2104, -2106, -2108, -2250, -2527
 };
 
-static const SBUInt8 _SBPairData[2326] = {
+static const SBUInt8 PairData[2326] = {
 /* DATA_BLOCK: -- 0x0000..0x0070 -- */
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -161,7 +161,7 @@ static const SBUInt8 _SBPairData[2326] = {
     67,  0,   132, 0,   65,  130, 0,   65,  130,
 };
 
-static const SBUInt16 _SBPairIndexes[579] = {
+static const SBUInt16 PairIndexes[579] = {
     0x0000, 0x0071, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2,
     0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2,
     0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x00E2, 0x0153, 0x00E2,
@@ -213,12 +213,12 @@ static const SBUInt16 _SBPairIndexes[579] = {
     0x07F2, 0x0863, 0x08D4
 };
 
-SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint)
+SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint)
 {
     if (codepoint <= 0xFF63) {
-        SBInt16 diff = _SBPairDifferences[
-                        _SBPairData[
-                         _SBPairIndexes[
+        SBInt16 diff = PairDifferences[
+                        PairData[
+                         PairIndexes[
                               codepoint / 0x071
                          ] + (codepoint % 0x071)
                         ] & BracketTypeInverseMask
@@ -232,18 +232,18 @@ SB_INTERNAL SBCodepoint SBPairingDetermineMirror(SBCodepoint codepoint)
     return 0;
 }
 
-SB_INTERNAL SBCodepoint SBPairingDetermineBracketPair(SBCodepoint codepoint, BracketType *type)
+SB_INTERNAL SBCodepoint LookupBracketPair(SBCodepoint codepoint, BracketType *type)
 {
     if (codepoint <= 0xFF63) {
-        SBUInt8 data = _SBPairData[
-                        _SBPairIndexes[
+        SBUInt8 data = PairData[
+                        PairIndexes[
                              codepoint / 0x071
                         ] + (codepoint % 0x071)
                        ];
         *type = (data & BracketTypePrimaryMask);
 
         if (*type != 0) {
-            SBInt16 diff = _SBPairDifferences[
+            SBInt16 diff = PairDifferences[
                             data & BracketTypeInverseMask
                            ];
             return (codepoint + diff);

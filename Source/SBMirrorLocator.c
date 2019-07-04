@@ -73,7 +73,7 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
                 while (stringIndex < stringLimit) {
                     SBUInteger initialIndex = stringIndex;
                     SBCodepoint codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
-                    SBCodepoint mirror = SBPairingDetermineMirror(codepoint);
+                    SBCodepoint mirror = LookupMirror(codepoint);
 
                     if (mirror) {
                         locator->_stringIndex = stringIndex;
