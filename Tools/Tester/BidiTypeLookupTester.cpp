@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBBidiType.h>
 #include <Headers/SBConfig.h>
-#include <Source/SBBidiTypeLookup.h>
+#include <Source/BidiTypeLookup.h>
 }
 
 #include <cassert>
@@ -60,7 +60,7 @@ void BidiTypeLookupTester::test() {
         m_unicodeData.getBidirectionalCategory(codePoint, uniBidiType);
         const string &expBidiType = (uniBidiType.length() ? uniBidiType : BIDI_TYPE_DEFAULT);
 
-        SBBidiType valBidiType = SBBidiTypeDetermine(codePoint);
+        SBBidiType valBidiType = LookupBidiType(codePoint);
         const string &genBidiType = Convert::bidiTypeToString(valBidiType);
 
         if (genBidiType != expBidiType) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
-#include <Source/SBScriptLookup.h>
+#include <Source/ScriptLookup.h>
 }
 
 #include <cassert>
@@ -58,7 +58,7 @@ void ScriptLookupTester::test() {
         const string &uniScript = m_scripts.scriptForCodePoint(codePoint);
         const string &expScript = m_propertyValueAliases.abbreviationForScript(uniScript);
 
-        SBScript valScript = SBScriptDetermine(codePoint);
+        SBScript valScript = LookupScript(codePoint);
         const string &genScript = Convert::scriptToString(valScript);
 
         if (expScript != genScript) {

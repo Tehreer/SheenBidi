@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
 #include <Headers/SBGeneralCategory.h>
-#include <Source/SBGeneralCategoryLookup.h>
+#include <Source/GeneralCategoryLookup.h>
 }
 
 #include <cassert>
@@ -60,7 +60,7 @@ void GeneralCategoryLookupTester::test()
         m_unicodeData.getGeneralCategory(codePoint, uniGeneralCategory);
         const string &expGeneralCategory = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
 
-        SBGeneralCategory valGeneralCategory = SBGeneralCategoryDetermine(codePoint);
+        SBGeneralCategory valGeneralCategory = LookupGeneralCategory(codePoint);
         const string &genGeneralCategory = Convert::generalCategoryToString(valGeneralCategory);
 
         if (genGeneralCategory != expGeneralCategory) {

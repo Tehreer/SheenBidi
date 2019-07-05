@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
-#include <Source/SBPairingLookup.h>
+#include <Source/PairingLookup.h>
 }
 
 #include <cassert>
@@ -52,7 +52,7 @@ void MirrorLookupTester::test() {
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
         uint32_t expMirror = m_BidiMirroring.mirrorForCodePoint(codePoint);
-        SBUInt32 genMirror = SBPairingDetermineMirror(codePoint);
+        SBUInt32 genMirror = LookupMirror(codePoint);
 
         if (genMirror != expMirror) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {

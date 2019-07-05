@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
-#include <Source/SBBracketType.h>
-#include <Source/SBPairingLookup.h>
+#include <Source/BracketType.h>
+#include <Source/PairingLookup.h>
 }
 
 #include <cassert>
@@ -55,16 +55,16 @@ void BracketLookupTester::test() {
         uint32_t expBracket = m_BidiBrackets.pairedBracketForCodePoint(codePoint);
         char expType = m_BidiBrackets.pairedBracketTypeForCodePoint(codePoint);
 
-        SBBracketType valType;
-        SBUInt32 genBracket = SBPairingDetermineBracketPair(codePoint, &valType);
+        BracketType valType;
+        SBUInt32 genBracket = LookupBracketPair(codePoint, &valType);
 
         char genType;
         switch (valType) {
-        case SBBracketTypeOpen:
+        case BracketTypeOpen:
             genType = 'o';
             break;
 
-        case SBBracketTypeClose:
+        case BracketTypeClose:
             genType = 'c';
             break;
 
