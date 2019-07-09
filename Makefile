@@ -26,25 +26,25 @@ RELEASE_FLAGS = -DNDEBUG -DSB_CONFIG_UNITY -Os
 DEBUG = Debug
 RELEASE = Release
 
-DEBUG_SOURCES = $(SOURCE_DIR)/SBAlgorithm.c \
+DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
+                $(SOURCE_DIR)/BidiTypeLookup.c \
+                $(SOURCE_DIR)/BracketQueue.c \
+                $(SOURCE_DIR)/GeneralCategoryLookup.c \
+                $(SOURCE_DIR)/IsolatingRun.c \
+                $(SOURCE_DIR)/LevelRun.c \
+                $(SOURCE_DIR)/PairingLookup.c \
+                $(SOURCE_DIR)/RunQueue.c \
+                $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBBase.c \
-                $(SOURCE_DIR)/SBBidiChain.c \
-                $(SOURCE_DIR)/SBBidiTypeLookup.c \
-                $(SOURCE_DIR)/SBBracketQueue.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
-                $(SOURCE_DIR)/SBGeneralCategoryLookup.c \
-                $(SOURCE_DIR)/SBIsolatingRun.c \
-                $(SOURCE_DIR)/SBLevelRun.c \
                 $(SOURCE_DIR)/SBLine.c \
                 $(SOURCE_DIR)/SBLog.c \
                 $(SOURCE_DIR)/SBMirrorLocator.c \
-                $(SOURCE_DIR)/SBPairingLookup.c \
                 $(SOURCE_DIR)/SBParagraph.c \
-                $(SOURCE_DIR)/SBRunQueue.c \
                 $(SOURCE_DIR)/SBScriptLocator.c \
-                $(SOURCE_DIR)/SBScriptLookup.c \
-                $(SOURCE_DIR)/SBScriptStack.c \
-                $(SOURCE_DIR)/SBStatusStack.c
+                $(SOURCE_DIR)/ScriptLookup.c \
+                $(SOURCE_DIR)/ScriptStack.c \
+                $(SOURCE_DIR)/StatusStack.c
 RELEASE_SOURCES = $(SOURCE_DIR)/SheenBidi.c
 
 DEBUG_OBJECTS   = $(DEBUG_SOURCES:$(SOURCE_DIR)/%.c=$(DEBUG)/%.o)
