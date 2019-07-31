@@ -275,32 +275,31 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
         type = BidiChainGetType(chain, link);
 
-#define SB_LEAST_GREATER_ODD_LEVEL()                                        \
+#define LeastGreaterOddLevel()                                              \
 (                                                                           \
-        (StatusStackGetEmbeddingLevel(stack) + 1) | 1                     \
+        (StatusStackGetEmbeddingLevel(stack) + 1) | 1                       \
 )
 
-#define SB_LEAST_GREATER_EVEN_LEVEL()                                       \
+#define LeastGreaterEvenLevel()                                             \
 (                                                                           \
-        (StatusStackGetEmbeddingLevel(stack) + 2) & ~1                    \
+        (StatusStackGetEmbeddingLevel(stack) + 2) & ~1                      \
 )
 
-#define SB_MERGE_LINK_IF_NEEDED()                                           \
+#define MergeLinkIfNeeded()                                                 \
 {                                                                           \
-        if (BidiChainMergeIfEqual(chain, priorLink, link)) {              \
+        if (BidiChainMergeIfEqual(chain, priorLink, link)) {                \
             continue;                                                       \
         }                                                                   \
 }
 
-#define SB_PUSH_EMBEDDING(l, o)                                             \
+#define PushEmbedding(l, o)                                                 \
 {                                                                           \
-        SBLevel newLevel;                                                   \
+        SBLevel newLevel = l;                                               \
                                                                             \
         bnEquivalent = SBTrue;                                              \
-        newLevel = l;                                                       \
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
-            StatusStackPush(stack, newLevel, o, SBFalse);                 \
+            StatusStackPush(stack, newLevel, o, SBFalse);                   \
         } else {                                                            \
             if (!overIsolate) {                                             \
                 overEmbedding += 1;                                         \
@@ -308,66 +307,63 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
         }                                                                   \
 }
 
-#define SB_PUSH_ISOLATE(l, o)                                               \
+#define PushIsolate(l, o)                                                   \
 {                                                                           \
-        SBBidiType priorStatus = StatusStackGetOverrideStatus(stack);     \
+        SBBidiType priorStatus = StatusStackGetOverrideStatus(stack);       \
         SBLevel newLevel = l;                                               \
                                                                             \
-        BidiChainSetLevel(chain, link,                                    \
-                            StatusStackGetEmbeddingLevel(stack));         \
+        BidiChainSetLevel(chain, link,                                      \
+                          StatusStackGetEmbeddingLevel(stack));             \
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
             validIsolate += 1;                                              \
-            StatusStackPush(stack, newLevel, o, SBTrue);                  \
+            StatusStackPush(stack, newLevel, o, SBTrue);                    \
         } else {                                                            \
             overIsolate += 1;                                               \
         }                                                                   \
                                                                             \
         if (priorStatus != SBBidiTypeON) {                                  \
-            BidiChainSetType(chain, link, priorStatus);                   \
-            SB_MERGE_LINK_IF_NEEDED();                                      \
+            BidiChainSetType(chain, link, priorStatus);                     \
+            MergeLinkIfNeeded();                                            \
         }                                                                   \
 }
 
         switch (type) {
         /* Rule X2 */
         case SBBidiTypeRLE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeON);
+            PushEmbedding(LeastGreaterOddLevel(), SBBidiTypeON);
             break;
 
         /* Rule X3 */
         case SBBidiTypeLRE:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeON);
+            PushEmbedding(LeastGreaterEvenLevel(), SBBidiTypeON);
             break;
 
         /* Rule X4 */
         case SBBidiTypeRLO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeR);
+            PushEmbedding(LeastGreaterOddLevel(), SBBidiTypeR);
             break;
 
         /* Rule X5 */
         case SBBidiTypeLRO:
-            SB_PUSH_EMBEDDING(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeL);
+            PushEmbedding(LeastGreaterEvenLevel(), SBBidiTypeL);
             break;
 
         /* Rule X5a */
         case SBBidiTypeRLI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_ODD_LEVEL(), SBBidiTypeON);
+            PushIsolate(LeastGreaterOddLevel(), SBBidiTypeON);
             break;
 
         /* Rule X5b */
         case SBBidiTypeLRI:
-            SB_PUSH_ISOLATE(SB_LEAST_GREATER_EVEN_LEVEL(), SBBidiTypeON);
+            PushIsolate(LeastGreaterEvenLevel(), SBBidiTypeON);
             break;
 
         /* Rule X5c */
         case SBBidiTypeFSI:
         {
             SBBoolean isRTL = (DetermineBaseLevel(chain, link, roller, 0, SBTrue) == 1);
-            SB_PUSH_ISOLATE(isRTL
-                             ? SB_LEAST_GREATER_ODD_LEVEL()
-                             : SB_LEAST_GREATER_EVEN_LEVEL(),
-                            SBBidiTypeON);
+            PushIsolate(isRTL ? LeastGreaterOddLevel() : LeastGreaterEvenLevel(), SBBidiTypeON);
             break;
         }
 
@@ -377,7 +373,7 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
             if (StatusStackGetOverrideStatus(stack) != SBBidiTypeON) {
                 BidiChainSetType(chain, link, StatusStackGetOverrideStatus(stack));
-                SB_MERGE_LINK_IF_NEEDED();
+                MergeLinkIfNeeded();
             }
             break;
 
@@ -395,7 +391,7 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
                 while (!StatusStackGetIsolateStatus(stack)) {
                     StatusStackPop(stack);
-                };
+                }
                 StatusStackPop(stack);
 
                 validIsolate -= 1;
@@ -406,7 +402,7 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
             if (overrideStatus != SBBidiTypeON) {
                 BidiChainSetType(chain, link, overrideStatus);
-                SB_MERGE_LINK_IF_NEEDED();
+                MergeLinkIfNeeded();
             }
             break;
         }
@@ -416,7 +412,7 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
             bnEquivalent = SBTrue;
 
             if (overIsolate != 0) {
-                /* do nothing */
+                /* Do nothing */
             } else if (overEmbedding != 0) {
                 overEmbedding -= 1;
             } else if (!StatusStackGetIsolateStatus(stack) && stack->count >= 2) {
@@ -491,7 +487,7 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
         }
 
         priorLink = link;
-    };
+    }
 }
 
 static void ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish)
