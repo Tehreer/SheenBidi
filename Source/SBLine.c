@@ -27,12 +27,12 @@
 #include "SBRun.h"
 #include "SBLine.h"
 
-typedef struct _LineSupport {
+typedef struct _LineContext {
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
     SBLevel maxLevel;
-} LineSupport, *LineSupportRef;
+} LineContext, *LineContextRef;
 
 static SBLevel CopyLevels(SBLevel *destination,
     const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
@@ -59,40 +59,40 @@ static SBLevel CopyLevels(SBLevel *destination,
     return maxLevel;
 }
 
-static LineSupportRef LineSupportAllocate(SBUInteger charCount)
+static LineContextRef AllocateLineContext(SBUInteger charCount)
 {
-    const SBUInteger sizeSupport = sizeof(LineSupport);
+    const SBUInteger sizeContext = sizeof(LineContext);
     const SBUInteger sizeLevels  = sizeof(SBLevel) * charCount;
-    const SBUInteger sizeMemory  = sizeSupport + sizeLevels;
+    const SBUInteger sizeMemory  = sizeContext + sizeLevels;
 
-    const SBUInteger offsetSupport = 0;
-    const SBUInteger offsetLevels  = offsetSupport + sizeSupport;
+    const SBUInteger offsetContext = 0;
+    const SBUInteger offsetLevels  = offsetContext + sizeContext;
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
-    LineSupportRef support = (LineSupportRef)(memory + offsetSupport);
+    LineContextRef context = (LineContextRef)(memory + offsetContext);
     SBLevel *levels = (SBLevel *)(memory + offsetLevels);
 
-    support->fixedLevels = levels;
+    context->fixedLevels = levels;
 
-    return support;
+    return context;
 }
 
-static void LineSupportInitialize(LineSupportRef support,
+static void InitializeLineContext(LineContextRef context,
     const SBBidiType *types, SBLevel *levels, SBUInteger charCount)
 {
     SBLevel maxLevel;
     SBUInteger runCount;
 
-    maxLevel = CopyLevels(support->fixedLevels, levels, charCount, &runCount);
+    maxLevel = CopyLevels(context->fixedLevels, levels, charCount, &runCount);
 
-    support->refTypes = types;
-    support->runCount = runCount;
-    support->maxLevel = maxLevel;
+    context->refTypes = types;
+    context->runCount = runCount;
+    context->maxLevel = maxLevel;
 }
 
-static void LineSupportDeallocate(LineSupportRef support)
+static void DisposeLineContext(LineContextRef context)
 {
-    free(support);
+    free(context);
 }
 
 static SBLineRef LineAllocate(SBUInteger runCount)
@@ -122,10 +122,10 @@ static void SetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
     }
 }
 
-static void ResetLevels(LineSupportRef support, SBLevel baseLevel, SBUInteger charCount)
+static void ResetLevels(LineContextRef context, SBLevel baseLevel, SBUInteger charCount)
 {
-    const SBBidiType *types = support->refTypes;
-    SBLevel *levels = support->fixedLevels;
+    const SBBidiType *types = context->refTypes;
+    SBLevel *levels = context->fixedLevels;
     SBUInteger index;
     SBUInteger length;
     SBBoolean reset;
@@ -143,7 +143,7 @@ static void ResetLevels(LineSupportRef support, SBLevel baseLevel, SBUInteger ch
             SetNewLevel(levels + index, length + 1, baseLevel);
             length = 0;
             reset = SBTrue;
-            support->runCount += 1;
+            context->runCount += 1;
             break;
 
         case SBBidiTypeLRE:
@@ -164,7 +164,7 @@ static void ResetLevels(LineSupportRef support, SBLevel baseLevel, SBUInteger ch
                 SetNewLevel(levels + index, length + 1, baseLevel);
                 length = 0;
 
-                support->runCount += 1;
+                context->runCount += 1;
             }
             break;
 
@@ -246,24 +246,24 @@ static void ReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
 static SBLineRef LineCreate(const SBCodepointSequence *codepointSequence,
     const SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
-    LineSupportRef support;
+    LineContextRef context;
     SBLineRef line;
 
-    support = LineSupportAllocate(length);
-    LineSupportInitialize(support, types, levels, length);
+    context = AllocateLineContext(length);
+    InitializeLineContext(context, types, levels, length);
 
-    ResetLevels(support, baseLevel, length);
+    ResetLevels(context, baseLevel, length);
 
-    line = LineAllocate(support->runCount);
-    line->runCount = InitializeRuns(line->fixedRuns, support->fixedLevels, length, offset);
-    ReorderRuns(line->fixedRuns, line->runCount, support->maxLevel);
+    line = LineAllocate(context->runCount);
+    line->runCount = InitializeRuns(line->fixedRuns, context->fixedLevels, length, offset);
+    ReorderRuns(line->fixedRuns, line->runCount, context->maxLevel);
 
     line->codepointSequence = *codepointSequence;
     line->offset = offset;
     line->length = length;
     line->_retainCount = 1;
 
-    LineSupportDeallocate(support);
+    DisposeLineContext(context);
 
     return line;
 }
