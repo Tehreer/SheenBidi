@@ -232,46 +232,35 @@ static void ReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
     }
 }
 
-static SBLineRef LineCreate(const SBCodepointSequence *codepointSequence,
-    const SBBidiType *types, SBLevel *levels, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
-{
-    LineContextRef context;
-    SBLineRef line;
-
-    context = CreateLineContext(types, levels, length);
-    ResetLevels(context, baseLevel, length);
-
-    line = AllocateLine(context->runCount);
-    line->runCount = InitializeRuns(line->fixedRuns, context->fixedLevels, length, offset);
-    ReorderRuns(line->fixedRuns, line->runCount, context->maxLevel);
-
-    line->codepointSequence = *codepointSequence;
-    line->offset = offset;
-    line->length = length;
-    line->retainCount = 1;
-
-    DisposeLineContext(context);
-
-    return line;
-}
-
 SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     SBUInteger lineOffset, SBUInteger lineLength)
 {
-    SBUInteger innerOffset;
+    SBUInteger innerOffset = lineOffset - paragraph->offset;
+    const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
+    const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
+    LineContextRef context;
+    SBLineRef line;
 
-    /* Paragraph must NOT be null. */
-    SBAssert(paragraph != NULL);
     /* Line range MUST be valid. */
     SBAssert(lineOffset < (lineOffset + lineLength)
              && lineOffset >= paragraph->offset
              && (lineOffset + lineLength) <= (paragraph->offset + paragraph->length));
 
-    innerOffset = lineOffset - paragraph->offset;
+    context = CreateLineContext(refTypes, refLevels, lineLength);
+    ResetLevels(context, paragraph->baseLevel, lineLength);
 
-    return LineCreate(&paragraph->algorithm->codepointSequence,
-                      paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
-                      lineOffset, lineLength, paragraph->baseLevel);
+    line = AllocateLine(context->runCount);
+    line->runCount = InitializeRuns(line->fixedRuns, context->fixedLevels, lineLength, lineOffset);
+    ReorderRuns(line->fixedRuns, line->runCount, context->maxLevel);
+
+    line->codepointSequence = paragraph->algorithm->codepointSequence;
+    line->offset = lineOffset;
+    line->length = lineLength;
+    line->retainCount = 1;
+
+    DisposeLineContext(context);
+
+    return line;
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line)
