@@ -585,7 +585,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     paragraph->offset = paragraphOffset;
     paragraph->length = actualLength;
     paragraph->baseLevel = resolvedLevel;
-    paragraph->_retainCount = 1;
+    paragraph->retainCount = 1;
     
     DisposeParagraphContext(context);
     
@@ -631,7 +631,7 @@ SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset,
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
 {
     if (paragraph) {
-        paragraph->_retainCount += 1;
+        paragraph->retainCount += 1;
     }
     
     return paragraph;
@@ -639,7 +639,7 @@ SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
 
 void SBParagraphRelease(SBParagraphRef paragraph)
 {
-    if (paragraph && --paragraph->_retainCount == 0) {
+    if (paragraph && --paragraph->retainCount == 0) {
         SBAlgorithmRelease(paragraph->algorithm);
         free(paragraph);
     }

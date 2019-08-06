@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ typedef struct _SBMirrorLocator {
     SBUInteger _runIndex;
     SBUInteger _stringIndex;
     SBMirrorAgent agent;
-    SBUInteger _retainCount;
+    SBUInteger retainCount;
 } SBMirrorLocator;
 
 #endif

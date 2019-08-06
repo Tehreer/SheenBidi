@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ typedef struct _SBLine {
     SBUInteger runCount;
     SBUInteger offset;
     SBUInteger length;
-    SBUInteger _retainCount;
+    SBUInteger retainCount;
 } SBLine;
 
 SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,

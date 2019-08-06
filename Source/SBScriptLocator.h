@@ -27,7 +27,7 @@ typedef struct _SBScriptLocator {
     SBCodepointSequence _codepointSequence;
     ScriptStack _scriptStack;
     SBScriptAgent agent;
-    SBUInteger _retainCount;
+    SBUInteger retainCount;
 } SBScriptLocator;
 
 #endif

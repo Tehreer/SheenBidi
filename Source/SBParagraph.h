@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2019 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ typedef struct _SBParagraph {
     SBUInteger offset;
     SBUInteger length;
     SBLevel baseLevel;
-    SBUInteger _retainCount;
+    SBUInteger retainCount;
 } SBParagraph;
 
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,

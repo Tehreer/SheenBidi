@@ -261,7 +261,7 @@ static SBLineRef LineCreate(const SBCodepointSequence *codepointSequence,
     line->codepointSequence = *codepointSequence;
     line->offset = offset;
     line->length = length;
-    line->_retainCount = 1;
+    line->retainCount = 1;
 
     DisposeLineContext(context);
 
@@ -310,7 +310,7 @@ const SBRun *SBLineGetRunsPtr(SBLineRef line)
 SBLineRef SBLineRetain(SBLineRef line)
 {
     if (line) {
-        line->_retainCount += 1;
+        line->retainCount += 1;
     }
     
     return line;
@@ -318,7 +318,7 @@ SBLineRef SBLineRetain(SBLineRef line)
 
 void SBLineRelease(SBLineRef line)
 {
-    if (line && --line->_retainCount == 0) {
+    if (line && --line->retainCount == 0) {
         free(line);
     }
 }

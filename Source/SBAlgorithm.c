@@ -72,7 +72,7 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
 
         algorithm = AlgorithmAllocate(stringLength);
         algorithm->codepointSequence = *codepointSequence;
-        algorithm->_retainCount = 1;
+        algorithm->retainCount = 1;
 
         DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
@@ -163,7 +163,7 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
 SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 {
     if (algorithm) {
-        algorithm->_retainCount += 1;
+        algorithm->retainCount += 1;
     }
 
     return algorithm;
@@ -171,7 +171,7 @@ SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 
 void SBAlgorithmRelease(SBAlgorithmRef algorithm)
 {
-    if (algorithm && --algorithm->_retainCount == 0) {
+    if (algorithm && --algorithm->retainCount == 0) {
         free(algorithm);
     }
 }

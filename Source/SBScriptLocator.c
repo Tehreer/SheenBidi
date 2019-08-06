@@ -40,7 +40,7 @@ SBScriptLocatorRef SBScriptLocatorCreate(void)
     locator->_codepointSequence.stringEncoding = SBStringEncodingUTF8;
     locator->_codepointSequence.stringBuffer = NULL;
     locator->_codepointSequence.stringLength = 0;
-    locator->_retainCount = 1;
+    locator->retainCount = 1;
     SBScriptLocatorReset(locator);
 
     return locator;
@@ -160,7 +160,7 @@ void SBScriptLocatorReset(SBScriptLocatorRef locator)
 SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator)
 {
     if (locator) {
-        ++locator->_retainCount;
+        locator->retainCount += 1;
     }
 
     return locator;
@@ -168,7 +168,7 @@ SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator)
 
 void SBScriptLocatorRelease(SBScriptLocatorRef locator)
 {
-    if (locator && --locator->_retainCount == 0) {
+    if (locator && --locator->retainCount == 0) {
         free(locator);
     }
 }

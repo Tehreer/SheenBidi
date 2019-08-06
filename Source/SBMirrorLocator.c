@@ -28,7 +28,7 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void)
 
     locator = malloc(sizeof(SBMirrorLocator));
     locator->_line = NULL;
-    locator->_retainCount = 1;
+    locator->retainCount = 1;
     SBMirrorLocatorReset(locator);
 
     return locator;
@@ -106,7 +106,7 @@ void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
 SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator)
 {
     if (locator) {
-        ++locator->_retainCount;
+        locator->retainCount += 1;
     }
 
     return locator;
@@ -114,7 +114,7 @@ SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator)
 
 void SBMirrorLocatorRelease(SBMirrorLocatorRef locator)
 {
-    if (locator && --locator->_retainCount == 0) {
+    if (locator && --locator->retainCount == 0) {
         SBLineRelease(locator->_line);
         free(locator);
     }
