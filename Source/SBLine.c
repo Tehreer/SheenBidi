@@ -35,13 +35,13 @@ typedef struct _LineContext {
 } LineContext, *LineContextRef;
 
 static SBLevel CopyLevels(SBLevel *destination,
-    const SBLevel *source, SBUInteger charCount, SBUInteger *runCount)
+    const SBLevel *source, SBUInteger length, SBUInteger *runCount)
 {
     SBLevel lastLevel = SBLevelInvalid;
     SBLevel maxLevel = 0;
     SBUInteger totalRuns = 0;
 
-    while (charCount--) {
+    while (length--) {
         SBLevel level = *(source++);
         *(destination++) = level;
 
@@ -59,10 +59,10 @@ static SBLevel CopyLevels(SBLevel *destination,
     return maxLevel;
 }
 
-static LineContextRef AllocateLineContext(SBUInteger charCount)
+static LineContextRef CreateLineContext(const SBBidiType *types, const SBLevel *levels, SBUInteger length)
 {
     const SBUInteger sizeContext = sizeof(LineContext);
-    const SBUInteger sizeLevels  = sizeof(SBLevel) * charCount;
+    const SBUInteger sizeLevels  = sizeof(SBLevel) * length;
     const SBUInteger sizeMemory  = sizeContext + sizeLevels;
 
     const SBUInteger offsetContext = 0;
@@ -70,24 +70,13 @@ static LineContextRef AllocateLineContext(SBUInteger charCount)
 
     SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
     LineContextRef context = (LineContextRef)(memory + offsetContext);
-    SBLevel *levels = (SBLevel *)(memory + offsetLevels);
-
-    context->fixedLevels = levels;
-
-    return context;
-}
-
-static void InitializeLineContext(LineContextRef context,
-    const SBBidiType *types, SBLevel *levels, SBUInteger charCount)
-{
-    SBLevel maxLevel;
-    SBUInteger runCount;
-
-    maxLevel = CopyLevels(context->fixedLevels, levels, charCount, &runCount);
+    SBLevel *fixedLevels = (SBLevel *)(memory + offsetLevels);
 
     context->refTypes = types;
-    context->runCount = runCount;
-    context->maxLevel = maxLevel;
+    context->fixedLevels = fixedLevels;
+    context->maxLevel = CopyLevels(fixedLevels, levels, length, &context->runCount);
+
+    return context;
 }
 
 static void DisposeLineContext(LineContextRef context)
@@ -95,7 +84,7 @@ static void DisposeLineContext(LineContextRef context)
     free(context);
 }
 
-static SBLineRef LineAllocate(SBUInteger runCount)
+static SBLineRef AllocateLine(SBUInteger runCount)
 {
     const SBUInteger sizeLine   = sizeof(SBLine);
     const SBUInteger sizeRuns   = sizeof(SBRun) * runCount;
@@ -249,12 +238,10 @@ static SBLineRef LineCreate(const SBCodepointSequence *codepointSequence,
     LineContextRef context;
     SBLineRef line;
 
-    context = AllocateLineContext(length);
-    InitializeLineContext(context, types, levels, length);
-
+    context = CreateLineContext(types, levels, length);
     ResetLevels(context, baseLevel, length);
 
-    line = LineAllocate(context->runCount);
+    line = AllocateLine(context->runCount);
     line->runCount = InitializeRuns(line->fixedRuns, context->fixedLevels, length, offset);
     ReorderRuns(line->fixedRuns, line->runCount, context->maxLevel);
 
