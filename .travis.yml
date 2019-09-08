@@ -13,4 +13,4 @@ before_install:
 script:
   - make
   - make check
-  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CC" == "gcc" -a "$TRAVIS_REPO_SLUG" == "mta452/SheenBidi" ]; then coveralls -e Debug/Tester -e Debug/Parser; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CC" == "gcc" -a "$TRAVIS_REPO_SLUG" == "Tehreer/SheenBidi" ]; then coveralls -e Debug/Tester -e Debug/Parser; fi
