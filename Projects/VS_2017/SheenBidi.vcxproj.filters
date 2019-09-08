@@ -51,6 +51,39 @@
     <ClInclude Include="..\..\Headers\SheenBidi.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\BidiChain.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\BidiTypeLookup.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\BracketQueue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\BracketType.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GeneralCategoryLookup.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IsolatingRun.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\LevelRun.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PairingLookup.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RunExtrema.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RunKind.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RunQueue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\SBAlgorithm.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -60,28 +93,7 @@
     <ClInclude Include="..\..\Source\SBBase.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SBBidiChain.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBBidiTypeLookup.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBBracketQueue.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBBracketType.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SBCodepointSequence.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBGeneralCategoryLookup.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBIsolatingRun.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBLevelRun.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SBLine.h">
@@ -93,60 +105,57 @@
     <ClInclude Include="..\..\Source\SBMirrorLocator.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SBPairingLookup.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SBParagraph.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBRunExtrema.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBRunKind.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SBRunQueue.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SBScriptLocator.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SBScriptLookup.h">
+    <ClInclude Include="..\..\Source\ScriptLookup.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SBScriptStack.h">
+    <ClInclude Include="..\..\Source\ScriptStack.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SBStatusStack.h">
+    <ClInclude Include="..\..\Source\StatusStack.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\SheenBidi.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\BidiChain.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\BidiTypeLookup.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\BracketQueue.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GeneralCategoryLookup.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IsolatingRun.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\LevelRun.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PairingLookup.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\RunQueue.c">
+      <Filter>Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\SBAlgorithm.c">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SBBase.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SBBidiChain.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBBidiTypeLookup.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBBracketQueue.c">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\SBCodepointSequence.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBGeneralCategoryLookup.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBIsolatingRun.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBLevelRun.c">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SBLine.c">
@@ -158,28 +167,19 @@
     <ClCompile Include="..\..\Source\SBMirrorLocator.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SBPairingLookup.c">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\SBParagraph.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SBRunQueue.c">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SBScriptLocator.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SBScriptLookup.c">
+    <ClCompile Include="..\..\Source\ScriptLookup.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SBScriptStack.c">
+    <ClCompile Include="..\..\Source\ScriptStack.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SBStatusStack.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SheenBidi.c">
+    <ClCompile Include="..\..\Source\StatusStack.c">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
