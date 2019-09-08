@@ -36,7 +36,11 @@ SB_INTERNAL void BidiChainInitialize(BidiChainRef chain,
     SBBidiType *types, SBLevel *levels, BidiLink *links);
 SB_INTERNAL void BidiChainAdd(BidiChainRef chain, SBBidiType type, SBUInteger length);
 
-SB_INTERNAL SBUInteger BidiChainGetOffset(BidiChainRef chain, BidiLink link);
+#define BidiChainGetOffset(chain, link)         \
+(                                               \
+    (link) - 1                                  \
+)
+
 SB_INTERNAL SBBoolean BidiChainIsSingle(BidiChainRef chain, BidiLink link);
 
 SB_INTERNAL SBBidiType BidiChainGetType(BidiChainRef chain, BidiLink link);

@@ -46,11 +46,6 @@ SB_INTERNAL void BidiChainAdd(BidiChainRef chain, SBBidiType type, SBUInteger le
     chain->last = current;
 }
 
-SB_INTERNAL SBUInteger BidiChainGetOffset(BidiChainRef chain, BidiLink link)
-{
-    return (link - 1);
-}
-
 SB_INTERNAL SBBoolean BidiChainIsSingle(BidiChainRef chain, BidiLink link)
 {
     BidiLink next = chain->links[link];
