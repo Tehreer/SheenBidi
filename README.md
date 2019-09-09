@@ -1,9 +1,9 @@
 SheenBidi
 =========
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Travis-CI Build Status](https://api.travis-ci.org/mta452/SheenBidi.svg?branch=master)](https://travis-ci.org/mta452/SheenBidi)
+[![Travis-CI Build Status](https://api.travis-ci.org/Tehreer/SheenBidi.svg?branch=master)](https://travis-ci.org/Tehreer/SheenBidi)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/k2vvegcdqsb9ld5a?svg=true)](https://ci.appveyor.com/project/mta452/sheenbidi)
-[![Coverage Status](https://coveralls.io/repos/github/mta452/SheenBidi/badge.svg?branch=master)](https://coveralls.io/github/mta452/SheenBidi?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Tehreer/SheenBidi/badge.svg?branch=master)](https://coveralls.io/github/Tehreer/SheenBidi)
 
 SheenBidi implements Unicode Bidirectional Algorithm available at http://www.unicode.org/reports/tr9. It is a sophisticated implementaion which provides the developers an easy way to use UBA in their applications.
 
