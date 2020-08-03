@@ -4,6 +4,7 @@ PARSER_SRCS = $(PARSER_DIR)/BidiBrackets.cpp \
               $(PARSER_DIR)/BidiCharacterTest.cpp \
               $(PARSER_DIR)/BidiMirroring.cpp \
               $(PARSER_DIR)/BidiTest.cpp \
+              $(PARSER_DIR)/DerivedBidiClass.cpp \
               $(PARSER_DIR)/PropertyValueAliases.cpp \
               $(PARSER_DIR)/Scripts.cpp \
               $(PARSER_DIR)/UnicodeData.cpp \
