@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,18 @@ using namespace std;
 using namespace SheenBidi::Parser;
 using namespace SheenBidi::Generator::Utilities;
 
-BidiClassDetector::BidiClassDetector(const UnicodeData &unicodeData)
-    : m_unicodeData(unicodeData)
-    , m_numbers(unicodeData.lastCodePoint() + 1)
+BidiClassDetector::BidiClassDetector(const DerivedBidiClass &derivedBidiClass)
+    : m_derivedBidiClass(derivedBidiClass)
+    , m_numbers(derivedBidiClass.lastCodePoint() + 1)
 {
     m_numberToName.push_back("");
     m_nameToNumber[""] = 0;
 
-    uint32_t last = m_unicodeData.lastCodePoint();
+    uint32_t last = m_derivedBidiClass.lastCodePoint();
 
     for (uint32_t codePoint = 0; codePoint <= last; codePoint++) {
-        string name;
+        const string &name = m_derivedBidiClass.bidiClassForCodePoint(codePoint);
         uint8_t number;
-
-        m_unicodeData.getBidirectionalCategory(codePoint, name);
 
         auto match = m_nameToNumber.find(name);
         if (match != m_nameToNumber.end()) {
@@ -55,7 +53,7 @@ BidiClassDetector::BidiClassDetector(const UnicodeData &unicodeData)
 }
 
 uint8_t BidiClassDetector::numberForCodePoint(uint32_t codePoint) const {
-    if (codePoint <= m_unicodeData.lastCodePoint()) {
+    if (codePoint <= m_derivedBidiClass.lastCodePoint()) {
         return m_numbers[codePoint];
     }
 

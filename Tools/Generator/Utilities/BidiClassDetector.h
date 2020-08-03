@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <map>
 #include <string>
 
-#include <Parser/UnicodeData.h>
+#include <Parser/DerivedBidiClass.h>
 
 namespace SheenBidi {
 namespace Generator {
@@ -29,7 +29,7 @@ namespace Utilities {
 
 class BidiClassDetector {
 public:
-    BidiClassDetector(const Parser::UnicodeData &unicodeData);
+    BidiClassDetector(const Parser::DerivedBidiClass &derivedBidiClass);
     
     uint8_t numberForCodePoint(uint32_t codePoint) const;
     const std::string &nameForCodePoint(uint32_t codePoint) const;
@@ -38,7 +38,7 @@ public:
     const uint8_t nameToNumber(const std::string &name) const;
 
 private:
-    const Parser::UnicodeData &m_unicodeData;
+    const Parser::DerivedBidiClass &m_derivedBidiClass;
     std::vector<uint8_t> m_numbers;
 
     std::vector<std::string> m_numberToName;

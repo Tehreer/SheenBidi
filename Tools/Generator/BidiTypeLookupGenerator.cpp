@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,23 +70,12 @@ const string BidiTypeLookupGenerator::BranchDataSegment::hintLine() const {
     return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-BidiTypeLookupGenerator::BidiTypeLookupGenerator(const UnicodeData &unicodeData)
-    : m_bidiClassDetector(unicodeData)
-    , m_lastCodePoint(unicodeData.lastCodePoint())
+BidiTypeLookupGenerator::BidiTypeLookupGenerator(const Parser::DerivedBidiClass &derivedBidiClass)
+    : m_bidiClassDetector(derivedBidiClass)
+    , m_lastCodePoint(derivedBidiClass.lastCodePoint())
     , m_mainSegmentSize(0)
     , m_branchSegmentSize(0)
 {
-    uint32_t codePoint = unicodeData.lastCodePoint();
-    string bidiType;
-
-    do {
-        unicodeData.getBidirectionalCategory(codePoint, bidiType);
-        if (bidiType.length() != 0) {
-            break;
-        }
-    } while (codePoint--);
-
-    m_lastCodePoint = codePoint;
 }
 
 void BidiTypeLookupGenerator::setMainSegmentSize(size_t segmentSize) {

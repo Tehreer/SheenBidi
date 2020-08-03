@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@
 #include <memory>
 #include <sstream>
 
+#include <Parser/DerivedBidiClass.h>
+
 #include "Utilities/BidiClassDetector.h"
 
 namespace SheenBidi {
 namespace Generator {
 
-class BidiTypeLookupGenerator {
+class BidiTypeLookupGenerator { 
 public:
-    BidiTypeLookupGenerator(const Parser::UnicodeData &unicodeData);
+    BidiTypeLookupGenerator(const Parser::DerivedBidiClass &derivedBidiClass);
 
     void setMainSegmentSize(size_t);
     void setBranchSegmentSize(size_t);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <Parser/BidiBrackets.h>
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
+#include <Parser/DerivedBidiClass.h>
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
 #include <Parser/UnicodeData.h>
@@ -43,12 +44,13 @@ int main(int argc, const char * argv[])
     UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);
     BidiBrackets bidiBrackets(in);
+    DerivedBidiClass derivedBidiClass(in);
     Scripts scripts(in);
     PropertyValueAliases propertyValueAliases(in);
 
     cout << "Generating files." << endl;
 
-    BidiTypeLookupGenerator bidiTypeLookup(unicodeData);
+    BidiTypeLookupGenerator bidiTypeLookup(derivedBidiClass);
     bidiTypeLookup.setMainSegmentSize(16);
     bidiTypeLookup.setBranchSegmentSize(64);
     bidiTypeLookup.generateFile(out);
