@@ -1300,7 +1300,7 @@ sc ; Kana                             ; Katakana
 sc ; Khar                             ; Kharoshthi
 sc ; Khmr                             ; Khmer
 sc ; Khoj                             ; Khojki
-sc ; Kits                             ; ƒ
+sc ; Kits                             ; Khitan_Small_Script
 sc ; Knda                             ; Kannada
 sc ; Kthi                             ; Kaithi
 sc ; Lana                             ; Tai_Tham
