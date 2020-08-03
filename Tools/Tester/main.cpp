@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ extern "C" {
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
 #include <Parser/BidiTest.h>
+#include <Parser/DerivedBidiClass.h>
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
 #include <Parser/UnicodeData.h>
@@ -49,10 +50,11 @@ int main(int argc, const char *argv[]) {
     BidiBrackets bidiBrackets(dir);
     BidiTest bidiTest(dir);
     BidiCharacterTest bidiCharacterTest(dir);
+    DerivedBidiClass derivedBidiClass(dir);
     Scripts scripts(dir);
     PropertyValueAliases propertyValueAliases(dir);
 
-    BidiTypeLookupTester bidiTypeLookupTester(unicodeData);
+    BidiTypeLookupTester bidiTypeLookupTester(derivedBidiClass);
     CodepointSequenceTester codepointSequenceTester;
     MirrorLookupTester mirrorLookupTester(bidiMirroring);
     BracketLookupTester bracketLookupTester(bidiBrackets);

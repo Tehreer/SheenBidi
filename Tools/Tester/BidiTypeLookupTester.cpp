@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ extern "C" {
 #include <iostream>
 #include <string>
 
-#include <Parser/UnicodeData.h>
+#include <Parser/DerivedBidiClass.h>
 
 #include "Utilities/Convert.h"
 #include "Utilities/Unicode.h"
@@ -42,8 +42,8 @@ using namespace SheenBidi::Tester::Utilities;
 
 static const string BIDI_TYPE_DEFAULT = "ON";
 
-BidiTypeLookupTester::BidiTypeLookupTester(const UnicodeData &unicodeData) :
-    m_unicodeData(unicodeData)
+BidiTypeLookupTester::BidiTypeLookupTester(const DerivedBidiClass &derivedBidiClass) :
+    m_derivedBidiClass(derivedBidiClass)
 {
 }
 
@@ -54,10 +54,9 @@ void BidiTypeLookupTester::test() {
     cout << "Running bidi type lookup tester." << endl;
 
     size_t failCounter = 0;
-    string uniBidiType;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        m_unicodeData.getBidirectionalCategory(codePoint, uniBidiType);
+        const string &uniBidiType = m_derivedBidiClass.bidiClassForCodePoint(codePoint);
         const string &expBidiType = (uniBidiType.length() ? uniBidiType : BIDI_TYPE_DEFAULT);
 
         SBBidiType valBidiType = LookupBidiType(codePoint);
