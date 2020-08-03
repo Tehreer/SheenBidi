@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2020 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -274,6 +274,10 @@ static map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptHMNP, "Hmnp"},
     {SBScriptNAND, "Nand"},
     {SBScriptWCHO, "Wcho"},
+    {SBScriptCHRS, "Chrs"},
+    {SBScriptDIAK, "Diak"},
+    {SBScriptKITS, "Kits"},
+    {SBScriptYEZI, "Yezi"},
 };
 
 const string &Convert::bidiTypeToString(SBBidiType bidiType) {
