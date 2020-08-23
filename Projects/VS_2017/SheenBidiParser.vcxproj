@@ -31,6 +31,7 @@
     <ClCompile Include="..\..\Tools\Parser\BidiCharacterTest.cpp" />
     <ClCompile Include="..\..\Tools\Parser\BidiMirroring.cpp" />
     <ClCompile Include="..\..\Tools\Parser\BidiTest.cpp" />
+    <ClCompile Include="..\..\Tools\Parser\DerivedBidiClass.cpp" />
     <ClCompile Include="..\..\Tools\Parser\PropertyValueAliases.cpp" />
     <ClCompile Include="..\..\Tools\Parser\Scripts.cpp" />
     <ClCompile Include="..\..\Tools\Parser\UnicodeData.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\..\Tools\Parser\BidiCharacterTest.h" />
     <ClInclude Include="..\..\Tools\Parser\BidiMirroring.h" />
     <ClInclude Include="..\..\Tools\Parser\BidiTest.h" />
+    <ClInclude Include="..\..\Tools\Parser\DerivedBidiClass.h" />
     <ClInclude Include="..\..\Tools\Parser\PropertyValueAliases.h" />
     <ClInclude Include="..\..\Tools\Parser\Scripts.h" />
     <ClInclude Include="..\..\Tools\Parser\UnicodeData.h" />
