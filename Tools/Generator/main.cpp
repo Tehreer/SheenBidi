@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2021 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,17 +56,17 @@ int main(int argc, const char * argv[])
     bidiTypeLookup.generateFile(out);
 
     PairingLookupGenerator pairingLookup(bidiMirroring, bidiBrackets);
-    pairingLookup.setSegmentSize(113);
+    pairingLookup.setSegmentSize(106);
     pairingLookup.generateFile(out);
 
     GeneralCategoryLookupGenerator generalCategoryLookup(unicodeData);
     generalCategoryLookup.setMainSegmentSize(16);
-    generalCategoryLookup.setBranchSegmentSize(64);
+    generalCategoryLookup.setBranchSegmentSize(49);
     generalCategoryLookup.generateFile(out);
 
     ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);
     scriptLookup.setMainSegmentSize(16);
-    scriptLookup.setBranchSegmentSize(64);
+    scriptLookup.setBranchSegmentSize(32);
     scriptLookup.generateFile(out);
 
     cout << "Finished.";
