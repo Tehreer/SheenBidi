@@ -278,6 +278,11 @@ static map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptDIAK, "Diak"},
     {SBScriptKITS, "Kits"},
     {SBScriptYEZI, "Yezi"},
+    {SBScriptCPMN, "Cpmn"},
+    {SBScriptOUGR, "Ougr"},
+    {SBScriptTNSA, "Tnsa"},
+    {SBScriptTOTO, "Toto"},
+    {SBScriptVITH, "Vith"}
 };
 
 const string &Convert::bidiTypeToString(SBBidiType bidiType) {
