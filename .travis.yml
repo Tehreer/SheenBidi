@@ -7,6 +7,10 @@ language: c
 compiler:
   - clang
   - gcc
+before_install:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then pip install --user cpp-coveralls; fi
+  - if [ "$CC" == "gcc" ]; then export EXTRA_FLAGS="--coverage"; fi
 script:
   - make
   - make check
+  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CC" == "gcc" -a "$TRAVIS_REPO_SLUG" == "Tehreer/SheenBidi" ]; then coveralls -e Debug/Tester -e Debug/Parser; fi
