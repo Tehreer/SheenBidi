@@ -28,5 +28,5 @@ sheenbidi_library = library('sheenbidi',
   sources: sheenbidi_sources,
   include_directories: sheenbidi_includes,
   c_args: ['-DSB_CONFIG_UNITY'],
-  version: '2.4',
+  version: meson.project_version(),
   install: true)
