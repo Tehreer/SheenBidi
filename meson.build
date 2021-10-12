@@ -30,3 +30,7 @@ sheenbidi_library = library('sheenbidi',
   c_args: ['-DSB_CONFIG_UNITY'],
   version: meson.project_version(),
   install: true)
+
+sheenbidi_dep = declare_dependency(
+  include_directories : sheenbidi_includes,
+  link_with : sheenbidi_library)
