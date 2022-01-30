@@ -5,7 +5,7 @@ SheenBidi
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/k2vvegcdqsb9ld5a?svg=true)](https://ci.appveyor.com/project/mta452/sheenbidi)
 [![Coverage Status](https://coveralls.io/repos/github/Tehreer/SheenBidi/badge.svg?branch=master)](https://coveralls.io/github/Tehreer/SheenBidi)
 
-SheenBidi implements Unicode Bidirectional Algorithm available at http://www.unicode.org/reports/tr9. It is a sophisticated implementaion which provides the developers an easy way to use UBA in their applications.
+SheenBidi implements Unicode Bidirectional Algorithm available at http://www.unicode.org/reports/tr9. It is a sophisticated implementation which provides the developers an easy way to use UBA in their applications.
 
 Here are some of the advantages of SheenBidi.
 
@@ -23,7 +23,7 @@ The above screenshot depicts a visual representation of the API on a sample text
 It works as a code point decoder by accepting a string buffer in specified encoding.
 
 ### SBAlgorithm
-It provides bidirectional type of each code unit in source string. Paragraph boundaries can be quried from it as determined by rule [P1](https://www.unicode.org/reports/tr9/#P1). Individual paragraph objects can be created from it by explicitly specifying the base level or deriving it from rules [P2](https://www.unicode.org/reports/tr9/#P2)-[P3](https://www.unicode.org/reports/tr9/#P3).
+It provides bidirectional type of each code unit in source string. Paragraph boundaries can be queried from it as determined by rule [P1](https://www.unicode.org/reports/tr9/#P1). Individual paragraph objects can be created from it by explicitly specifying the base level or deriving it from rules [P2](https://www.unicode.org/reports/tr9/#P2)-[P3](https://www.unicode.org/reports/tr9/#P3).
 
 ### SBParagraph
 It represents a single paragraph of text processed with rules [X1](https://www.unicode.org/reports/tr9/#X1)-[I2](https://www.unicode.org/reports/tr9/#I2). It provides resolved embedding levels of all the code units of a paragraph.
