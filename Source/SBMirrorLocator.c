@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@
 
 SBMirrorLocatorRef SBMirrorLocatorCreate(void)
 {
-    SBMirrorLocatorRef locator;
+    SBMirrorLocatorRef locator = malloc(sizeof(SBMirrorLocator));
 
-    locator = malloc(sizeof(SBMirrorLocator));
-    locator->_line = NULL;
-    locator->retainCount = 1;
-    SBMirrorLocatorReset(locator);
+    if (locator) {
+        locator->_line = NULL;
+        locator->retainCount = 1;
+
+        SBMirrorLocatorReset(locator);
+    }
 
     return locator;
 }
