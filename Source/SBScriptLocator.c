@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,16 @@ static SBBoolean IsSimilarScript(SBScript lhs, SBScript rhs)
 
 SBScriptLocatorRef SBScriptLocatorCreate(void)
 {
-    SBScriptLocatorRef locator;
+    SBScriptLocatorRef locator = malloc(sizeof(SBScriptLocator));
 
-    locator = malloc(sizeof(SBScriptLocator));
-    locator->_codepointSequence.stringEncoding = SBStringEncodingUTF8;
-    locator->_codepointSequence.stringBuffer = NULL;
-    locator->_codepointSequence.stringLength = 0;
-    locator->retainCount = 1;
-    SBScriptLocatorReset(locator);
+    if (locator) {
+        locator->_codepointSequence.stringEncoding = SBStringEncodingUTF8;
+        locator->_codepointSequence.stringBuffer = NULL;
+        locator->_codepointSequence.stringLength = 0;
+        locator->retainCount = 1;
+
+        SBScriptLocatorReset(locator);
+    }
 
     return locator;
 }
