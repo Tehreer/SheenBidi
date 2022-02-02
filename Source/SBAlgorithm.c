@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +29,24 @@ static SBAlgorithmRef AlgorithmAllocate(SBUInteger stringLength)
 {
     const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
     const SBUInteger sizeTypes     = sizeof(SBBidiType) * stringLength;
+    const SBUInteger sizeMemory    = sizeAlgorithm + sizeTypes;
 
-    const SBUInteger sizeMemory    = sizeAlgorithm
-                                   + sizeTypes;
+    void *pointer = malloc(sizeMemory);
 
-    SBUInt8 *memory = (SBUInt8 *)malloc(sizeMemory);
+    if (pointer) {
+        const SBUInteger offsetAlgorithm = 0;
+        const SBUInteger offsetTypes     = offsetAlgorithm + sizeAlgorithm;
 
-    SBUInteger offset = 0;
-    SBAlgorithmRef algorithm = (SBAlgorithmRef)(memory + offset);
+        SBUInt8 *memory = (SBUInt8 *)pointer;
+        SBAlgorithmRef algorithm = (SBAlgorithmRef)(memory + offsetAlgorithm);
+        SBLevel *fixedTypes = (SBLevel *)(memory + offsetTypes);
 
-    offset += sizeAlgorithm;
-    algorithm->fixedTypes = (SBBidiType *)(memory + offset);
+        algorithm->fixedTypes = fixedTypes;
 
-    return algorithm;
+        return algorithm;
+    }
+
+    return NULL;
 }
 
 static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
@@ -71,17 +76,20 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
         SB_LOG_BLOCK_CLOSER();
 
         algorithm = AlgorithmAllocate(stringLength);
-        algorithm->codepointSequence = *codepointSequence;
-        algorithm->retainCount = 1;
 
-        DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
+        if (algorithm) {
+            algorithm->codepointSequence = *codepointSequence;
+            algorithm->retainCount = 1;
 
-        SB_LOG_BLOCK_OPENER("Determined Types");
-        SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
-        SB_LOG_BLOCK_CLOSER();
+            DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
-        SB_LOG_BREAKER();
-        
+            SB_LOG_BLOCK_OPENER("Determined Types");
+            SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
+            SB_LOG_BLOCK_CLOSER();
+
+            SB_LOG_BREAKER();
+        }
+
         return algorithm;
     }
 
