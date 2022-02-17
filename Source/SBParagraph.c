@@ -82,7 +82,7 @@ static void DisposeParagraphContext(ParagraphContextRef context)
     free(context);
 }
 
-static SBParagraphRef ParagraphAllocate(SBUInteger length)
+static SBParagraphRef AllocateParagraph(SBUInteger length)
 {
     const SBUInteger sizeParagraph = sizeof(SBParagraph);
     const SBUInteger sizeLevels    = sizeof(SBLevel) * (length + 2);
@@ -569,7 +569,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_STATEMENT("Actual Length", 1, SB_LOG_NUMBER(actualLength));
     SB_LOG_BLOCK_CLOSER();
 
-    paragraph = ParagraphAllocate(actualLength);
+    paragraph = AllocateParagraph(actualLength);
 
     if (paragraph) {
         paragraph->refTypes = algorithm->fixedTypes + paragraphOffset;
