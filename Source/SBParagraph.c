@@ -543,6 +543,50 @@ static void SaveLevels(BidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
     }
 }
 
+static SBBoolean ResolveParagraph(SBParagraphRef paragraph,
+    SBAlgorithmRef algorithm, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+{
+    const SBBidiType *bidiTypes = algorithm->fixedTypes + offset;
+    ParagraphContextRef context;
+    SBLevel resolvedLevel;
+
+    context = CreateParagraphContext(bidiTypes, paragraph->fixedLevels, length);
+
+    if (context) {
+        resolvedLevel = DetermineParagraphLevel(&context->bidiChain, baseLevel);
+
+        SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
+        SB_LOG_STATEMENT("Base Level", 1, SB_LOG_LEVEL(resolvedLevel));
+        SB_LOG_BLOCK_CLOSER();
+
+        context->isolatingRun.codepointSequence = &algorithm->codepointSequence;
+        context->isolatingRun.bidiTypes = bidiTypes;
+        context->isolatingRun.bidiChain = &context->bidiChain;
+        context->isolatingRun.paragraphOffset = offset;
+        context->isolatingRun.paragraphLevel = resolvedLevel;
+
+        DetermineLevels(context, resolvedLevel);
+        SaveLevels(&context->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
+
+        SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
+        SB_LOG_STATEMENT("Levels", 1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
+        SB_LOG_BLOCK_CLOSER();
+
+        paragraph->algorithm = SBAlgorithmRetain(algorithm);
+        paragraph->refTypes = bidiTypes;
+        paragraph->offset = offset;
+        paragraph->length = length;
+        paragraph->baseLevel = resolvedLevel;
+        paragraph->retainCount = 1;
+
+        DisposeParagraphContext(context);
+
+        return SBTrue;
+    }
+
+    return SBFalse;
+}
+
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
@@ -551,8 +595,6 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger actualLength;
 
     SBParagraphRef paragraph;
-    ParagraphContextRef context;
-    SBLevel resolvedLevel;
 
     /* The given range MUST be valid. */
     SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
@@ -572,38 +614,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     paragraph = AllocateParagraph(actualLength);
 
     if (paragraph) {
-        paragraph->refTypes = algorithm->fixedTypes + paragraphOffset;
-
-        context = CreateParagraphContext(paragraph->refTypes, paragraph->fixedLevels, actualLength);
-
-        if (context) {
-            resolvedLevel = DetermineParagraphLevel(&context->bidiChain, baseLevel);
-
-            SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
-            SB_LOG_STATEMENT("Base Level", 1, SB_LOG_LEVEL(resolvedLevel));
-            SB_LOG_BLOCK_CLOSER();
-
-            context->isolatingRun.codepointSequence = codepointSequence;
-            context->isolatingRun.bidiTypes = paragraph->refTypes;
-            context->isolatingRun.bidiChain = &context->bidiChain;
-            context->isolatingRun.paragraphOffset = paragraphOffset;
-            context->isolatingRun.paragraphLevel = resolvedLevel;
-
-            DetermineLevels(context, resolvedLevel);
-            SaveLevels(&context->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
-
-            SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
-            SB_LOG_STATEMENT("Levels",  1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, actualLength));
-            SB_LOG_BLOCK_CLOSER();
-
-            paragraph->algorithm = SBAlgorithmRetain(algorithm);
-            paragraph->offset = paragraphOffset;
-            paragraph->length = actualLength;
-            paragraph->baseLevel = resolvedLevel;
-            paragraph->retainCount = 1;
-
-            DisposeParagraphContext(context);
-
+        if (ResolveParagraph(paragraph, algorithm, paragraphOffset, actualLength, baseLevel)) {
             return paragraph;
         }
 
