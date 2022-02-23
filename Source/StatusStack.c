@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ SB_INTERNAL void StatusStackInitialize(StatusStackRef stack)
     StatusStackSetEmpty(stack);
 }
 
-SB_INTERNAL void StatusStackPush(StatusStackRef stack, SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
+SB_INTERNAL SBBoolean StatusStackPush(StatusStackRef stack,
+    SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
 {
     _SBStatusStackElementRef element;
 
@@ -45,6 +46,10 @@ SB_INTERNAL void StatusStackPush(StatusStackRef stack, SBLevel embeddingLevel, S
 
         if (!peekList) {
             peekList = malloc(sizeof(_SBStatusStackList));
+            if (!peekList) {
+                return SBFalse;
+            }
+
             peekList->previous = previousList;
             peekList->next = NULL;
 
@@ -61,6 +66,8 @@ SB_INTERNAL void StatusStackPush(StatusStackRef stack, SBLevel embeddingLevel, S
     element->embeddingLevel = embeddingLevel;
     element->overrideStatus = overrideStatus;
     element->isolateStatus = isolateStatus;
+
+    return SBTrue;
 }
 
 SB_INTERNAL void StatusStackPop(StatusStackRef stack)

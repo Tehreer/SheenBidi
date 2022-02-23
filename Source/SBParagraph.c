@@ -311,7 +311,9 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
         bnEquivalent = SBTrue;                                              \
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
-            StatusStackPush(stack, newLevel, o, SBFalse);                   \
+            if (!StatusStackPush(stack, newLevel, o, SBFalse)) {            \
+                return SBFalse;                                             \
+            }                                                               \
         } else {                                                            \
             if (!overIsolate) {                                             \
                 overEmbedding += 1;                                         \
@@ -329,7 +331,10 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
                                                                             \
         if (newLevel <= SBLevelMax && !overIsolate && !overEmbedding) {     \
             validIsolate += 1;                                              \
-            StatusStackPush(stack, newLevel, o, SBTrue);                    \
+                                                                            \
+            if (!StatusStackPush(stack, newLevel, o, SBTrue)) {             \
+                return SBFalse;                                             \
+            }                                                               \
         } else {                                                            \
             overIsolate += 1;                                               \
         }                                                                   \
