@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ SB_INTERNAL void RunQueueInitialize(RunQueueRef queue)
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
+SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
 {
     LevelRunRef element;
 
@@ -83,6 +83,10 @@ SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
 
         if (!rearList) {
             rearList = malloc(sizeof(RunQueueList));
+            if (!rearList) {
+                return SBFalse;
+            }
+
             rearList->previous = previousList;
             rearList->next = NULL;
 
@@ -111,6 +115,8 @@ SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
         queue->_partialList = queue->_rearList;
         queue->_partialTop = queue->_rearTop;
     }
+
+    return SBTrue;
 }
 
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue)

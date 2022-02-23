@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ typedef struct _RunQueue {
 
 SB_INTERNAL void RunQueueInitialize(RunQueueRef queue);
 
-SB_INTERNAL void RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
+SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue);
 
 SB_INTERNAL void RunQueueFinalize(RunQueueRef queue);

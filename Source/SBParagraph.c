@@ -515,7 +515,10 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish)
 {
     RunQueueRef queue = &context->runQueue;
-    RunQueueEnqueue(queue, levelRun);
+
+    if (!RunQueueEnqueue(queue, levelRun)) {
+        return SBFalse;
+    }
 
     if (queue->shouldDequeue || forceFinish) {
         IsolatingRunRef isolatingRun = &context->isolatingRun;
