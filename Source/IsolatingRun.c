@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@ static BidiLink ResolveWeakTypes(IsolatingRunRef isolatingRun)
     return priorLink;
 }
 
-static void ResolveBrackets(IsolatingRunRef isolatingRun)
+static SBBoolean ResolveBrackets(IsolatingRunRef isolatingRun)
 {
     const SBCodepointSequence *sequence = isolatingRun->codepointSequence;
     SBUInteger paragraphOffset = isolatingRun->paragraphOffset;
@@ -245,7 +245,9 @@ static void ResolveBrackets(IsolatingRunRef isolatingRun)
             switch (bracketType) {
             case BracketTypeOpen:
                 if (queue->count < BracketQueueGetMaxCapacity()) {
-                    BracketQueueEnqueue(queue, priorStrongLink, link, bracketValue);
+                    if (!BracketQueueEnqueue(queue, priorStrongLink, link, bracketValue)) {
+                        return SBFalse;
+                    }
                 } else {
                     goto Resolve;
                 }
@@ -280,6 +282,7 @@ static void ResolveBrackets(IsolatingRunRef isolatingRun)
 
 Resolve:
     ResolveAvailableBracketPairs(isolatingRun);
+    return SBTrue;
 }
 
 static void ResolveAvailableBracketPairs(IsolatingRunRef isolatingRun)
@@ -473,7 +476,7 @@ SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun)
     BracketQueueInitialize(&isolatingRun->_bracketQueue);
 }
 
-SB_INTERNAL void IsolatingRunResolve(IsolatingRunRef isolatingRun)
+SB_INTERNAL SBBoolean IsolatingRunResolve(IsolatingRunRef isolatingRun)
 {
     BidiLink lastLink;
     BidiLink subsequentLink;
@@ -498,7 +501,10 @@ SB_INTERNAL void IsolatingRunResolve(IsolatingRunRef isolatingRun)
     SB_LOG_BLOCK_CLOSER();
 
     /* Rule N0 */
-    ResolveBrackets(isolatingRun);
+    if (!ResolveBrackets(isolatingRun)) {
+        return SBFalse;
+    }
+
     SB_LOG_BLOCK_OPENER("Resolved Brackets");
     SB_LOG_STATEMENT("Types", 1, SB_LOG_RUN_TYPES(isolatingRun));
     SB_LOG_BLOCK_CLOSER();
@@ -521,6 +527,8 @@ SB_INTERNAL void IsolatingRunResolve(IsolatingRunRef isolatingRun)
     BidiChainSetNext(isolatingRun->bidiChain, lastLink, subsequentLink);
 
     SB_LOG_BLOCK_CLOSER();
+
+    return SBTrue;
 }
 
 SB_INTERNAL void IsolatingRunFinalize(IsolatingRunRef isolatingRun)

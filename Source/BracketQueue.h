@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2022 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ typedef struct _BracketQueue {
 SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue);
 SB_INTERNAL void BracketQueueReset(BracketQueueRef queue, SBBidiType direction);
 
-SB_INTERNAL void BracketQueueEnqueue(BracketQueueRef queue,
+SB_INTERNAL SBBoolean BracketQueueEnqueue(BracketQueueRef queue,
     BidiLink priorStrongLink, BidiLink openingLink, SBCodepoint bracket);
 SB_INTERNAL void BracketQueueDequeue(BracketQueueRef queue);
 

@@ -40,7 +40,7 @@ typedef struct _ParagraphContext {
 } ParagraphContext, *ParagraphContextRef;
 
 static void PopulateBidiChain(BidiChainRef chain, const SBBidiType *types, SBUInteger length);
-static void ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish);
+static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish);
 
 static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
@@ -247,7 +247,7 @@ static SBLevel DetermineParagraphLevel(BidiChainRef chain, SBLevel baseLevel)
     return baseLevel;
 }
 
-static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
+static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 {
     BidiChainRef chain = &context->bidiChain;
     StatusStackRef stack = &context->statusStack;
@@ -488,7 +488,10 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
             eor = SBLevelAsNormalBidiType(SBNumberGetMax(priorLevel, currentLevel));
 
             LevelRunInitialize(&levelRun, chain, firstLink, lastLink, sor, eor);
-            ProcessRun(context, &levelRun, forceFinish);
+
+            if (!ProcessRun(context, &levelRun, forceFinish)) {
+                return SBFalse;
+            }
 
             /* The sor of next run (if any) should be technically equal to eor of this run. */
             sor = eor;
@@ -500,9 +503,11 @@ static void DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
         priorLink = link;
     }
+
+    return SBTrue;
 }
 
-static void ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish)
+static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish)
 {
     RunQueueRef queue = &context->runQueue;
     RunQueueEnqueue(queue, levelRun);
@@ -519,9 +524,14 @@ static void ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, 
             }
 
             isolatingRun->baseLevelRun = peek;
-            IsolatingRunResolve(isolatingRun);
+
+            if (!IsolatingRunResolve(isolatingRun)) {
+                return SBFalse;
+            }
         }
     }
+
+    return SBTrue;
 }
 
 static void SaveLevels(BidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
@@ -547,6 +557,7 @@ static SBBoolean ResolveParagraph(SBParagraphRef paragraph,
     SBAlgorithmRef algorithm, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     const SBBidiType *bidiTypes = algorithm->fixedTypes + offset;
+    SBBoolean isSucceeded = SBFalse;
     ParagraphContextRef context;
     SBLevel resolvedLevel;
 
@@ -565,26 +576,27 @@ static SBBoolean ResolveParagraph(SBParagraphRef paragraph,
         context->isolatingRun.paragraphOffset = offset;
         context->isolatingRun.paragraphLevel = resolvedLevel;
 
-        DetermineLevels(context, resolvedLevel);
-        SaveLevels(&context->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
+        if (DetermineLevels(context, resolvedLevel)) {
+            SaveLevels(&context->bidiChain, ++paragraph->fixedLevels, resolvedLevel);
 
-        SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
-        SB_LOG_STATEMENT("Levels", 1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
-        SB_LOG_BLOCK_CLOSER();
+            SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
+            SB_LOG_STATEMENT("Levels", 1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
+            SB_LOG_BLOCK_CLOSER();
 
-        paragraph->algorithm = SBAlgorithmRetain(algorithm);
-        paragraph->refTypes = bidiTypes;
-        paragraph->offset = offset;
-        paragraph->length = length;
-        paragraph->baseLevel = resolvedLevel;
-        paragraph->retainCount = 1;
+            paragraph->algorithm = SBAlgorithmRetain(algorithm);
+            paragraph->refTypes = bidiTypes;
+            paragraph->offset = offset;
+            paragraph->length = length;
+            paragraph->baseLevel = resolvedLevel;
+            paragraph->retainCount = 1;
+
+            isSucceeded = SBTrue;
+        }
 
         DisposeParagraphContext(context);
-
-        return SBTrue;
     }
 
-    return SBFalse;
+    return isSucceeded;
 }
 
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
