@@ -23,6 +23,34 @@
 #include "SBBase.h"
 #include "BracketQueue.h"
 
+static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
+{
+    if (queue->_rearTop != BracketQueueList_MaxIndex) {
+        queue->_rearTop += 1;
+    } else {
+        BracketQueueListRef previousList = queue->_rearList;
+        BracketQueueListRef rearList = previousList->next;
+
+        if (!rearList) {
+            rearList = malloc(sizeof(BracketQueueList));
+            if (!rearList) {
+                return SBFalse;
+            }
+
+            rearList->previous = previousList;
+            rearList->next = NULL;
+
+            previousList->next = rearList;
+        }
+
+        queue->_rearList = rearList;
+        queue->_rearTop = 0;
+    }
+    queue->count += 1;
+
+    return SBTrue;
+}
+
 static void BracketQueueFinalizePairs(BracketQueueRef queue, BracketQueueListRef list, SBInteger top)
 {
     do {
@@ -64,45 +92,23 @@ SB_INTERNAL void BracketQueueReset(BracketQueueRef queue, SBBidiType direction)
 SB_INTERNAL SBBoolean BracketQueueEnqueue(BracketQueueRef queue,
    BidiLink priorStrongLink, BidiLink openingLink, SBCodepoint bracket)
 {
-    BracketQueueListRef list;
-    SBInteger top;
-
     /* The queue can only take a maximum of 63 elements. */
     SBAssert(queue->count < BracketQueueGetMaxCapacity());
 
-    if (queue->_rearTop != BracketQueueList_MaxIndex) {
-        list = queue->_rearList;
-        top = ++queue->_rearTop;
-    } else {
-        BracketQueueListRef rearList;
+    if (BracketQueueInsertElement(queue)) {
+        BracketQueueListRef list = queue->_rearList;
+        SBInteger top = queue->_rearTop;
 
-        rearList = queue->_rearList;
-        list = rearList->next;
+        list->priorStrongLink[top] = priorStrongLink;
+        list->openingLink[top] = openingLink;
+        list->closingLink[top] = BidiLinkNone;
+        list->bracket[top] = bracket;
+        list->strongType[top] = SBBidiTypeNil;
 
-        if (!list) {
-            list = malloc(sizeof(BracketQueueList));
-            if (!list) {
-                return SBFalse;
-            }
-
-            list->previous = rearList;
-            list->next = NULL;
-
-            rearList->next = list;
-        }
-
-        queue->_rearList = list;
-        queue->_rearTop = top = 0;
+        return SBTrue;
     }
-    queue->count += 1;
 
-    list->priorStrongLink[top] = priorStrongLink;
-    list->openingLink[top] = openingLink;
-    list->closingLink[top] = BidiLinkNone;
-    list->bracket[top] = bracket;
-    list->strongType[top] = SBBidiTypeNil;
-
-    return SBTrue;
+    return SBFalse;
 }
 
 SB_INTERNAL void BracketQueueDequeue(BracketQueueRef queue)
