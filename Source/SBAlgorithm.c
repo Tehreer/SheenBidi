@@ -65,32 +65,37 @@ static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *
     }
 }
 
+static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequence)
+{
+    SBUInteger stringLength = codepointSequence->stringLength;
+    SBAlgorithmRef algorithm;
+
+    SB_LOG_BLOCK_OPENER("Algorithm Input");
+    SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
+    SB_LOG_BLOCK_CLOSER();
+
+    algorithm = AllocateAlgorithm(stringLength);
+
+    if (algorithm) {
+        algorithm->codepointSequence = *codepointSequence;
+        algorithm->retainCount = 1;
+
+        DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
+
+        SB_LOG_BLOCK_OPENER("Determined Types");
+        SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
+        SB_LOG_BLOCK_CLOSER();
+
+        SB_LOG_BREAKER();
+    }
+
+    return algorithm;
+}
+
 SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
 {
     if (SBCodepointSequenceIsValid(codepointSequence)) {
-        SBUInteger stringLength = codepointSequence->stringLength;
-        SBAlgorithmRef algorithm;
-
-        SB_LOG_BLOCK_OPENER("Algorithm Input");
-        SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
-        SB_LOG_BLOCK_CLOSER();
-
-        algorithm = AllocateAlgorithm(stringLength);
-
-        if (algorithm) {
-            algorithm->codepointSequence = *codepointSequence;
-            algorithm->retainCount = 1;
-
-            DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
-
-            SB_LOG_BLOCK_OPENER("Determined Types");
-            SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
-            SB_LOG_BLOCK_CLOSER();
-
-            SB_LOG_BREAKER();
-        }
-
-        return algorithm;
+        return CreateAlgorithm(codepointSequence);
     }
 
     return NULL;
