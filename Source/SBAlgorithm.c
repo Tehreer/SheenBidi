@@ -25,7 +25,7 @@
 #include "SBParagraph.h"
 #include "SBAlgorithm.h"
 
-static SBAlgorithmRef AlgorithmAllocate(SBUInteger stringLength)
+static SBAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
 {
     const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
     const SBUInteger sizeTypes     = sizeof(SBBidiType) * stringLength;
@@ -75,7 +75,7 @@ SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
         SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));
         SB_LOG_BLOCK_CLOSER();
 
-        algorithm = AlgorithmAllocate(stringLength);
+        algorithm = AllocateAlgorithm(stringLength);
 
         if (algorithm) {
             algorithm->codepointSequence = *codepointSequence;
