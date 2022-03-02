@@ -106,6 +106,11 @@ static SBParagraphRef AllocateParagraph(SBUInteger length)
     return NULL;
 }
 
+static void DisposeParagraph(SBParagraphRef paragraph)
+{
+    free(paragraph);
+}
+
 static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
 {
     SBBidiType *bidiTypes = algorithm->fixedTypes;
@@ -638,7 +643,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
             return paragraph;
         }
 
-        free(paragraph);
+        DisposeParagraph(paragraph);
     }
 
     SB_LOG_BREAKER();
@@ -693,6 +698,6 @@ void SBParagraphRelease(SBParagraphRef paragraph)
 {
     if (paragraph && --paragraph->retainCount == 0) {
         SBAlgorithmRelease(paragraph->algorithm);
-        free(paragraph);
+        DisposeParagraph(paragraph);
     }
 }
