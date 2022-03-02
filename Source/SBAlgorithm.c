@@ -49,6 +49,11 @@ static SBAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
     return NULL;
 }
 
+static void DisposeAlgorithm(SBAlgorithmRef algorithm)
+{
+    free(algorithm);
+}
+
 static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
 {
     SBUInteger stringIndex = 0;
@@ -185,6 +190,6 @@ SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 void SBAlgorithmRelease(SBAlgorithmRef algorithm)
 {
     if (algorithm && --algorithm->retainCount == 0) {
-        free(algorithm);
+        DisposeAlgorithm(algorithm);
     }
 }
