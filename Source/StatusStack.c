@@ -24,14 +24,14 @@
 
 static SBBoolean StatusStackInsertElement(StatusStackRef stack)
 {
-    if (stack->_peekTop != _SBStatusStackList_MaxIndex) {
+    if (stack->_peekTop != _StatusStackList_MaxIndex) {
         stack->_peekTop += 1;
     } else {
-        _SBStatusStackListRef previousList = stack->_peekList;
-        _SBStatusStackListRef peekList = previousList->next;
+        _StatusStackListRef previousList = stack->_peekList;
+        _StatusStackListRef peekList = previousList->next;
 
         if (!peekList) {
-            peekList = malloc(sizeof(_SBStatusStackList));
+            peekList = malloc(sizeof(_StatusStackList));
             if (!peekList) {
                 return SBFalse;
             }
@@ -65,7 +65,7 @@ SB_INTERNAL SBBoolean StatusStackPush(StatusStackRef stack,
     SBAssert(stack->count <= 127);
 
     if (StatusStackInsertElement(stack)) {
-        _SBStatusStackElementRef element = &stack->_peekList->elements[stack->_peekTop];
+        _StatusStackElementRef element = &stack->_peekList->elements[stack->_peekTop];
         element->embeddingLevel = embeddingLevel;
         element->overrideStatus = overrideStatus;
         element->isolateStatus = isolateStatus;
@@ -85,7 +85,7 @@ SB_INTERNAL void StatusStackPop(StatusStackRef stack)
         stack->_peekTop -= 1;
     } else {
         stack->_peekList = stack->_peekList->previous;
-        stack->_peekTop = _SBStatusStackList_MaxIndex;
+        stack->_peekTop = _StatusStackList_MaxIndex;
     }
     stack->count -= 1;
 }
@@ -114,10 +114,10 @@ SB_INTERNAL SBBoolean StatusStackGetIsolateStatus(StatusStackRef stack)
 
 SB_INTERNAL void StatusStackFinalize(StatusStackRef stack)
 {
-    _SBStatusStackListRef list = stack->_firstList.next;
+    _StatusStackListRef list = stack->_firstList.next;
 
     while (list) {
-        _SBStatusStackListRef next = list->next;
+        _StatusStackListRef next = list->next;
         free(list);
         list = next;
     };

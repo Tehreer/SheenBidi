@@ -20,25 +20,25 @@
 #include <SBConfig.h>
 #include "SBBase.h"
 
-#define _SBStatusStackList_Length       16
-#define _SBStatusStackList_MaxIndex     (_SBStatusStackList_Length - 1)
+#define _StatusStackList_Length         16
+#define _StatusStackList_MaxIndex       (_StatusStackList_Length - 1)
 
-typedef struct _SBStatusStackElement {
+typedef struct _StatusStackElement {
     SBBoolean isolateStatus;
     SBBidiType overrideStatus;
     SBLevel embeddingLevel;
-} _SBStatusStackElement, *_SBStatusStackElementRef;
+} _StatusStackElement, *_StatusStackElementRef;
 
-typedef struct _SBStatusStackList {
-    _SBStatusStackElement elements[_SBStatusStackList_Length];
+typedef struct _StatusStackList {
+    _StatusStackElement elements[_StatusStackList_Length];
 
-    struct _SBStatusStackList *previous;
-    struct _SBStatusStackList *next;
-} _SBStatusStackList, *_SBStatusStackListRef;
+    struct _StatusStackList *previous;
+    struct _StatusStackList *next;
+} _StatusStackList, *_StatusStackListRef;
 
-typedef struct _SBStatusStack {
-    _SBStatusStackList _firstList;
-    _SBStatusStackListRef _peekList;
+typedef struct _StatusStack {
+    _StatusStackList _firstList;
+    _StatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
 } StatusStack, *StatusStackRef;
