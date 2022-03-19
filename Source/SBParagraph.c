@@ -119,13 +119,12 @@ static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragra
 
     for (stringIndex = paragraphOffset; stringIndex < suggestedLimit; stringIndex++) {
         if (bidiTypes[stringIndex] == SBBidiTypeB) {
+            stringIndex += SBAlgorithmGetSeparatorLength(algorithm, stringIndex);
             goto Return;
         }
     }
 
 Return:
-    stringIndex += SBAlgorithmGetSeparatorLength(algorithm, stringIndex);
-
     return (stringIndex - paragraphOffset);
 }
 
