@@ -151,8 +151,12 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
         SBBidiType currentType = bidiTypes[startIndex];
 
         if (currentType == SBBidiTypeB) {
+            SBUInteger codeUnitCount = SBAlgorithmGetSeparatorLength(algorithm, startIndex);
+
+            startIndex += codeUnitCount;
+
             if (separatorLength) {
-                *separatorLength = SBAlgorithmGetSeparatorLength(algorithm, startIndex);
+                *separatorLength = codeUnitCount;
             }
             break;
         }
