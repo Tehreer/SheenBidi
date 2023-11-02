@@ -226,7 +226,11 @@ enum {
     SBScriptOUGR = 0x9F,    /**< Old_Uyghur */
     SBScriptTNSA = 0xA0,    /**< Tangsa */
     SBScriptTOTO = 0xA1,    /**< Toto */
-    SBScriptVITH = 0xA2     /**< Vithkuqi */
+    SBScriptVITH = 0xA2,    /**< Vithkuqi */
+
+    /* Unicde 15.1 */
+    SBScriptKAWI = 0xA3,    /**< Kawi */
+    SBScriptNAGM = 0xA4     /**< Nag_Mundari */
 };
 
 /**
