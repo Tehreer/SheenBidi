@@ -1,4 +1,4 @@
-project('sheenbidi', 'c', version: '2.6',
+project('sheenbidi', 'c', version: '2.7',
   meson_version : '>= 0.55.0')
 
 sheenbidi_includes = include_directories('Headers')
