@@ -144,6 +144,10 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger limitIndex;
     SBUInteger startIndex;
 
+    if (separatorLength) {
+        *separatorLength = 0;
+    }
+
     SBUIntegerNormalizeRange(codepointSequence->stringLength, &paragraphOffset, &suggestedLength);
     limitIndex = paragraphOffset + suggestedLength;
 
