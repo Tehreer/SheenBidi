@@ -60,8 +60,12 @@ static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLev
         ParagraphContextRef context = (ParagraphContextRef)(memory + offsetContext);
         BidiLink *fixedLinks = (BidiLink *)(memory + offsetLinks);
         SBBidiType *fixedTypes = (SBBidiType *)(memory + offsetTypes);
+        SBUInteger i;
 
         BidiChainInitialize(&context->bidiChain, fixedTypes, levels, fixedLinks);
+        for (i = 0; i < length + 2; ++i) {
+            fixedTypes[i] = SBBidiTypeNil;
+        }
         StatusStackInitialize(&context->statusStack);
         RunQueueInitialize(&context->runQueue);
         IsolatingRunInitialize(&context->isolatingRun);
