@@ -230,7 +230,16 @@ enum {
 
     /* Unicde 15.1 */
     SBScriptKAWI = 0xA3,    /**< Kawi */
-    SBScriptNAGM = 0xA4     /**< Nag_Mundari */
+    SBScriptNAGM = 0xA4,    /**< Nag_Mundari */
+
+    /* Unicde 16.0 */
+    SBScriptGARA = 0xA5,    /**< Garay */
+    SBScriptGUKH = 0xA6,    /**< Gurung_Khema */
+    SBScriptKRAI = 0xA7,    /**< Kirat_Rai */
+    SBScriptONAO = 0xA8,    /**< Ol_Onal */
+    SBScriptSUNU = 0xA9,    /**< Sunuwar */
+    SBScriptTODR = 0xAA,    /**< Todhri */
+    SBScriptTUTG = 0xAB     /**< Tulu_Tigalari */
 };
 
 /**
