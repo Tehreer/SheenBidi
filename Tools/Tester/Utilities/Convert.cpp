@@ -284,7 +284,14 @@ static map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptTOTO, "Toto"},
     {SBScriptVITH, "Vith"},
     {SBScriptKAWI, "Kawi"},
-    {SBScriptNAGM, "Nagm"}
+    {SBScriptNAGM, "Nagm"},
+    {SBScriptGARA, "Gara"},
+    {SBScriptGUKH, "Gukh"},
+    {SBScriptKRAI, "Krai"},
+    {SBScriptONAO, "Onao"},
+    {SBScriptSUNU, "Sunu"},
+    {SBScriptTODR, "Todr"},
+    {SBScriptTUTG, "Tutg"}
 };
 
 const string &Convert::bidiTypeToString(SBBidiType bidiType) {
