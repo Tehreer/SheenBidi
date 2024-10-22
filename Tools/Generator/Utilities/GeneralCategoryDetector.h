@@ -34,6 +34,7 @@ public:
     
     uint8_t numberForCodePoint(uint32_t codePoint) const;
     const std::string &nameForCodePoint(uint32_t codePoint) const;
+    std::string unicodeNameForCodePoint(uint32_t codePoint) const;
 
     const std::string &numberToName(uint8_t number) const;
     const uint8_t nameToNumber(const std::string &name) const;

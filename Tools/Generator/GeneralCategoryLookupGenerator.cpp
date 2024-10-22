@@ -100,9 +100,32 @@ void GeneralCategoryLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
 
 void GeneralCategoryLookupGenerator::displayGeneralCategoriesFrequency() {
     map<uint8_t, size_t> frequency;
+    bool inRange = false;
+    uint8_t rangeCategory;
 
     for (uint32_t i = 0; i <= m_lastCodePoint; i++) {
-        frequency[m_generalCategoryDetector.numberForCodePoint(i)]++;
+        uint8_t number = m_generalCategoryDetector.numberForCodePoint(i);
+        if (number) {
+            frequency[number]++;
+            std::string unicodeName = m_generalCategoryDetector.unicodeNameForCodePoint(i);
+            if (inRange) {
+                if (unicodeName.rfind(", Last>") != std::string::npos) {
+                    inRange = false;
+                }
+            }
+            else {
+                if (unicodeName.rfind(", First>") != std::string::npos) {
+                    inRange = true;
+                    rangeCategory = number;
+                }
+            }
+        }
+        else {
+            if (inRange)
+                frequency[rangeCategory]++;
+            else
+                frequency[0]++;
+        }
     }
 
     for (auto &element : frequency) {
@@ -158,6 +181,8 @@ void GeneralCategoryLookupGenerator::collectMainData() {
     m_dataSize = 0;
 
     uint8_t defaultCategory = m_generalCategoryDetector.nameToNumber("Cn");
+    bool inRange = false;
+    uint8_t rangeCategory;
 
     for (size_t i = 0; i < maxSegments; i++) {
         uint32_t segmentStart = (uint32_t)(i * m_mainSegmentSize);
@@ -170,8 +195,22 @@ void GeneralCategoryLookupGenerator::collectMainData() {
             uint8_t number = m_generalCategoryDetector.numberForCodePoint(unicode);
             if (number) {
                 dataset->push_back(number);
+                std::string unicodeName = m_generalCategoryDetector.unicodeNameForCodePoint(unicode);
+                if (inRange) {
+                    if (unicodeName.rfind(", Last>") != std::string::npos) {
+                        inRange = false;
+                    }
+                } else {
+                    if (unicodeName.rfind(", First>") != std::string::npos) {
+                        inRange = true;
+                        rangeCategory = number;
+                    }
+                }
             } else {
-                dataset->push_back(defaultCategory);
+                if (inRange)
+                    dataset->push_back(rangeCategory);
+                else
+                    dataset->push_back(defaultCategory);
             }
         }
 
