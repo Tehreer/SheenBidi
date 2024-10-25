@@ -61,12 +61,27 @@ UnicodeData::UnicodeData(const string &directory) :
     istringstream dataStream(m_data, ios::binary);
     uint32_t codePoint;
 
+    bool inRange = false;
+    uint32_t rangeFirstCodePoint;
     while (dataStream >> hex >> setw(6) >> codePoint) {
         streamoff offset = dataStream.tellg();
         m_offsets[codePoint] = (size_t)offset;
 
         if (codePoint > m_lastCodePoint) {
             m_lastCodePoint = codePoint;
+        }
+
+        std::string characterName;
+        getField(m_data, (size_t)offset, 1, characterName);
+        if (characterName.rfind(", First>") != std::string::npos) {
+            inRange = true;
+            rangeFirstCodePoint = codePoint;
+        }
+        if (inRange && (characterName.rfind(", Last>") != std::string::npos)) {
+            inRange = false;
+            while (++rangeFirstCodePoint < codePoint) {
+                m_offsets[rangeFirstCodePoint] = (size_t)offset;
+            }
         }
 
         dataStream.ignore(1024, '\n');

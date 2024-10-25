@@ -55,26 +55,10 @@ void GeneralCategoryLookupTester::test()
 
     size_t failCounter = 0;
     string uniGeneralCategory;
-    string uniCharacterName;
-    bool inRange = false;
-    string rangeCategory;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
         m_unicodeData.getGeneralCategory(codePoint, uniGeneralCategory);
-        m_unicodeData.getCharacterName(codePoint, uniCharacterName);
-        if (inRange) {
-            if (uniCharacterName.rfind(", Last>") != std::string::npos) {
-                inRange = false;
-            }
-            uniGeneralCategory = rangeCategory;
-        }
-        else {
-            if (uniCharacterName.rfind(", First>") != std::string::npos) {
-                inRange = true;
-                rangeCategory = uniGeneralCategory;
-            }
-        }
-        const string& expGeneralCategory = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
+        const string &expGeneralCategory = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
 
         SBGeneralCategory valGeneralCategory = LookupGeneralCategory(codePoint);
         const string &genGeneralCategory = Convert::generalCategoryToString(valGeneralCategory);

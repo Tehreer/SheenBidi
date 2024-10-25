@@ -59,12 +59,6 @@ GeneralCategoryDetector::GeneralCategoryDetector(const UnicodeData &unicodeData)
     }
 }
 
-std::string GeneralCategoryDetector::unicodeNameForCodePoint(uint32_t codePoint) const {
-    std::string characterName;
-    m_unicodeData.getCharacterName(codePoint, characterName);
-    return characterName;
-}
-
 uint8_t GeneralCategoryDetector::numberForCodePoint(uint32_t codePoint) const {
     if (codePoint <= m_unicodeData.lastCodePoint()) {
         return m_numbers[codePoint];
