@@ -38,8 +38,8 @@ using namespace SheenBidi::Generator;
 
 int main(int argc, const char * argv[])
 {
-    const string in = "/path/to/input";
-    const string out = "/path/to/output";
+    const string in = "e:/github/SheenBidi/Tools/Unicode-16.0.0";
+    const string out = "e:/github/SheenBidi/Tools/Generated-16.0.0";
 
     UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);
@@ -61,7 +61,7 @@ int main(int argc, const char * argv[])
 
     GeneralCategoryLookupGenerator generalCategoryLookup(unicodeData);
     generalCategoryLookup.setMainSegmentSize(16);
-    generalCategoryLookup.setBranchSegmentSize(49);
+    generalCategoryLookup.setBranchSegmentSize(32);
     generalCategoryLookup.generateFile(out);
 
     ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);

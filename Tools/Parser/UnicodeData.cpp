@@ -62,7 +62,8 @@ UnicodeData::UnicodeData(const string &directory) :
     uint32_t codePoint;
 
     bool inRange = false;
-    uint32_t rangeFirstCodePoint;
+    string characterName;
+    uint32_t rangeFirstCodePoint = 0;
     while (dataStream >> hex >> setw(6) >> codePoint) {
         streamoff offset = dataStream.tellg();
         m_offsets[codePoint] = (size_t)offset;
@@ -71,7 +72,6 @@ UnicodeData::UnicodeData(const string &directory) :
             m_lastCodePoint = codePoint;
         }
 
-        std::string characterName;
         getField(m_data, (size_t)offset, 1, characterName);
         if (characterName.rfind(", First>") != std::string::npos) {
             inRange = true;
