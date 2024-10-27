@@ -38,8 +38,8 @@ using namespace SheenBidi::Generator;
 
 int main(int argc, const char * argv[])
 {
-    const string in = "e:/github/SheenBidi/Tools/Unicode-16.0.0";
-    const string out = "e:/github/SheenBidi/Tools/Generated-16.0.0";
+    const string in = "/path/to/input";
+    const string out = "/path/to/output";
 
     UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);
