@@ -1,0 +1,35 @@
+name: CMake build and test
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    types: [ opened, synchronize ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: |
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j $(nproc)
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -j $(nproc)
