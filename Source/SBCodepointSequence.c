@@ -191,9 +191,9 @@ static SBCodepoint GetUTF8CodepointBefore(const SBUInt8 *buffer, SBUInteger leng
     SBUInteger continuation;
     SBCodepoint codepoint;
 
-    continuation = 7;
+    continuation = 4;
 
-    while (--continuation && --startIndex) {
+    while (continuation-- && --startIndex) {
         SBUInt8 codeunit = buffer[startIndex];
 
         if ((codeunit & 0xC0) != 0x80) {
