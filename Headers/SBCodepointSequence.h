@@ -29,7 +29,7 @@ typedef SBUInt32 SBStringEncoding;
 
 typedef struct _SBCodepointSequence {
     SBStringEncoding stringEncoding; /**< The encoding of the string. */
-    void *stringBuffer;              /**< The source string containing the code units. */
+    const void *stringBuffer;        /**< The source string containing the code units. */
     SBUInteger stringLength;         /**< The length of the string in terms of code units. */
 } SBCodepointSequence;
 
