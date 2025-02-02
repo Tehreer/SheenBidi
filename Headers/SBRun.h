@@ -19,6 +19,10 @@
 
 #include "SBBase.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A structure containing the information of a sequence of characters having the same embedding
  * level.
@@ -28,5 +32,9 @@ typedef struct _SBRun {
     SBUInteger length; /**< The number of code units covering the length of the run. */
     SBLevel level;     /**< The embedding level of the run. */
 } SBRun;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

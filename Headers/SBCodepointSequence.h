@@ -20,6 +20,10 @@
 #include "SBBase.h"
 #include "SBCodepoint.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum {
     SBStringEncodingUTF8 = 0,  /**< An 8-bit representation of Unicode code points. */
     SBStringEncodingUTF16 = 1, /**< 16-bit UTF encoding in native endianness. */
@@ -62,5 +66,9 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
  */
 SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence,
     SBUInteger *stringIndex);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

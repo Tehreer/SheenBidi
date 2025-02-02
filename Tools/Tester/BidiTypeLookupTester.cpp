@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBBidiType.h>
 #include <Headers/SBConfig.h>
+
+extern "C" {
 #include <Source/BidiTypeLookup.h>
 }
 

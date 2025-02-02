@@ -20,6 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A type to represent an 8-bit signed integer.
  */
@@ -115,5 +119,9 @@ typedef SBUInt8                     SBLevel;
  * A value specifying to set base level to one (right-to-left) if there is no strong character.
  */
 #define SBLevelDefaultRTL           0xFD
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -20,9 +20,7 @@
 #include <cstdint>
 #include <vector>
 
-extern "C" {
 #include <SheenBidi.h>
-}
 
 #include <Parser/BidiTest.h>
 #include <Parser/BidiCharacterTest.h>

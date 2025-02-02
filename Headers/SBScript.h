@@ -19,6 +19,10 @@
 
 #include "SBBase.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Constants that specify the script of a character.
  */
@@ -263,5 +267,9 @@ typedef SBUInt8 SBScript;
  *      The OpenType tag of specified script as UInt32 in big endian byte order.
  */
 SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBConfig.h>
 #include <Headers/SBGeneralCategory.h>
+
+extern "C" {
 #include <Source/GeneralCategoryLookup.h>
 }
 

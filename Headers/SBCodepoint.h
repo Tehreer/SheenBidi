@@ -22,6 +22,10 @@
 #include "SBGeneralCategory.h"
 #include "SBScript.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A type to represent a Unicode code point.
  */
@@ -176,5 +180,9 @@ SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger le
  */
 SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length,
     SBUInteger *index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

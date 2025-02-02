@@ -20,6 +20,10 @@
 #include "SBBase.h"
 #include "SBLine.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SBParagraph *SBParagraphRef;
 
 /**
@@ -96,5 +100,9 @@ SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph);
  *      The paragraph object whose reference count will be decremented.
  */
 void SBParagraphRelease(SBParagraphRef paragraph);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

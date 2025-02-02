@@ -19,6 +19,10 @@
 
 #include "SBBase.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Constants that specify the general category of a character.
  */
@@ -102,5 +106,9 @@ typedef SBUInt8 SBGeneralCategory;
  * Checks whether specified general category is other.
  */
 #define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

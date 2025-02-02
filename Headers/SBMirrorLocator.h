@@ -21,6 +21,10 @@
 #include "SBCodepoint.h"
 #include "SBLine.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SBMirrorLocator *SBMirrorLocatorRef;
 
 /**
@@ -99,5 +103,9 @@ SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator);
  *      The mirror locator object whose reference count will be decremented.
  */
 void SBMirrorLocatorRelease(SBMirrorLocatorRef locator);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
