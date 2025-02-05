@@ -4,8 +4,15 @@ project(SheenBidi VERSION 2.8 LANGUAGES C CXX)
 
 include(CTest)
 
-set(ASAN $<CONFIG:Debug> CACHE STRING "Enable address sanitizer" )
-set(UBSAN $<CONFIG:Debug> CACHE STRING "Enable undefined behaviour sanitizer")
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Available build configurations" FORCE)
+
+set(ASAN OFF CACHE STRING "Enable address sanitizer")
+set(UBSAN OFF CACHE STRING "Enable undefined behaviour sanitizer")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(ASAN ON CACHE STRING "Enable address sanitizer" FORCE)
+  set(UBSAN ON CACHE STRING "Enable undefined behaviour sanitizer" FORCE)
+endif()
 
 # C++ is only used for testing tools.
 set(CMAKE_CXX_STANDARD 20)
@@ -16,10 +23,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 
 function(add_sanitizers TARGET)
   if(NOT MSVC)
-    target_compile_options(${TARGET} PUBLIC $<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>)
-    target_link_libraries(${TARGET} PUBLIC $<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>)
-    target_compile_options(${TARGET} PUBLIC $<$<BOOL:${UBSAN}>:-fsanitize=undefined>)
-    target_link_libraries(${TARGET} PUBLIC $<$<BOOL:${UBSAN}>:-fsanitize=undefined>)
+    if(ASAN)
+      target_compile_options(${TARGET} PUBLIC -fsanitize=address -fsanitize-recover=address)
+      target_link_libraries(${TARGET} PUBLIC -fsanitize=address -fsanitize-recover=address)
+    endif()
+    if(UBSAN)
+      target_compile_options(${TARGET} PUBLIC -fsanitize=undefined)
+      target_link_libraries(${TARGET} PUBLIC -fsanitize=undefined)
+    endif()
   endif()
 endfunction()
 
@@ -64,18 +75,22 @@ set(_non_unity_sources
   Source/ScriptStack.c
   Source/StatusStack.c
 )
-set(_is_unity $<NOT:$<CONFIG:Debug>>)
-add_library(
-  sheenbidi
-  $<IF:${_is_unity},Source/SheenBidi.c,${_non_unity_sources}>
-)
+set(_is_unity $<STREQUAL:$<CONFIG>,Debug>)
+
+if(_is_unity)
+  set(_sources Source/SheenBidi.c)
+else()
+  set(_sources ${_non_unity_sources})
+endif()
+
+add_library(sheenbidi ${_sources})
 target_include_directories(sheenbidi PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
   $<INSTALL_INTERFACE:include/SheenBidi>
 )
 target_include_directories(sheenbidi PRIVATE Source)
 set_target_properties(sheenbidi PROPERTIES PUBLIC_HEADER "${_public_headers}")
-target_compile_definitions(sheenbidi PUBLIC $<${_is_unity}:SB_CONFIG_UNITY>)
+target_compile_definitions(sheenbidi PUBLIC $<$<BOOL:${_is_unity}>:SB_CONFIG_UNITY>)
 add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
 add_sanitizers(sheenbidi)
 
@@ -150,7 +165,6 @@ install(
   TARGETS sheenbidi
   EXPORT SheenBidiTargets
   PUBLIC_HEADER
-  CONFIGURATIONS Release
   DESTINATION include/SheenBidi
 )
 

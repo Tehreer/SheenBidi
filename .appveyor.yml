@@ -1,8 +1,6 @@
 #version: {build}
 
-build:
-  parallel: true
-  project: Projects/VS_2017/SheenBidi.sln
+image: Visual Studio 2017
 
 platform:
   - x64
@@ -12,9 +10,11 @@ configuration:
   - Debug
   - Release
 
-image:
-  - Visual Studio 2017
+before_build:
+  - cmake -G "Visual Studio 15 2017" -A %PLATFORM% -DCMAKE_CONFIGURATION_TYPES="Debug;Release" .
+
+build:
+  project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
 
 test_script:
-  - Projects\VS_2017\%platform%\%configuration%\SheenBidiTester.exe Tools\Unicode
- 
+  - build\%CONFIGURATION%\SheenBidiTester.exe Tools\Unicode
