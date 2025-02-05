@@ -38,8 +38,12 @@ using namespace SheenBidi::Generator;
 
 int main(int argc, const char * argv[])
 {
-    const string in = "/path/to/input";
-    const string out = "/path/to/output";
+    if (argc > 3) {
+        cerr << "Usage: " << argv[0] << " [input_dir] [output_dir]" << endl;
+        return 64;
+    }
+    const string in = argc >= 2 ? argv[1] : "Tools/Unicode";
+    const string out = argc == 3 ? argv[2] : "Source";
 
     UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);

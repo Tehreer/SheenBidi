@@ -52,6 +52,32 @@ The configuration options are available in `Headers/SBConfig.h`.
 ## Compiling
 SheenBidi can be compiled with any C compiler. The best way for compiling is to add all the files in an IDE and hit build. The only thing to consider however is that if ```SB_CONFIG_UNITY``` is enabled then only ```Source/SheenBidi.c``` should be compiled.
 
+### CMake
+
+SheenBidi can also be compiled and installed with CMake:
+
+```bash
+cmake -S. -Bbuild-rel -DCMAKE_BUILD_TYPE=Release
+cmake --build build-rel -j $(getconf _NPROCESSORS_ONLN)
+sudo cmake --install build-rel
+```
+
+The installed package can be found in other CMake projects via
+`find_package(SheenBidi)`.
+
+SheenBidi provides a single target, `SheenBidi::sheenbidi`.
+SheenBidi can also be used via `FetchContent`.
+
+### Testing with CMake
+
+If you're working on SheenBidi itself, you can build and run the tests with:
+
+```bash
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+ctest --test-dir build --output-on-failure -j $(getconf _NPROCESSORS_ONLN)
+```
+
 ## Example
 Here is a simple example written in C11.
 

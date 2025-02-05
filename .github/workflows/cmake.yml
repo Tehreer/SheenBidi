@@ -1,0 +1,41 @@
+name: CMake build and test
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    types: [ opened, synchronize ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The library targets C89, so we force C89 compatibility in CI.
+      # We do not force it by default in CMake because that can cause
+      # build errors if the stdlib headers require a newer C standard.
+      - name: Build
+        run: |
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_STANDARD=90 -DCMAKE_C_EXTENSIONS=OFF -DCMAKE_C_STANDARD_REQUIRED=ON
+          cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -j $(getconf _NPROCESSORS_ONLN)
