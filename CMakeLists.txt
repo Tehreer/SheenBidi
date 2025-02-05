@@ -16,10 +16,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 
 function(add_sanitizers TARGET)
   if(NOT MSVC)
-    target_compile_options(${TARGET} PUBLIC $<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>)
-    target_link_libraries(${TARGET} PUBLIC $<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>)
-    target_compile_options(${TARGET} PUBLIC $<$<BOOL:${UBSAN}>:-fsanitize=undefined>)
-    target_link_libraries(${TARGET} PUBLIC $<$<BOOL:${UBSAN}>:-fsanitize=undefined>)
+    target_compile_options(${TARGET} PUBLIC $<BUILD_INTERFACE:$<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>>)
+    target_link_libraries(${TARGET} PUBLIC $<BUILD_INTERFACE:$<$<BOOL:${ASAN}>:-fsanitize=address;-fsanitize-recover=address>>)
+    target_compile_options(${TARGET} PUBLIC $<BUILD_INTERFACE:$<$<BOOL:${UBSAN}>:-fsanitize=undefined>>)
+    target_link_libraries(${TARGET} PUBLIC $<BUILD_INTERFACE:$<$<BOOL:${UBSAN}>:-fsanitize=undefined>>)
   endif()
 endfunction()
 
@@ -43,7 +43,13 @@ set(_public_headers
   Headers/SBScriptLocator.h
   Headers/SheenBidi.h
 )
-set(_non_unity_sources
+
+add_library(sheenbidi_unity OBJECT
+  Source/SheenBidi.c
+)
+target_compile_definitions(sheenbidi_unity PUBLIC SB_CONFIG_UNITY)
+
+add_library(sheenbidi_non_unity OBJECT
   Source/BidiChain.c
   Source/BidiTypeLookup.c
   Source/BracketQueue.c
@@ -64,18 +70,21 @@ set(_non_unity_sources
   Source/ScriptStack.c
   Source/StatusStack.c
 )
-set(_is_unity $<NOT:$<CONFIG:Debug>>)
-add_library(
-  sheenbidi
-  $<IF:${_is_unity},Source/SheenBidi.c,${_non_unity_sources}>
-)
+foreach(_target sheenbidi_unity sheenbidi_non_unity)
+  target_include_directories(${_target} PUBLIC Headers)
+  target_include_directories(${_target} PRIVATE Source)
+  add_sanitizers(${_target})
+endforeach()
+
+add_library(sheenbidi)
 target_include_directories(sheenbidi PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
   $<INSTALL_INTERFACE:include/SheenBidi>
 )
-target_include_directories(sheenbidi PRIVATE Source)
+set(_is_unity $<NOT:$<CONFIG:Debug>>)
+target_link_libraries(sheenbidi PUBLIC
+  $<BUILD_INTERFACE:$<IF:${_is_unity},sheenbidi_unity,sheenbidi_non_unity>>
+)
 set_target_properties(sheenbidi PROPERTIES PUBLIC_HEADER "${_public_headers}")
-target_compile_definitions(sheenbidi PUBLIC $<${_is_unity}:SB_CONFIG_UNITY>)
 add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
 add_sanitizers(sheenbidi)
 
