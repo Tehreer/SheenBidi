@@ -4,6 +4,8 @@ project(SheenBidi VERSION 2.8 LANGUAGES C CXX)
 
 include(CTest)
 
+option(ENABLE_CODECOVERAGE "Instrument code for code coverage (only enabled with BUILD_TESTING)" OFF)
+
 set(ASAN $<CONFIG:Debug> CACHE STRING "Enable address sanitizer" )
 set(UBSAN $<CONFIG:Debug> CACHE STRING "Enable undefined behaviour sanitizer")
 
@@ -153,6 +155,14 @@ if(BUILD_TESTING)
     TIMEOUT 180
     FAIL_REGULAR_EXPRESSION "[1-9][0-9]* error"
   )
+  if(ENABLE_CODECOVERAGE)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+      message(WARNING "Codecoverage not supported with MSVC")
+    else()
+      target_compile_options(sheenbidi_non_unity PUBLIC --coverage)
+      target_link_options(sheenbidi_non_unity PUBLIC --coverage)
+    endif()
+  endif()
 endif()
 
 install(
