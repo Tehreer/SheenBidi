@@ -1,20 +1,23 @@
-#version: {build}
-
-build:
-  parallel: true
-  project: Projects/VS_2017/SheenBidi.sln
-
-platform:
-  - x64
-  - Win32
-
-configuration:
-  - Debug
-  - Release
-
+skip_commits:
+  files:
+  - '*.md'
+  - 'docs/**'
 image:
-  - Visual Studio 2017
+- Visual Studio 2017
+platform:
+- x64
+- Win32
+configuration:
+- Debug
+- Release
+before_build:
+- cmake --version
+- cmake -Bbuild -A %PLATFORM%
+build_script:
+- cmake --build build --config %CONFIGURATION% --parallel
 
-test_script:
-  - Projects\VS_2017\%platform%\%configuration%\SheenBidiTester.exe Tools\Unicode
- 
+# We `cd` instead of using `--test-dir build` because the `--test-dir`
+# argument is only supported from CMake v3.20+ (VS2017 uses CMake v3.16.2).
+test_script: |-
+  cd build
+  ctest --build-config %CONFIGURATION% --output-on-failure

@@ -70,7 +70,7 @@ const string BidiTypeLookupGenerator::BranchDataSegment::hintLine() const {
     return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-BidiTypeLookupGenerator::BidiTypeLookupGenerator(const Parser::DerivedBidiClass &derivedBidiClass)
+BidiTypeLookupGenerator::BidiTypeLookupGenerator(const DerivedBidiClass &derivedBidiClass)
     : m_bidiClassDetector(derivedBidiClass)
     , m_lastCodePoint(derivedBidiClass.lastCodePoint())
     , m_mainSegmentSize(0)
