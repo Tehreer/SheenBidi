@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <SBBase.h>
 #include <SBCodepointSequence.h>
-}
 
 #include <cassert>
 #include <vector>

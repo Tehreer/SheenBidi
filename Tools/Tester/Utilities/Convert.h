@@ -20,11 +20,9 @@
 #include <cstdint>
 #include <string>
 
-extern "C" {
 #include <Headers/SBBidiType.h>
 #include <Headers/SBGeneralCategory.h>
 #include <Headers/SBScript.h>
-}
 
 namespace SheenBidi {
 namespace Tester {

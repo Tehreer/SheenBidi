@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <Headers/SBBase.h>
 #include <Headers/SBCodepointSequence.h>
 #include <Headers/SBScript.h>
 #include <Headers/SBScriptLocator.h>
-}
 
 #include <cassert>
 #include <string>

@@ -22,6 +22,10 @@
 #include "SBCodepointSequence.h"
 #include "SBParagraph.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SBAlgorithm *SBAlgorithmRef;
 
 /**
@@ -115,5 +119,9 @@ SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm);
  *      The algorithm object whose reference count will be decremented.
  */
 void SBAlgorithmRelease(SBAlgorithmRef algorithm);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

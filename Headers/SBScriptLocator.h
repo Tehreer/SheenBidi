@@ -21,6 +21,10 @@
 #include "SBCodepointSequence.h"
 #include "SBScript.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SBScriptLocator *SBScriptLocatorRef;
 
 /**
@@ -97,5 +101,9 @@ SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator);
  *      The script locator object whose reference count will be decremented.
  */
 void SBScriptLocatorRelease(SBScriptLocatorRef locator);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

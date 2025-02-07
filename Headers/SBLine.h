@@ -20,6 +20,10 @@
 #include "SBBase.h"
 #include "SBRun.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SBLine *SBLineRef;
 
 /**
@@ -80,5 +84,9 @@ SBLineRef SBLineRetain(SBLineRef line);
  *      The line object whose reference count will be decremented.
  */
 void SBLineRelease(SBLineRef line);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

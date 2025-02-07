@@ -22,6 +22,10 @@
 #include "SBGeneralCategory.h"
 #include "SBScript.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A type to represent a unicode code point.
  */
@@ -76,5 +80,9 @@ SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
  *      The script of specified code point.
  */
 SBScript SBCodepointGetScript(SBCodepoint codepoint);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

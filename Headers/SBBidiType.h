@@ -19,6 +19,10 @@
 
 #include "SBBase.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Constants that specify the bidirectional types of a character.
  */
@@ -77,5 +81,9 @@ typedef SBUInt8 SBBidiType;
  * Checks whether specified bidirectional type is format.
  */
 #define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
