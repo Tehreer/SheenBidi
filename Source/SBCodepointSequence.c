@@ -57,7 +57,8 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
             break;
 
         case SBStringEncodingUTF32:
-            codepoint = SBCodepointDecodePreviousFromUTF32(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+            codepoint = ((const SBUInt32 *) codepointSequence->stringBuffer)[--(*stringIndex)];
+            if (!SBCodepointIsValid(codepoint)) codepoint = SBCodepointFaulty;
             break;
         }
     }
@@ -80,7 +81,8 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
             break;
 
         case SBStringEncodingUTF32:
-            codepoint = SBCodepointDecodeNextFromUTF32(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+            codepoint = ((const SBUInt32 *) codepointSequence->stringBuffer)[(*stringIndex)++];
+            if (!SBCodepointIsValid(codepoint)) codepoint = SBCodepointFaulty;
             break;
         }
     }

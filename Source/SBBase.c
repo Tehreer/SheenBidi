@@ -589,31 +589,3 @@ SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUIntege
     
     return codepoint;
 }
-
-SBCodepoint SBCodepointDecodeNextFromUTF32(const SBUInt32 *buffer, SBUInteger length, SBUInteger *index)
-{
-    SBCodepoint codepoint;
-
-    codepoint = buffer[*index];
-    *index += 1;
-
-    if (SBCodepointIsValid(codepoint)) {
-        return codepoint;
-    }
-    
-    return SBCodepointFaulty;
-}
-
-SBCodepoint SBCodepointDecodePreviousFromUTF32(const SBUInt32 *buffer, SBUInteger length, SBUInteger *index)
-{
-    SBCodepoint codepoint;
-
-    *index -= 1;
-    codepoint = buffer[*index];
-
-    if (SBCodepointIsValid(codepoint)) {
-        return codepoint;
-    }
-
-    return SBCodepointFaulty;
-}
