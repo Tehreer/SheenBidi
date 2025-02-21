@@ -96,13 +96,6 @@ SB_INTERNAL SBBoolean SBUIntegerVerifyRange(SBUInteger actualLength,
 #define SBBidiTypeIsIsolateTerminator(t)    SBBidiTypeIsEqual(t, SBBidiTypePDI)
 #define SBBidiTypeIsNeutralOrIsolate(t)     SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypePDI)
 
-
-#define SBCodepointMax                      0x10FFFF
-#define SBCodepointInRange(v, s, e)         SBUInt32InRange(v, s, e)
-#define SBCodepointIsSurrogate(c)           SBCodepointInRange(c, 0xD800, 0xDFFF)
-#define SBCodepointIsValid(c)               (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
-
-
 #define SBScriptIsCommonOrInherited(s)      ((s) <= SBScriptZYYY)
 
 #endif
