@@ -23,141 +23,158 @@
 #include "SBScript.h"
 
 /**
- * A type to represent a unicode code point.
+ * A type to represent a Unicode code point.
  */
 typedef SBUInt32                    SBCodepoint;
 
 /**
- * A value representing an invalid code point.
+ * A value representing an invalid Unicode code point.
  */
 #define SBCodepointInvalid          UINT32_MAX
 
 /**
- * A value representing a faulty code point, used as a replacement by the decoder.
+ * A value representing a faulty Unicode code point.
+ * 
+ * This value is used as a replacement for unrecognized code points during decoding.
  */
 #define SBCodepointFaulty           0xFFFD
 
 /**
- * Maximum valid code point value.
+ * The maximum valid Unicode code point value.
+ * 
+ * Unicode code points are valid in the range [0x0000, 0x10FFFF].
  */
-#define SBCodepointMax                      0x10FFFF
+#define SBCodepointMax              0x10FFFF
 
 /**
- * Whether the code point value represents part of a UTF-16 surrogate pair.
- * Such code point values are invalid.
+ * Checks if a code point is a UTF-16 surrogate.
+ * 
+ * Surrogate code points lie within the range [0xD800, 0xDFFF] and are not valid Unicode scalar
+ * values.
+ *
+ * @param c
+ *      The code point to check.
+ * @return
+ *      `true` if the code point is a surrogate, `false` otherwise.
  */
-#define SBCodepointIsSurrogate(c)           SBUInt32InRange(c, 0xD800, 0xDFFF)
+#define SBCodepointIsSurrogate(c)   SBUInt32InRange(c, 0xD800, 0xDFFF)
 
 /**
- * Whether this code point value is valid, i.e.:
- * 1. It is less than 0x10FFFF.
- * 2. It is not in the surrogate range (0xD800 to 0xDFFF).
+ * Checks if a code point is a valid Unicode scalar value.
+ *
+ * A code point is considered valid if:
+ * - It is not a surrogate (i.e., not in the range 0xD800 to 0xDFFF)
+ * - It is less than or equal to SBCodepointMax (0x10FFFF).
+ *
+ * @param c
+ *      The code point to check.
+ * @return
+ *      `true` if the code point is valid, `false` otherwise.
  */
-#define SBCodepointIsValid(c)               (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
+#define SBCodepointIsValid(c)       (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
 
 /**
- * Returns the bidirectional type of a code point.
+ * Returns the bidirectional type of a Unicode code point.
  *
  * @param codepoint
  *      The code point whose bidirectional type is returned.
  * @return
- *      The bidirectional type of specified code point.
+ *      The bidirectional type of the specified code point.
  */
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
 
 /**
- * Returns the general category of a code point.
+ * Returns the general category of a Unicode code point.
  *
  * @param codepoint
  *      The code point whose general category is returned.
  * @return
- *      The general category of specified code point.
+ *      The general category of the specified code point.
  */
 SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint);
 
 /**
- * Returns the mirror of a code point.
+ * Returns the mirrored code point for a given Unicode code point.
  *
  * @param codepoint
- *      The code point whose mirror is returned.
+ *      The code point whose mirrored counterpart is returned.
  * @return
- *      The mirror of specified code point if available, 0 otherwise.
+ *      The mirrored code point if available, or 0 if no mirror exists.
  */
 SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
 
 /**
- * Returns the script of a code point.
+ * Returns the script associated with a Unicode code point.
  *
  * @param codepoint
  *      The code point whose script is returned.
  * @return
- *      The script of specified code point.
+ *      The script of the specified code point.
  */
 SBScript SBCodepointGetScript(SBCodepoint codepoint);
 
-
 /**
- * Returns the code point at the given UTF-8 code unit index.
+ * Decodes the next Unicode code point from a UTF-8 encoded buffer.
  *
  * @param buffer
- *      The buffer holding the code units.
+ *      The buffer containing UTF-8 encoded code units.
  * @param length
- *      Length of the buffer.
- * @param stringIndex
- *      The index of code unit at which to get the code point. On output, it is set to point to the
- *      first code unit of next code point.
+ *      The length of the buffer.
+ * @param index
+ *      The index at which decoding starts. On output, it is updated to the start of the next code
+ *      point.
  * @return
- *      The code point at the given string index, or SBCodepointInvalid if stringIndex is larger
- *      than or equal to actual length of source string.
+ *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
  */
-SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length, SBUInteger *stringIndex);
+SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length,
+    SBUInteger *index);
 
 /**
- * Returns the code point before the given UTF-8 code unit index.
+ * Decodes the previous Unicode code point from a UTF-8 encoded buffer.
  *
  * @param buffer
- *      The buffer holding the code units.
+ *      The buffer containing UTF-8 encoded code units.
  * @param length
- *      Length of the buffer.
- * @param stringIndex
- *      The index of code unit before which to get the code point. On output, it is set to point to
- *      the first code unit of returned code point.
+ *      The length of the buffer.
+ * @param index
+ *      The index before which decoding occurs. On output, it is updated to the start of the
+ *      decoded code point.
  * @return
- *      The code point before the given string index, or SBCodepointInvalid if stringIndex is equal 
- *      to zero or larger than actual length of source string.
+ *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
-SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length, SBUInteger *stringIndex);
+SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length,
+    SBUInteger *index);
 
 /**
- * Returns the code point at the given UTF-16 code unit index.
+ * Decodes the next Unicode code point from a UTF-16 encoded buffer.
  *
  * @param buffer
- *      The buffer holding the code units.
+ *      The buffer containing UTF-16 encoded code units.
  * @param length
- *      Length of the buffer.
- * @param stringIndex
- *      The index of code unit at which to get the code point. On output, it is set to point to the
- *      first code unit of next code point.
+ *      The length of the buffer.
+ * @param index
+ *      The index at which decoding starts. On output, it is updated to the start of the next code
+ *      point.
  * @return
- *      The code point at the given string index, or SBCodepointInvalid if stringIndex is larger
- *      than or equal to actual length of source string.
+ *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
  */
-SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length, SBUInteger *stringIndex);
+SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length,
+    SBUInteger *index);
 
 /**
- * Returns the code point before the given UTF-16 code unit index.
+ * Decodes the previous Unicode code point from a UTF-16 encoded buffer.
  *
  * @param buffer
- *      The buffer holding the code units.
+ *      The buffer containing UTF-16 encoded code units.
  * @param length
- *      Length of the buffer.
- * @param stringIndex
- *      The index of code unit before which to get the code point. On output, it is set to point to
- *      the first code unit of returned code point.
+ *      The length of the buffer.
+ * @param index
+ *      The index before which decoding occurs. On output, it is updated to the start of the
+ *      decoded code point.
  * @return
- *      The code point before the given string index, or SBCodepointInvalid if stringIndex is equal 
- *      to zero or larger than actual length of source string.
+ *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
-SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length, SBUInteger *stringIndex);
+SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length,
+    SBUInteger *index);
 
 #endif
