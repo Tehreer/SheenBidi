@@ -1,7 +1,6 @@
 skip_commits:
   files:
   - '*.md'
-  - 'docs/**'
 image:
 - Visual Studio 2017
 platform:
@@ -12,7 +11,7 @@ configuration:
 - Release
 before_build:
 - cmake --version
-- cmake -Bbuild -A %PLATFORM%
+- cmake -Bbuild -A %PLATFORM% -DSB_CONFIG_UNITY=OFF
 build_script:
 - cmake --build build --config %CONFIGURATION% --parallel
 
