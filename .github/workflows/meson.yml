@@ -1,0 +1,46 @@
+name: Meson build and test
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    types: [ opened, synchronize ]
+    paths-ignore:
+      - '*.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            compiler: gcc
+          - os: ubuntu-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Meson
+        run: meson setup build --buildtype debugoptimized -Dunity_mode=disabled -Db_sanitize=address,undefined -Db_lundef=false -Dc_std=c89
+
+      - name: Build
+        run: meson compile -Cbuild
+
+      - name: Test
+        run: meson test --print-errorlogs -Cbuild
