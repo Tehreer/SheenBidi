@@ -36,6 +36,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: python -m pip install meson ninja
+
       - name: Setup Meson
         run: meson setup build --buildtype debugoptimized -Dunity_mode=disabled -Db_sanitize=address,undefined -Db_lundef=false -Dc_std=c89
 
