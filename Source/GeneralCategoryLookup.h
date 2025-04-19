@@ -6,10 +6,10 @@
 #ifndef _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H
 #define _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H
 
+#include <SBBase.h>
+#include <SBCodepoint.h>
 #include <SBConfig.h>
 #include <SBGeneralCategory.h>
-
-#include "SBBase.h"
 
 SB_INTERNAL SBGeneralCategory LookupGeneralCategory(SBCodepoint codepoint);
 

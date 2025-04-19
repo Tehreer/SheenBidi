@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define _SB_INTERNAL_SCRIPT_STACK_H
 
 #include <SBBase.h>
+#include <SBCodepoint.h>
 #include <SBConfig.h>
 
 #define _SBScriptStackCapacity  63

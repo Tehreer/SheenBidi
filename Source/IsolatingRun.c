@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include "PairingLookup.h"
 #include "SBAssert.h"
 #include "SBBase.h"
+#include "SBCodepoint.h"
 #include "SBLog.h"
 #include "IsolatingRun.h"
 

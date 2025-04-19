@@ -16,11 +16,8 @@
 
 #include <SBConfig.h>
 
-#include <stddef.h>
-#include <stdlib.h>
-
-#include "SBAssert.h"
 #include "SBBase.h"
+#include "SBCodepoint.h"
 #include "SBCodepointSequence.h"
 
 SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence)

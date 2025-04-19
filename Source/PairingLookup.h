@@ -6,10 +6,11 @@
 #ifndef _SB_INTERNAL_PAIRING_LOOKUP_H
 #define _SB_INTERNAL_PAIRING_LOOKUP_H
 
+#include <SBBase.h>
+#include <SBCodepoint.h>
 #include <SBConfig.h>
 
 #include "BracketType.h"
-#include "SBBase.h"
 
 SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint);
 SB_INTERNAL SBCodepoint LookupBracketPair(SBCodepoint codepoint, BracketType *bracketType);

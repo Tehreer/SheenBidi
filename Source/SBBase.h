@@ -19,7 +19,6 @@
 
 #include <SBBase.h>
 #include <SBBidiType.h>
-#include <SBCodepoint.h>
 #include <SBConfig.h>
 #include <SBGeneralCategory.h>
 #include <SBScript.h>

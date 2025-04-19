@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@
 #include "RunQueue.c"
 #include "SBAlgorithm.c"
 #include "SBBase.c"
+#include "SBCodepoint.c"
 #include "SBCodepointSequence.c"
 #include "SBLine.c"
 #include "SBLog.c"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,9 @@
 
 #include <stdio.h>
 
+#include "IsolatingRun.h"
 #include "SBBase.h"
-#include "SBBidiType.h"
 #include "SBCodepointSequence.h"
-#include "SBIsolatingRun.h"
 
 SB_INTERNAL void PrintBaseLevel(SBLevel baseLevel);
 SB_INTERNAL void PrintBidiType(SBBidiType type);

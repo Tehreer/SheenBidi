@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef _SB_INTERNAL_CODEPOINT_SEQUENCE_H
-#define _SB_INTERNAL_CODEPOINT_SEQUENCE_H
+#ifndef _SB_INTERNAL_CODEPOINT_H
+#define _SB_INTERNAL_CODEPOINT_H
 
-#include <SBBase.h>
-#include <SBConfig.h>
-#include <SBCodepointSequence.h>
-
-SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence);
+#include <SBCodepoint.h>
 
 #endif
