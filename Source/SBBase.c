@@ -471,68 +471,70 @@ static const SBUInt8 UTF8LookupTable[256] = {
 
 SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length, SBUInteger *index)
 {
-    SBUInt8 lead;
-    UTF8State state;
-    SBUInteger limit;
-    SBCodepoint codepoint;
+    SBCodepoint codepoint = SBCodepointInvalid;
 
-    lead = buffer[*index];
-    state = UTF8StateTable[UTF8LookupTable[lead]];
-    limit = *index + state.total;
+    if (*index < length) {
+        SBUInt8 lead = buffer[*index];
+        UTF8State state = UTF8StateTable[UTF8LookupTable[lead]];
+        SBUInteger limit = *index + state.total;
 
-    if (limit > length) {
-        limit = length;
-        state.valid = SBFalse;
-    }
-
-    codepoint = lead & (0x7F >> state.total);
-
-    while (++(*index) < limit) {
-        SBUInt8 byte = buffer[*index];
-
-        if (byte >= state.start && byte <= state.end) {
-            codepoint = (codepoint << 6) | (byte & 0x3F);
-        } else {
+        if (limit > length) {
+            limit = length;
             state.valid = SBFalse;
-            break;
         }
 
-        state.start = 0x80;
-        state.end = 0xBF;
+        codepoint = lead & (0x7F >> state.total);
+
+        while (++(*index) < limit) {
+            SBUInt8 byte = buffer[*index];
+
+            if (byte >= state.start && byte <= state.end) {
+                codepoint = (codepoint << 6) | (byte & 0x3F);
+            } else {
+                state.valid = SBFalse;
+                break;
+            }
+
+            state.start = 0x80;
+            state.end = 0xBF;
+        }
+
+        if (!state.valid) {
+            codepoint = SBCodepointFaulty;
+        }
     }
 
-    if (state.valid) {
-        return codepoint;
-    }
-
-    return SBCodepointFaulty;
+    return codepoint;
 }
 
 SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length, SBUInteger *index)
 {
-    SBUInteger startIndex = *index;
-    SBUInteger limitIndex;
-    SBUInteger continuation;
-    SBCodepoint codepoint;
+    SBCodepoint codepoint = SBCodepointInvalid;
 
-    continuation = 4;
+    if ((*index - 1) < length) {
+        SBUInteger startIndex = *index;
+        SBUInteger limitIndex;
+        SBUInteger continuation;
 
-    while (continuation-- && --startIndex) {
-        SBUInt8 codeunit = buffer[startIndex];
+        continuation = 4;
 
-        if ((codeunit & 0xC0) != 0x80) {
-            break;
+        while (continuation-- && --startIndex) {
+            SBUInt8 codeUnit = buffer[startIndex];
+
+            if ((codeUnit & 0xC0) != 0x80) {
+                break;
+            }
         }
-    }
 
-    limitIndex = startIndex;
-    codepoint = SBCodepointDecodeNextFromUTF8(buffer, length, &limitIndex);
+        limitIndex = startIndex;
+        codepoint = SBCodepointDecodeNextFromUTF8(buffer, length, &limitIndex);
 
-    if (limitIndex == *index) {
-        *index = startIndex;
-    } else {
-        codepoint = SBCodepointFaulty;
-        *index -= 1;
+        if (limitIndex == *index) {
+            *index = startIndex;
+        } else {
+            codepoint = SBCodepointFaulty;
+            *index -= 1;
+        }
     }
 
     return codepoint;
@@ -540,23 +542,26 @@ SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger 
 
 SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length, SBUInteger *index)
 {
-    SBCodepoint codepoint;
-    SBUInt16 lead;
+    SBCodepoint codepoint = SBCodepointInvalid;
 
-    codepoint = SBCodepointFaulty;
+    if (*index < length) {
+        SBUInt16 lead;
 
-    lead = buffer[*index];
-    *index += 1;
+        codepoint = SBCodepointFaulty;
 
-    if (!SBCodepointIsSurrogate(lead)) {
-        codepoint = lead;
-    } else if (lead <= 0xDBFF) {
-        if (*index < length) {
-            SBUInt16 trail = buffer[*index];
+        lead = buffer[*index];
+        *index += 1;
 
-            if (SBUInt16InRange(trail, 0xDC00, 0xDFFF)) {
-                codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
-                *index += 1;
+        if (!SBCodepointIsSurrogate(lead)) {
+            codepoint = lead;
+        } else if (lead <= 0xDBFF) {
+            if (*index < length) {
+                SBUInt16 trail = buffer[*index];
+
+                if (SBUInt16InRange(trail, 0xDC00, 0xDFFF)) {
+                    codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
+                    *index += 1;
+                }
             }
         }
     }
@@ -566,26 +571,29 @@ SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger le
 
 SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length, SBUInteger *index)
 {
-    SBCodepoint codepoint;
-    SBUInt16 trail;
+    SBCodepoint codepoint = SBCodepointInvalid;
 
-    codepoint = SBCodepointFaulty;
+    if ((*index - 1) < length) {
+        SBUInt16 trail;
 
-    *index -= 1;
-    trail = buffer[*index];
+        codepoint = SBCodepointFaulty;
 
-    if (!SBCodepointIsSurrogate(trail)) {
-        codepoint = trail;
-    } else if (trail >= 0xDC00) {
-        if (*index > 0) {
-            SBUInt16 lead = buffer[*index - 1];
+        *index -= 1;
+        trail = buffer[*index];
 
-            if (SBUInt16InRange(lead, 0xD800, 0xDBFF)) {
-                codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
-                *index -= 1;
+        if (!SBCodepointIsSurrogate(trail)) {
+            codepoint = trail;
+        } else if (trail >= 0xDC00) {
+            if (*index > 0) {
+                SBUInt16 lead = buffer[*index - 1];
+
+                if (SBUInt16InRange(lead, 0xD800, 0xDBFF)) {
+                    codepoint = (lead << 10) + trail - ((0xD800 << 10) + 0xDC00 - 0x10000);
+                    *index -= 1;
+                }
             }
         }
     }
-    
+
     return codepoint;
 }

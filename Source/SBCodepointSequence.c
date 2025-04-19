@@ -46,21 +46,27 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
-    if ((*stringIndex - 1) < codepointSequence->stringLength) {
-        switch (codepointSequence->stringEncoding) {
-        case SBStringEncodingUTF8:
-            codepoint = SBCodepointDecodePreviousFromUTF8(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
-            break;
+    switch (codepointSequence->stringEncoding) {
+    case SBStringEncodingUTF8:
+        codepoint = SBCodepointDecodePreviousFromUTF8(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+        break;
 
-        case SBStringEncodingUTF16:
-            codepoint = SBCodepointDecodePreviousFromUTF16(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
-            break;
+    case SBStringEncodingUTF16:
+        codepoint = SBCodepointDecodePreviousFromUTF16(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+        break;
 
-        case SBStringEncodingUTF32:
-            codepoint = ((const SBUInt32 *) codepointSequence->stringBuffer)[--(*stringIndex)];
-            if (!SBCodepointIsValid(codepoint)) codepoint = SBCodepointFaulty;
-            break;
+    case SBStringEncodingUTF32:
+        if ((*stringIndex - 1) < codepointSequence->stringLength) {
+            const SBUInt32 *buffer = codepointSequence->stringBuffer;
+
+            *stringIndex -= 1;
+            codepoint = buffer[*stringIndex];
+
+            if (!SBCodepointIsValid(codepoint)) {
+                codepoint = SBCodepointFaulty;
+            }
         }
+        break;
     }
 
     return codepoint;
@@ -70,21 +76,27 @@ SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepoi
 {
     SBCodepoint codepoint = SBCodepointInvalid;
 
-    if (*stringIndex < codepointSequence->stringLength) {
-        switch (codepointSequence->stringEncoding) {
-        case SBStringEncodingUTF8:
-            codepoint = SBCodepointDecodeNextFromUTF8(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
-            break;
+    switch (codepointSequence->stringEncoding) {
+    case SBStringEncodingUTF8:
+        codepoint = SBCodepointDecodeNextFromUTF8(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+        break;
 
-        case SBStringEncodingUTF16:
-            codepoint = SBCodepointDecodeNextFromUTF16(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
-            break;
+    case SBStringEncodingUTF16:
+        codepoint = SBCodepointDecodeNextFromUTF16(codepointSequence->stringBuffer, codepointSequence->stringLength, stringIndex);
+        break;
 
-        case SBStringEncodingUTF32:
-            codepoint = ((const SBUInt32 *) codepointSequence->stringBuffer)[(*stringIndex)++];
-            if (!SBCodepointIsValid(codepoint)) codepoint = SBCodepointFaulty;
-            break;
+    case SBStringEncodingUTF32:
+        if (*stringIndex < codepointSequence->stringLength) {
+            const SBUInt32 *buffer = codepointSequence->stringBuffer;
+
+            codepoint = buffer[*stringIndex];
+            *stringIndex += 1;
+
+            if (!SBCodepointIsValid(codepoint)) {
+                codepoint = SBCodepointFaulty;
+            }
         }
+        break;
     }
 
     return codepoint;
