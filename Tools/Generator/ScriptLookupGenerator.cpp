@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -348,10 +348,10 @@ void ScriptLookupGenerator::generateFile(const std::string &directory) {
     header.append("#ifndef _SB_INTERNAL_SCRIPT_LOOKUP_H").newLine();
     header.append("#define _SB_INTERNAL_SCRIPT_LOOKUP_H").newLine();
     header.newLine();
+    header.append("#include <SBBase.h>").newLine();
+    header.append("#include <SBCodepoint.h>").newLine();
     header.append("#include <SBConfig.h>").newLine();
     header.append("#include <SBScript.h>").newLine();
-    header.newLine();
-    header.append("#include \"SBBase.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBScript LookupScript(SBCodepoint codepoint);").newLine();
     header.newLine();

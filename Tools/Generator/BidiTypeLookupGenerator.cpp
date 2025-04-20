@@ -346,10 +346,10 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     header.append("#ifndef _SB_INTERNAL_BIDI_TYPE_LOOKUP_H").newLine();
     header.append("#define _SB_INTERNAL_BIDI_TYPE_LOOKUP_H").newLine();
     header.newLine();
+    header.append("#include <SBBase.h>").newLine();
     header.append("#include <SBBidiType.h>").newLine();
+    header.append("#include <SBCodepoint.h>").newLine();
     header.append("#include <SBConfig.h>").newLine();
-    header.newLine();
-    header.append("#include \"SBBase.h\"").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBBidiType LookupBidiType(SBCodepoint codepoint);").newLine();
     header.newLine();
