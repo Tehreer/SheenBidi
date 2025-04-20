@@ -64,8 +64,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_C_STANDARD=90 \
             -DCMAKE_C_EXTENSIONS=OFF \
-            -DCMAKE_C_STANDARD_REQUIRED=ON 
-            $([[ "${{ matrix.compiler }}" == "gcc" ]] && echo "-DENABLE_COVERAGE=ON")
+            -DCMAKE_C_STANDARD_REQUIRED=ON
           cmake --build build-debug
 
       - name: Run Tests (Debug)
