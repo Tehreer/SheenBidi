@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,19 @@
 #ifndef SHEEN_BIDI_GENERATOR_GENERAL_CATEGORY_LOOKUP_GENERATOR_H
 #define SHEEN_BIDI_GENERATOR_GENERAL_CATEGORY_LOOKUP_GENERATOR_H
 
-#include <map>
+#include <cstddef>
 #include <memory>
-#include <sstream>
+#include <string>
+#include <vector>
 
-#include <Parser/UnicodeData.h>
-
-#include "Utilities/GeneralCategoryDetector.h"
+#include <Parser/DerivedGeneralCategory.h>
 
 namespace SheenBidi {
 namespace Generator {
 
 class GeneralCategoryLookupGenerator {
 public:
-    GeneralCategoryLookupGenerator(const Parser::UnicodeData &unicodeData);
+    GeneralCategoryLookupGenerator(const Parser::DerivedGeneralCategory &derivedGeneralCategory);
 
     void setMainSegmentSize(size_t);
     void setBranchSegmentSize(size_t);
@@ -41,7 +40,7 @@ public:
     void generateFile(const std::string &directory);
 
 private:
-    typedef std::vector<uint8_t> UnsafeMainDataSet;
+    typedef std::vector<const std::string *> UnsafeMainDataSet;
     typedef std::shared_ptr<UnsafeMainDataSet> MainDataSet;
 
     struct MainDataSegment {
@@ -52,7 +51,7 @@ private:
         const std::string hintLine() const;
     };
 
-    typedef std::vector<MainDataSegment *> UnsafeBranchDataSet;
+    typedef std::vector<const MainDataSegment *> UnsafeBranchDataSet;
     typedef std::shared_ptr<UnsafeBranchDataSet> BranchDataSet;
 
     struct BranchDataSegment {
@@ -63,17 +62,16 @@ private:
         const std::string hintLine() const;
     };
 
-    const Utilities::GeneralCategoryDetector m_generalCategoryDetector;
-    uint32_t m_lastCodePoint;
+    const Parser::DerivedGeneralCategory &m_derivedGeneralCategory;
 
     size_t m_mainSegmentSize;
     size_t m_branchSegmentSize;
 
     std::vector<MainDataSegment> m_dataSegments;
-    std::vector<MainDataSegment *> m_dataReferences;
+    std::vector<const MainDataSegment *> m_dataReferences;
 
     std::vector<BranchDataSegment> m_branchSegments;
-    std::vector<BranchDataSegment *> m_branchReferences;
+    std::vector<const BranchDataSegment *> m_branchReferences;
 
     size_t m_dataSize;
     size_t m_mainIndexesSize;

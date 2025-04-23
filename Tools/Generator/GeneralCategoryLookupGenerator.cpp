@@ -71,23 +71,11 @@ const string GeneralCategoryLookupGenerator::BranchDataSegment::hintLine() const
     return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-GeneralCategoryLookupGenerator::GeneralCategoryLookupGenerator(const UnicodeData &unicodeData)
-    : m_generalCategoryDetector(unicodeData)
-    , m_lastCodePoint(0)
+GeneralCategoryLookupGenerator::GeneralCategoryLookupGenerator(const DerivedGeneralCategory &derivedGeneralCategory)
+    : m_derivedGeneralCategory(derivedGeneralCategory)
     , m_mainSegmentSize(0)
     , m_branchSegmentSize(0)
 {
-    uint32_t codePoint = unicodeData.lastCodePoint();
-    string generalCategory;
-
-    do {
-        unicodeData.getGeneralCategory(codePoint, generalCategory);
-        if (generalCategory.length() != 0) {
-            break;
-        }
-    } while (codePoint--);
-
-    m_lastCodePoint = codePoint;
 }
 
 void GeneralCategoryLookupGenerator::setMainSegmentSize(size_t segmentSize) {
@@ -99,14 +87,16 @@ void GeneralCategoryLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
 }
 
 void GeneralCategoryLookupGenerator::displayGeneralCategoriesFrequency() {
-    map<uint8_t, size_t> frequency;
+    map<string, size_t> frequency;
 
-    for (uint32_t i = 0; i <= m_lastCodePoint; i++) {
-        frequency[m_generalCategoryDetector.numberForCodePoint(i)]++;
+    auto last = m_derivedGeneralCategory.lastCodePoint();
+
+    for (uint32_t codePoint = 0; codePoint <= last; codePoint++) {
+        frequency[m_derivedGeneralCategory.generalCategoryForCodePoint(codePoint)]++;
     }
 
-    for (auto &element : frequency) {
-        cout << m_generalCategoryDetector.numberToName(element.first) << " Code Points: " << element.second << endl;
+    for (const auto &element : frequency) {
+        cout << element.first << " Code Points: " << element.second << endl;
     }
 }
 
@@ -147,7 +137,7 @@ void GeneralCategoryLookupGenerator::analyzeData() {
 }
 
 void GeneralCategoryLookupGenerator::collectMainData() {
-    size_t maxSegments = Math::FastCeil(m_lastCodePoint, m_mainSegmentSize);
+    size_t maxSegments = Math::FastCeil(m_derivedGeneralCategory.lastCodePoint(), m_mainSegmentSize);
 
     m_dataSegments.clear();
     m_dataSegments.reserve(maxSegments);
@@ -157,22 +147,15 @@ void GeneralCategoryLookupGenerator::collectMainData() {
 
     m_dataSize = 0;
 
-    uint8_t defaultCategory = m_generalCategoryDetector.nameToNumber("Cn");
-
     for (size_t i = 0; i < maxSegments; i++) {
         uint32_t segmentStart = (uint32_t)(i * m_mainSegmentSize);
-        uint32_t segmentEnd = min(m_lastCodePoint, (uint32_t)(segmentStart + m_mainSegmentSize - 1));
+        uint32_t segmentEnd = min(m_derivedGeneralCategory.lastCodePoint(), (uint32_t)(segmentStart + m_mainSegmentSize - 1));
 
         MainDataSet dataset(new UnsafeMainDataSet());
         dataset->reserve(m_mainSegmentSize);
 
-        for (uint32_t unicode = segmentStart; unicode <= segmentEnd; unicode++) {
-            uint8_t number = m_generalCategoryDetector.numberForCodePoint(unicode);
-            if (number) {
-                dataset->push_back(number);
-            } else {
-                dataset->push_back(defaultCategory);
-            }
+        for (uint32_t codePoint = segmentStart; codePoint <= segmentEnd; codePoint++) {
+            dataset->push_back(&m_derivedGeneralCategory.generalCategoryForCodePoint(codePoint));
         }
 
         size_t segmentIndex = SIZE_MAX;
@@ -242,17 +225,16 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
     collectMainData();
     collectBranchData();
 
+    set<string> categoryNames;
+
     ArrayBuilder arrData;
     arrData.setDataType(DATA_ARRAY_TYPE);
     arrData.setName(DATA_ARRAY_NAME);
-    arrData.setElementSpace(3);
+    arrData.setElementSpace(2);
+    arrData.setSizeDescriptor(Converter::toString((int)m_dataSize));
 
-    int dataCount = 0;
-    auto dataPtr = m_dataSegments.begin();
-    auto dataEnd = m_dataSegments.end();
-    for (; dataPtr != dataEnd; dataPtr++) {
-        const MainDataSegment &segment = *dataPtr;
-        bool isLast = (dataPtr == (dataEnd - 1));
+    for (const auto &segment : m_dataSegments) {
+        bool isLast = (&segment == &m_dataSegments.back());
 
         arrData.append(segment.hintLine());
         arrData.newLine();
@@ -260,8 +242,9 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
         size_t length = segment.dataset->size();
 
         for (size_t j = 0; j < length; j++) {
-            arrData.appendElement(m_generalCategoryDetector.numberToName(segment.dataset->at(j)));
-            dataCount++;
+            const auto &generalCategory = *segment.dataset->at(j);
+            categoryNames.insert(generalCategory);
+            arrData.appendElement(generalCategory);
 
             if (!isLast || j != (length - 1)) {
                 arrData.newElement();
@@ -272,19 +255,16 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
             arrData.newLine();
         }
     }
-    arrData.setSizeDescriptor(Converter::toString(dataCount));
 
     ArrayBuilder arrMainIndexes;
     arrMainIndexes.setDataType(MAIN_INDEXES_ARRAY_TYPE);
     arrMainIndexes.setName(MAIN_INDEXES_ARRAY_NAME);
+    arrMainIndexes.setSizeDescriptor(Converter::toString((int)m_mainIndexesSize));
 
     size_t segmentStart = 0;
-    int mainIndexCount = 0;
-    auto mainIndexPtr = m_branchSegments.begin();
-    auto mainIndexEnd = m_branchSegments.end();
-    for (; mainIndexPtr != mainIndexEnd; mainIndexPtr++) {
-        const BranchDataSegment &segment = *mainIndexPtr;
-        bool isLast = (mainIndexPtr == (mainIndexEnd - 1));
+
+    for (const auto &segment : m_branchSegments) {
+        bool isLast = (&segment == &m_branchSegments.back());
 
         arrMainIndexes.append(segment.hintLine());
         arrMainIndexes.newLine();
@@ -294,7 +274,6 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
         for (size_t j = 0; j < length; j++) {
             string element = "0x" + Converter::toHex(segment.dataset->at(j)->index, 4);
             arrMainIndexes.appendElement(element);
-            mainIndexCount++;
 
             if (!isLast || j != (length - 1)) {
                 arrMainIndexes.newElement();
@@ -307,35 +286,26 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
 
         segmentStart += m_mainSegmentSize;
     }
-    arrMainIndexes.setSizeDescriptor(Converter::toString(mainIndexCount));
 
     ArrayBuilder arrBranchIndexes;
     arrBranchIndexes.setDataType(BRANCH_INDEXES_ARRAY_TYPE);
     arrBranchIndexes.setName(BRANCH_INDEXES_ARRAY_NAME);
+    arrBranchIndexes.setSizeDescriptor(Converter::toString((int)m_branchIndexesSize));
 
     segmentStart = 0;
-    int branchIndexCount = 0;
-    auto branchIndexPtr = m_branchReferences.begin();
-    auto branchIndexEnd = m_branchReferences.end();
-    for (; branchIndexPtr != branchIndexEnd; branchIndexPtr++) {
-        const BranchDataSegment &segment = **branchIndexPtr;
-        bool isLast = (branchIndexPtr == (branchIndexEnd - 1));
+    
+    for (const auto &branchReference : m_branchReferences) {
+        const auto &segment = *branchReference;
+        bool isLast = (&branchReference == &m_branchReferences.back());
         string element = "0x" + Converter::toHex(segment.index, 4);
 
         arrBranchIndexes.appendElement(element);
-        branchIndexCount++;
-
         if (!isLast) {
             arrBranchIndexes.newElement();
         }
 
         segmentStart += m_branchSegmentSize;
     }
-    arrBranchIndexes.setSizeDescriptor(Converter::toString(branchIndexCount));
-
-    set<string> categoryNames;
-    string upperName;
-    m_generalCategoryDetector.getAllNames(categoryNames);
 
     FileBuilder header(directory + "/GeneralCategoryLookup.h");
     header.append("/*").newLine();
@@ -370,8 +340,8 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
     source.append("#include \"GeneralCategoryLookup.h\"").newLine();
     source.newLine();
 
-    for (string n : categoryNames) {
-        upperName = n;
+    for (const auto &n : categoryNames) {
+        string upperName = n;
         Converter::toUpper(upperName);
 
         source.append("#define " + n).appendTab().append(" SBGeneralCategory" + upperName).newLine();
@@ -382,7 +352,7 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
     source.append(arrMainIndexes).newLine();
     source.append(arrBranchIndexes).newLine();
 
-    string maxUnicode = "0x" + Converter::toHex(m_lastCodePoint, 6);
+    string maxUnicode = "0x" + Converter::toHex(m_derivedGeneralCategory.lastCodePoint(), 6);
     string mainDivider = "0x" + Converter::toHex(m_mainSegmentSize, 4);
     string branchDivider = "0x" + Converter::toHex(m_mainSegmentSize * m_branchSegmentSize, 4);
     source.append("SB_INTERNAL SBGeneralCategory LookupGeneralCategory(SBCodepoint codepoint) {").newLine();

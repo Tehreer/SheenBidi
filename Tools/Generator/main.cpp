@@ -22,6 +22,7 @@
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
 #include <Parser/DerivedBidiClass.h>
+#include <Parser/DerivedGeneralCategory.h>
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
 #include <Parser/UnicodeData.h>
@@ -49,6 +50,7 @@ int main(int argc, const char * argv[])
     BidiMirroring bidiMirroring(in);
     BidiBrackets bidiBrackets(in);
     DerivedBidiClass derivedBidiClass(in);
+    DerivedGeneralCategory derivedGeneralCategory(in);
     Scripts scripts(in);
     PropertyValueAliases propertyValueAliases(in);
 
@@ -63,7 +65,7 @@ int main(int argc, const char * argv[])
     pairingLookup.setSegmentSize(106);
     pairingLookup.generateFile(out);
 
-    GeneralCategoryLookupGenerator generalCategoryLookup(unicodeData);
+    GeneralCategoryLookupGenerator generalCategoryLookup(derivedGeneralCategory);
     generalCategoryLookup.setMainSegmentSize(16);
     generalCategoryLookup.setBranchSegmentSize(32);
     generalCategoryLookup.generateFile(out);
