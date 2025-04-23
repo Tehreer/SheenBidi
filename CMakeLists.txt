@@ -113,8 +113,6 @@ if(BUILD_GENERATOR)
   file(GLOB_RECURSE GENERATOR_FILES
     Tools/Generator/*.h
     Tools/Generator/*.cpp
-    Tools/Generator/Utilities/*.h
-    Tools/Generator/Utilities/*.cpp
   )
   add_executable(generator ${GENERATOR_FILES})
   target_include_directories(generator
@@ -135,8 +133,6 @@ if(BUILD_TESTING AND NOT SB_CONFIG_UNITY)
   file(GLOB_RECURSE TESTER_FILES
     Tools/Tester/*.h
     Tools/Tester/*.cpp
-    Tools/Tester/Utilities/*.h
-    Tools/Tester/Utilities/*.cpp
   )
   add_executable(tester ${TESTER_FILES})
   target_include_directories(tester
