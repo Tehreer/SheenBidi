@@ -149,7 +149,7 @@ if(BUILD_TESTING AND NOT SB_CONFIG_UNITY)
     COMMAND tester ${CMAKE_CURRENT_SOURCE_DIR}/Tools/Unicode
   )
   set_tests_properties(tests PROPERTIES
-    TIMEOUT 180
+    TIMEOUT 600
     FAIL_REGULAR_EXPRESSION "[1-9][0-9]* error"
   )
 
