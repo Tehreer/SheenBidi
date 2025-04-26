@@ -98,7 +98,7 @@ jobs:
             --backend vs `
             --vsenv `
             "-Dunity_mode=disabled" `
-            "-Db_sanitize=address,undefined" `
+            "-Db_sanitize=address" `
             "-Db_lundef=false" `
             "-Dc_std=c89"
           meson compile -C Debug
