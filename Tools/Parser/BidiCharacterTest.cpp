@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
+#include <cstdint>
 #include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "BidiCharacterTest.h"
@@ -26,8 +25,7 @@ using namespace SheenBidi::Parser;
 
 static const string BIDI_CHARACTER_TEST_FILE = "BidiCharacterTest.txt";
 
-static inline void initializeTestCase(BidiCharacterTest::TestCase &testCase)
-{
+static inline void initializeTestCase(BidiCharacterTest::TestCase &testCase) {
     const int DefaultLength = 32;
 
     testCase.text.reserve(DefaultLength);
@@ -39,40 +37,44 @@ static inline void clearText(BidiCharacterTest::TestCase &testCase) {
     testCase.text.clear();
 }
 
-static inline void addTextChar(BidiCharacterTest::TestCase &testCase, uint32_t character) {
-    testCase.text.push_back(character);
+static inline void addCodePoint(BidiCharacterTest::TestCase &testCase, uint32_t codePoint) {
+    testCase.text.push_back(codePoint);
 }
 
-static inline char *readText(BidiCharacterTest::TestCase &testCase, char *field) {
+static inline size_t readText(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
     clearText(testCase);
 
     uint32_t codePoint = 0;
     uint32_t shift = 12;
 
-    for (; *field != ';'; ++field) {
-        if (*field == ' ') {
-            addTextChar(testCase, codePoint);
+    for (; index < line.length(); index++) {
+        if (line[index] == ';') {
+            break;
+        }
+
+        if (line[index] == ' ') {
+            addCodePoint(testCase, codePoint);
             codePoint = 0;
             shift = 12;
         } else {
-            uint32_t digit = (*field <= '9' ? *field - '0' : *field - 'A' + 10);
+            uint32_t digit = (line[index] <= '9' ? line[index] - '0' : line[index] - 'A' + 10);
             codePoint += digit << shift;
             shift -= 4;
         }
     }
-    addTextChar(testCase, codePoint);
+    addCodePoint(testCase, codePoint);
 
-    return (field + 1);
+    return (index + 1);
 }
 
-static inline char *readParagraphDirection(BidiCharacterTest::TestCase &testCase, char *field) {
-    testCase.paragraphDirection = (BidiCharacterTest::ParagraphDirection)(*field - '0');
-    return (field + 2);
+static inline size_t readParagraphDirection(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
+    testCase.paragraphDirection = (BidiCharacterTest::ParagraphDirection)(line.at(index) - '0');
+    return (index + 2);
 }
 
-static inline char *readParagraphLevel(BidiCharacterTest::TestCase &testCase, char *field) {
-    testCase.paragraphLevel = (*field - '0');
-    return (field + 2);
+static inline size_t readParagraphLevel(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
+    testCase.paragraphLevel = (line.at(index) - '0');
+    return (index + 2);
 }
 
 static inline void clearLevels(BidiCharacterTest::TestCase &testCase) {
@@ -83,25 +85,29 @@ static inline void addLevel(BidiCharacterTest::TestCase &testCase, uint8_t level
     testCase.levels.push_back(level);
 }
 
-static inline char *readLevels(BidiCharacterTest::TestCase &testCase, char *field) {
+static inline size_t readLevels(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
     clearLevels(testCase);
 
     uint8_t level = 0;
 
-    for (; *field != ';'; ++field) {
-        if (*field == ' ') {
+    for (; index < line.length(); index++) {
+        if (line[index] == ';') {
+            break;
+        }
+
+        if (line[index] == ' ') {
             addLevel(testCase, level);
             level = 0;
-        } else if (*field == 'x') {
+        } else if (line[index] == 'x') {
             level = BidiCharacterTest::LEVEL_X;
         } else {
             level *= 10;
-            level += *field - '0';
+            level += line[index] - '0';
         }
     }
     addLevel(testCase, level);
 
-    return (field + 1);
+    return (index + 1);
 }
 
 static inline void clearOrder(BidiCharacterTest::TestCase &testCase) {
@@ -112,62 +118,62 @@ static inline void addOrderIndex(BidiCharacterTest::TestCase &testCase, size_t i
     testCase.order.push_back(index);
 }
 
-static inline char *readOrder(BidiCharacterTest::TestCase &testCase, char *field) {
+static inline size_t readOrder(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
     clearOrder(testCase);
 
-    size_t index = 0;
+    size_t order = 0;
 
-    for (; *field != '\0'; ++field) {
-        if (*field == ' ') {
-            addOrderIndex(testCase, index);
-            index = 0;
+    for (; index < line.length(); index++) {
+        if (line[index] == ' ') {
+            addOrderIndex(testCase, order);
+            order = 0;
         } else {
-            index *= 10;
-            index += *field - '0';
+            order *= 10;
+            order += line[index] - '0';
         }
     }
-    addOrderIndex(testCase, index);
+    addOrderIndex(testCase, order);
 
-    return NULL;
+    return index;
 }
 
-BidiCharacterTest::BidiCharacterTest(const string &directory) :
-    m_Stream(directory + "/" + BIDI_CHARACTER_TEST_FILE, ios::binary)
-{
-    initializeTestCase(m_TestCase);
+BidiCharacterTest::BidiCharacterTest(const string &directory) {
+    auto filePath = directory + "/" + BIDI_CHARACTER_TEST_FILE;
+    m_stream.open(filePath, ios::in);
+    if (!m_stream.is_open()) {
+        throw runtime_error("Failed to open file: " + filePath);
+    }
+
+    initializeTestCase(m_testCase);
 }
 
 BidiCharacterTest::~BidiCharacterTest() {
-    m_Stream.close();
+    m_stream.close();
 }
 
 const BidiCharacterTest::TestCase &BidiCharacterTest::testCase() const {
-    return m_TestCase;
+    return m_testCase;
 }
 
 bool BidiCharacterTest::fetchNext() {
-    const int BufferSize = 2048;
-    char line[BufferSize];
-
-    while (!m_Stream.eof()) {
-        m_Stream.getline(line, BufferSize);
-        
-        if (line[0] != '\0' && line[0] != '#') {
-            char *field = line;
-
-            field = readText(m_TestCase, field);
-            field = readParagraphDirection(m_TestCase, field);
-            field = readParagraphLevel(m_TestCase, field);
-            field = readLevels(m_TestCase, field);
-            field = readOrder(m_TestCase, field);
-
-            return true;
+    while (getline(m_stream, m_line)) {
+        if (m_line.empty() || m_line[0] == '#') {
+            continue;
         }
+
+        size_t index = 0;
+        index = readText(m_testCase, m_line, index);
+        index = readParagraphDirection(m_testCase, m_line, index);
+        index = readParagraphLevel(m_testCase, m_line, index);
+        index = readLevels(m_testCase, m_line, index);
+        index = readOrder(m_testCase, m_line, index);
+
+        return true;
     }
 
     return false;
 }
 
 void BidiCharacterTest::reset() {
-    m_Stream.seekg(0);
+    m_stream.seekg(0);
 }
