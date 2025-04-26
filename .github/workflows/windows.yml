@@ -87,8 +87,8 @@ jobs:
             --buildtype release `
             --backend vs `
             --vsenv `
-            -Dunity_mode=enabled `
-            -Dc_std=c89
+            "-Dunity_mode=enabled" `
+            "-Dc_std=c89"
           meson compile -C Release
 
       - name: Build in Debug mode
@@ -97,10 +97,10 @@ jobs:
             --buildtype debugoptimized `
             --backend vs `
             --vsenv `
-            -Dunity_mode=disabled `
-            -Db_sanitize=address,undefined `
-            -Db_lundef=false `
-            -Dc_std=c89
+            "-Dunity_mode=disabled" `
+            "-Db_sanitize=address,undefined" `
+            "-Db_lundef=false" `
+            "-Dc_std=c89"
           meson compile -C Debug
 
       - name: Run Tests (Debug)
