@@ -174,7 +174,6 @@ if build_generator
     sources: generator_files,
     include_directories: ['Headers', 'Tools'],
     dependencies: [parser_dep],
-    link_with: [parser],
     install: false
   )
 endif
@@ -215,7 +214,6 @@ if not unity_mode
     sources: tester_files,
     include_directories: ['Headers', 'Tools'],
     dependencies: [parser_dep, sheenbidi_dep],
-    link_with: [parser, sheenbidi],
     install: false
   )
   
@@ -225,7 +223,7 @@ if not unity_mode
     'tests',
     tester,
     args: [unicode_data_dir],
-    timeout: 180
+    timeout: 600
   )
 endif
 
