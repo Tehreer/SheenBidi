@@ -2,9 +2,14 @@ project('SheenBidi', ['c', 'cpp'],
   version: '2.8',
   meson_version: '>= 0.55.0',
   default_options: [
+    'default_library=static',
     'cpp_std=c++20'
   ]
 )
+
+if get_option('default_library') != 'static'
+  error('Only static library type is supported. Please set -Ddefault_library=static')
+endif
 
 unity_mode = get_option('unity_mode').enabled()
 build_generator = get_option('generator').enabled()
