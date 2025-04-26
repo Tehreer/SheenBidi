@@ -33,25 +33,25 @@ jobs:
       - name: Build in Release Mode
         continue-on-error: true
         run: |
-          cmake -S . -B Release ^
-            -A ${{ matrix.platform }} ^
-            -DSB_CONFIG_UNITY=ON ^
-            -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_C_STANDARD=90 ^
-            -DCMAKE_C_EXTENSIONS=OFF ^
+          cmake -S . -B Release `
+            -A ${{ matrix.platform }} `
+            -DSB_CONFIG_UNITY=ON `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_C_STANDARD=90 `
+            -DCMAKE_C_EXTENSIONS=OFF `
             -DCMAKE_C_STANDARD_REQUIRED=ON
           cmake --build Release --config Release
 
       - name: Build in Debug mode
         run: |
-          cmake -S. -B Debug ^
-            -A ${{ matrix.platform }} ^
-            -DSB_CONFIG_UNITY=OFF ^
-            -DENABLE_ASAN=ON ^
-            -DENABLE_UBSAN=ON ^
-            -DCMAKE_BUILD_TYPE=Debug ^
-            -DCMAKE_C_STANDARD=90 ^
-            -DCMAKE_C_EXTENSIONS=OFF ^
+          cmake -S. -B Debug `
+            -A ${{ matrix.platform }} `
+            -DSB_CONFIG_UNITY=OFF `
+            -DENABLE_ASAN=ON `
+            -DENABLE_UBSAN=ON `
+            -DCMAKE_BUILD_TYPE=Debug `
+            -DCMAKE_C_STANDARD=90 `
+            -DCMAKE_C_EXTENSIONS=OFF `
             -DCMAKE_C_STANDARD_REQUIRED=ON
           cmake --build Debug --config Debug
 
@@ -83,23 +83,23 @@ jobs:
       - name: Build in Release mode
         continue-on-error: true
         run: |
-          meson setup Release ^
-            --buildtype release ^
-            --backend vs ^
-            --vsenv ^
-            -Dunity_mode=enabled ^
+          meson setup Release `
+            --buildtype release `
+            --backend vs `
+            --vsenv `
+            -Dunity_mode=enabled `
             -Dc_std=c89
           meson compile -C Release
 
       - name: Build in Debug mode
         run: |
-          meson setup Debug ^
-            --buildtype debugoptimized ^
-            --backend vs ^
-            --vsenv ^
-            -Dunity_mode=disabled ^
-            -Db_sanitize=address,undefined ^
-            -Db_lundef=false ^
+          meson setup Debug `
+            --buildtype debugoptimized `
+            --backend vs `
+            --vsenv `
+            -Dunity_mode=disabled `
+            -Db_sanitize=address,undefined `
+            -Db_lundef=false `
             -Dc_std=c89
           meson compile -C Debug
 
