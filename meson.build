@@ -88,6 +88,7 @@ sheenbidi = library(
   sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
   include_directories: ['Headers', 'Source'],
   version: meson.project_version(),
+  soversion: '',
   install: true
 )
 
@@ -223,7 +224,7 @@ if not unity_mode
     'tests',
     tester,
     args: [unicode_data_dir],
-    timeout: 600
+    timeout: 180
   )
 endif
 
