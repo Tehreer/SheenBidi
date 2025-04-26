@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#include <cstring>
-#include <iomanip>
-#include <iostream>
+#include <cstdint>
+#include <fstream>
 #include <string>
 
 #include "BidiTest.h"
@@ -26,12 +25,8 @@ using namespace SheenBidi::Parser;
 
 static const string FILE_BIDI_TEST = "BidiTest.txt";
 
-static inline char *skipSpaces(char *line) {
-    while (*line == ' ' || *line == '\t') {
-        ++line;
-    }
-    
-    return line;
+static inline size_t skipSpaces(const string &line, size_t index) {
+    return line.find_first_not_of(" \t", index);
 }
 
 static inline void initializeTestCase(BidiTest::TestCase &testCase) {
@@ -50,21 +45,21 @@ static inline void addLevel(BidiTest::TestCase &testCase, uint8_t level) {
     testCase.levels.push_back(level);
 }
 
-static inline void readLevels(BidiTest::TestCase &testCase, char *line) {
+static inline void readLevels(BidiTest::TestCase &testCase, const string &line, size_t index) {
     uint8_t level = 0;
 
-    line = skipSpaces(line);
+    index = skipSpaces(line, index);
     clearLevels(testCase);
 
-    for (; *line != '\0'; ++line) {
-        if (*line == ' ') {
+    for (; index < line.length(); index++) {
+        if (line[index] == ' ') {
             addLevel(testCase, level);
             level = 0;
-        } else if (*line == 'x') {
+        } else if (line[index] == 'x') {
             level = BidiTest::LEVEL_X;
         } else {
             level *= 10;
-            level += *line - '0';
+            level += line[index] - '0';
         }
     }
     addLevel(testCase, level);
@@ -78,57 +73,65 @@ static inline void addOrderIndex(BidiTest::TestCase &testCase, size_t index) {
     testCase.order.push_back(index);
 }
 
-static inline void readVisualOrder(BidiTest::TestCase &testCase, char *line) {
-    size_t index = 0;
+static inline void readVisualOrder(BidiTest::TestCase &testCase, const string &line, size_t index) {
+    size_t order = 0;
 
-    line = skipSpaces(line);
+    index = skipSpaces(line, index);
     clearOrder(testCase);
 
-    for (; *line != '\0'; ++line) {
-        if (*line == ' ') {
-            addOrderIndex(testCase, index);
-            index = 0;
+    for (; index < line.length(); index++) {
+        if (line[index] == ' ') {
+            addOrderIndex(testCase, order);
+            order = 0;
         } else {
-            index *= 10;
-            index += *line - '0';
+            order *= 10;
+            order += line[index] - '0';
         }
     }
-    addOrderIndex(testCase, index);
+    addOrderIndex(testCase, order);
 }
 
 static inline void clearTypes(BidiTest::TestCase &testCase) {
     testCase.types.clear();
 }
 
-static inline void addType(BidiTest::TestCase &testCase, const char *type) {
-    testCase.types.push_back(string(type));
+static inline void addType(BidiTest::TestCase &testCase, const string &type) {
+    testCase.types.push_back(type);
 }
 
-static inline void readData(BidiTest::TestCase &testCase, char *line) {
+static inline void readData(BidiTest::TestCase &testCase, const string &line) {
     clearTypes(testCase);
 
-    char type[4];
-    char *var = type;
+    size_t index = 0;
+    string type;
 
-    for (; *line != ';'; ++line) {
-        if (*line == ' ') {
-            *var = '\0';
+    for (; index < line.length(); index++) {
+        if (line[index] == ';') {
+            index += 1;
+            break;
+        }
+
+        if (line[index] == ' ') {
             addType(testCase, type);
 
-            var = type;
+            type.clear();
         } else {
-            *var++ = *line;
+            type += line[index];
         }
     }
-    *var = '\0';
     addType(testCase, type);
 
-    testCase.directions = (BidiTest::ParagraphDirection)(*(line + 2) - '0');
+    index = skipSpaces(line, index);
+    testCase.directions = (BidiTest::ParagraphDirection)(line.at(index) - '0');
 }
 
-BidiTest::BidiTest(const string &directory) :
-    m_stream(directory + "/" + FILE_BIDI_TEST, ios::binary)
-{
+BidiTest::BidiTest(const string &directory) {
+    auto filePath = directory + "/" + FILE_BIDI_TEST;
+    m_stream.open(filePath, ios::in);
+    if (!m_stream.is_open()) {
+        throw runtime_error("Failed to open file: " + filePath);
+    }
+
     initializeTestCase(m_testCase);
 }
 
@@ -141,23 +144,23 @@ const BidiTest::TestCase &BidiTest::testCase() const {
 }
 
 bool BidiTest::fetchNext() {
-    const int BufferSize = 512;
-    char line[BufferSize];
+    while (getline(m_stream, m_line)) {
+        if (m_line.empty() || m_line[0] == '#') {
+            continue;
+        }
 
-    while (!m_stream.eof()) {
-        m_stream.getline(line, BufferSize);
+        if (m_line[0] == '@') {
+            string levels = "Levels:";
+            string reorder = "Reorder:";
 
-        if (line[0] != '\0' && line[0] != '#') {
-            if (line[0] == '@') {
-                if (strstr(line, "Levels:")) {
-                    readLevels(m_testCase, line + 8);
-                } else if (strstr(line, "Reorder:")) {
-                    readVisualOrder(m_testCase, line + 9);
-                }
-            } else {
-                readData(m_testCase, line);
-                return true;
+            if (m_line.compare(1, levels.length(), levels) == 0) {
+                readLevels(m_testCase, m_line, levels.length() + 1);
+            } else if (m_line.compare(1, reorder.length(), reorder) == 0) {
+                readVisualOrder(m_testCase, m_line, reorder.length() + 1);
             }
+        } else {
+            readData(m_testCase, m_line);
+            return true;
         }
     }
 
