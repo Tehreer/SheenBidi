@@ -20,9 +20,7 @@
 #include "SBBase.h"
 #include "SBRun.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+SB_EXTERN_C_BEGIN
 
 typedef struct _SBLine *SBLineRef;
 
@@ -85,8 +83,5 @@ SBLineRef SBLineRetain(SBLineRef line);
  */
 void SBLineRelease(SBLineRef line);
 
-#ifdef __cplusplus
-}
-#endif
-
+SB_EXTERN_C_END
 #endif
