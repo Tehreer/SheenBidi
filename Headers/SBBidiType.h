@@ -19,6 +19,8 @@
 
 #include "SBBase.h"
 
+SB_EXTERN_C_BEGIN
+
 /**
  * Constants that specify the bidirectional types of a character.
  */
@@ -78,4 +80,5 @@ typedef SBUInt8 SBBidiType;
  */
 #define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
 
+SB_EXTERN_C_END
 #endif

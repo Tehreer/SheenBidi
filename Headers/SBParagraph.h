@@ -20,6 +20,8 @@
 #include "SBBase.h"
 #include "SBLine.h"
 
+SB_EXTERN_C_BEGIN
+
 typedef struct _SBParagraph *SBParagraphRef;
 
 /**
@@ -97,4 +99,5 @@ SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph);
  */
 void SBParagraphRelease(SBParagraphRef paragraph);
 
+SB_EXTERN_C_END
 #endif

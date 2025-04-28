@@ -20,6 +20,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+#define SB_EXTERN_C_BEGIN extern "C" {
+#define SB_EXTERN_C_END }
+#else
+#define SB_EXTERN_C_BEGIN
+#define SB_EXTERN_C_END
+#endif
+
+SB_EXTERN_C_BEGIN
+
 /**
  * A type to represent an 8-bit signed integer.
  */
@@ -116,4 +126,5 @@ typedef SBUInt8                     SBLevel;
  */
 #define SBLevelDefaultRTL           0xFD
 
+SB_EXTERN_C_END
 #endif

@@ -22,6 +22,8 @@
 #include "SBCodepointSequence.h"
 #include "SBParagraph.h"
 
+SB_EXTERN_C_BEGIN
+
 typedef struct _SBAlgorithm *SBAlgorithmRef;
 
 /**
@@ -116,4 +118,5 @@ SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm);
  */
 void SBAlgorithmRelease(SBAlgorithmRef algorithm);
 
+SB_EXTERN_C_END
 #endif

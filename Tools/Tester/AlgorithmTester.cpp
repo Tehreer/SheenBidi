@@ -20,9 +20,7 @@
 #include <string>
 #include <vector>
 
-extern "C" {
 #include <SheenBidi.h>
-}
 
 #include <Parser/BidiTest.h>
 #include <Parser/BidiBrackets.h>

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <SBConfig.h>
-}
 
 #include "Configuration.h"
 

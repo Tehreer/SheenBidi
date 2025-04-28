@@ -21,6 +21,8 @@
 #include "SBCodepointSequence.h"
 #include "SBScript.h"
 
+SB_EXTERN_C_BEGIN
+
 typedef struct _SBScriptLocator *SBScriptLocatorRef;
 
 /**
@@ -98,4 +100,5 @@ SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator);
  */
 void SBScriptLocatorRelease(SBScriptLocatorRef locator);
 
+SB_EXTERN_C_END
 #endif

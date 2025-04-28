@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <Headers/SBBidiType.h>
 #include <Headers/SBGeneralCategory.h>
 #include <Headers/SBScript.h>
-}
 
 #include <cstdint>
 #include <map>

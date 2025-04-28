@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-extern "C" {
 #include <Headers/SheenBidi.h>
-}
 
 #include <iostream>
 

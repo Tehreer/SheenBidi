@@ -19,6 +19,8 @@
 
 #include "SBBase.h"
 
+SB_EXTERN_C_BEGIN
+
 /**
  * Constants that specify the script of a character.
  */
@@ -264,4 +266,5 @@ typedef SBUInt8 SBScript;
  */
 SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
 
+SB_EXTERN_C_END
 #endif

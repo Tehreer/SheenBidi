@@ -19,6 +19,8 @@
 
 #include "SBBase.h"
 
+SB_EXTERN_C_BEGIN
+
 /**
  * A structure containing the information of a sequence of characters having the same embedding
  * level.
@@ -29,4 +31,5 @@ typedef struct _SBRun {
     SBLevel level;     /**< The embedding level of the run. */
 } SBRun;
 
+SB_EXTERN_C_END
 #endif
