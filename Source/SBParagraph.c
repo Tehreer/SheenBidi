@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@ static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLev
     const SBUInteger sizeContext = sizeof(ParagraphContext);
     const SBUInteger sizeLinks   = sizeof(BidiLink) * (length + 2);
     const SBUInteger sizeTypes   = sizeof(SBBidiType) * (length + 2);
-    const SBUInteger sizeMemory  = sizeContext + sizeLinks + sizeTypes;
+    const SBUInteger sizeFlags   = sizeof(BidiFlag) * (length + 2);
+    const SBUInteger sizeMemory  = sizeContext + sizeLinks + sizeTypes + sizeFlags;
 
     void *pointer = malloc(sizeMemory);
 
@@ -55,13 +56,15 @@ static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLev
         const SBUInteger offsetContext = 0;
         const SBUInteger offsetLinks   = offsetContext + sizeContext;
         const SBUInteger offsetTypes   = offsetLinks + sizeLinks;
+        const SBUInteger offsetFlags   = offsetTypes + sizeTypes;
 
         SBUInt8 *memory = (SBUInt8 *)pointer;
         ParagraphContextRef context = (ParagraphContextRef)(memory + offsetContext);
         BidiLink *fixedLinks = (BidiLink *)(memory + offsetLinks);
         SBBidiType *fixedTypes = (SBBidiType *)(memory + offsetTypes);
+        BidiFlag *fixedFlags = (BidiFlag *)(memory + offsetFlags);
 
-        BidiChainInitialize(&context->bidiChain, fixedTypes, levels, fixedLinks);
+        BidiChainInitialize(&context->bidiChain, fixedTypes, levels, fixedFlags, fixedLinks);
         StatusStackInitialize(&context->statusStack);
         RunQueueInitialize(&context->runQueue);
         IsolatingRunInitialize(&context->isolatingRun);
@@ -303,7 +306,7 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
 
 #define MergeLinkIfNeeded()                                                 \
 {                                                                           \
-        if (BidiChainMergeIfEqual(chain, priorLink, link)) {                \
+        if (BidiChainMergeNext(chain, priorLink)) {                         \
             continue;                                                       \
         }                                                                   \
 }
@@ -470,7 +473,6 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
         /* Rule X9 */
         if (bnEquivalent) {
             /* The type of this link is BN equivalent, so abandon it and continue the loop. */
-            BidiChainSetType(chain, link, SBBidiTypeBN);
             BidiChainAbandonNext(chain, priorLink);
             continue;
         }

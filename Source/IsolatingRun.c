@@ -130,7 +130,7 @@ static BidiLink ResolveWeakTypes(IsolatingRunRef isolatingRun)
         }
 
         if ((type != SBBidiTypeON && BidiChainGetType(chain, priorLink) == type) || forceMerge) {
-            BidiChainAbandonNext(chain, priorLink);
+            BidiChainAbsorbNext(chain, priorLink);
         } else {
             priorLink = link;
         }
@@ -201,7 +201,7 @@ static BidiLink ResolveWeakTypes(IsolatingRunRef isolatingRun)
         }
 
         if (type != SBBidiTypeON && BidiChainGetType(chain, priorLink) == type) {
-            BidiChainAbandonNext(chain, priorLink);
+            BidiChainAbsorbNext(chain, priorLink);
         } else {
             priorLink = link;
         }
