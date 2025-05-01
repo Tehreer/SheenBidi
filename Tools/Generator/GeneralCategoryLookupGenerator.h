@@ -64,8 +64,8 @@ private:
 
     const Parser::DerivedGeneralCategory &m_derivedGeneralCategory;
 
-    size_t m_mainSegmentSize;
-    size_t m_branchSegmentSize;
+    size_t m_mainSegmentSize = 0;
+    size_t m_branchSegmentSize = 0;
 
     std::vector<MainDataSegment> m_dataSegments;
     std::vector<const MainDataSegment *> m_dataReferences;
@@ -73,9 +73,9 @@ private:
     std::vector<BranchDataSegment> m_branchSegments;
     std::vector<const BranchDataSegment *> m_branchReferences;
 
-    size_t m_dataSize;
-    size_t m_mainIndexesSize;
-    size_t m_branchIndexesSize;
+    size_t m_dataSize = 0;
+    size_t m_mainIndexesSize = 0;
+    size_t m_branchIndexesSize = 0;
 
     void collectMainData();
     void collectBranchData();
