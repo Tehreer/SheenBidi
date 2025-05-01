@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,46 +19,41 @@
 #include <Headers/SBScript.h>
 
 #include <cstdint>
-#include <map>
 #include <string>
+#include <unordered_map>
 
 #include "Convert.h"
 
 using namespace std;
 using namespace SheenBidi::Tester::Utilities;
 
-static map<string, uint32_t> createCodePointMap() {
-    map<string, uint32_t> map;
-    map["AL"]  = 0x0627;
-    map["AN"]  = 0x0600;
-    map["B"]   = 0x0085;
-    map["BN"]  = 0x001B;
-    map["CS"]  = 0x002E;
-    map["EN"]  = 0x0030;
-    map["ES"]  = 0x002B;
-    map["ET"]  = 0x0025;
-    map["FSI"] = 0x2068;
-    map["L"]   = 0x0041;
-    map["LRE"] = 0x202A;
-    map["LRI"] = 0x2066;
-    map["LRO"] = 0x202D;
-    map["NSM"] = 0x0614;
-    map["ON"]  = 0x0028;
-    map["PDF"] = 0x202C;
-    map["PDI"] = 0x2069;
-    map["R"]   = 0x05D0;
-    map["RLE"] = 0x202B;
-    map["RLI"] = 0x2067;
-    map["RLO"] = 0x202E;
-    map["S"]   = 0x0009;
-    map["WS"]  = 0x0020;
+static unordered_map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = {
+    {"AL", 0x0627},
+    {"AN", 0x0600},
+    {"B", 0x0085},
+    {"BN", 0x001B},
+    {"CS", 0x002E},
+    {"EN", 0x0030},
+    {"ES", 0x002B},
+    {"ET", 0x0025},
+    {"FSI", 0x2068},
+    {"L", 0x0041},
+    {"LRE", 0x202A},
+    {"LRI", 0x2066},
+    {"LRO", 0x202D},
+    {"NSM", 0x0614},
+    {"ON", 0x0028},
+    {"PDF", 0x202C},
+    {"PDI", 0x2069},
+    {"R", 0x05D0},
+    {"RLE", 0x202B},
+    {"RLI", 0x2067},
+    {"RLO", 0x202E},
+    {"S", 0x0009},
+    {"WS", 0x0020}
+};
 
-    return map;
-}
-
-static map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = createCodePointMap();
-
-static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = {
+static unordered_map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = {
     {SBBidiTypeNil, "Nil"},
     {SBBidiTypeL, "L"},
     {SBBidiTypeR, "R"},
@@ -85,7 +80,7 @@ static map<SBBidiType, string> MAP_BIDI_TYPE_TO_STRING = {
     {SBBidiTypePDI, "PDI"}
 };
 
-static map<SBGeneralCategory, string> MAP_GENERAL_CATEGORY_TO_STRING = {
+static unordered_map<SBGeneralCategory, string> MAP_GENERAL_CATEGORY_TO_STRING = {
     {SBGeneralCategoryLU, "Lu"},
     {SBGeneralCategoryLL, "Ll"},
     {SBGeneralCategoryLT, "Lt"},
@@ -118,7 +113,7 @@ static map<SBGeneralCategory, string> MAP_GENERAL_CATEGORY_TO_STRING = {
     {SBGeneralCategoryCN, "Cn"}
 };
 
-static map<SBScript, string> MAP_SCRIPT_TO_STRING = {
+static unordered_map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptZINH, "Zinh"},
     {SBScriptZYYY, "Zyyy"},
     {SBScriptZZZZ, "Zzzz"},
