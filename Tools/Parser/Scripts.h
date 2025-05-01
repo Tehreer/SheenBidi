@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +19,39 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 
 namespace SheenBidi {
 namespace Parser {
 
-class Scripts {
+class Scripts : public DataFile {
 public:
     Scripts(const std::string &directory);
-    ~Scripts();
 
-    uint32_t firstCodePoint() const;
-    uint32_t lastCodePoint() const;
+    const UnicodeVersion &version() const { return m_version; }
 
-    UnicodeVersion &version() const;
-    const std::string &scriptForCodePoint(uint32_t) const;
+    uint32_t firstCodePoint() const { return m_firstCodePoint; }
+    uint32_t lastCodePoint() const { return m_lastCodePoint; }
+
+    const std::string &scriptOf(uint32_t codePoint) const;
 
 private:
-    uint32_t m_firstCodePoint;
-    uint32_t m_lastCodePoint;
+    using ScriptID = uint8_t;
 
-    UnicodeVersion *m_version;
-    std::vector<std::string> m_scriptNames;
-    std::vector<uint8_t> m_scriptNumbers;
+    UnicodeVersion m_version;
+
+    uint32_t m_firstCodePoint = 0;
+    uint32_t m_lastCodePoint = 0;
+
+    std::vector<ScriptID> m_scripts;
+    std::unordered_map<std::string, ScriptID> m_scriptToID;
+    std::vector<std::string> m_idToScript;
+
+    ScriptID insertScript(const std::string &script);
 };
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
-#include <cstdlib>
-#include <fstream>
 #include <string>
-#include <vector>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 #include "Scripts.h"
 
@@ -32,110 +31,54 @@ static const string SCRIPT_UNKNOWN = "Unknown";
 static const string SCRIPT_COMMON = "Common";
 static const string SCRIPT_INHERITED = "Inherited";
 
-static inline void initializeScriptNames(vector<string> &obj) {
-    obj.reserve(25);
-    obj.push_back(SCRIPT_UNKNOWN);
-    obj.push_back(SCRIPT_COMMON);
-    obj.push_back(SCRIPT_INHERITED);
-}
-
-static inline uint8_t getScriptNumber(vector<string> &obj, const string &scriptName) {
-    auto begin = obj.begin();
-    auto end = obj.end();
-    auto match = find(begin, end, scriptName);
-    if (match != end) {
-        return static_cast<uint8_t>(distance(begin, match));
-    }
-
-    uint8_t number = static_cast<uint8_t>(obj.size());
-    obj.push_back(scriptName);
-
-    return number;
-}
-
-static inline char *readCodePointRange(char *field, uint32_t *first, uint32_t *last) {
-    *first = static_cast<uint32_t>(strtoul(field, &field, 16));
-
-    if (*field == '.') {
-        *last = static_cast<uint32_t>(strtoul(field + 2, &field, 16));
-    } else {
-        *last = *first;
-    }
-
-    while (*field++ != ';');
-
-    return field;
-}
-
-static inline char *readScriptName(char *field, string *name) {
-    char *start = field;
-    while (*start++ != ' ');
-
-    char *end = start;
-    while (*end++ != ' ');
-
-    size_t length = static_cast<size_t>(distance(start, end) - 1);
-    *name = string(start, length);
-
-    return end;
-}
-
 Scripts::Scripts(const string &directory) :
-    m_firstCodePoint(0),
-    m_lastCodePoint(0),
-    m_scriptNames(),
-    m_scriptNumbers(0x200000)
+    DataFile(directory, FILE_SCRIPTS),
+    m_scripts(MAX_CODE_POINTS)
 {
-    initializeScriptNames(m_scriptNames);
-    ifstream stream(directory + "/" + FILE_SCRIPTS, ios::in);
-
-    string versionLine;
-    getline(stream, versionLine);
-    m_version = new UnicodeVersion(versionLine);
+    insertScript(SCRIPT_UNKNOWN);
+    insertScript(SCRIPT_COMMON);
+    insertScript(SCRIPT_INHERITED);
 
     string line;
-    while (getline(stream, line)) {
-        if (!line.empty() && line[0] != '#') {
-            uint32_t firstCodePoint = 0;
-            uint32_t lastCodePoint = 0;
-            string scriptName;
+    if (readLine(line)) {
+        getVersion(line, m_version);
+    }
 
-            char *field = &line[0];
-            field = readCodePointRange(field, &firstCodePoint, &lastCodePoint);
-            field = readScriptName(field, &scriptName);
-
-            uint8_t scriptNumber = getScriptNumber(m_scriptNames, scriptName);
-            for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
-                m_scriptNumbers[codePoint] = scriptNumber;
-            }
-
-            if (lastCodePoint > m_lastCodePoint) {
-                m_lastCodePoint = lastCodePoint;
-            }
+    while (readLine(line)) {
+        if (line.empty() || line[0] == '#') {
+            continue;
         }
+
+        uint32_t firstCodePoint = 0;
+        uint32_t lastCodePoint = 0;
+        string script;
+
+        size_t index = 0;
+        index = getCodePointRange(line, index, firstCodePoint, lastCodePoint);
+        getField(line, index, FieldTerminator::Space, script);
+
+        auto id = insertScript(script);
+        for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
+            m_scripts.at(codePoint) = id;
+        }
+
+        m_lastCodePoint = max(m_lastCodePoint, lastCodePoint);
     }
 }
 
-Scripts::~Scripts() {
-    delete m_version;
-}
-
-uint32_t Scripts::firstCodePoint() const {
-    return m_firstCodePoint;
-}
-
-uint32_t Scripts::lastCodePoint() const {
-    return m_lastCodePoint;
-}
-
-UnicodeVersion &Scripts::version() const {
-    return *m_version;
-}
-
-const string &Scripts::scriptForCodePoint(uint32_t codePoint) const {
-    if (codePoint <= m_lastCodePoint) {
-        return m_scriptNames.at(m_scriptNumbers.at(codePoint));
+Scripts::ScriptID Scripts::insertScript(const string &script) {
+    auto it = m_scriptToID.find(script);
+    if (it != m_scriptToID.end()) {
+        return it->second;
     }
 
-    return SCRIPT_UNKNOWN;
+    ScriptID id = static_cast<ScriptID>(m_idToScript.size());
+    m_scriptToID[script] = id;
+    m_idToScript.push_back(script);
+
+    return id;
+}
+
+const string &Scripts::scriptOf(uint32_t codePoint) const {
+    return m_idToScript.at(m_scripts.at(codePoint));
 }
