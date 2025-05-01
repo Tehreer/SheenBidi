@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ void ScriptLookupTester::test() {
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        const string &uniScript = m_scripts.scriptForCodePoint(codePoint);
+        const string &uniScript = m_scripts.scriptOf(codePoint);
         const string &expScript = m_propertyValueAliases.abbreviationForScript(uniScript);
 
         SBScript valScript = LookupScript(codePoint);
