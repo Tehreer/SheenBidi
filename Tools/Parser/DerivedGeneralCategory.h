@@ -19,31 +19,39 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 
 namespace SheenBidi {
 namespace Parser {
 
-class DerivedGeneralCategory {
+class DerivedGeneralCategory : public DataFile {
 public:
     DerivedGeneralCategory(const std::string &directory);
-    ~DerivedGeneralCategory();
 
-    uint32_t firstCodePoint() const;
-    uint32_t lastCodePoint() const;
+    const UnicodeVersion &version() const { return m_version; }
 
-    UnicodeVersion &version() const;
-    const std::string &generalCategoryForCodePoint(uint32_t) const;
+    uint32_t firstCodePoint() const { return m_firstCodePoint; }
+    uint32_t lastCodePoint() const { return m_lastCodePoint; }
+
+    const std::string &generalCategoryOf(uint32_t codePoint) const;
 
 private:
-    uint32_t m_firstCodePoint;
-    uint32_t m_lastCodePoint;
+    using GeneralCategoryID = uint8_t;
 
-    UnicodeVersion *m_version;
-    std::vector<std::string> m_categoryNames;
-    std::vector<uint8_t> m_categoryNumbers;
+    UnicodeVersion m_version;
+
+    uint32_t m_firstCodePoint = 0;
+    uint32_t m_lastCodePoint = 0;
+
+    std::vector<GeneralCategoryID> m_generalCategories;
+    std::unordered_map<std::string, GeneralCategoryID> m_generalCategoryToID;
+    std::vector<std::string> m_idToGeneralCategory;
+
+    GeneralCategoryID insertGeneralCategory(const std::string &generalCategory);
 };
 
 }
