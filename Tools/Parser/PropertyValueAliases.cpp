@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 
 #include <cstdint>
-#include <fstream>
-#include <map>
 #include <string>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 #include "PropertyValueAliases.h"
 
@@ -26,88 +25,54 @@ using namespace std;
 using namespace SheenBidi::Parser;
 
 static const string FILE_PROPERTY_VALUE_ALIASES = "PropertyValueAliases.txt";
-
-static inline char *readPropertyName(char *field, string *name) {
-    char *start = field;
-    for (; *field != ' '; field++);
-
-    size_t length = static_cast<size_t>(distance(start, field));
-    *name = string(start, length);
-    while (*field++ != ';');
-
-    return field;
-}
-
-static inline char *readAbbreviation(char *field, string *abbr) {
-    for (; *field == ' '; field++);
-
-    char *start = field;
-    for (; *field != ' '; field++);
-
-    size_t length = static_cast<size_t>(distance(start, field));
-    *abbr = string(start, length);
-    while (*field++ != ';');
-
-    return field;
-}
-
-static inline char *readLongName(char *field, string *name) {
-    for (; *field == ' '; field++);
-
-    char *start = field;
-    for (; *field != ' ' && *field != '\0'; field++);
-
-    size_t length = static_cast<size_t>(distance(start, field));
-    *name = string(start, length);
-
-    return field;
-}
+static const string PROPERTY_CANONICAL_COMBINING_CLASS = "ccc";
+static const string PROPERTY_BIDI_CLASS = "bc";
+static const string PROPERTY_SCRIPT = "sc";
 
 PropertyValueAliases::PropertyValueAliases(const string &directory) :
-    m_firstCodePoint(0),
-    m_lastCodePoint(0),
-    m_scriptMap()
+    DataFile(directory, FILE_PROPERTY_VALUE_ALIASES)
 {
-    ifstream stream(directory + "/" + FILE_PROPERTY_VALUE_ALIASES, ios::in);
-
-    string versionLine;
-    getline(stream, versionLine);
-    m_version = new UnicodeVersion(versionLine);
-
     string line;
-    while (getline(stream, line)) {
-        if (!line.empty() && line[0] != '#') {
-            string propertyName;
-            string abbreviation;
-            string longName;
+    if (readLine(line)) {
+        getVersion(line, m_version);
+    }
 
-            char *field = &line[0];
-            field = readPropertyName(field, &propertyName);
+    while (readLine(line)) {
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
 
-            if (propertyName == "sc") {
-                field = readAbbreviation(field, &abbreviation);
-                field = readLongName(field, &longName);
+        string property;
+        string numeric;
+        string shortName;
+        string longName;
 
-                m_scriptMap[longName] = abbreviation;
-            }
+        size_t index = 0;
+        index = getField(line, index, FieldTerminator::SpaceOrSemicolon, property);
+
+        if (property != PROPERTY_CANONICAL_COMBINING_CLASS) {
+            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, shortName);
+            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, longName);
+        } else {
+            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, numeric);
+            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, shortName);
+            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, longName);
+        }
+
+        if (property == PROPERTY_BIDI_CLASS) {
+            m_bidiClassMap[longName] = shortName;
+        } else if (property == PROPERTY_SCRIPT) {
+            m_scriptMap[longName] = shortName;
         }
     }
 }
 
-PropertyValueAliases::~PropertyValueAliases() {
-    delete m_version;
+const UnicodeVersion &PropertyValueAliases::version() const {
+    return m_version;
 }
 
-uint32_t PropertyValueAliases::firstCodePoint() const {
-    return m_firstCodePoint;
-}
-
-uint32_t PropertyValueAliases::lastCodePoint() const {
-    return m_lastCodePoint;
-}
-
-UnicodeVersion &PropertyValueAliases::version() const {
-    return *m_version;
+const std::string &PropertyValueAliases::abbreviationForBidiClass(const std::string &bidiClass) const {
+    return m_bidiClassMap.at(bidiClass);
 }
 
 const std::string &PropertyValueAliases::abbreviationForScript(const string &scriptName) const {

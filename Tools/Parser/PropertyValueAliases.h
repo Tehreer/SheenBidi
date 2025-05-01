@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,25 @@
 #include <string>
 #include <map>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 
 namespace SheenBidi {
 namespace Parser {
 
-class PropertyValueAliases {
+class PropertyValueAliases : public DataFile {
 public:
     PropertyValueAliases(const std::string &directory);
-    ~PropertyValueAliases();
 
-    uint32_t firstCodePoint() const;
-    uint32_t lastCodePoint() const;
+    const UnicodeVersion &version() const;
 
-    UnicodeVersion &version() const;
+    const std::string &abbreviationForBidiClass(const std::string &bidiClass) const;
     const std::string &abbreviationForScript(const std::string &scriptName) const;
 
 private:
-    uint32_t m_firstCodePoint;
-    uint32_t m_lastCodePoint;
+    UnicodeVersion m_version;
 
-    UnicodeVersion *m_version;
+    std::map<std::string, std::string> m_bidiClassMap;
     std::map<std::string, std::string> m_scriptMap;
 };
 
