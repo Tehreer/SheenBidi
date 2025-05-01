@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
 #ifndef SHEENBIDI_GENERATOR_SCRIPT_LOOKUP_GENERATOR_H
 #define SHEENBIDI_GENERATOR_SCRIPT_LOOKUP_GENERATOR_H
 
-#include <map>
+#include <cstddef>
 #include <memory>
-#include <sstream>
+#include <string>
+#include <vector>
 
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
-
-#include "Utilities/ScriptDetector.h"
 
 namespace SheenBidi {
 namespace Generator {
@@ -42,7 +41,7 @@ public:
     void generateFile(const std::string &directory);
 
 private:
-    typedef std::vector<uint8_t> UnsafeMainDataSet;
+    typedef std::vector<const std::string *> UnsafeMainDataSet;
     typedef std::shared_ptr<UnsafeMainDataSet> MainDataSet;
 
     struct MainDataSegment {
@@ -64,12 +63,11 @@ private:
         const std::string hintLine() const;
     };
 
-    const Utilities::ScriptDetector m_scriptDetector;
-    const uint32_t m_firstCodePoint;
-    const uint32_t m_lastCodePoint;
+    const Parser::Scripts &m_scripts;
+    const Parser::PropertyValueAliases &m_propertyValueAliases;
 
-    size_t m_mainSegmentSize;
-    size_t m_branchSegmentSize;
+    size_t m_mainSegmentSize = 0;
+    size_t m_branchSegmentSize = 0;
 
     std::vector<MainDataSegment> m_dataSegments;
     std::vector<MainDataSegment *> m_dataReferences;
@@ -77,9 +75,9 @@ private:
     std::vector<BranchDataSegment> m_branchSegments;
     std::vector<BranchDataSegment *> m_branchReferences;
 
-    size_t m_dataSize;
-    size_t m_mainIndexesSize;
-    size_t m_branchIndexesSize;
+    size_t m_dataSize = 0;
+    size_t m_mainIndexesSize = 0;
+    size_t m_branchIndexesSize = 0;
 
     void collectMainData();
     void collectBranchData();
