@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,9 @@ extern "C" {
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <string>
 
-#include <Parser/UnicodeData.h>
+#include <Parser/DerivedGeneralCategory.h>
 
 #include "Utilities/Convert.h"
 #include "Utilities/Unicode.h"
@@ -40,10 +41,8 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-static const string DEFAULT_GENERAL_CATEGORY = "Cn";
-
-GeneralCategoryLookupTester::GeneralCategoryLookupTester(const UnicodeData &unicodeData) :
-    m_unicodeData(unicodeData)
+GeneralCategoryLookupTester::GeneralCategoryLookupTester(const DerivedGeneralCategory &derivedGeneralCategory) :
+    m_derivedGeneralCategory(derivedGeneralCategory)
 {
 }
 
@@ -58,8 +57,7 @@ void GeneralCategoryLookupTester::test()
     string uniGeneralCategory;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        m_unicodeData.getGeneralCategory(codePoint, uniGeneralCategory);
-        const string &expGeneralCategory = (uniGeneralCategory.length() ? uniGeneralCategory : DEFAULT_GENERAL_CATEGORY);
+        const string &expGeneralCategory = m_derivedGeneralCategory.generalCategoryOf(codePoint);
 
         SBGeneralCategory valGeneralCategory = LookupGeneralCategory(codePoint);
         const string &genGeneralCategory = Convert::generalCategoryToString(valGeneralCategory);
