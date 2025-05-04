@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,8 +53,8 @@ void BracketLookupTester::test() {
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        uint32_t expBracket = m_BidiBrackets.pairedBracketForCodePoint(codePoint);
-        char expType = m_BidiBrackets.pairedBracketTypeForCodePoint(codePoint);
+        uint32_t expBracket = m_BidiBrackets.pairedBracketOf(codePoint);
+        char expType = m_BidiBrackets.pairedBracketTypeOf(codePoint);
 
         BracketType valType;
         SBUInt32 genBracket = LookupBracketPair(codePoint, &valType);
