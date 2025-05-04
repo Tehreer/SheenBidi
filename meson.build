@@ -156,16 +156,12 @@ if build_generator
   generator_files = files(
     'Tools/Generator/Utilities/ArrayBuilder.cpp',
     'Tools/Generator/Utilities/ArrayBuilder.h',
-    'Tools/Generator/Utilities/BidiClassDetector.cpp',
-    'Tools/Generator/Utilities/BidiClassDetector.h',
     'Tools/Generator/Utilities/Converter.cpp',
     'Tools/Generator/Utilities/Converter.h',
     'Tools/Generator/Utilities/FileBuilder.cpp',
     'Tools/Generator/Utilities/FileBuilder.h',
     'Tools/Generator/Utilities/Math.cpp',
     'Tools/Generator/Utilities/Math.h',
-    'Tools/Generator/Utilities/ScriptDetector.cpp',
-    'Tools/Generator/Utilities/ScriptDetector.h',
     'Tools/Generator/Utilities/StreamBuilder.cpp',
     'Tools/Generator/Utilities/StreamBuilder.h',
     'Tools/Generator/Utilities/TextBuilder.cpp',
@@ -218,7 +214,7 @@ if not unity_mode
     'Tools/Tester/ScriptLocatorTester.cpp',
     'Tools/Tester/ScriptLocatorTester.h',
     'Tools/Tester/ScriptLookupTester.cpp',
-    'Tools/Tester/ScriptLookupTester.h',
+    'Tools/Tester/ScriptLookupTester.h'
   )
 
   tester = executable(
