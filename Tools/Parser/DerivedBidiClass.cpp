@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Muhammad Tayyab Akram
+ * Copyright (C) 2020-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib>
-#include <fstream>
 #include <string>
-#include <vector>
 
-#include "UnicodeVersion.h"
+#include "DataFile.h"
+#include "DerivedCoreProperties.h"
+#include "PropertyValueAliases.h"
+#include "PropList.h"
 #include "DerivedBidiClass.h"
 
 using namespace std;
@@ -29,109 +29,108 @@ using namespace SheenBidi::Parser;
 
 static const string FILE_DERIVED_BIDI_CLASS = "DerivedBidiClass.txt";
 static const string BIDI_CLASS_MISSING = "L";
+static const string BIDI_CLASS_BOUNDARY_NEUTRAL = "BN";
 
-static inline void initializeBidiClassNames(vector<string> &obj) {
-    obj.reserve(25);
-    obj.push_back(BIDI_CLASS_MISSING);
-}
-
-static inline uint8_t getBidiClassNumber(vector<string> &obj, const string &bidiClass) {
-    auto begin = obj.begin();
-    auto end = obj.end();
-    auto match = find(begin, end, bidiClass);
-    if (match != end) {
-        return static_cast<uint8_t>(distance(begin, match));
-    }
-
-    uint8_t number = static_cast<uint8_t>(obj.size());
-    obj.push_back(bidiClass);
-
-    return number;
-}
-
-static inline char *readCodePointRange(char *field, uint32_t *first, uint32_t *last) {
-    *first = static_cast<uint32_t>(strtoul(field, &field, 16));
-
-    if (*field == '.') {
-        *last = static_cast<uint32_t>(strtoul(field + 2, &field, 16));
-    } else {
-        *last = *first;
-    }
-
-    while (*field++ != ';');
-
-    return field;
-}
-
-static inline char *readBidiClass(char *field, string *name) {
-    char *start = field;
-    while (*start++ != ' ');
-
-    char *end = start;
-    while (*end++ != ' ');
-
-    size_t length = static_cast<size_t>(distance(start, end) - 1);
-    *name = string(start, length);
-
-    return end;
-}
-
-DerivedBidiClass::DerivedBidiClass(const string &directory) :
-    m_firstCodePoint(0),
-    m_lastCodePoint(0),
-    m_classNames(),
-    m_classNumbers(0x110000)
+DerivedBidiClass::DerivedBidiClass(const string &directory,
+    const PropList &propList,
+    const DerivedCoreProperties &derivedCoreProperties,
+    const PropertyValueAliases &propertyValueAliases) :
+    DataFile(directory, FILE_DERIVED_BIDI_CLASS),
+    m_bidiClasses(CodePointCount)
 {
-    initializeBidiClassNames(m_classNames);
-    ifstream stream(directory + "/" + FILE_DERIVED_BIDI_CLASS, ios::in);
+    // Insert the default BidiClassID for all code points.
+    insertBidiClass(BIDI_CLASS_MISSING);
 
-    string versionLine;
-    getline(stream, versionLine);
-    m_version = new UnicodeVersion(versionLine);
+    Line line;
+    string bidiClass;
+    string fullName;
 
-    string line;
-    while (getline(stream, line)) {
-        if (!line.empty() && line[0] != '#') {
-            uint32_t firstCodePoint = 0;
-            uint32_t lastCodePoint = 0;
-            string bidiClass;
+    if (readLine(line)) {
+        m_version = line.scanVersion();
+    }
 
-            char *field = &line[0];
-            field = readCodePointRange(field, &firstCodePoint, &lastCodePoint);
-            field = readBidiClass(field, &bidiClass);
+    // readMissingBidiClasses(propertyValueAliases);
+    // applyBNRules(propList, derivedCoreProperties);
+    readActualBidiClasses();
+}
 
-            uint8_t classNumber = getBidiClassNumber(m_classNames, bidiClass);
-            for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
-                m_classNumbers[codePoint] = classNumber;
+void DerivedBidiClass::readMissingBidiClasses(const PropertyValueAliases &propertyValueAliases) {
+    Line line;
+    string fullName;
+
+    while (readLine(line)) {
+        if (line.isEmpty()) {
+            continue;
+        }
+
+        if (line.match('#')) {
+            if (!line.match("@missing:", MatchRule::Trimmed)) {
+                continue;
             }
 
-            if (lastCodePoint > m_lastCodePoint) {
-                m_lastCodePoint = lastCodePoint;
+            auto range = line.parseCodePointRange();
+            line.getField(fullName);
+
+            const auto &abbreviation = propertyValueAliases.abbreviationForBidiClass(fullName);
+            auto id = insertBidiClass(abbreviation);
+
+            for (auto codePoint = range.first; codePoint <= range.second; codePoint++) {
+                m_bidiClasses.at(codePoint) = id;
             }
+
+            m_lastCodePoint = max(m_lastCodePoint, range.second);
         }
     }
 }
 
-DerivedBidiClass::~DerivedBidiClass() {
-    delete m_version;
+void DerivedBidiClass::applyBNRules(const PropList &propList, const DerivedCoreProperties &derivedCoreProperties) {
+    auto id = insertBidiClass(BIDI_CLASS_BOUNDARY_NEUTRAL);
+
+    for (uint32_t codePoint = 0; codePoint < CodePointCount; codePoint++) {
+        if (derivedCoreProperties.isDefaultIgnorable(codePoint)
+            || propList.isNoncharacter(codePoint)) {
+            m_bidiClasses.at(codePoint) = id;
+            m_lastCodePoint = max(m_lastCodePoint, codePoint);
+        }
+    }
 }
 
-uint32_t DerivedBidiClass::firstCodePoint() const {
-    return m_firstCodePoint;
+void DerivedBidiClass::readActualBidiClasses() {
+    reset();
+
+    Line line;
+    string bidiClass;
+
+    while (readLine(line)) {
+        if (line.isEmpty() || line.match('#')) {
+            continue;
+        }
+
+        auto range = line.parseCodePointRange();
+        line.getField(bidiClass);
+
+        auto id = insertBidiClass(bidiClass);
+        for (auto codePoint = range.first; codePoint <= range.second; codePoint++) {
+            m_bidiClasses.at(codePoint) = id;
+        }
+
+        m_lastCodePoint = max(m_lastCodePoint, range.second);
+    }
 }
 
-uint32_t DerivedBidiClass::lastCodePoint() const {
-    return m_lastCodePoint;
-}
-
-UnicodeVersion &DerivedBidiClass::version() const {
-    return *m_version;
-}
-
-const string &DerivedBidiClass::bidiClassForCodePoint(uint32_t codePoint) const {
-    if (codePoint <= m_lastCodePoint) {
-        return m_classNames.at(m_classNumbers.at(codePoint));
+DerivedBidiClass::BidiClassID DerivedBidiClass::insertBidiClass(const string &bidiClass) {
+    auto it = m_bidiClassToID.find(bidiClass);
+    if (it != m_bidiClassToID.end()) {
+        return it->second;
     }
 
-    return BIDI_CLASS_MISSING;
+    BidiClassID id = static_cast<BidiClassID>(m_idToBidiClass.size());
+    m_bidiClassToID[bidiClass] = id;
+    m_idToBidiClass.push_back(bidiClass);
+
+    return id;
+}
+
+const string &DerivedBidiClass::bidiClassOf(uint32_t codePoint) const {
+    return m_idToBidiClass.at(m_bidiClasses.at(codePoint));
 }
