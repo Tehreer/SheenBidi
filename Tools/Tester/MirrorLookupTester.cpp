@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ void MirrorLookupTester::test() {
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        uint32_t expMirror = m_BidiMirroring.mirrorForCodePoint(codePoint);
+        uint32_t expMirror = m_BidiMirroring.mirrorOf(codePoint);
         SBUInt32 genMirror = LookupMirror(codePoint);
 
         if (genMirror != expMirror) {
