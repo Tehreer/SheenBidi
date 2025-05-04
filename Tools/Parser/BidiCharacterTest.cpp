@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <fstream>
 #include <string>
 
+#include "DataFile.h"
 #include "BidiCharacterTest.h"
 
 using namespace std;
 using namespace SheenBidi::Parser;
 
-static const string BIDI_CHARACTER_TEST_FILE = "BidiCharacterTest.txt";
+static const string FILE_BIDI_CHARACTER_TEST = "BidiCharacterTest.txt";
 
 static inline void initializeTestCase(BidiCharacterTest::TestCase &testCase) {
     const int DefaultLength = 32;
@@ -33,140 +32,25 @@ static inline void initializeTestCase(BidiCharacterTest::TestCase &testCase) {
     testCase.order.reserve(DefaultLength);
 }
 
-static inline void clearText(BidiCharacterTest::TestCase &testCase) {
-    testCase.text.clear();
-}
-
-static inline void addCodePoint(BidiCharacterTest::TestCase &testCase, uint32_t codePoint) {
-    testCase.text.push_back(codePoint);
-}
-
-static inline size_t readText(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
-    clearText(testCase);
-
-    uint32_t codePoint = 0;
-    uint32_t shift = 12;
-
-    for (; index < line.length(); index++) {
-        if (line[index] == ';') {
-            break;
-        }
-
-        if (line[index] == ' ') {
-            addCodePoint(testCase, codePoint);
-            codePoint = 0;
-            shift = 12;
-        } else {
-            uint32_t digit = (line[index] <= '9' ? line[index] - '0' : line[index] - 'A' + 10);
-            codePoint += digit << shift;
-            shift -= 4;
-        }
-    }
-    addCodePoint(testCase, codePoint);
-
-    return (index + 1);
-}
-
-static inline size_t readParagraphDirection(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
-    testCase.paragraphDirection = (BidiCharacterTest::ParagraphDirection)(line.at(index) - '0');
-    return (index + 2);
-}
-
-static inline size_t readParagraphLevel(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
-    testCase.paragraphLevel = (line.at(index) - '0');
-    return (index + 2);
-}
-
-static inline void clearLevels(BidiCharacterTest::TestCase &testCase) {
-    testCase.levels.clear();
-}
-
-static inline void addLevel(BidiCharacterTest::TestCase &testCase, uint8_t level) {
-    testCase.levels.push_back(level);
-}
-
-static inline size_t readLevels(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
-    clearLevels(testCase);
-
-    uint8_t level = 0;
-
-    for (; index < line.length(); index++) {
-        if (line[index] == ';') {
-            break;
-        }
-
-        if (line[index] == ' ') {
-            addLevel(testCase, level);
-            level = 0;
-        } else if (line[index] == 'x') {
-            level = BidiCharacterTest::LEVEL_X;
-        } else {
-            level *= 10;
-            level += line[index] - '0';
-        }
-    }
-    addLevel(testCase, level);
-
-    return (index + 1);
-}
-
-static inline void clearOrder(BidiCharacterTest::TestCase &testCase) {
-    testCase.order.clear();
-}
-
-static inline void addOrderIndex(BidiCharacterTest::TestCase &testCase, size_t index) {
-    testCase.order.push_back(index);
-}
-
-static inline size_t readOrder(BidiCharacterTest::TestCase &testCase, const string &line, size_t index) {
-    clearOrder(testCase);
-
-    size_t order = 0;
-
-    for (; index < line.length(); index++) {
-        if (line[index] == ' ') {
-            addOrderIndex(testCase, order);
-            order = 0;
-        } else {
-            order *= 10;
-            order += line[index] - '0';
-        }
-    }
-    addOrderIndex(testCase, order);
-
-    return index;
-}
-
-BidiCharacterTest::BidiCharacterTest(const string &directory) {
-    auto filePath = directory + "/" + BIDI_CHARACTER_TEST_FILE;
-    m_stream.open(filePath, ios::in);
-    if (!m_stream.is_open()) {
-        throw runtime_error("Failed to open file: " + filePath);
-    }
-
+BidiCharacterTest::BidiCharacterTest(const string &directory) :
+    DataFile(directory, FILE_BIDI_CHARACTER_TEST)
+{
     initializeTestCase(m_testCase);
 }
 
-BidiCharacterTest::~BidiCharacterTest() {
-    m_stream.close();
-}
-
-const BidiCharacterTest::TestCase &BidiCharacterTest::testCase() const {
-    return m_testCase;
-}
-
 bool BidiCharacterTest::fetchNext() {
-    while (getline(m_stream, m_line)) {
-        if (m_line.empty() || m_line[0] == '#') {
+    clearTestCase();
+
+    while (readLine(m_line)) {
+        if (m_line.isEmpty() || m_line.match('#')) {
             continue;
         }
 
-        size_t index = 0;
-        index = readText(m_testCase, m_line, index);
-        index = readParagraphDirection(m_testCase, m_line, index);
-        index = readParagraphLevel(m_testCase, m_line, index);
-        index = readLevels(m_testCase, m_line, index);
-        index = readOrder(m_testCase, m_line, index);
+        readText();
+        readParagraphDirection();
+        readParagraphLevel();
+        readLevels();
+        readOrder();
 
         return true;
     }
@@ -174,6 +58,56 @@ bool BidiCharacterTest::fetchNext() {
     return false;
 }
 
+void BidiCharacterTest::clearTestCase() {
+    m_testCase.paragraphDirection = ParagraphDirection::LTR;
+    m_testCase.paragraphLevel = 0;
+    m_testCase.text.clear();
+    m_testCase.levels.clear();
+    m_testCase.order.clear();
+}
+
+void BidiCharacterTest::readText() {
+    while (!m_line.match(';')) {
+        CodePoint codePoint = m_line.parseNumber(16);
+        m_testCase.text.push_back(codePoint);
+    }
+}
+
+void BidiCharacterTest::readParagraphDirection() {
+    auto paragraphDirection = m_line.parseNumber();
+    m_line.skip(SkipMode::Field);
+
+    m_testCase.paragraphDirection = static_cast<ParagraphDirection>(paragraphDirection);
+}
+
+void BidiCharacterTest::readParagraphLevel() {
+    auto paragraphLevel = m_line.parseNumber();
+    m_line.skip(SkipMode::Field);
+
+    m_testCase.paragraphLevel = static_cast<Level>(paragraphLevel);
+}
+
+void BidiCharacterTest::readLevels() {
+    while (!m_line.match(';')) {
+        Level level;
+
+        if (m_line.match("x", MatchRule::Trimmed)) {
+            level = LEVEL_X;
+        } else {
+            level = static_cast<Level>(m_line.parseNumber());
+        }
+
+        m_testCase.levels.push_back(level);
+    }
+}
+
+void BidiCharacterTest::readOrder() {
+    while (m_line.hasMore()) {
+        OrderIndex index = m_line.parseNumber();
+        m_testCase.order.push_back(index);
+    }
+}
+
 void BidiCharacterTest::reset() {
-    m_stream.seekg(0);
+    DataFile::reset();
 }

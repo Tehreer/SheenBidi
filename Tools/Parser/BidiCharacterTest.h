@@ -17,16 +17,22 @@
 #ifndef SHEENBIDI_PARSER_BIDI_CHARACTER_TEST_H
 #define SHEENBIDI_PARSER_BIDI_CHARACTER_TEST_H
 
+#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <string>
 #include <vector>
+
+#include "DataFile.h"
 
 namespace SheenBidi {
 namespace Parser {
 
-class BidiCharacterTest {
+class BidiCharacterTest : public DataFile {
 public:
+    using CodePoint = uint32_t;
+    using Level = uint8_t;
+    using OrderIndex = size_t;
+
     static const uint8_t LEVEL_X = UINT8_MAX;
 
     enum ParagraphDirection {
@@ -37,24 +43,29 @@ public:
 
     struct TestCase {
         ParagraphDirection paragraphDirection;
-        uint8_t paragraphLevel;
-        std::vector<uint32_t> text;
-        std::vector<uint8_t> levels;
-        std::vector<size_t> order;
+        Level paragraphLevel;
+        std::vector<CodePoint> text;
+        std::vector<Level> levels;
+        std::vector<OrderIndex> order;
     };
 
     BidiCharacterTest(const std::string &directory);
-    ~BidiCharacterTest();
 
-    const TestCase &testCase() const;
+    const TestCase &testCase() const { return m_testCase; }
 
     bool fetchNext();
     void reset();
 
 private:
-    std::ifstream m_stream;
-    std::string m_line;
+    Line m_line;
     TestCase m_testCase;
+
+    void clearTestCase();
+    void readText();
+    void readParagraphDirection();
+    void readParagraphLevel();
+    void readLevels();
+    void readOrder();
 };
 
 }
