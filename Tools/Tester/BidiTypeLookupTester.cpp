@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,6 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Tester;
 using namespace SheenBidi::Tester::Utilities;
 
-static const string BIDI_TYPE_DEFAULT = "ON";
-
 BidiTypeLookupTester::BidiTypeLookupTester(const DerivedBidiClass &derivedBidiClass) :
     m_derivedBidiClass(derivedBidiClass)
 {
@@ -57,8 +55,7 @@ void BidiTypeLookupTester::test() {
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        const string &uniBidiType = m_derivedBidiClass.bidiClassForCodePoint(codePoint);
-        const string &expBidiType = (uniBidiType.length() ? uniBidiType : BIDI_TYPE_DEFAULT);
+        const auto &expBidiType = m_derivedBidiClass.bidiClassOf(codePoint);
 
         SBBidiType valBidiType = LookupBidiType(codePoint);
         const string &genBidiType = Convert::bidiTypeToString(valBidiType);

@@ -23,10 +23,11 @@
 #include <Parser/BidiMirroring.h>
 #include <Parser/BidiTest.h>
 #include <Parser/DerivedBidiClass.h>
+#include <Parser/DerivedCoreProperties.h>
 #include <Parser/DerivedGeneralCategory.h>
 #include <Parser/PropertyValueAliases.h>
+#include <Parser/PropList.h>
 #include <Parser/Scripts.h>
-#include <Parser/UnicodeData.h>
 
 #include "AlgorithmTester.h"
 #include "BidiTypeLookupTester.h"
@@ -44,15 +45,16 @@ using namespace SheenBidi::Tester;
 int main(int argc, const char *argv[]) {
     const char *dir = argv[1];
 
-    UnicodeData unicodeData(dir);
     BidiMirroring bidiMirroring(dir);
     BidiBrackets bidiBrackets(dir);
     BidiTest bidiTest(dir);
     BidiCharacterTest bidiCharacterTest(dir);
-    DerivedBidiClass derivedBidiClass(dir);
+    PropList propList(dir);
+    DerivedCoreProperties derivedCoreProperties(dir);
+    PropertyValueAliases propertyValueAliases(dir);
+    DerivedBidiClass derivedBidiClass(dir, propList, derivedCoreProperties, propertyValueAliases);
     DerivedGeneralCategory derivedGeneralCategory(dir);
     Scripts scripts(dir);
-    PropertyValueAliases propertyValueAliases(dir);
 
     BidiTypeLookupTester bidiTypeLookupTester(derivedBidiClass);
     CodepointSequenceTester codepointSequenceTester;
