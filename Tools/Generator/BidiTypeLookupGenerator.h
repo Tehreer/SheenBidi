@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 #ifndef SHEENBIDI_GENERATOR_BIDI_TYPE_LOOKUP_GENERATOR_H
 #define SHEENBIDI_GENERATOR_BIDI_TYPE_LOOKUP_GENERATOR_H
 
-#include <map>
+#include <cstddef>
 #include <memory>
-#include <sstream>
+#include <string>
+#include <vector>
 
 #include <Parser/DerivedBidiClass.h>
-
-#include "Utilities/BidiClassDetector.h"
 
 namespace SheenBidi {
 namespace Generator {
@@ -41,7 +40,7 @@ public:
     void generateFile(const std::string &directory);
 
 private:
-    typedef std::vector<uint8_t> UnsafeMainDataSet;
+    typedef std::vector<const std::string *> UnsafeMainDataSet;
     typedef std::shared_ptr<UnsafeMainDataSet> MainDataSet;
 
     struct MainDataSegment {
@@ -63,11 +62,10 @@ private:
         const std::string hintLine() const;
     };
 
-    const Utilities::BidiClassDetector m_bidiClassDetector;
-    uint32_t m_lastCodePoint;
+    const Parser::DerivedBidiClass &m_derivedBidiClass;
 
-    size_t m_mainSegmentSize;
-    size_t m_branchSegmentSize;
+    size_t m_mainSegmentSize = 0;
+    size_t m_branchSegmentSize = 0;
 
     std::vector<MainDataSegment> m_dataSegments;
     std::vector<MainDataSegment *> m_dataReferences;
@@ -75,9 +73,9 @@ private:
     std::vector<BranchDataSegment> m_branchSegments;
     std::vector<BranchDataSegment *> m_branchReferences;
 
-    size_t m_dataSize;
-    size_t m_mainIndexesSize;
-    size_t m_branchIndexesSize;
+    size_t m_dataSize = 0;
+    size_t m_mainIndexesSize = 0;
+    size_t m_branchIndexesSize = 0;
 
     void collectMainData();
     void collectBranchData();

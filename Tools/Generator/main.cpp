@@ -19,13 +19,13 @@
 #include <string>
 
 #include <Parser/BidiBrackets.h>
-#include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
 #include <Parser/DerivedBidiClass.h>
+#include <Parser/DerivedCoreProperties.h>
 #include <Parser/DerivedGeneralCategory.h>
 #include <Parser/PropertyValueAliases.h>
+#include <Parser/PropList.h>
 #include <Parser/Scripts.h>
-#include <Parser/UnicodeData.h>
 #include <Parser/UnicodeVersion.h>
 
 #include "BidiTypeLookupGenerator.h"
@@ -46,13 +46,14 @@ int main(int argc, const char * argv[])
     const string in = argc >= 2 ? argv[1] : "Tools/Unicode";
     const string out = argc == 3 ? argv[2] : "Source";
 
-    UnicodeData unicodeData(in);
     BidiMirroring bidiMirroring(in);
     BidiBrackets bidiBrackets(in);
-    DerivedBidiClass derivedBidiClass(in);
+    PropList propList(in);
+    DerivedCoreProperties derivedCoreProperties(in);
+    PropertyValueAliases propertyValueAliases(in);
+    DerivedBidiClass derivedBidiClass(in, propList, derivedCoreProperties, propertyValueAliases);
     DerivedGeneralCategory derivedGeneralCategory(in);
     Scripts scripts(in);
-    PropertyValueAliases propertyValueAliases(in);
 
     cout << "Generating files." << endl;
 

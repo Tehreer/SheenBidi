@@ -15,6 +15,8 @@
  */
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -70,11 +72,8 @@ const string BidiTypeLookupGenerator::BranchDataSegment::hintLine() const {
     return ("/* INDEX_BLOCK: -- 0x" + Converter::toHex(index, 4) + "..0x" + Converter::toHex(index + dataset->size() - 1, 4) + " -- */");
 }
 
-BidiTypeLookupGenerator::BidiTypeLookupGenerator(const DerivedBidiClass &derivedBidiClass)
-    : m_bidiClassDetector(derivedBidiClass)
-    , m_lastCodePoint(derivedBidiClass.lastCodePoint())
-    , m_mainSegmentSize(0)
-    , m_branchSegmentSize(0)
+BidiTypeLookupGenerator::BidiTypeLookupGenerator(const DerivedBidiClass &derivedBidiClass) :
+    m_derivedBidiClass(derivedBidiClass)
 {
 }
 
@@ -87,14 +86,15 @@ void BidiTypeLookupGenerator::setBranchSegmentSize(size_t segmentSize) {
 }
 
 void BidiTypeLookupGenerator::displayBidiClassesFrequency() {
-    map<uint8_t, size_t> frequency;
+    map<string, size_t> frequency;
 
-    for (uint32_t i = 0; i <= m_lastCodePoint; i++) {
-        frequency[m_bidiClassDetector.numberForCodePoint(i)]++;
+    auto last = m_derivedBidiClass.lastCodePoint();
+    for (uint32_t codePoint = 0; codePoint <= last; codePoint++) {
+        frequency[m_derivedBidiClass.bidiClassOf(codePoint)] += 1;
     }
 
-    for (auto &element : frequency) {
-        cout << m_bidiClassDetector.numberToName(element.first) << " Code Points: " << element.second << endl;
+    for (const auto &element : frequency) {
+        cout << element.first << " Code Points: " << element.second << endl;
     }
 }
 
@@ -135,7 +135,8 @@ void BidiTypeLookupGenerator::analyzeData() {
 }
 
 void BidiTypeLookupGenerator::collectMainData() {
-    size_t maxSegments = Math::FastCeil(m_lastCodePoint, m_mainSegmentSize);
+    auto lastCodePoint = m_derivedBidiClass.lastCodePoint();
+    size_t maxSegments = Math::FastCeil(lastCodePoint, m_mainSegmentSize);
 
     m_dataSegments.clear();
     m_dataSegments.reserve(maxSegments);
@@ -145,22 +146,15 @@ void BidiTypeLookupGenerator::collectMainData() {
 
     m_dataSize = 0;
 
-    uint8_t defaultBidiClass = m_bidiClassDetector.nameToNumber("ON");
-
     for (size_t i = 0; i < maxSegments; i++) {
         uint32_t segmentStart = (uint32_t)(i * m_mainSegmentSize);
-        uint32_t segmentEnd = min(m_lastCodePoint, (uint32_t)(segmentStart + m_mainSegmentSize - 1));
+        uint32_t segmentEnd = min(lastCodePoint, (uint32_t)(segmentStart + m_mainSegmentSize - 1));
 
         MainDataSet dataset(new UnsafeMainDataSet());
         dataset->reserve(m_mainSegmentSize);
 
-        for (uint32_t unicode = segmentStart; unicode <= segmentEnd; unicode++) {
-            uint8_t number = m_bidiClassDetector.numberForCodePoint(unicode);
-            if (number) {
-                dataset->push_back(number);
-            } else {
-                dataset->push_back(defaultBidiClass);
-            }
+        for (uint32_t codePoint = segmentStart; codePoint <= segmentEnd; codePoint++) {
+            dataset->push_back(&m_derivedBidiClass.bidiClassOf(codePoint));
         }
 
         size_t segmentIndex = SIZE_MAX;
@@ -230,19 +224,16 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     collectMainData();
     collectBranchData();
 
-    std::set<string> bidiTypes;
+    set<string> bidiTypes;
 
     ArrayBuilder arrData;
     arrData.setDataType(DATA_ARRAY_TYPE);
     arrData.setName(DATA_ARRAY_NAME);
     arrData.setElementSpace(3);
-    arrData.setSizeDescriptor(Converter::toString((int)m_dataSize));
+    arrData.setSizeDescriptor(to_string(m_dataSize));
 
-    auto dataPtr = m_dataSegments.begin();
-    auto dataEnd = m_dataSegments.end();
-    for (; dataPtr != dataEnd; dataPtr++) {
-        const MainDataSegment &segment = *dataPtr;
-        bool isLast = (dataPtr == (dataEnd - 1));
+    for (const auto &segment : m_dataSegments) {
+        bool isLast = (&segment == &m_dataSegments.back());
 
         arrData.append(segment.hintLine());
         arrData.newLine();
@@ -250,9 +241,9 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
         size_t length = segment.dataset->size();
 
         for (size_t j = 0; j < length; j++) {
-            const string &bidiType = m_bidiClassDetector.numberToName(segment.dataset->at(j));
-            bidiTypes.insert(bidiType);
-            arrData.appendElement(bidiType);
+            const auto &bidiClass = *segment.dataset->at(j);
+            bidiTypes.insert(bidiClass);
+            arrData.appendElement(bidiClass);
 
             if (!isLast || j != (length - 1)) {
                 arrData.newElement();
@@ -267,14 +258,10 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     ArrayBuilder arrMainIndexes;
     arrMainIndexes.setDataType(MAIN_INDEXES_ARRAY_TYPE);
     arrMainIndexes.setName(MAIN_INDEXES_ARRAY_NAME);
-    arrMainIndexes.setSizeDescriptor(Converter::toString((int)m_mainIndexesSize));
+    arrMainIndexes.setSizeDescriptor(to_string(m_mainIndexesSize));
 
-    size_t segmentStart = 0;
-    auto mainIndexPtr = m_branchSegments.begin();
-    auto mainIndexEnd = m_branchSegments.end();
-    for (; mainIndexPtr != mainIndexEnd; mainIndexPtr++) {
-        const BranchDataSegment &segment = *mainIndexPtr;
-        bool isLast = (mainIndexPtr == (mainIndexEnd - 1));
+    for (const auto &segment : m_branchSegments) {
+        bool isLast = (&segment == &m_branchSegments.back());
 
         arrMainIndexes.append(segment.hintLine());
         arrMainIndexes.newLine();
@@ -293,33 +280,26 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
         if (!isLast) {
             arrMainIndexes.newLine();
         }
-
-        segmentStart += m_mainSegmentSize;
     }
 
     ArrayBuilder arrBranchIndexes;
     arrBranchIndexes.setDataType(BRANCH_INDEXES_ARRAY_TYPE);
     arrBranchIndexes.setName(BRANCH_INDEXES_ARRAY_NAME);
-    arrBranchIndexes.setSizeDescriptor(Converter::toString((int)m_branchIndexesSize));
+    arrBranchIndexes.setSizeDescriptor(to_string(m_branchIndexesSize));
 
-    segmentStart = 0;
-    auto branchIndexPtr = m_branchReferences.begin();
-    auto branchIndexEnd = m_branchReferences.end();
-    for (; branchIndexPtr != branchIndexEnd; branchIndexPtr++) {
-        const BranchDataSegment &segment = **branchIndexPtr;
-        bool isLast = (branchIndexPtr == (branchIndexEnd - 1));
+    for (const auto &branchReference : m_branchReferences) {
+        const auto &segment = *branchReference;
+        bool isLast = (&branchReference == &m_branchReferences.back());
         string element = "0x" + Converter::toHex(segment.index, 4);
 
         arrBranchIndexes.appendElement(element);
         if (!isLast) {
             arrBranchIndexes.newElement();
         }
-
-        segmentStart += m_branchSegmentSize;
     }
 
     TextBuilder lookupFunction;
-    string maxUnicode = "0x" + Converter::toHex(m_lastCodePoint, 6);
+    string maxUnicode = "0x" + Converter::toHex(m_derivedBidiClass.lastCodePoint(), 6);
     string mainDivider = "0x" + Converter::toHex(m_mainSegmentSize, 4);
     string branchDivider = "0x" + Converter::toHex(m_mainSegmentSize * m_branchSegmentSize, 4);
     lookupFunction.append("SB_INTERNAL SBBidiType LookupBidiType(SBCodepoint codepoint)").newLine();
@@ -360,25 +340,28 @@ void BidiTypeLookupGenerator::generateFile(const std::string &directory) {
     source.append(" * Automatically generated by SheenBidiGenerator tool.").newLine();
     source.append(" * DO NOT EDIT!!").newLine();
     source.append(" *").newLine();
-    source.append(" * REQUIRED MEMORY: " + Converter::toString((int)m_dataSize)
-                  + "+(" + Converter::toString((int)m_mainIndexesSize) + "*2)+("
-                  + Converter::toString((int)m_branchIndexesSize) + "*2) = "
-                  + Converter::toString((int)(m_dataSize + m_mainIndexesSize*2 + m_branchIndexesSize*2))
+    source.append(" * REQUIRED MEMORY: " + to_string(m_dataSize)
+                  + "+(" + to_string(m_mainIndexesSize) + "*2)+("
+                  + to_string(m_branchIndexesSize) + "*2) = "
+                  + to_string((m_dataSize + m_mainIndexesSize*2 + m_branchIndexesSize*2))
                   + " Bytes").newLine();
     source.append(" */").newLine();
     source.newLine();
     source.append("#include \"BidiTypeLookup.h\"").newLine();
     source.newLine();
-    for (auto ct : bidiTypes) {
-        string str = ct + string(3 - ct.length(), ' ');
+
+    for (auto bt : bidiTypes) {
+        string str = bt + string(3 - bt.length(), ' ');
         source.append("#define " + str).appendTab().append(" SBBidiType" + str).newLine();
     }
+
     source.newLine();
     source.append(arrData).newLine();
     source.append(arrMainIndexes).newLine();
     source.append(arrBranchIndexes).newLine();
     source.append(lookupFunction).newLine();
-    for (auto ct : bidiTypes) {
-        source.append("#undef " + ct).newLine();
+
+    for (auto bt : bidiTypes) {
+        source.append("#undef " + bt).newLine();
     }
 }
