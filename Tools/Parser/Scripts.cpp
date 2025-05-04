@@ -15,12 +15,10 @@
  */
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <string>
 
 #include "DataFile.h"
-#include "UnicodeVersion.h"
 #include "Scripts.h"
 
 using namespace std;
@@ -33,36 +31,33 @@ static const string SCRIPT_INHERITED = "Inherited";
 
 Scripts::Scripts(const string &directory) :
     DataFile(directory, FILE_SCRIPTS),
-    m_scripts(MAX_CODE_POINTS)
+    m_scripts(CodePointCount)
 {
     insertScript(SCRIPT_UNKNOWN);
     insertScript(SCRIPT_COMMON);
     insertScript(SCRIPT_INHERITED);
 
-    string line;
+    Line line;
+    string script;
+
     if (readLine(line)) {
-        getVersion(line, m_version);
+        m_version = line.scanVersion();
     }
 
     while (readLine(line)) {
-        if (line.empty() || line[0] == '#') {
+        if (line.isEmpty() || line.match('#')) {
             continue;
         }
 
-        uint32_t firstCodePoint = 0;
-        uint32_t lastCodePoint = 0;
-        string script;
-
-        size_t index = 0;
-        index = getCodePointRange(line, index, firstCodePoint, lastCodePoint);
-        getField(line, index, FieldTerminator::Space, script);
+        auto range = line.parseCodePointRange();
+        line.getField(script);
 
         auto id = insertScript(script);
-        for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
+        for (auto codePoint = range.first; codePoint <= range.second; codePoint++) {
             m_scripts.at(codePoint) = id;
         }
 
-        m_lastCodePoint = max(m_lastCodePoint, lastCodePoint);
+        m_lastCodePoint = max(m_lastCodePoint, range.second);
     }
 }
 

@@ -15,12 +15,10 @@
  */
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <string>
 
 #include "DataFile.h"
-#include "UnicodeVersion.h"
 #include "DerivedGeneralCategory.h"
 
 using namespace std;
@@ -31,35 +29,32 @@ static const string GENERAL_CATEGORY_DEFAULT = "Cn";
 
 DerivedGeneralCategory::DerivedGeneralCategory(const string &directory) :
     DataFile(directory, FILE_DERIVED_GENERAL_CATEGORY),
-    m_generalCategories(MAX_CODE_POINTS)
+    m_generalCategories(CodePointCount)
 {
     // Insert the default GeneralCategoryID for all code points.
     insertGeneralCategory(GENERAL_CATEGORY_DEFAULT);
 
-    string line;
+    Line line;
+    string generalCategory;
+
     if (readLine(line)) {
-        getVersion(line, m_version);
+        m_version = line.scanVersion();
     }
 
     while (readLine(line)) {
-        if (line.empty() || line[0] == '#') {
+        if (line.isEmpty() || line.match('#')) {
             continue;
         }
 
-        uint32_t firstCodePoint = 0;
-        uint32_t lastCodePoint = 0;
-        string generalCategory;
-
-        size_t index = 0;
-        index = getCodePointRange(line, index, firstCodePoint, lastCodePoint);
-        getField(line, index, FieldTerminator::Space, generalCategory);
+        auto range = line.parseCodePointRange();
+        line.getField(generalCategory);
 
         auto id = insertGeneralCategory(generalCategory);
-        for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
+        for (auto codePoint = range.first; codePoint <= range.second; codePoint++) {
             m_generalCategories.at(codePoint) = id;
         }
 
-        m_lastCodePoint = max(m_lastCodePoint, lastCodePoint);
+        m_lastCodePoint = max(m_lastCodePoint, range.second);
     }
 }
 

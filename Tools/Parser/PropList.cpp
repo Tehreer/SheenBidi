@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "DataFile.h"
-#include "UnicodeVersion.h"
 #include "PropList.h"
 
 using namespace std;
@@ -30,28 +29,25 @@ static const string PROPERTY_NONCHARACTER = "Noncharacter_Code_Point";
 
 PropList::PropList(const string &directory) :
     DataFile(directory, FILE_PROP_LIST),
-    m_codePointProperties(MAX_CODE_POINTS)
+    m_codePointProperties(CodePointCount)
 {
-    string line;
+    Line line;
+    string propertyName;
+
     if (readLine(line)) {
-        getVersion(line, m_version);
+        m_version = line.scanVersion();
     }
 
     while (readLine(line)) {
-        if (line.empty() || line[0] == '#') {
+        if (line.isEmpty() || line.match('#')) {
             continue;
         }
 
-        uint32_t firstCodePoint = 0;
-        uint32_t lastCodePoint = 0;
-        string propertyName;
-
-        size_t index = 0;
-        index = getCodePointRange(line, index, firstCodePoint, lastCodePoint);
-        getField(line, index, FieldTerminator::Space, propertyName);
+        auto range = line.parseCodePointRange();
+        line.getField(propertyName);
 
         auto propertyBit = insertProperty(propertyName);
-        for (uint32_t codePoint = firstCodePoint; codePoint <= lastCodePoint; codePoint++) {
+        for (auto codePoint = range.first; codePoint <= range.second; codePoint++) {
             m_codePointProperties.at(codePoint).set(propertyBit);
         }
     }
@@ -61,10 +57,6 @@ PropList::PropList(const string &directory) :
 
 PropList::PropertyBit PropList::insertProperty(const string &property) {
     return m_propertyToBit.insert({property, m_propertyToBit.size()}).first->second;
-}
-
-const UnicodeVersion &PropList::version() const {
-    return m_version;
 }
 
 vector<string> PropList::getProperties(uint32_t codePoint) const {

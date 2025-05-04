@@ -20,6 +20,7 @@
 #include <fstream>
 #include <cstdint>
 #include <string>
+#include <utility>
 
 #include "UnicodeVersion.h"
 
@@ -28,26 +29,60 @@ namespace Parser {
 
 class DataFile {
 protected:
-    static constexpr uint32_t MAX_CODE_POINTS = 0x110000;
+    static constexpr uint32_t CodePointCount = 0x110000;
 
-    enum class FieldTerminator {
-        Space,              // Field ends at first space
-        Semicolon,          // Field ends at first semicolon
-        SpaceOrSemicolon    // Field ends at either space or semicolon
+    static const std::string Whitespace;
+    static const std::string Semicolon;
+    static const std::string WhitespaceOrSemicolon;
+
+    enum class SkipMode {
+        Whitespaces,    // Skip whitespaces
+        Field           // Skip field ending at semicolon
+    };
+
+    enum class MatchRule {
+        Strict,         // Match exactly at the current index
+        Trimmed         // Skip leading spaces before match and trailing spaces after match
+    };
+
+    using CodePointRange = std::pair<uint32_t, uint32_t>;
+
+    class Line {
+    public:
+        Line() = default;
+        Line(const std::string &data) : m_data(data) { }
+
+        UnicodeVersion scanVersion();
+
+        void skip(SkipMode skipMode);
+        bool match(char character);
+        bool match(const std::string &matchString, MatchRule matchRule = MatchRule::Strict);
+
+        bool getUntil(const std::string &separators, std::string &text);
+        bool getField(std::string &field);
+
+        uint32_t parseNumber(int base = 10);
+        uint32_t parseSingleCodePoint();
+        CodePointRange parseCodePointRange();
+
+        bool isEmpty() const { return m_data.empty(); }
+        size_t position() const { return m_position; }
+        bool hasMore() const { return m_position < m_data.length(); }
+
+    private:
+        std::string m_data;
+        size_t m_position = 0;
     };
 
     DataFile(const std::string &directory, const std::string &fileName);
     virtual ~DataFile();
 
-    bool readLine(std::string &line);
-
-    void getVersion(const std::string &line, UnicodeVersion &version);
-    size_t getField(const std::string &line, size_t index, FieldTerminator terminator, std::string &field);
-    size_t getCodePoint(const std::string &line, size_t index, uint32_t &codePoint);
-    size_t getCodePointRange(const std::string &line, size_t index, uint32_t &first, uint32_t &last);
+    bool readLine(Line &line);
+    bool reset();
 
 private:
     std::ifstream m_stream;
+    std::string m_data;
 };
 
 }

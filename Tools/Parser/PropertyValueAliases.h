@@ -17,7 +17,6 @@
 #ifndef SHEENBIDI_PARSER_PROPERTY_VALUE_ALIASES_H
 #define SHEENBIDI_PARSER_PROPERTY_VALUE_ALIASES_H
 
-#include <cstdint>
 #include <string>
 #include <map>
 
@@ -31,7 +30,7 @@ class PropertyValueAliases : public DataFile {
 public:
     PropertyValueAliases(const std::string &directory);
 
-    const UnicodeVersion &version() const;
+    const UnicodeVersion &version() const { return m_version; }
 
     const std::string &abbreviationForBidiClass(const std::string &bidiClass) const;
     const std::string &abbreviationForScript(const std::string &scriptName) const;

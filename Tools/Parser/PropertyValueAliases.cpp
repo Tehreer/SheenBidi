@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-#include <cstdint>
 #include <string>
 
 #include "DataFile.h"
-#include "UnicodeVersion.h"
 #include "PropertyValueAliases.h"
 
 using namespace std;
@@ -32,31 +30,30 @@ static const string PROPERTY_SCRIPT = "sc";
 PropertyValueAliases::PropertyValueAliases(const string &directory) :
     DataFile(directory, FILE_PROPERTY_VALUE_ALIASES)
 {
-    string line;
+    Line line;
+    string property;
+    string numeric;
+    string shortName;
+    string longName;
+
     if (readLine(line)) {
-        getVersion(line, m_version);
+        m_version = line.scanVersion();
     }
 
     while (readLine(line)) {
-        if (line.empty() || line[0] == '#') {
+        if (line.isEmpty() || line.match('#')) {
             continue;
         }
 
-        string property;
-        string numeric;
-        string shortName;
-        string longName;
-
-        size_t index = 0;
-        index = getField(line, index, FieldTerminator::SpaceOrSemicolon, property);
+        line.getField(property);
 
         if (property != PROPERTY_CANONICAL_COMBINING_CLASS) {
-            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, shortName);
-            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, longName);
+            line.getField(shortName);
+            line.getField(longName);
         } else {
-            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, numeric);
-            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, shortName);
-            index = getField(line, index, FieldTerminator::SpaceOrSemicolon, longName);
+            line.getField(numeric);
+            line.getField(shortName);
+            line.getField(longName);
         }
 
         if (property == PROPERTY_BIDI_CLASS) {
@@ -67,14 +64,10 @@ PropertyValueAliases::PropertyValueAliases(const string &directory) :
     }
 }
 
-const UnicodeVersion &PropertyValueAliases::version() const {
-    return m_version;
-}
-
-const std::string &PropertyValueAliases::abbreviationForBidiClass(const std::string &bidiClass) const {
+const string &PropertyValueAliases::abbreviationForBidiClass(const string &bidiClass) const {
     return m_bidiClassMap.at(bidiClass);
 }
 
-const std::string &PropertyValueAliases::abbreviationForScript(const string &scriptName) const {
+const string &PropertyValueAliases::abbreviationForScript(const string &scriptName) const {
     return m_scriptMap.at(scriptName);
 }

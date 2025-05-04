@@ -33,9 +33,9 @@ class PropList : public DataFile {
 public:
     PropList(const std::string &directory);
 
-    const UnicodeVersion &version() const;
-    std::vector<std::string> getProperties(uint32_t codePoint) const;
+    const UnicodeVersion &version() const { return m_version; }
 
+    std::vector<std::string> getProperties(uint32_t codePoint) const;
     bool hasProperty(uint32_t codePoint, const std::string &property) const;
     bool isNoncharacter(uint32_t codePoint) const;
 
