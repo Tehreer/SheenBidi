@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,30 @@
 #include <string>
 #include <vector>
 
+#include "DataFile.h"
 #include "UnicodeVersion.h"
 
 namespace SheenBidi {
 namespace Parser {
 
-class BidiBrackets {
+class BidiBrackets : public DataFile {
 public:
     BidiBrackets(const std::string &directory);
-    ~BidiBrackets();
 
-    uint32_t firstCodePoint() const;
-    uint32_t lastCodePoint() const;
+    const UnicodeVersion &version() const { return m_version; }
 
-    UnicodeVersion &version() const;
-    uint32_t pairedBracketForCodePoint(uint32_t) const;
-    char pairedBracketTypeForCodePoint(uint32_t) const;
+    uint32_t firstCodePoint() const { return m_firstCodePoint; }
+    uint32_t lastCodePoint() const { return m_lastCodePoint; }
+
+    uint32_t pairedBracketOf(uint32_t codePoint) const;
+    char pairedBracketTypeOf(uint32_t codePoint) const;
 
 private:
-    uint32_t m_firstCodePoint;
-    uint32_t m_lastCodePoint;
+    UnicodeVersion m_version;
 
-    UnicodeVersion *m_version;
+    uint32_t m_firstCodePoint = UINT32_MAX;
+    uint32_t m_lastCodePoint = 0;
+
     std::vector<uint32_t> m_pairedBrackets;
     std::vector<char> m_pairedBracketTypes;
 };

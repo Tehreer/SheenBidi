@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
-#include "UnicodeVersion.h"
+#include "DataFile.h"
 #include "BidiBrackets.h"
 
 using namespace std;
@@ -29,81 +27,38 @@ using namespace SheenBidi::Parser;
 static const string FILE_BIDI_BRACKETS = "BidiBrackets.txt";
 
 BidiBrackets::BidiBrackets(const string &directory) :
-    m_firstCodePoint(0),
-    m_lastCodePoint(0),
-    m_pairedBrackets(0xFFFF),
-    m_pairedBracketTypes(0xFFFF)
+    DataFile(directory, FILE_BIDI_BRACKETS),
+    m_pairedBrackets(CodePointCount),
+    m_pairedBracketTypes(CodePointCount)
 {
-    ifstream stream(directory + "/" + FILE_BIDI_BRACKETS, ios::binary);
+    Line line;
+    string type;
 
-    string versionLine;
-    getline(stream, versionLine);
-    m_version = new UnicodeVersion(versionLine);
+    if (readLine(line)) {
+        m_version = line.scanVersion();
+    }
 
-    char ch;
-
-    while (!stream.eof()) {
-        stream >> ch;
-
-        if (ch != '#') {
-            uint32_t codePoint;
-            uint32_t bracket;
-            char type;
-
-            stream.seekg(-1, ios_base::cur);
-
-            stream >> hex >> setw(4) >> codePoint;
-            stream.ignore(4, ';');
-
-            stream >> hex >> setw(4) >> bracket;
-            stream.ignore(4, ';');
-
-            stream >> type;
-
-            m_pairedBrackets[codePoint] = bracket;
-            m_pairedBracketTypes[codePoint] = type;
-
-            if (!m_firstCodePoint) {
-                m_firstCodePoint = codePoint;
-            }
-
-            if (codePoint > m_lastCodePoint) {
-                m_lastCodePoint = codePoint;
-            }
+    while (readLine(line)) {
+        if (line.isEmpty() || line.match('#')) {
+            continue;
         }
-        
-        stream.ignore(1024, '\n');
+
+        uint32_t codePoint = line.parseSingleCodePoint();
+        uint32_t bracket = line.parseSingleCodePoint();
+        line.getField(type);
+
+        m_pairedBrackets.at(codePoint) = bracket;
+        m_pairedBracketTypes.at(codePoint) = type.at(0);
+
+        m_firstCodePoint = min(m_firstCodePoint, codePoint);
+        m_lastCodePoint = max(m_lastCodePoint, codePoint);
     }
 }
 
-BidiBrackets::~BidiBrackets() {
-    delete m_version;
+uint32_t BidiBrackets::pairedBracketOf(uint32_t codePoint) const {
+    return m_pairedBrackets.at(codePoint);
 }
 
-uint32_t BidiBrackets::firstCodePoint() const {
-    return m_firstCodePoint;
-}
-
-uint32_t BidiBrackets::lastCodePoint() const {
-    return m_lastCodePoint;
-}
-
-UnicodeVersion &BidiBrackets::version() const {
-    return *m_version;
-}
-
-uint32_t BidiBrackets::pairedBracketForCodePoint(uint32_t codePoint) const {
-    if (codePoint <= m_lastCodePoint) {
-        return m_pairedBrackets.at(codePoint);
-    }
-
-    return 0;
-}
-
-char BidiBrackets::pairedBracketTypeForCodePoint(uint32_t codePoint) const {
-    if (codePoint <= m_lastCodePoint) {
-        return m_pairedBracketTypes.at(codePoint);
-    }
-
-    return 0;
+char BidiBrackets::pairedBracketTypeOf(uint32_t codePoint) const {
+    return m_pairedBracketTypes.at(codePoint);
 }
