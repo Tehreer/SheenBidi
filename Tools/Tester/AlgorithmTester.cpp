@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ void AlgorithmTester::loadMirrors() {
         for (size_t i = 0; i < m_charCount; i++) {
             uint8_t level = m_levels->at(i);
             if (level & 1) {
-                m_genMirrors[i] = m_bidiMirroring->mirrorForCodePoint(m_genChars[i]);
+                m_genMirrors[i] = m_bidiMirroring->mirrorOf(m_genChars[i]);
                 if (m_genMirrors[i]) {
                     m_mirrorCount++;
                 }
