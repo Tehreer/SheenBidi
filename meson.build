@@ -194,7 +194,6 @@ if not unity_mode
   tester_files = files(
     'Tools/Tester/Utilities/Convert.cpp',
     'Tools/Tester/Utilities/Convert.h',
-    'Tools/Tester/Utilities/Unicode.cpp',
     'Tools/Tester/Utilities/Unicode.h',
     'Tools/Tester/AlgorithmTester.cpp',
     'Tools/Tester/AlgorithmTester.h',
