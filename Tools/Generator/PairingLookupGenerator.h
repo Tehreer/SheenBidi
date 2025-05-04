@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
 #ifndef SHEENBIDI_GENERATOR_PAIRING_LOOKUP_GENERATOR_H
 #define SHEENBIDI_GENERATOR_PAIRING_LOOKUP_GENERATOR_H
 
-#include <iomanip>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
-#include <sstream>
+#include <string>
+#include <vector>
 
 #include <Parser/BidiMirroring.h>
 #include <Parser/BidiBrackets.h>
@@ -51,17 +53,19 @@ private:
 
     const Parser::BidiMirroring &m_bidiMirroring;
     const Parser::BidiBrackets &m_bidiBrackets;
+
     const uint32_t m_firstCodePoint;
     const uint32_t m_lastCodePoint;
 
-    size_t m_segmentSize;
+    size_t m_segmentSize = 0;
+
     std::vector<int16_t> m_differences;
     std::vector<DataSegment> m_data;
     std::vector<DataSegment *> m_indexes;
     
-    size_t m_differencesSize;
-    size_t m_dataSize;
-    size_t m_indexesSize;
+    size_t m_differencesSize = 0;
+    size_t m_dataSize = 0;
+    size_t m_indexesSize = 0;
 
     void collectData();
 };
