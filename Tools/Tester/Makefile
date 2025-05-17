@@ -1,8 +1,8 @@
 TESTER_INCLUDES = -I$(ROOT_DIR) -I$(HEADERS_DIR) -I$(TOOLS_DIR)
-TESTER_FLAGS = --coverage $(TESTER_INCLUDES)
+TESTER_FLAGS = $(TESTER_INCLUDES)
 TESTER_LIBS = -L$(DEBUG) -l$(LIB_SHEENBIDI) -l$(LIB_PARSER)
 
-TESTER      = $(DEBUG)/Tester
+TESTER      = $(DEBUG)/Testing
 TESTER_UTIL = $(TESTER)/Utilities
 
 TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
@@ -15,8 +15,7 @@ TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
               $(TESTER_DIR)/MirrorLookupTester.cpp \
               $(TESTER_DIR)/ScriptLocatorTester.cpp \
               $(TESTER_DIR)/ScriptLookupTester.cpp \
-              $(TESTER_DIR)/Utilities/Convert.cpp \
-              $(TESTER_DIR)/Utilities/Unicode.cpp
+              $(TESTER_DIR)/Utilities/Convert.cpp
 
 TESTER_OBJS = $(TESTER_SRCS:$(TESTER_DIR)/%.cpp=$(TESTER)/%.o)
 

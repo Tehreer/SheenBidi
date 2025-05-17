@@ -6,8 +6,8 @@ PARSER_DIR  = $(TOOLS_DIR)/Parser
 TESTER_DIR  = $(TOOLS_DIR)/Tester
 
 LIB_SHEENBIDI = sheenbidi
-LIB_PARSER    = sheenbidiparser
-EXEC_TESTER   = sheenbiditester
+LIB_PARSER    = parser
+EXEC_TESTER   = tester
 
 ifndef CC
 	CC = gcc
@@ -36,6 +36,7 @@ DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/RunQueue.c \
                 $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBBase.c \
+                $(SOURCE_DIR)/SBCodepoint.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
                 $(SOURCE_DIR)/SBLine.c \
                 $(SOURCE_DIR)/SBLog.c \
@@ -60,7 +61,7 @@ release: $(RELEASE) $(RELEASE_TARGET)
 debug:   $(DEBUG) $(DEBUG_TARGET)
 
 check: tester
-	./Debug/sheenbiditester Tools/Unicode
+	./Debug/tester Tools/Unicode
 
 clean: parser_clean tester_clean
 	$(RM) $(DEBUG)/*.o
