@@ -147,3 +147,46 @@ jobs:
 
       - name: Run Tests (Debug)
         run: meson test --print-errorlogs -C build-debug
+
+  make:
+    name: Make - Valgrind
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: sudo apt install valgrind
+
+      - name: Build in Release Mode
+        continue-on-error: true
+        run: |
+          make clean
+          make release
+
+      - name: Build Test Executable (Debug Mode)
+        run: |
+          make clean
+          make tester
+
+      - name: Run Tests with Valgrind
+        id: valgrind
+        continue-on-error: true
+        run: |
+          valgrind \
+            --leak-check=full \
+            --show-leak-kinds=all \
+            --track-origins=yes \
+            --error-exitcode=1 \
+            --log-file=valgrind.log \
+            ./Debug/tester Tools/Unicode
+
+      - name: Upload Valgrind Log on Failure
+        if: steps.valgrind.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: valgrind-log
+          path: valgrind.log
