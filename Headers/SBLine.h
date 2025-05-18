@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ typedef struct _SBLine *SBLineRef;
  * @return
  *      The offset of the line passed in.
  */
-SBUInteger SBLineGetOffset(SBLineRef line);
+SB_PUBLIC SBUInteger SBLineGetOffset(SBLineRef line);
 
 /**
  * Returns the number of code units coverting the length of the line.
@@ -42,7 +42,7 @@ SBUInteger SBLineGetOffset(SBLineRef line);
  * @return
  *      The length of the line passed in.
  */
-SBUInteger SBLineGetLength(SBLineRef line);
+SB_PUBLIC SBUInteger SBLineGetLength(SBLineRef line);
 
 /**
  * Returns the number of runs in the line.
@@ -52,7 +52,7 @@ SBUInteger SBLineGetLength(SBLineRef line);
  * @return
  *      The number of runs in the line passed in.
  */
-SBUInteger SBLineGetRunCount(SBLineRef line);
+SB_PUBLIC SBUInteger SBLineGetRunCount(SBLineRef line);
 
 /**
  * Returns a direct pointer to the run array, stored in the line.
@@ -62,7 +62,7 @@ SBUInteger SBLineGetRunCount(SBLineRef line);
  * @return
  *      A valid pointer to an array of SBRun structures. 
  */
-const SBRun *SBLineGetRunsPtr(SBLineRef line);
+SB_PUBLIC const SBRun *SBLineGetRunsPtr(SBLineRef line);
 
 /**
  * Increments the reference count of a line object.
@@ -72,7 +72,7 @@ const SBRun *SBLineGetRunsPtr(SBLineRef line);
  * @return
  *      The same line object passed in as the parameter.
  */
-SBLineRef SBLineRetain(SBLineRef line);
+SB_PUBLIC SBLineRef SBLineRetain(SBLineRef line);
 
 /**
  * Decrements the reference count of a line object. The object will be deallocated when its
@@ -81,7 +81,7 @@ SBLineRef SBLineRetain(SBLineRef line);
  * @param line
  *      The line object whose reference count will be decremented.
  */
-void SBLineRelease(SBLineRef line);
+SB_PUBLIC void SBLineRelease(SBLineRef line);
 
 SB_EXTERN_C_END
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,20 @@
 #else
 #define SB_EXTERN_C_BEGIN
 #define SB_EXTERN_C_END
+#endif
+
+#ifdef _WIN32
+
+#if defined(SB_CONFIG_DLL_EXPORT)
+#define SB_PUBLIC __declspec(dllexport)
+#elif defined(SB_CONFIG_DLL_IMPORT)
+#define SB_PUBLIC __declspec(dllimport)
+#endif
+
+#endif
+
+#ifndef SB_PUBLIC
+#define SB_PUBLIC
 #endif
 
 SB_EXTERN_C_BEGIN

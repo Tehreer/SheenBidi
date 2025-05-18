@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2016-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ typedef struct _SBCodepointSequence {
  *      The code point before the given string index, or SBCodepointInvalid if stringIndex is equal 
  *      to zero or larger than actual length of source string.
  */
-SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence,
-    SBUInteger *stringIndex);
+SB_PUBLIC SBCodepoint SBCodepointSequenceGetCodepointBefore(
+    const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
 /**
  * Returns the code point at the given string index.
@@ -62,8 +62,8 @@ SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *cod
  *      The code point at the given string index, or SBCodepointInvalid if stringIndex is larger
  *      than or equal to actual length of source string.
  */
-SBCodepoint SBCodepointSequenceGetCodepointAt(const SBCodepointSequence *codepointSequence,
-    SBUInteger *stringIndex);
+SB_PUBLIC SBCodepoint SBCodepointSequenceGetCodepointAt(
+    const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
 SB_EXTERN_C_END
 #endif

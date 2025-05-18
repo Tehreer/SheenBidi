@@ -83,7 +83,7 @@ typedef SBUInt32                    SBCodepoint;
  * @return
  *      The bidirectional type of the specified code point.
  */
-SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
+SB_PUBLIC SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
 
 /**
  * Returns the general category of a Unicode code point.
@@ -93,7 +93,7 @@ SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint);
  * @return
  *      The general category of the specified code point.
  */
-SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint);
+SB_PUBLIC SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint);
 
 /**
  * Returns the mirrored code point for a given Unicode code point.
@@ -103,7 +103,7 @@ SBGeneralCategory SBCodepointGetGeneralCategory(SBCodepoint codepoint);
  * @return
  *      The mirrored code point if available, or 0 if no mirror exists.
  */
-SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
+SB_PUBLIC SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
 
 /**
  * Returns the script associated with a Unicode code point.
@@ -113,7 +113,7 @@ SBCodepoint SBCodepointGetMirror(SBCodepoint codepoint);
  * @return
  *      The script of the specified code point.
  */
-SBScript SBCodepointGetScript(SBCodepoint codepoint);
+SB_PUBLIC SBScript SBCodepointGetScript(SBCodepoint codepoint);
 
 /**
  * Decodes the next Unicode code point from a UTF-8 encoded buffer.
@@ -128,7 +128,7 @@ SBScript SBCodepointGetScript(SBCodepoint codepoint);
  * @return
  *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
  */
-SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length,
+SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length,
     SBUInteger *index);
 
 /**
@@ -144,7 +144,7 @@ SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger leng
  * @return
  *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
-SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length,
+SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length,
     SBUInteger *index);
 
 /**
@@ -160,7 +160,7 @@ SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger 
  * @return
  *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
  */
-SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length,
+SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length,
     SBUInteger *index);
 
 /**
@@ -176,7 +176,7 @@ SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger le
  * @return
  *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
-SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length,
+SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length,
     SBUInteger *index);
 
 SB_EXTERN_C_END
