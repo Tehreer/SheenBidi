@@ -79,6 +79,9 @@ add_library(sheenbidi
   ${INTERNAL_HEADERS}
   ${SHEENBIDI_SOURCES}
 )
+if(WIN32 AND BUILD_SHARED_LIBS)
+  target_compile_definitions(sheenbidi PRIVATE SB_CONFIG_DLL_EXPORT)
+endif()
 target_include_directories(sheenbidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
@@ -87,6 +90,8 @@ target_include_directories(sheenbidi
     Source
 )
 set_target_properties(sheenbidi PROPERTIES
+  VERSION "${SheenBidi_VERSION}"
+  SOVERSION "${SheenBidi_VERSION_MAJOR}"
   PUBLIC_HEADER "${SHEENBIDI_HEADERS}"
 )
 add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
@@ -101,7 +106,7 @@ if(BUILD_GENERATOR OR (BUILD_TESTING AND NOT SB_CONFIG_UNITY))
     Tools/Parser/*.h
     Tools/Parser/*.cpp
   )
-  add_library(parser ${PARSER_FILES})
+  add_library(parser STATIC ${PARSER_FILES})
   add_sanitizers(parser)
 endif()
 
