@@ -11,6 +11,7 @@ build_generator = get_option('generator').enabled()
 
 is_non_static_mode = get_option('default_library') != 'static'
 is_windows_host = host_machine.system() == 'windows'
+is_dll_mode = is_non_static_mode and is_windows_host
 
 project_version = meson.project_version()
 soversion = project_version.split('.')[0]
@@ -89,16 +90,10 @@ else
   )
 endif
 
-if is_non_static_mode and is_windows_host
-  sheenbidi_args = ['-DSB_CONFIG_DLL_EXPORT']
-else
-  sheenbidi_args = []
-endif
-
 sheenbidi = library(
   'sheenbidi',
   sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
-  c_args: sheenbidi_args,
+  c_args: is_dll_mode ? ['-DSB_CONFIG_DLL_EXPORT'] : [],
   include_directories: ['Headers', 'Source'],
   version: project_version,
   soversion: soversion,
@@ -107,7 +102,8 @@ sheenbidi = library(
 
 sheenbidi_dep = declare_dependency(
   include_directories: 'Headers',
-  link_with: sheenbidi
+  link_with: sheenbidi,
+  compile_args: is_dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
 )
 
 # ------------------------------------------------------------------------------
