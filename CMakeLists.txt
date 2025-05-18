@@ -81,6 +81,7 @@ add_library(sheenbidi
 )
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(sheenbidi PRIVATE SB_CONFIG_DLL_EXPORT)
+  target_compile_definitions(sheenbidi INTERFACE SB_CONFIG_DLL_IMPORT)
 endif()
 target_include_directories(sheenbidi
   PUBLIC
