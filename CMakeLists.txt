@@ -20,6 +20,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 
+if(WIN32 AND BUILD_SHARED_LIBS)
+  set(BUILDING_DLL ON)
+else()
+  set(BUILDING_DLL OFF)
+endif()
+
+if(BUILD_TESTING AND NOT BUILDING_DLL AND NOT SB_CONFIG_UNITY)
+  set(BUILD_TESTER ON)
+else()
+  set(BUILD_TESTER OFF)
+endif()
+
 # ------------------------------------------------------------------------------
 # MSVC Configuration
 # ------------------------------------------------------------------------------
@@ -79,7 +91,7 @@ add_library(sheenbidi
   ${INTERNAL_HEADERS}
   ${SHEENBIDI_SOURCES}
 )
-if(WIN32 AND BUILD_SHARED_LIBS)
+if(BUILDING_DLL)
   target_compile_definitions(sheenbidi PRIVATE SB_CONFIG_DLL_EXPORT)
   target_compile_definitions(sheenbidi INTERFACE SB_CONFIG_DLL_IMPORT)
 endif()
@@ -99,10 +111,10 @@ add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
 add_sanitizers(sheenbidi)
 
 # ------------------------------------------------------------------------------
-# Parser Tool (Required for generator/tester)
+# Parser Library (Required for generator/tester)
 # ------------------------------------------------------------------------------
 
-if(BUILD_GENERATOR OR (BUILD_TESTING AND NOT SB_CONFIG_UNITY))
+if(BUILD_GENERATOR OR BUILD_TESTER)
   file(GLOB_RECURSE PARSER_FILES
     Tools/Parser/*.h
     Tools/Parser/*.cpp
@@ -135,7 +147,7 @@ endif()
 # Tester Tool (Only non-unity mode)
 # ------------------------------------------------------------------------------
 
-if(BUILD_TESTING AND NOT SB_CONFIG_UNITY)
+if(BUILD_TESTER)
   file(GLOB_RECURSE TESTER_FILES
     Tools/Tester/*.h
     Tools/Tester/*.cpp
