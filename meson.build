@@ -11,7 +11,7 @@ build_generator = get_option('generator').enabled()
 
 is_windows_host = host_machine.system() == 'windows'
 static_mode = get_option('default_library') == 'static'
-dll_mode = is_windows_host and not is_static_mode
+dll_mode = is_windows_host and not static_mode
 build_tester = not dll_mode and not unity_mode
 
 project_version = meson.project_version()
