@@ -2,17 +2,18 @@ project('SheenBidi', ['c', 'cpp'],
   version: '2.8',
   meson_version: '>= 0.55.0',
   default_options: [
-    'default_library=static',
     'cpp_std=c++20'
   ]
 )
 
-if get_option('default_library') != 'static'
-  error('Only static library type is supported. Please set -Ddefault_library=static')
-endif
-
 unity_mode = get_option('unity_mode').enabled()
 build_generator = get_option('generator').enabled()
+
+is_non_static_mode = get_option('default_library') != 'static'
+is_windows_host = host_machine.system() == 'windows'
+
+project_version = meson.project_version()
+soversion = project_version.split('.')[0]
 
 # ------------------------------------------------------------------------------
 # SheenBidi Library
@@ -88,12 +89,19 @@ else
   )
 endif
 
+if is_non_static_mode and is_windows_host
+  sheenbidi_args = ['-DSB_CONFIG_DLL_EXPORT']
+else
+  sheenbidi_args = []
+endif
+
 sheenbidi = library(
   'sheenbidi',
   sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
+  c_args: sheenbidi_args,
   include_directories: ['Headers', 'Source'],
-  version: meson.project_version(),
-  soversion: '',
+  version: project_version,
+  soversion: soversion,
   install: true
 )
 
