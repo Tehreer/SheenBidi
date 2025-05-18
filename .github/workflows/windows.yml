@@ -96,6 +96,7 @@ jobs:
         run: |
           meson setup Debug `
             --buildtype debugoptimized `
+            "-Ddefault_library=static" `
             "-Dunity_mode=disabled" `
             "-Db_sanitize=address" `
             "-Db_lundef=false" `
