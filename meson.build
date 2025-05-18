@@ -9,9 +9,10 @@ project('SheenBidi', ['c', 'cpp'],
 unity_mode = get_option('unity_mode').enabled()
 build_generator = get_option('generator').enabled()
 
-is_non_static_mode = get_option('default_library') != 'static'
 is_windows_host = host_machine.system() == 'windows'
-is_dll_mode = is_non_static_mode and is_windows_host
+static_mode = get_option('default_library') == 'static'
+dll_mode = is_windows_host and not is_static_mode
+build_tester = not dll_mode and not unity_mode
 
 project_version = meson.project_version()
 soversion = project_version.split('.')[0]
@@ -93,7 +94,7 @@ endif
 sheenbidi = library(
   'sheenbidi',
   sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
-  c_args: is_dll_mode ? ['-DSB_CONFIG_DLL_EXPORT'] : [],
+  c_args: dll_mode ? ['-DSB_CONFIG_DLL_EXPORT'] : [],
   include_directories: ['Headers', 'Source'],
   version: project_version,
   soversion: soversion,
@@ -103,14 +104,14 @@ sheenbidi = library(
 sheenbidi_dep = declare_dependency(
   include_directories: 'Headers',
   link_with: sheenbidi,
-  compile_args: is_dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
+  compile_args: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
 )
 
 # ------------------------------------------------------------------------------
-# Parser Tool (Required for generator/tester)
+# Parser Library (Required for generator/tester)
 # ------------------------------------------------------------------------------
 
-if build_generator or not unity_mode
+if build_generator or build_tester
   parser_files = files(
     'Tools/Parser/BidiBrackets.cpp',
     'Tools/Parser/BidiBrackets.h',
@@ -194,7 +195,7 @@ endif
 # Tester Tool (Only non-unity mode)
 # ------------------------------------------------------------------------------
 
-if not unity_mode
+if build_tester
   tester_files = files(
     'Tools/Tester/Utilities/Convert.cpp',
     'Tools/Tester/Utilities/Convert.h',
