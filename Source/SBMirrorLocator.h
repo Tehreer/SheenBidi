@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@
 #include <SBMirrorLocator.h>
 #include <SBLine.h>
 
+#include "Object.h"
+
 typedef struct _SBMirrorLocator {
+    Object _object;
     SBLineRef _line;
     SBUInteger _runIndex;
     SBUInteger _stringIndex;
