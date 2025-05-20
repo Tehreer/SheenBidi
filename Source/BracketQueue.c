@@ -16,9 +16,9 @@
 
 #include <SBConfig.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include "BidiChain.h"
+#include "Object.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
@@ -33,7 +33,7 @@ static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
         BracketQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = malloc(sizeof(BracketQueueList));
+            rearList = ObjectAddMemory(&queue->_object, sizeof(BracketQueueList));
             if (!rearList) {
                 return SBFalse;
             }
@@ -71,6 +71,8 @@ static void BracketQueueFinalizePairs(BracketQueueRef queue, BracketQueueListRef
 
 SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue)
 {
+    ObjectInitialize(&queue->_object);
+
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
     queue->_frontList = NULL;
@@ -233,11 +235,5 @@ SB_INTERNAL SBBidiType BracketQueueGetStrongType(BracketQueueRef queue)
 
 SB_INTERNAL void BracketQueueFinalize(BracketQueueRef queue)
 {
-    BracketQueueListRef list = queue->_firstList.next;
-
-    while (list) {
-        BracketQueueListRef next = list->next;
-        free(list);
-        list = next;
-    }
+    ObjectFinalize(&queue->_object);
 }

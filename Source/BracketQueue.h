@@ -20,6 +20,7 @@
 #include <SBConfig.h>
 
 #include "BidiChain.h"
+#include "Object.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
 
@@ -38,6 +39,7 @@ typedef struct _BracketQueueList {
 } BracketQueueList, *BracketQueueListRef;
 
 typedef struct _BracketQueue {
+    Object _object;
     BracketQueueList _firstList;
     BracketQueueListRef _frontList;
     BracketQueueListRef _rearList;
