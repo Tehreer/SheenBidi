@@ -16,12 +16,12 @@
 
 #include <SBConfig.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include "BidiChain.h"
 #include "BidiTypeLookup.h"
 #include "IsolatingRun.h"
 #include "LevelRun.h"
+#include "Object.h"
 #include "RunQueue.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
@@ -33,6 +33,7 @@
 #include "SBParagraph.h"
 
 typedef struct _ParagraphContext {
+    Object object;
     BidiChain bidiChain;
     StatusStack statusStack;
     RunQueue runQueue;
@@ -42,27 +43,27 @@ typedef struct _ParagraphContext {
 static void PopulateBidiChain(BidiChainRef chain, const SBBidiType *types, SBUInteger length);
 static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish);
 
+#define PARAGRAPH_CONTEXT 0
+#define BIDI_LINKS        1
+#define BIDI_TYPES        2
+#define BIDI_FLAGS        3
+#define COUNT             4
+
 static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
-    const SBUInteger sizeContext = sizeof(ParagraphContext);
-    const SBUInteger sizeLinks   = sizeof(BidiLink) * (length + 2);
-    const SBUInteger sizeTypes   = sizeof(SBBidiType) * (length + 2);
-    const SBUInteger sizeFlags   = sizeof(BidiFlag) * (length + 2);
-    const SBUInteger sizeMemory  = sizeContext + sizeLinks + sizeTypes + sizeFlags;
+    void *pointers[COUNT] = { NULL };
+    SBUInteger sizes[COUNT];
 
-    void *pointer = malloc(sizeMemory);
+    sizes[PARAGRAPH_CONTEXT] = sizeof(ParagraphContext);
+    sizes[BIDI_LINKS]        = sizeof(BidiLink) * (length + 2);
+    sizes[BIDI_TYPES]        = sizeof(SBBidiType) * (length + 2);
+    sizes[BIDI_FLAGS]        = sizeof(BidiFlag) * (length + 2);
 
-    if (pointer) {
-        const SBUInteger offsetContext = 0;
-        const SBUInteger offsetLinks   = offsetContext + sizeContext;
-        const SBUInteger offsetTypes   = offsetLinks + sizeLinks;
-        const SBUInteger offsetFlags   = offsetTypes + sizeTypes;
-
-        SBUInt8 *memory = (SBUInt8 *)pointer;
-        ParagraphContextRef context = (ParagraphContextRef)(memory + offsetContext);
-        BidiLink *fixedLinks = (BidiLink *)(memory + offsetLinks);
-        SBBidiType *fixedTypes = (SBBidiType *)(memory + offsetTypes);
-        BidiFlag *fixedFlags = (BidiFlag *)(memory + offsetFlags);
+    if (ObjectCreate(sizes, COUNT, pointers)) {
+        ParagraphContextRef context = pointers[PARAGRAPH_CONTEXT];
+        BidiLink *fixedLinks = pointers[BIDI_LINKS];
+        SBBidiType *fixedTypes = pointers[BIDI_TYPES];
+        BidiFlag *fixedFlags = pointers[BIDI_FLAGS];
 
         BidiChainInitialize(&context->bidiChain, fixedTypes, levels, fixedFlags, fixedLinks);
         StatusStackInitialize(&context->statusStack);
@@ -70,48 +71,54 @@ static ParagraphContextRef CreateParagraphContext(const SBBidiType *types, SBLev
         IsolatingRunInitialize(&context->isolatingRun);
 
         PopulateBidiChain(&context->bidiChain, types, length);
-
-        return context;
     }
 
-    return NULL;
+    return pointers[PARAGRAPH_CONTEXT];
 }
+
+#undef PARAGRAPH_CONTEXT
+#undef BIDI_LINKS
+#undef BIDI_TYPES
+#undef BIDI_FLAGS
+#undef COUNT
 
 static void DisposeParagraphContext(ParagraphContextRef context)
 {
     StatusStackFinalize(&context->statusStack);
     RunQueueFinalize(&context->runQueue);
     IsolatingRunFinalize(&context->isolatingRun);
-    free(context);
+    ObjectDispose(&context->object);
 }
+
+#define PARAGRAPH 0
+#define LEVELS    1
+#define COUNT     2
 
 static SBParagraphRef AllocateParagraph(SBUInteger length)
 {
-    const SBUInteger sizeParagraph = sizeof(SBParagraph);
-    const SBUInteger sizeLevels    = sizeof(SBLevel) * (length + 2);
-    const SBUInteger sizeMemory    = sizeParagraph + sizeLevels;
+    void *pointers[COUNT] = { NULL };
+    SBUInteger sizes[COUNT];
 
-    void *pointer = malloc(sizeMemory);
+    sizes[PARAGRAPH] = sizeof(SBParagraph);
+    sizes[LEVELS]    = sizeof(SBLevel) * (length + 2);
 
-    if (pointer) {
-        const SBUInteger offsetParagraph = 0;
-        const SBUInteger offsetLevels    = offsetParagraph + sizeParagraph;
-
-        SBUInt8 *memory = (SBUInt8 *)pointer;
-        SBParagraphRef paragraph = (SBParagraphRef)(memory + offsetParagraph);
-        SBLevel *levels = (SBLevel *)(memory + offsetLevels);
+    if (ObjectCreate(sizes, COUNT, pointers)) {
+        SBParagraphRef paragraph = pointers[PARAGRAPH];
+        SBLevel *levels = pointers[LEVELS];
 
         paragraph->fixedLevels = levels;
-
-        return paragraph;
     }
 
-    return NULL;
+    return pointers[PARAGRAPH];
 }
+
+#undef PARAGRAPH
+#undef LEVELS
+#undef COUNT
 
 static void DisposeParagraph(SBParagraphRef paragraph)
 {
-    free(paragraph);
+    ObjectDispose(&paragraph->_object);
 }
 
 static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
