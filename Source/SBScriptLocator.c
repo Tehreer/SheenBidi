@@ -15,9 +15,9 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 
 #include "GeneralCategoryLookup.h"
+#include "Object.h"
 #include "PairingLookup.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
@@ -35,9 +35,11 @@ static SBBoolean IsSimilarScript(SBScript lhs, SBScript rhs)
 
 SBScriptLocatorRef SBScriptLocatorCreate(void)
 {
-    SBScriptLocatorRef locator = malloc(sizeof(SBScriptLocator));
+    const SBUInteger size = sizeof(SBScriptLocator);
+    void *pointer = NULL;
 
-    if (locator) {
+    if (ObjectCreate(&size, 1, &pointer)) {
+        SBScriptLocatorRef locator = pointer;
         locator->_codepointSequence.stringEncoding = SBStringEncodingUTF8;
         locator->_codepointSequence.stringBuffer = NULL;
         locator->_codepointSequence.stringLength = 0;
@@ -46,7 +48,7 @@ SBScriptLocatorRef SBScriptLocatorCreate(void)
         SBScriptLocatorReset(locator);
     }
 
-    return locator;
+    return pointer;
 }
 
 void SBScriptLocatorLoadCodepoints(SBScriptLocatorRef locator, const SBCodepointSequence *codepointSequence)
@@ -172,6 +174,6 @@ SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator)
 void SBScriptLocatorRelease(SBScriptLocatorRef locator)
 {
     if (locator && --locator->retainCount == 0) {
-        free(locator);
+        ObjectDispose(&locator->_object);
     }
 }
