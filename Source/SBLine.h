@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2019 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@
 #include <SBParagraph.h>
 #include <SBRun.h>
 
+#include "Object.h"
+
 typedef struct _SBLine {
+    Object _object;
     SBCodepointSequence codepointSequence;
     SBRun *fixedRuns;
     SBUInteger runCount;

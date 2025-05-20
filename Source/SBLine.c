@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 #include <SBConfig.h>
 #include <stddef.h>
-#include <stdlib.h>
 
+#include "Object.h"
 #include "PairingLookup.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
@@ -28,6 +28,7 @@
 #include "SBLine.h"
 
 typedef struct _LineContext {
+    Object object;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
@@ -59,60 +60,64 @@ static SBLevel CopyLevels(SBLevel *destination,
     return maxLevel;
 }
 
+#define LINE_CONTEXT 0
+#define LEVELS       1
+#define COUNT        2
+
 static LineContextRef CreateLineContext(const SBBidiType *types, const SBLevel *levels, SBUInteger length)
 {
-    const SBUInteger sizeContext = sizeof(LineContext);
-    const SBUInteger sizeLevels  = sizeof(SBLevel) * length;
-    const SBUInteger sizeMemory  = sizeContext + sizeLevels;
+    void *pointers[COUNT] = { NULL };
+    SBUInteger sizes[COUNT];
 
-    void *pointer = malloc(sizeMemory);
+    sizes[LINE_CONTEXT] = sizeof(LineContext);
+    sizes[LEVELS]       = sizeof(SBLevel) * length;
 
-    if (pointer) {
-        const SBUInteger offsetContext = 0;
-        const SBUInteger offsetLevels  = offsetContext + sizeContext;
-
-        SBUInt8 *memory = (SBUInt8 *)pointer;
-        LineContextRef context = (LineContextRef)(memory + offsetContext);
-        SBLevel *fixedLevels = (SBLevel *)(memory + offsetLevels);
+    if (ObjectCreate(sizes, COUNT, pointers)) {
+        LineContextRef context = pointers[LINE_CONTEXT];
+        SBLevel *fixedLevels = pointers[LEVELS];
 
         context->refTypes = types;
         context->fixedLevels = fixedLevels;
         context->maxLevel = CopyLevels(fixedLevels, levels, length, &context->runCount);
-
-        return context;
     }
 
-    return NULL;
+    return pointers[LINE_CONTEXT];
 }
+
+#undef LINE_CONTEXT
+#undef LEVELS
+#undef COUNT
 
 static void DisposeLineContext(LineContextRef context)
 {
-    free(context);
+    ObjectDispose(&context->object);
 }
+
+#define LINE  0
+#define RUNS  1
+#define COUNT 2
 
 static SBLineRef AllocateLine(SBUInteger runCount)
 {
-    const SBUInteger sizeLine   = sizeof(SBLine);
-    const SBUInteger sizeRuns   = sizeof(SBRun) * runCount;
-    const SBUInteger sizeMemory = sizeLine + sizeRuns;
+    void *pointers[COUNT] = { NULL };
+    SBUInteger sizes[COUNT];
 
-    void *pointer = malloc(sizeMemory);
+    sizes[LINE] = sizeof(SBLine);
+    sizes[RUNS] = sizeof(SBRun) * runCount;
 
-    if (pointer) {
-        const SBUInteger offsetLine = 0;
-        const SBUInteger offsetRuns = offsetLine + sizeLine;
-
-        SBUInt8 *memory = (SBUInt8 *)pointer;
-        SBLineRef line = (SBLineRef)(memory + offsetLine);
-        SBRun *runs = (SBRun *)(memory + offsetRuns);
+    if (ObjectCreate(sizes, COUNT, pointers)) {
+        SBLineRef line = pointers[LINE];
+        SBRun *runs = pointers[RUNS];
 
         line->fixedRuns = runs;
-
-        return line;
     }
 
-    return NULL;
+    return pointers[LINE];
 }
+
+#undef LINE
+#undef RUNS
+#undef COUNT
 
 static void SetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 {
@@ -315,6 +320,6 @@ SBLineRef SBLineRetain(SBLineRef line)
 void SBLineRelease(SBLineRef line)
 {
     if (line && --line->retainCount == 0) {
-        free(line);
+        ObjectDispose(&line->_object);
     }
 }
