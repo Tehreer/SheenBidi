@@ -16,9 +16,9 @@
 
 #include <SBConfig.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include "BidiTypeLookup.h"
+#include "Object.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
 #include "SBCodepointSequence.h"
@@ -26,34 +26,31 @@
 #include "SBParagraph.h"
 #include "SBAlgorithm.h"
 
+#define ALGORITHM  0
+#define BIDI_TYPES 1
+#define COUNT      2
+
 static SBAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
 {
-    const SBUInteger sizeAlgorithm = sizeof(SBAlgorithm);
-    const SBUInteger sizeTypes     = sizeof(SBBidiType) * stringLength;
-    const SBUInteger sizeMemory    = sizeAlgorithm + sizeTypes;
+    void *pointers[COUNT] = { NULL };
+    SBUInteger sizes[COUNT];
 
-    void *pointer = malloc(sizeMemory);
+    sizes[ALGORITHM]  = sizeof(SBAlgorithm);
+    sizes[BIDI_TYPES] = sizeof(SBBidiType) * stringLength;
 
-    if (pointer) {
-        const SBUInteger offsetAlgorithm = 0;
-        const SBUInteger offsetTypes     = offsetAlgorithm + sizeAlgorithm;
-
-        SBUInt8 *memory = (SBUInt8 *)pointer;
-        SBAlgorithmRef algorithm = (SBAlgorithmRef)(memory + offsetAlgorithm);
-        SBLevel *fixedTypes = (SBLevel *)(memory + offsetTypes);
+    if (ObjectCreate(sizes, COUNT, pointers)) {
+        SBAlgorithmRef algorithm = pointers[ALGORITHM];
+        SBBidiType *fixedTypes = pointers[BIDI_TYPES];
 
         algorithm->fixedTypes = fixedTypes;
-
-        return algorithm;
     }
 
-    return NULL;
+    return pointers[ALGORITHM];
 }
 
-static void DisposeAlgorithm(SBAlgorithmRef algorithm)
-{
-    free(algorithm);
-}
+#undef ALGORITHM
+#undef BIDI_TYPES
+#undef COUNT
 
 static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
 {
@@ -199,6 +196,6 @@ SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 void SBAlgorithmRelease(SBAlgorithmRef algorithm)
 {
     if (algorithm && --algorithm->retainCount == 0) {
-        DisposeAlgorithm(algorithm);
+        ObjectDispose(&algorithm->_object);
     }
 }
