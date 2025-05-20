@@ -25,6 +25,7 @@
 #include "GeneralCategoryLookup.c"
 #include "IsolatingRun.c"
 #include "LevelRun.c"
+#include "Object.c"
 #include "PairingLookup.c"
 #include "RunQueue.c"
 #include "SBAlgorithm.c"
