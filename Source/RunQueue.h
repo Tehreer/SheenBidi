@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <SBConfig.h>
 
 #include "LevelRun.h"
+#include "Object.h"
 #include "SBBase.h"
 
 #define RunQueueList_Length         8
@@ -33,6 +34,7 @@ typedef struct _RunQueueList {
 } RunQueueList, *RunQueueListRef;
 
 typedef struct _RunQueue {
+    Object _object;
     RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
     RunQueueListRef _frontList;     /**< The list containing front element of the queue */
     RunQueueListRef _rearList;      /**< The list containing rear element of the queue */
