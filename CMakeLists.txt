@@ -15,7 +15,7 @@ option(ENABLE_UBSAN "Enable undefined behavior sanitizer" OFF)
 include(CTest)
 
 # C++ is only needed for tools
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
@@ -98,13 +98,13 @@ endif()
 target_include_directories(sheenbidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
-    $<INSTALL_INTERFACE:include/SheenBidi>
+    $<INSTALL_INTERFACE:include>
   PRIVATE
     Source
 )
 set_target_properties(sheenbidi PROPERTIES
-  VERSION "${SheenBidi_VERSION}"
-  SOVERSION "${SheenBidi_VERSION_MAJOR}"
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
   PUBLIC_HEADER "${SHEENBIDI_HEADERS}"
 )
 add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
@@ -199,14 +199,16 @@ endif()
 set(ConfigPackageLocation "${LIB_INSTALL_DIR}/cmake/SheenBidi")
 
 include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/SheenBidi/SheenBidiConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
 configure_package_config_file(SheenBidi.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/SheenBidi/SheenBidiConfig.cmake"
   INSTALL_DESTINATION ${ConfigPackageLocation}
-)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/SheenBidi/SheenBidiConfigVersion.cmake"
-  VERSION ${SheenBidi_VERSION}
-  COMPATIBILITY SameMajorVersion
 )
 
 export(EXPORT SheenBidiTargets
