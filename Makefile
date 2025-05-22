@@ -19,7 +19,7 @@ endif
 AR = ar
 ARFLAGS = -r
 CFLAGS = -ansi -pedantic -Wall -I$(HEADERS_DIR)
-CXXFLAGS = -std=c++11 -g -Wall
+CXXFLAGS = -std=c++14 -g -Wall
 DEBUG_FLAGS = -DDEBUG -g -O0
 RELEASE_FLAGS = -DNDEBUG -DSB_CONFIG_UNITY -Os
 
