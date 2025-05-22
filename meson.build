@@ -2,7 +2,7 @@ project('SheenBidi', ['c', 'cpp'],
   version: '2.8',
   meson_version: '>= 0.55.0',
   default_options: [
-    'cpp_std=c++20'
+    'cpp_std=c++14'
   ]
 )
 
@@ -248,4 +248,15 @@ endif
 install_headers(
   sheenbidi_headers,
   subdir: 'SheenBidi',
+)
+
+pkg = import('pkgconfig')
+pkg.generate(
+  filebase: 'sheenbidi',
+  name: 'SheenBidi',
+  description: 'SheenBidi is a lightweight, fast and stable implementation of the Unicode Bidirectional Algorithm.',
+  url: 'https://github.com/Tehreer/SheenBidi',
+  version: project_version,
+  libraries: sheenbidi,
+  extra_cflags: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : [],
 )
