@@ -104,6 +104,7 @@ add_library(sheenbidi
 if(BUILDING_DLL)
   target_compile_definitions(sheenbidi PRIVATE SB_CONFIG_DLL_EXPORT)
   target_compile_definitions(sheenbidi INTERFACE SB_CONFIG_DLL_IMPORT)
+  set(SHEENBIDI_PKGCONFIG_CFLAGS "${SHEENBIDI_PKGCONFIG_CFLAGS} -DSB_CONFIG_DLL_IMPORT")
 endif()
 target_include_directories(sheenbidi
   PUBLIC
@@ -288,4 +289,10 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/SheenBidi/SheenBidiConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
+)
+
+configure_file(sheenbidi.pc.in ${CMAKE_CURRENT_BINARY_DIR}/sheenbidi.pc @ONLY)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/sheenbidi.pc
+  DESTINATION ${LIB_INSTALL_DIR}/pkgconfig
 )
