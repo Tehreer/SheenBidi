@@ -98,7 +98,7 @@ endif()
 target_include_directories(sheenbidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/SheenBidi>
   PRIVATE
     Source
 )
