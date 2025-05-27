@@ -68,7 +68,7 @@ int main(int argc, const char * argv[])
 
     GeneralCategoryLookupGenerator generalCategoryLookup(derivedGeneralCategory);
     generalCategoryLookup.setMainSegmentSize(16);
-    generalCategoryLookup.setBranchSegmentSize(32);
+    generalCategoryLookup.setBranchSegmentSize(64);
     generalCategoryLookup.generateFile(out);
 
     ScriptLookupGenerator scriptLookup(scripts, propertyValueAliases);
