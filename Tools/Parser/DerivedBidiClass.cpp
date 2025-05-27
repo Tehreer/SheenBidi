@@ -49,8 +49,8 @@ DerivedBidiClass::DerivedBidiClass(const string &directory,
         m_version = line.scanVersion();
     }
 
-    // readMissingBidiClasses(propertyValueAliases);
-    // applyBNRules(propList, derivedCoreProperties);
+    readMissingBidiClasses(propertyValueAliases);
+    applyBNRules(propList, derivedCoreProperties);
     readActualBidiClasses();
 }
 
