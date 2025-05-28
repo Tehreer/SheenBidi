@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(SheenBidi VERSION 2.8 LANGUAGES C CXX)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Headers/SBVersion.h" VERSION_MACRO_LINE
+  REGEX "SHEENBIDI_VERSION_STRING[ \\t]+\"([^\"]+)\""
+)
+string(REGEX REPLACE ".*\"([^\"]+)\".*" "\\1"
+  VERSION_STRING ${VERSION_MACRO_LINE}
+)
+project(SheenBidi
+  VERSION ${VERSION_STRING}
+  LANGUAGES C CXX
+)
 
 # ------------------------------------------------------------------------------
 # Options
@@ -75,6 +84,7 @@ set(SHEENBIDI_HEADERS
   Headers/SBRun.h
   Headers/SBScript.h
   Headers/SBScriptLocator.h
+  Headers/SBVersion.h
   Headers/SheenBidi.h
 )
 file(GLOB INTERNAL_HEADERS "Source/*.h")
