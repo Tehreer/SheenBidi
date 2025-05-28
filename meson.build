@@ -1,5 +1,9 @@
 project('SheenBidi', ['c', 'cpp'],
-  version: '2.8',
+  version: run_command(
+    'Tools/Version/extract.py',
+    'Headers/SBVersion.h',
+    check: true
+  ).stdout().strip(),
   meson_version: '>= 0.55.0',
   default_options: [
     'cpp_std=c++14'
@@ -34,7 +38,8 @@ sheenbidi_headers = files(
   'Headers/SBRun.h',
   'Headers/SBScript.h',
   'Headers/SBScriptLocator.h',
-  'Headers/SheenBidi.h',
+  'Headers/SBVersion.h',
+  'Headers/SheenBidi.h'
 )
 internal_headers = files(
   'Source/BidiChain.h',
