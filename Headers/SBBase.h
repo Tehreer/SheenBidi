@@ -42,6 +42,18 @@
 #define SB_PUBLIC
 #endif
 
+#if defined(__cplusplus) && __cplusplus >= 201402L
+#define SB_DEPRECATED [[deprecated]]
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+#define SB_DEPRECATED [[deprecated]]
+#elif defined(__clang__) || defined(__GNUC__)
+#define SB_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define SB_DEPRECATED __declspec(deprecated)
+#else
+#define SB_DEPRECATED
+#endif
+
 SB_EXTERN_C_BEGIN
 
 /**
@@ -141,4 +153,5 @@ typedef SBUInt8                     SBLevel;
 #define SBLevelDefaultRTL           0xFD
 
 SB_EXTERN_C_END
+
 #endif
