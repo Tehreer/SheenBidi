@@ -264,6 +264,7 @@ typedef SBUInt8 SBScript;
  * @return
  *      The OpenType tag of specified script as UInt32 in big endian byte order.
  */
+SB_DEPRECATED
 SB_PUBLIC SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
 
 /**
