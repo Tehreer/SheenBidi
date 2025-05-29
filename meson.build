@@ -16,7 +16,7 @@ build_generator = get_option('generator').enabled()
 is_windows_host = host_machine.system() == 'windows'
 static_mode = get_option('default_library') == 'static'
 dll_mode = is_windows_host and not static_mode
-build_tester = not dll_mode and not unity_mode
+build_tests = not dll_mode and not unity_mode
 
 project_version = meson.project_version()
 soversion = project_version.split('.')[0]
@@ -118,7 +118,7 @@ sheenbidi_dep = declare_dependency(
 # Parser Library (Required for generator/tester)
 # ------------------------------------------------------------------------------
 
-if build_generator or build_tester
+if build_generator or build_tests
   parser_files = files(
     'Tools/Parser/BidiBrackets.cpp',
     'Tools/Parser/BidiBrackets.h',
@@ -151,12 +151,12 @@ if build_generator or build_tester
   parser = static_library(
     'parser',
     sources: parser_files,
-    include_directories: ['Tools'],
+    include_directories: ['Tools']
   )
   
   parser_dep = declare_dependency(
     include_directories: 'Tools',
-    link_with: parser,
+    link_with: parser
   )
 endif
 
@@ -199,51 +199,63 @@ if build_generator
 endif
 
 # ------------------------------------------------------------------------------
-# Tester Tool (Only non-unity mode)
+# Testing (Only non-unity mode)
 # ------------------------------------------------------------------------------
 
-if build_tester
-  tester_files = files(
+if build_tests
+  test_common_files = files(
     'Tools/Tester/Utilities/Convert.cpp',
     'Tools/Tester/Utilities/Convert.h',
-    'Tools/Tester/Utilities/Unicode.h',
-    'Tools/Tester/AlgorithmTester.cpp',
-    'Tools/Tester/AlgorithmTester.h',
-    'Tools/Tester/BidiTypeLookupTester.cpp',
-    'Tools/Tester/BidiTypeLookupTester.h',
-    'Tools/Tester/BracketLookupTester.cpp',
-    'Tools/Tester/BracketLookupTester.h',
-    'Tools/Tester/CodepointSequenceTester.cpp',
-    'Tools/Tester/CodepointSequenceTester.h',
-    'Tools/Tester/Configuration.cpp',
-    'Tools/Tester/Configuration.h',
-    'Tools/Tester/GeneralCategoryLookupTester.cpp',
-    'Tools/Tester/GeneralCategoryLookupTester.h',
-    'Tools/Tester/main.cpp',
-    'Tools/Tester/MirrorLookupTester.cpp',
-    'Tools/Tester/MirrorLookupTester.h',
-    'Tools/Tester/ScriptLocatorTester.cpp',
-    'Tools/Tester/ScriptLocatorTester.h',
-    'Tools/Tester/ScriptLookupTester.cpp',
-    'Tools/Tester/ScriptLookupTester.h'
+    'Tools/Tester/Utilities/Unicode.h'
   )
 
-  tester = executable(
-    'tester',
-    sources: tester_files,
-    include_directories: ['Headers', 'Tools'],
-    dependencies: [parser_dep, sheenbidi_dep],
-    install: false
-  )
-  
-  unicode_data_dir = meson.current_source_dir() / 'Tools/Unicode'
-  
-  test(
-    'tests',
-    tester,
-    args: [unicode_data_dir],
-    timeout: 180
-  )
+  test_targets = {
+    'AlgorithmTests': [
+      'Tools/Tester/AlgorithmTester.h',
+      'Tools/Tester/AlgorithmTester.cpp'
+    ],
+    'BidiTypeLookupTests': [
+      'Tools/Tester/BidiTypeLookupTester.h',
+      'Tools/Tester/BidiTypeLookupTester.cpp'
+    ],
+    'CodepointSequenceTests': [
+      'Tools/Tester/CodepointSequenceTester.h',
+      'Tools/Tester/CodepointSequenceTester.cpp'
+    ],
+    'GeneralCategoryLookupTests': [
+      'Tools/Tester/GeneralCategoryLookupTester.h',
+      'Tools/Tester/GeneralCategoryLookupTester.cpp'
+    ],
+    'MirrorLookupTests': [
+      'Tools/Tester/MirrorLookupTester.h',
+      'Tools/Tester/MirrorLookupTester.cpp'
+    ],
+    'ScriptLocatorTests': [
+      'Tools/Tester/ScriptLocatorTester.h',
+      'Tools/Tester/ScriptLocatorTester.cpp'
+    ],
+    'ScriptLookupTests': [
+      'Tools/Tester/ScriptLookupTester.h',
+      'Tools/Tester/ScriptLookupTester.cpp'
+    ]
+  }
+
+  foreach test_name, test_files : test_targets
+    test_exe = executable(
+      test_name,
+      sources: test_common_files + test_files,
+      include_directories: ['Headers', 'Tools'],
+      dependencies: [parser_dep, sheenbidi_dep],
+      cpp_args: ['-DSTANDALONE_TESTING'],
+      install: false
+    )
+    test(
+      test_name,
+      test_exe,
+      args: [meson.current_source_dir() / 'Tools/Unicode'],
+      timeout: 60
+    )
+  endforeach
 endif
 
 # ------------------------------------------------------------------------------
@@ -252,7 +264,7 @@ endif
 
 install_headers(
   sheenbidi_headers,
-  subdir: 'SheenBidi',
+  subdir: 'SheenBidi'
 )
 
 pkg = import('pkgconfig')
@@ -263,5 +275,5 @@ pkg.generate(
   url: 'https://github.com/Tehreer/SheenBidi',
   version: project_version,
   libraries: sheenbidi,
-  extra_cflags: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : [],
+  extra_cflags: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
 )
