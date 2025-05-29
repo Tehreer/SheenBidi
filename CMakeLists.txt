@@ -36,9 +36,9 @@ else()
 endif()
 
 if(BUILD_TESTING AND NOT BUILDING_DLL AND NOT SB_CONFIG_UNITY)
-  set(BUILD_TESTER ON)
+  set(BUILD_TESTS ON)
 else()
-  set(BUILD_TESTER OFF)
+  set(BUILD_TESTS OFF)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ add_sanitizers(sheenbidi)
 # Parser Library (Required for generator/tester)
 # ------------------------------------------------------------------------------
 
-if(BUILD_GENERATOR OR BUILD_TESTER)
+if(BUILD_GENERATOR OR BUILD_TESTS)
   file(GLOB_RECURSE PARSER_FILES
     Tools/Parser/*.h
     Tools/Parser/*.cpp
@@ -154,32 +154,77 @@ if(BUILD_GENERATOR)
 endif()
 
 # ------------------------------------------------------------------------------
-# Tester Tool (Only non-unity mode)
+# Testing (Only non-unity mode)
 # ------------------------------------------------------------------------------
 
-if(BUILD_TESTER)
-  file(GLOB_RECURSE TESTER_FILES
-    Tools/Tester/*.h
-    Tools/Tester/*.cpp
+if(BUILD_TESTS)
+  file(GLOB TEST_COMMON_FILES
+    Tools/Tester/Utilities/*.h
+    Tools/Tester/Utilities/*.cpp
   )
-  add_executable(tester ${TESTER_FILES})
-  target_include_directories(tester
-    PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${CMAKE_CURRENT_SOURCE_DIR}/Headers
-      ${CMAKE_CURRENT_SOURCE_DIR}/Tools
-  )
-  target_link_libraries(tester PRIVATE parser sheenbidi)
-  add_sanitizers(tester)
 
-  add_test(
-    NAME tests
-    COMMAND tester ${CMAKE_CURRENT_SOURCE_DIR}/Tools/Unicode
+  set(TEST_TARGETS
+    AlgorithmTests
+    BidiTypeLookupTests
+    CodepointSequenceTests
+    GeneralCategoryLookupTests
+    MirrorLookupTests
+    ScriptLocatorTests
+    ScriptLookupTests
   )
-  set_tests_properties(tests PROPERTIES
-    TIMEOUT 180
-    FAIL_REGULAR_EXPRESSION "[1-9][0-9]* error"
+  set(AlgorithmTests
+    Tools/Tester/AlgorithmTester.h
+    Tools/Tester/AlgorithmTester.cpp
   )
+  set(BidiTypeLookupTests
+    Tools/Tester/BidiTypeLookupTester.h
+    Tools/Tester/BidiTypeLookupTester.cpp
+  )
+  set(CodepointSequenceTests
+    Tools/Tester/CodepointSequenceTester.h
+    Tools/Tester/CodepointSequenceTester.cpp
+  )
+  set(GeneralCategoryLookupTests
+    Tools/Tester/GeneralCategoryLookupTester.h
+    Tools/Tester/GeneralCategoryLookupTester.cpp
+  )
+  set(MirrorLookupTests
+    Tools/Tester/MirrorLookupTester.h
+    Tools/Tester/MirrorLookupTester.cpp
+  )
+  set(ScriptLocatorTests
+    Tools/Tester/ScriptLocatorTester.h
+    Tools/Tester/ScriptLocatorTester.cpp
+  )
+  set(ScriptLookupTests
+    Tools/Tester/ScriptLookupTester.h
+    Tools/Tester/ScriptLookupTester.cpp
+  )
+
+  foreach(TEST_NAME IN LISTS TEST_TARGETS)
+    add_executable(${TEST_NAME}
+      ${${TEST_NAME}}
+      ${TEST_COMMON_FILES}
+    )
+    target_include_directories(${TEST_NAME}
+      PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/Headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/Tools
+    )
+    target_compile_definitions(${TEST_NAME} PRIVATE STANDALONE_TESTING)
+    target_link_libraries(${TEST_NAME} PRIVATE parser sheenbidi)
+    add_sanitizers(${TEST_NAME})
+
+    add_test(
+      NAME ${TEST_NAME}
+      COMMAND ${TEST_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/Tools/Unicode
+    )
+    set_tests_properties(${TEST_NAME} PROPERTIES
+      TIMEOUT 60
+      FAIL_REGULAR_EXPRESSION "[1-9][0-9]* error"
+    )
+  endforeach()
 
   if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
