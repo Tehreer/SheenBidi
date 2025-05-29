@@ -9,7 +9,6 @@ TESTER_SRCS = $(TESTER_DIR)/AlgorithmTester.cpp \
               $(TESTER_DIR)/BidiTypeLookupTester.cpp \
               $(TESTER_DIR)/BracketLookupTester.cpp \
               $(TESTER_DIR)/CodepointSequenceTester.cpp \
-              $(TESTER_DIR)/Configuration.cpp \
               $(TESTER_DIR)/GeneralCategoryLookupTester.cpp \
               $(TESTER_DIR)/main.cpp \
               $(TESTER_DIR)/MirrorLookupTester.cpp \
