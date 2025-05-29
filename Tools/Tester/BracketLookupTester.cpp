@@ -92,3 +92,18 @@ void BracketLookupTester::test() {
     cout << endl;
 #endif
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    BidiBrackets bidiBrackets(dir);
+
+    BracketLookupTester bracketLookupTester(bidiBrackets);
+    bracketLookupTester.test();
+
+    return 0;
+}
+
+#endif

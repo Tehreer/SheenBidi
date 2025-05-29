@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2017-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -331,3 +331,14 @@ void CodepointSequenceTester::test()
     testUTF16();
     testUTF32();
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    CodepointSequenceTester codepointSequenceTester;
+    codepointSequenceTester.test();
+
+    return 0;
+}
+
+#endif

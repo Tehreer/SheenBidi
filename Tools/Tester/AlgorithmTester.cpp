@@ -22,9 +22,9 @@
 
 #include <SheenBidi.h>
 
-#include <Parser/BidiTest.h>
-#include <Parser/BidiBrackets.h>
+#include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
+#include <Parser/BidiTest.h>
 
 #include "Utilities/Convert.h"
 
@@ -544,3 +544,20 @@ void AlgorithmTester::analyzeBidiCharacterTest() {
         }
     }
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    BidiMirroring bidiMirroring(dir);
+    BidiTest bidiTest(dir);
+    BidiCharacterTest bidiCharacterTest(dir);
+
+    AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    algorithmTester.test();
+
+    return 0;
+}
+
+#endif

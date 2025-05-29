@@ -78,3 +78,18 @@ void GeneralCategoryLookupTester::test()
     cout << endl;
 #endif
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    DerivedGeneralCategory derivedGeneralCategory(dir);
+
+    GeneralCategoryLookupTester generalCategoryLookupTester(derivedGeneralCategory);
+    generalCategoryLookupTester.test();
+
+    return 0;
+}
+
+#endif

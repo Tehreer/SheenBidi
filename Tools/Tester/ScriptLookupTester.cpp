@@ -78,3 +78,19 @@ void ScriptLookupTester::test() {
     cout << endl;
 #endif
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    PropertyValueAliases propertyValueAliases(dir);
+    Scripts scripts(dir);
+
+    ScriptLookupTester scriptLookupTester(scripts, propertyValueAliases);
+    scriptLookupTester.test();
+
+    return 0;
+}
+
+#endif

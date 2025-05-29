@@ -71,3 +71,18 @@ void MirrorLookupTester::test() {
     cout << endl;
 #endif
 }
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    BidiMirroring bidiMirroring(dir);
+
+    MirrorLookupTester mirrorLookupTester(bidiMirroring);
+    mirrorLookupTester.test();
+
+    return 0;
+}
+
+#endif

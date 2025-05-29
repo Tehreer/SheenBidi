@@ -29,6 +29,9 @@ extern "C" {
 #include <string>
 
 #include <Parser/DerivedBidiClass.h>
+#include <Parser/DerivedCoreProperties.h>
+#include <Parser/PropertyValueAliases.h>
+#include <Parser/PropList.h>
 
 #include "Utilities/Convert.h"
 #include "Utilities/Unicode.h"
@@ -76,3 +79,22 @@ void BidiTypeLookupTester::test() {
     cout << endl;
 #endif
 }
+
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    const char *dir = argv[1];
+
+    PropList propList(dir);
+    DerivedCoreProperties derivedCoreProperties(dir);
+    PropertyValueAliases propertyValueAliases(dir);
+    DerivedBidiClass derivedBidiClass(dir, propList, derivedCoreProperties, propertyValueAliases);
+
+    BidiTypeLookupTester bidiTypeLookupTester(derivedBidiClass);
+    bidiTypeLookupTester.test();
+
+    return 0;
+}
+
+#endif

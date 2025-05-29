@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ namespace Tester {
 
 class Configuration {
 public:
-    static const bool DISPLAY_TEST_CASE;
-    static const bool DISPLAY_ERROR_DETAILS;
+    static constexpr bool DISPLAY_TEST_CASE = false;
+    static constexpr bool DISPLAY_ERROR_DETAILS = true;
 };
 
 }
