@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_CODEPOINT_SEQUENCE_TESTER_H
-#define SHEENBIDI_TESTER_CODEPOINT_SEQUENCE_TESTER_H
+#ifndef _SHEENBIDI__SCRIPT_LOCATOR_TESTS_H
+#define _SHEENBIDI__SCRIPT_LOCATOR_TESTS_H
 
 namespace SheenBidi {
-namespace Tester {
 
-class CodepointSequenceTester {
+class ScriptLocatorTests {
 public:
-    CodepointSequenceTester();
+    ScriptLocatorTests();
 
-    void test();
-
-private:
-    void testUTF8();
-    void testUTF16();
-    void testUTF32();
+    void run();
 };
 
-}
 }
 
 #endif

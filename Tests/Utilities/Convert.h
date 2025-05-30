@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__TESTER__MIRROR_LOOKUP_TESTER_H
-#define _SHEENBIDI__TESTER__MIRROR_LOOKUP_TESTER_H
+#ifndef _SHEENBIDI__UTILITIES__CONVERT_H
+#define _SHEENBIDI__UTILITIES__CONVERT_H
 
-#include <Parser/BidiMirroring.h>
+#include <cstdint>
+#include <string>
+
+#include <Headers/SBBidiType.h>
+#include <Headers/SBGeneralCategory.h>
+#include <Headers/SBScript.h>
 
 namespace SheenBidi {
-namespace Tester {
+namespace Utilities {
 
-class MirrorLookupTester {
+class Convert {
 public:
-    MirrorLookupTester(const Parser::BidiMirroring &bidiMirroring);
-
-    void test();
-
-private:
-    const Parser::BidiMirroring &m_BidiMirroring;
+    static const std::string &bidiTypeToString(SBBidiType bidiType);
+    static const std::string &generalCategoryToString(SBGeneralCategory generalCategory);
+    static const std::string &scriptToString(SBScript script);
+    static uint32_t toCodePoint(const std::string &bidiType);
 };
 
 }

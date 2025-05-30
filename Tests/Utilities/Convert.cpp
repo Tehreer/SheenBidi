@@ -25,7 +25,7 @@
 #include "Convert.h"
 
 using namespace std;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
 static unordered_map<string, uint32_t> MAP_BIDI_TYPE_TO_CODE_POINT = {
     {"AL", 0x0627},

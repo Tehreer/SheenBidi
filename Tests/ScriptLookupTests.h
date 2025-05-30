@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__TESTER__GENERAL_CATEGORY_LOOKUP_TESTER_H
-#define _SHEENBIDI__TESTER__GENERAL_CATEGORY_LOOKUP_TESTER_H
+#ifndef _SHEENBIDI__SCRIPT_LOOKUP_TESTS_H
+#define _SHEENBIDI__SCRIPT_LOOKUP_TESTS_H
 
-#include <Parser/DerivedGeneralCategory.h>
+#include <Parser/PropertyValueAliases.h>
+#include <Parser/Scripts.h>
 
 namespace SheenBidi {
-namespace Tester {
 
-class GeneralCategoryLookupTester {
+class ScriptLookupTests {
 public:
-    GeneralCategoryLookupTester(const Parser::DerivedGeneralCategory &derivedGeneralCategory);
+    ScriptLookupTests(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases);
 
-    void test();
+    void run();
 
 private:
-    const Parser::DerivedGeneralCategory &m_derivedGeneralCategory;
+    const Parser::Scripts &m_scripts;
+    const Parser::PropertyValueAliases &m_propertyValueAliases;
 };
 
-}
 }
 
 #endif

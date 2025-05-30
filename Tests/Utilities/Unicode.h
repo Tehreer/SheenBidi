@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_UTILITIES_CONVERTER_H
-#define SHEENBIDI_TESTER_UTILITIES_CONVERTER_H
+#ifndef _SHEENBIDI__UTILITIES__UNICODE_H
+#define _SHEENBIDI__UTILITIES__UNICODE_H
 
 #include <cstdint>
-#include <string>
-
-#include <Headers/SBBidiType.h>
-#include <Headers/SBGeneralCategory.h>
-#include <Headers/SBScript.h>
 
 namespace SheenBidi {
-namespace Tester {
 namespace Utilities {
 
-class Convert {
+class Unicode {
 public:
-    static const std::string &bidiTypeToString(SBBidiType bidiType);
-    static const std::string &generalCategoryToString(SBGeneralCategory generalCategory);
-    static const std::string &scriptToString(SBScript script);
-    static uint32_t toCodePoint(const std::string &bidiType);
+    static constexpr uint32_t MAX_CODE_POINT = 0x10FFFF;
 };
 
-}
 }
 }
 

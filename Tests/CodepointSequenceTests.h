@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2017-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__TESTER__SCRIPT_LOOKUP_TESTER_H
-#define _SHEENBIDI__TESTER__SCRIPT_LOOKUP_TESTER_H
-
-#include <Parser/PropertyValueAliases.h>
-#include <Parser/Scripts.h>
+#ifndef _SHEENBIDI__CODEPOINT_SEQUENCE_TESTS_H
+#define _SHEENBIDI__CODEPOINT_SEQUENCE_TESTS_H
 
 namespace SheenBidi {
-namespace Tester {
 
-class ScriptLookupTester {
+class CodepointSequenceTests {
 public:
-    ScriptLookupTester(const Parser::Scripts &scripts, const Parser::PropertyValueAliases &propertyValueAliases);
+    CodepointSequenceTests();
 
-    void test();
+    void run();
 
 private:
-    const Parser::Scripts &m_scripts;
-    const Parser::PropertyValueAliases &m_propertyValueAliases;
+    void testUTF8();
+    void testUTF16();
+    void testUTF32();
 };
 
-}
 }
 
 #endif

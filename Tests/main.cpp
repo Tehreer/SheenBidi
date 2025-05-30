@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#include <Headers/SheenBidi.h>
-
-#include <iostream>
-
 #include <Parser/BidiBrackets.h>
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
@@ -29,18 +25,18 @@
 #include <Parser/PropList.h>
 #include <Parser/Scripts.h>
 
-#include "AlgorithmTester.h"
-#include "BidiTypeLookupTester.h"
-#include "BracketLookupTester.h"
-#include "CodepointSequenceTester.h"
-#include "GeneralCategoryLookupTester.h"
-#include "MirrorLookupTester.h"
-#include "ScriptLocatorTester.h"
-#include "ScriptLookupTester.h"
+#include "AlgorithmTests.h"
+#include "BidiTypeLookupTests.h"
+#include "BracketLookupTests.h"
+#include "CodepointSequenceTests.h"
+#include "GeneralCategoryLookupTests.h"
+#include "MirrorLookupTests.h"
+#include "ScriptLocatorTests.h"
+#include "ScriptLookupTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
 
 int main(int argc, const char *argv[]) {
     const char *dir = argv[1];
@@ -56,23 +52,23 @@ int main(int argc, const char *argv[]) {
     DerivedGeneralCategory derivedGeneralCategory(dir);
     Scripts scripts(dir);
 
-    BidiTypeLookupTester bidiTypeLookupTester(derivedBidiClass);
-    CodepointSequenceTester codepointSequenceTester;
-    MirrorLookupTester mirrorLookupTester(bidiMirroring);
-    BracketLookupTester bracketLookupTester(bidiBrackets);
-    GeneralCategoryLookupTester generalCategoryLookupTester(derivedGeneralCategory);
-    ScriptLookupTester scriptLookupTester(scripts, propertyValueAliases);
-    AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
-    ScriptLocatorTester scriptLocatorTester;
+    BidiTypeLookupTests bidiTypeLookupTests(derivedBidiClass);
+    CodepointSequenceTests codepointSequenceTests;
+    MirrorLookupTests mirrorLookupTests(bidiMirroring);
+    BracketLookupTests bracketLookupTests(bidiBrackets);
+    GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
+    ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
+    AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    ScriptLocatorTests scriptLocatorTests;
 
-    bidiTypeLookupTester.test();
-    codepointSequenceTester.test();
-    mirrorLookupTester.test();
-    bracketLookupTester.test();
-    generalCategoryLookupTester.test();
-    scriptLookupTester.test();
-    algorithmTester.test();
-    scriptLocatorTester.test();
+    bidiTypeLookupTests.run();
+    codepointSequenceTests.run();
+    mirrorLookupTests.run();
+    bracketLookupTests.run();
+    generalCategoryLookupTests.run();
+    scriptLookupTests.run();
+    algorithmTests.run();
+    scriptLocatorTests.run();
 
     return 0;
 }

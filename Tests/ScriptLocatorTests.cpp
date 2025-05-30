@@ -23,10 +23,10 @@
 #include <string>
 #include <vector>
 
-#include "ScriptLocatorTester.h"
+#include "ScriptLocatorTests.h"
 
 using namespace std;
-using namespace SheenBidi::Tester;
+using namespace SheenBidi;
 
 struct run {
     SBUInteger offset;
@@ -62,11 +62,11 @@ static void u32Test(const u32string string, const vector<run> runs)
     assert(runs == output);
 }
 
-ScriptLocatorTester::ScriptLocatorTester()
+ScriptLocatorTests::ScriptLocatorTests()
 {
 }
 
-void ScriptLocatorTester::test()
+void ScriptLocatorTests::run()
 {
     /* Test with an empty string. */
     u32Test(U"", { });
@@ -98,8 +98,8 @@ void ScriptLocatorTester::test()
 #ifdef STANDALONE_TESTING
 
 int main(int argc, const char *argv[]) {
-    ScriptLocatorTester scriptLocatorTester;
-    scriptLocatorTester.test();
+    ScriptLocatorTests scriptLocatorTests;
+    scriptLocatorTests.run();
 
     return 0;
 }

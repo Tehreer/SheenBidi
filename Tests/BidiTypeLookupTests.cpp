@@ -37,23 +37,23 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "BidiTypeLookupTester.h"
+#include "BidiTypeLookupTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
-BidiTypeLookupTester::BidiTypeLookupTester(const DerivedBidiClass &derivedBidiClass) :
+BidiTypeLookupTests::BidiTypeLookupTests(const DerivedBidiClass &derivedBidiClass) :
     m_derivedBidiClass(derivedBidiClass)
 {
 }
 
-void BidiTypeLookupTester::test() {
+void BidiTypeLookupTests::run() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run bidi type lookup tester in unity mode." << endl;
+    cout << "Cannot run bidi type lookup tests in unity mode." << endl;
 #else
-    cout << "Running bidi type lookup tester." << endl;
+    cout << "Running bidi type lookup tests." << endl;
 
     size_t failCounter = 0;
 
@@ -80,7 +80,6 @@ void BidiTypeLookupTester::test() {
 #endif
 }
 
-
 #ifdef STANDALONE_TESTING
 
 int main(int argc, const char *argv[]) {
@@ -91,8 +90,8 @@ int main(int argc, const char *argv[]) {
     PropertyValueAliases propertyValueAliases(dir);
     DerivedBidiClass derivedBidiClass(dir, propList, derivedCoreProperties, propertyValueAliases);
 
-    BidiTypeLookupTester bidiTypeLookupTester(derivedBidiClass);
-    bidiTypeLookupTester.test();
+    BidiTypeLookupTests bidiTypeLookupTests(derivedBidiClass);
+    bidiTypeLookupTests.run();
 
     return 0;
 }

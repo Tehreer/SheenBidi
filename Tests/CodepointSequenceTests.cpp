@@ -20,10 +20,10 @@
 #include <cassert>
 #include <vector>
 
-#include "CodepointSequenceTester.h"
+#include "CodepointSequenceTests.h"
 
 using namespace std;
-using namespace SheenBidi::Tester;
+using namespace SheenBidi;
 
 const SBCodepoint FAULTY = SBCodepointFaulty;
 
@@ -73,11 +73,11 @@ static void u32Test(const vector<uint32_t> &buffer, const vector<uint32_t> &code
     encTest(SBStringEncodingUTF32, buffer, codepoints);
 }
 
-CodepointSequenceTester::CodepointSequenceTester()
+CodepointSequenceTests::CodepointSequenceTests()
 {
 }
 
-void CodepointSequenceTester::testUTF8()
+void CodepointSequenceTests::testUTF8()
 {
     /* Based On: https://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html */
 
@@ -253,7 +253,7 @@ void CodepointSequenceTester::testUTF8()
     u8Test({ 0xEF, 0xBF, 0xBF }, { 0xFFFF });
 }
 
-void CodepointSequenceTester::testUTF16()
+void CodepointSequenceTests::testUTF16()
 {
     /* Empty sequence. */
     u16Test({ }, { });
@@ -303,7 +303,7 @@ void CodepointSequenceTester::testUTF16()
     u16Test({ 0xDBFF, 0xE000 }, { FAULTY, 0xE000 });
 }
 
-void CodepointSequenceTester::testUTF32()
+void CodepointSequenceTests::testUTF32()
 {
     /* Empty sequence. */
     u32Test({ }, { });
@@ -325,7 +325,7 @@ void CodepointSequenceTester::testUTF32()
     u32Test({ 0x10FFFF }, { 0x10FFFF });
 }
 
-void CodepointSequenceTester::test()
+void CodepointSequenceTests::run()
 {
     testUTF8();
     testUTF16();
@@ -335,8 +335,8 @@ void CodepointSequenceTester::test()
 #ifdef STANDALONE_TESTING
 
 int main(int argc, const char *argv[]) {
-    CodepointSequenceTester codepointSequenceTester;
-    codepointSequenceTester.test();
+    CodepointSequenceTests codepointSequenceTests;
+    codepointSequenceTests.run();
 
     return 0;
 }

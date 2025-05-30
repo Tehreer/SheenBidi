@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_ALGORITHM_TESTER_H
-#define SHEENBIDI_TESTER_ALGORITHM_TESTER_H
+#ifndef _SHEENBIDI__ALGORITHM_TESTS_H
+#define _SHEENBIDI__ALGORITHM_TESTS_H
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -27,41 +28,40 @@
 #include <Parser/BidiMirroring.h>
 
 namespace SheenBidi {
-namespace Tester {
 
-class AlgorithmTester {
+class AlgorithmTests {
 public:
-    AlgorithmTester(Parser::BidiTest *bidiTest, Parser::BidiCharacterTest *bidiBracketTest, Parser::BidiMirroring *bidiMirroring);
-    ~AlgorithmTester();
+    AlgorithmTests(Parser::BidiTest *bidiTest, Parser::BidiCharacterTest *bidiBracketTest, Parser::BidiMirroring *bidiMirroring);
+    ~AlgorithmTests();
 
     void testAlgorithm();
     void testMulticharNewline();
-    void test();
+    void run();
 
 private:
     Parser::BidiTest *m_bidiTest;
     Parser::BidiCharacterTest *m_bidiCharacterTest;
     Parser::BidiMirroring *m_bidiMirroring;
 
-    size_t testCounter;
-    size_t failCounter;
+    size_t testCounter = 0;
+    size_t failCounter = 0;
 
-    SBMirrorLocatorRef m_mirrorLocator;
+    SBMirrorLocatorRef m_mirrorLocator = nullptr;
 
-    SBCodepoint m_genChars[256];
-    SBUInteger m_charCount;
+    SBCodepoint m_genChars[256] = { };
+    SBUInteger m_charCount = 0;
 
-    SBLevel m_inputLevel;
-    uint8_t m_paragraphLevel;
+    SBLevel m_inputLevel = SBLevelInvalid;
+    uint8_t m_paragraphLevel = UINT8_MAX;
 
-    SBUInteger m_runCount;
-    const SBRun *m_runArray;
+    SBUInteger m_runCount = 0;
+    const SBRun *m_runArray = nullptr;
 
-    uint32_t m_genMirrors[256];
-    size_t m_mirrorCount;
+    uint32_t m_genMirrors[256] = { };
+    size_t m_mirrorCount = 0;
 
-    const std::vector<uint8_t> *m_levels;
-    const std::vector<size_t> *m_order;
+    const std::vector<uint8_t> *m_levels = nullptr;
+    const std::vector<size_t> *m_order = nullptr;
 
     void loadCharacters(const std::vector<std::string> &types);
     void loadCharacters(const std::vector<uint32_t> &codePoints);
@@ -79,7 +79,6 @@ private:
     void analyzeBidiCharacterTest();
 };
 
-}
 }
 
 #endif

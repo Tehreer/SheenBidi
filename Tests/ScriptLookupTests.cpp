@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,51 +18,58 @@
 #include <Headers/SBConfig.h>
 
 extern "C" {
-#include <Source/PairingLookup.h>
+#include <Source/ScriptLookup.h>
 }
 
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <string>
 
-#include <Parser/BidiMirroring.h>
+#include <Parser/PropertyValueAliases.h>
+#include <Parser/Scripts.h>
 
+#include "Utilities/Convert.h"
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "MirrorLookupTester.h"
+#include "ScriptLookupTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
-MirrorLookupTester::MirrorLookupTester(const BidiMirroring &bidiMirroring) :
-    m_BidiMirroring(bidiMirroring)
+ScriptLookupTests::ScriptLookupTests(const Scripts &scripts, const PropertyValueAliases &propertyValueAliases) :
+    m_scripts(scripts),
+    m_propertyValueAliases(propertyValueAliases)
 {
 }
 
-void MirrorLookupTester::test() {
+void ScriptLookupTests::run() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run mirror lookup tester in unity mode." << endl;
+    cout << "Cannot run script lookup tests in unity mode." << endl;
 #else
-    cout << "Running mirror lookup tester." << endl;
+    cout << "Running script lookup tests." << endl;
 
     size_t failCounter = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        uint32_t expMirror = m_BidiMirroring.mirrorOf(codePoint);
-        SBUInt32 genMirror = LookupMirror(codePoint);
+        const string &uniScript = m_scripts.scriptOf(codePoint);
+        const string &expScript = m_propertyValueAliases.abbreviationForScript(uniScript);
 
-        if (genMirror != expMirror) {
+        SBScript valScript = LookupScript(codePoint);
+        const string &genScript = Convert::scriptToString(valScript);
+
+        if (expScript != genScript) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
-                cout << "Invalid mirror found: " << endl
+                cout << "Invalid script found: " << endl
                      << "  Code Point: " << codePoint << endl
-                     << "  Generated Mirror: " << genMirror << endl
-                     << "  Expected Mirror: " << expMirror << endl;
+                     << "  Expected Script: " << expScript << endl
+                     << "  Generated Script: " << genScript << endl;
             }
-
+                
             failCounter++;
         }
     }
@@ -77,10 +84,11 @@ void MirrorLookupTester::test() {
 int main(int argc, const char *argv[]) {
     const char *dir = argv[1];
 
-    BidiMirroring bidiMirroring(dir);
+    PropertyValueAliases propertyValueAliases(dir);
+    Scripts scripts(dir);
 
-    MirrorLookupTester mirrorLookupTester(bidiMirroring);
-    mirrorLookupTester.test();
+    ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
+    scriptLookupTests.run();
 
     return 0;
 }

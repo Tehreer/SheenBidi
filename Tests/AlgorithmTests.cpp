@@ -29,16 +29,16 @@
 #include "Utilities/Convert.h"
 
 #include "Configuration.h"
-#include "AlgorithmTester.h"
+#include "AlgorithmTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
 static uint8_t LEVEL_X = UINT8_MAX;
 
-AlgorithmTester::AlgorithmTester(BidiTest *bidiTest, BidiCharacterTest *bidiCharacterTest, BidiMirroring *bidiMirroring)
+AlgorithmTests::AlgorithmTests(BidiTest *bidiTest, BidiCharacterTest *bidiCharacterTest, BidiMirroring *bidiMirroring)
     : m_bidiTest(bidiTest)
     , m_bidiCharacterTest(bidiCharacterTest)
     , m_bidiMirroring(bidiMirroring)
@@ -46,13 +46,13 @@ AlgorithmTester::AlgorithmTester(BidiTest *bidiTest, BidiCharacterTest *bidiChar
 {
 }
 
-AlgorithmTester::~AlgorithmTester() {
+AlgorithmTests::~AlgorithmTests() {
     SBMirrorLocatorRelease(m_mirrorLocator);
 }
 
-void AlgorithmTester::testAlgorithm() {
+void AlgorithmTests::testAlgorithm() {
     if (m_bidiTest || m_bidiCharacterTest) {
-        cout << "Running algorithm tester." << endl;
+        cout << "Running algorithm tests." << endl;
 
         testCounter = 0;
         failCounter = 0;
@@ -67,15 +67,15 @@ void AlgorithmTester::testAlgorithm() {
 
         cout << failCounter << " error/s." << endl << endl;
     } else {
-        cout << "No test case found for algorithm tester." << endl << endl;
+        cout << "No test case found for algorithm testing." << endl << endl;
     }
 
     cout << endl;
 }
 
-void AlgorithmTester::testMulticharNewline()
+void AlgorithmTests::testMulticharNewline()
 {
-    cout << "Running multi character new line tester." << endl;
+    cout << "Running multi character new line test." << endl;
 
     size_t failed = 0;
     SBCodepoint codepointArray[] = { 'L', 'i', 'n', 'e', '\r', '\n', '.' };
@@ -123,13 +123,13 @@ void AlgorithmTester::testMulticharNewline()
     cout << failed << " error/s." << endl << endl;
 }
 
-void AlgorithmTester::test()
+void AlgorithmTests::run()
 {
     testAlgorithm();
     testMulticharNewline();
 }
 
-void AlgorithmTester::loadCharacters(const vector<string> &types) {
+void AlgorithmTests::loadCharacters(const vector<string> &types) {
     SBCodepoint *chars = m_genChars;
 
     for (auto &t : types) {
@@ -139,7 +139,7 @@ void AlgorithmTester::loadCharacters(const vector<string> &types) {
     m_charCount = types.size();
 }
 
-void AlgorithmTester::loadCharacters(const vector<uint32_t> &codePoints) {
+void AlgorithmTests::loadCharacters(const vector<uint32_t> &codePoints) {
     SBCodepoint *chars = m_genChars;
 
     for (auto c : codePoints) {
@@ -149,7 +149,7 @@ void AlgorithmTester::loadCharacters(const vector<uint32_t> &codePoints) {
     m_charCount = codePoints.size();
 }
 
-void AlgorithmTester::loadMirrors() {
+void AlgorithmTests::loadMirrors() {
     if (m_bidiMirroring) {
         m_mirrorCount = 0;
 
@@ -167,7 +167,7 @@ void AlgorithmTester::loadMirrors() {
     }
 }
 
-bool AlgorithmTester::testLevels() const {
+bool AlgorithmTests::testLevels() const {
     for (size_t i = 0; i < m_runCount; i++) {
         const SBRun *runPtr = &m_runArray[i];
         SBUInteger start = runPtr->offset;
@@ -217,7 +217,7 @@ bool AlgorithmTester::testLevels() const {
     return true;
 }
 
-bool AlgorithmTester::testOrder() const {
+bool AlgorithmTests::testOrder() const {
     bool passed = true;
     size_t lgcIndex = 0;    // Logical Index (incremented from zero to char count)
     size_t ordIndex = 0;    // Order Index (not incremented when level x is found)
@@ -275,7 +275,7 @@ bool AlgorithmTester::testOrder() const {
     return passed;
 }
 
-bool AlgorithmTester::testMirrors() const {
+bool AlgorithmTests::testMirrors() const {
     const SBMirrorAgent *agent = SBMirrorLocatorGetAgent(m_mirrorLocator);
     SBMirrorLocatorReset(m_mirrorLocator);
 
@@ -325,7 +325,7 @@ bool AlgorithmTester::testMirrors() const {
     return true;
 }
 
-bool AlgorithmTester::conductTest() {
+bool AlgorithmTests::conductTest() {
     bool passed = true;
 
     SBCodepointSequence sequence;
@@ -371,7 +371,7 @@ bool AlgorithmTester::conductTest() {
     return passed;
 }
 
-void AlgorithmTester::displayBidiTestCase() const {
+void AlgorithmTests::displayBidiTestCase() const {
     if (Configuration::DISPLAY_TEST_CASE) {
         auto &testCase = m_bidiTest->testCase();
 
@@ -418,7 +418,7 @@ void AlgorithmTester::displayBidiTestCase() const {
     }
 }
 
-void AlgorithmTester::displayBidiCharacterTestCase() const {
+void AlgorithmTests::displayBidiCharacterTestCase() const {
     if (Configuration::DISPLAY_TEST_CASE) {
         auto &testCase = m_bidiCharacterTest->testCase();
 
@@ -474,7 +474,7 @@ void AlgorithmTester::displayBidiCharacterTestCase() const {
     }
 }
 
-void AlgorithmTester::analyzeBidiTest() {
+void AlgorithmTests::analyzeBidiTest() {
     auto &testCase = m_bidiTest->testCase();
     m_bidiTest->reset();
 
@@ -512,7 +512,7 @@ void AlgorithmTester::analyzeBidiTest() {
     }
 }
 
-void AlgorithmTester::analyzeBidiCharacterTest() {
+void AlgorithmTests::analyzeBidiCharacterTest() {
     const BidiCharacterTest::TestCase &testCase = m_bidiCharacterTest->testCase();
     m_bidiCharacterTest->reset();
 
@@ -554,8 +554,8 @@ int main(int argc, const char *argv[]) {
     BidiTest bidiTest(dir);
     BidiCharacterTest bidiCharacterTest(dir);
 
-    AlgorithmTester algorithmTester(&bidiTest, &bidiCharacterTest, &bidiMirroring);
-    algorithmTester.test();
+    AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    algorithmTests.run();
 
     return 0;
 }

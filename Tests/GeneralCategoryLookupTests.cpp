@@ -34,24 +34,24 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "GeneralCategoryLookupTester.h"
+#include "GeneralCategoryLookupTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
-GeneralCategoryLookupTester::GeneralCategoryLookupTester(const DerivedGeneralCategory &derivedGeneralCategory) :
+GeneralCategoryLookupTests::GeneralCategoryLookupTests(const DerivedGeneralCategory &derivedGeneralCategory) :
     m_derivedGeneralCategory(derivedGeneralCategory)
 {
 }
 
-void GeneralCategoryLookupTester::test()
+void GeneralCategoryLookupTests::run()
 {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run general category lookup tester in unity mode." << endl;
+    cout << "Cannot run general category lookup tests in unity mode." << endl;
 #else
-    cout << "Running general category lookup tester." << endl;
+    cout << "Running general category lookup tests." << endl;
 
     size_t failCounter = 0;
     string uniGeneralCategory;
@@ -86,8 +86,8 @@ int main(int argc, const char *argv[]) {
 
     DerivedGeneralCategory derivedGeneralCategory(dir);
 
-    GeneralCategoryLookupTester generalCategoryLookupTester(derivedGeneralCategory);
-    generalCategoryLookupTester.test();
+    GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
+    generalCategoryLookupTests.run();
 
     return 0;
 }

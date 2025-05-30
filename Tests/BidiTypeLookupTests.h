@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_UTILITIES_UNICODE_H
-#define SHEENBIDI_TESTER_UTILITIES_UNICODE_H
+#ifndef _SHEENBIDI__BIDI_TYPE_LOOKUP_TESTS_H
+#define _SHEENBIDI__BIDI_TYPE_LOOKUP_TESTS_H
 
-#include <cstdint>
+#include <Parser/DerivedBidiClass.h>
 
 namespace SheenBidi {
-namespace Tester {
-namespace Utilities {
 
-class Unicode {
+class BidiTypeLookupTests {
 public:
-    static constexpr uint32_t MAX_CODE_POINT = 0x10FFFF;
+    BidiTypeLookupTests(const Parser::DerivedBidiClass &derivedBidiClass);
+
+    void run();
+
+private:
+    const Parser::DerivedBidiClass &m_derivedBidiClass;
 };
 
-}
-}
 }
 
 #endif

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef SHEENBIDI_TESTER_CONFIGURATION_H
-#define SHEENBIDI_TESTER_CONFIGURATION_H
+#ifndef _SHEENBIDI__CONFIGURATION_H
+#define _SHEENBIDI__CONFIGURATION_H
 
 namespace SheenBidi {
-namespace Tester {
 
 class Configuration {
 public:
@@ -26,7 +25,6 @@ public:
     static constexpr bool DISPLAY_ERROR_DETAILS = true;
 };
 
-}
 }
 
 #endif

@@ -32,23 +32,23 @@ extern "C" {
 #include "Utilities/Unicode.h"
 
 #include "Configuration.h"
-#include "BracketLookupTester.h"
+#include "BracketLookupTests.h"
 
 using namespace std;
+using namespace SheenBidi;
 using namespace SheenBidi::Parser;
-using namespace SheenBidi::Tester;
-using namespace SheenBidi::Tester::Utilities;
+using namespace SheenBidi::Utilities;
 
-BracketLookupTester::BracketLookupTester(const BidiBrackets &bidiBrackets) :
+BracketLookupTests::BracketLookupTests(const BidiBrackets &bidiBrackets) :
     m_BidiBrackets(bidiBrackets)
 {
 }
 
-void BracketLookupTester::test() {
+void BracketLookupTests::run() {
 #ifdef SB_CONFIG_UNITY
-    cout << "Cannot run bracket lookup tester in unity mode." << endl;
+    cout << "Cannot run bracket lookup tests in unity mode." << endl;
 #else
-    cout << "Running bracket lookup tester." << endl;
+    cout << "Running bracket lookup tests." << endl;
 
     size_t failCounter = 0;
 
@@ -100,8 +100,8 @@ int main(int argc, const char *argv[]) {
 
     BidiBrackets bidiBrackets(dir);
 
-    BracketLookupTester bracketLookupTester(bidiBrackets);
-    bracketLookupTester.test();
+    BracketLookupTests bracketLookupTests(bidiBrackets);
+    bracketLookupTests.run();
 
     return 0;
 }

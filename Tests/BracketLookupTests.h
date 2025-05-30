@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__TESTER__BIDI_TYPE_LOOKUP_TESTER_H
-#define _SHEENBIDI__TESTER__BIDI_TYPE_LOOKUP_TESTER_H
+#ifndef _SHEENBIDI__BRACKET_LOOKUP_TESTS_H
+#define _SHEENBIDI__BRACKET_LOOKUP_TESTS_H
 
-#include <Parser/DerivedBidiClass.h>
+#include <Parser/BidiBrackets.h>
 
 namespace SheenBidi {
-namespace Tester {
-
-class BidiTypeLookupTester {
+    
+class BracketLookupTests {
 public:
-    BidiTypeLookupTester(const Parser::DerivedBidiClass &derivedBidiClass);
+    BracketLookupTests(const Parser::BidiBrackets &bidiBrackets);
 
-    void test();
+    void run();
 
 private:
-    const Parser::DerivedBidiClass &m_derivedBidiClass;
+    const Parser::BidiBrackets &m_BidiBrackets;
 };
 
-}
 }
 
 #endif

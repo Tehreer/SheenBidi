@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__TESTER__SCRIPT_LOCATOR_TESTER_H
-#define _SHEENBIDI__TESTER__SCRIPT_LOCATOR_TESTER_H
+#ifndef _SHEENBIDI__GENERAL_CATEGORY_LOOKUP_TESTS_H
+#define _SHEENBIDI__GENERAL_CATEGORY_LOOKUP_TESTS_H
+
+#include <Parser/DerivedGeneralCategory.h>
 
 namespace SheenBidi {
-namespace Tester {
 
-class ScriptLocatorTester {
+class GeneralCategoryLookupTests {
 public:
-    ScriptLocatorTester();
+    GeneralCategoryLookupTests(const Parser::DerivedGeneralCategory &derivedGeneralCategory);
 
-    void test();
+    void run();
+
+private:
+    const Parser::DerivedGeneralCategory &m_derivedGeneralCategory;
 };
 
-}
 }
 
 #endif
