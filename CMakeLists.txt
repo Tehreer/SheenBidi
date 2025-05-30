@@ -121,7 +121,7 @@ add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
 add_sanitizers(sheenbidi)
 
 # ------------------------------------------------------------------------------
-# Parser Library (Required for generator/tester)
+# Parser Library (Required for generator/testing)
 # ------------------------------------------------------------------------------
 
 if(BUILD_GENERATOR OR BUILD_TESTS)
@@ -159,13 +159,14 @@ endif()
 
 if(BUILD_TESTS)
   file(GLOB TEST_COMMON_FILES
-    Tools/Tester/Utilities/*.h
-    Tools/Tester/Utilities/*.cpp
+    Tests/Utilities/*.h
+    Tests/Utilities/*.cpp
   )
 
   set(TEST_TARGETS
     AlgorithmTests
     BidiTypeLookupTests
+    BracketLookupTests
     CodepointSequenceTests
     GeneralCategoryLookupTests
     MirrorLookupTests
@@ -173,32 +174,36 @@ if(BUILD_TESTS)
     ScriptLookupTests
   )
   set(AlgorithmTests
-    Tools/Tester/AlgorithmTester.h
-    Tools/Tester/AlgorithmTester.cpp
+    Tests/AlgorithmTests.h
+    Tests/AlgorithmTests.cpp
   )
   set(BidiTypeLookupTests
-    Tools/Tester/BidiTypeLookupTester.h
-    Tools/Tester/BidiTypeLookupTester.cpp
+    Tests/BidiTypeLookupTests.h
+    Tests/BidiTypeLookupTests.cpp
+  )
+  set(BracketLookupTests
+    Tests/BracketLookupTests.h
+    Tests/BracketLookupTests.cpp
   )
   set(CodepointSequenceTests
-    Tools/Tester/CodepointSequenceTester.h
-    Tools/Tester/CodepointSequenceTester.cpp
+    Tests/CodepointSequenceTests.h
+    Tests/CodepointSequenceTests.cpp
   )
   set(GeneralCategoryLookupTests
-    Tools/Tester/GeneralCategoryLookupTester.h
-    Tools/Tester/GeneralCategoryLookupTester.cpp
+    Tests/GeneralCategoryLookupTests.h
+    Tests/GeneralCategoryLookupTests.cpp
   )
   set(MirrorLookupTests
-    Tools/Tester/MirrorLookupTester.h
-    Tools/Tester/MirrorLookupTester.cpp
+    Tests/MirrorLookupTests.h
+    Tests/MirrorLookupTests.cpp
   )
   set(ScriptLocatorTests
-    Tools/Tester/ScriptLocatorTester.h
-    Tools/Tester/ScriptLocatorTester.cpp
+    Tests/ScriptLocatorTests.h
+    Tests/ScriptLocatorTests.cpp
   )
   set(ScriptLookupTests
-    Tools/Tester/ScriptLookupTester.h
-    Tools/Tester/ScriptLookupTester.cpp
+    Tests/ScriptLookupTests.h
+    Tests/ScriptLookupTests.cpp
   )
 
   foreach(TEST_NAME IN LISTS TEST_TARGETS)
