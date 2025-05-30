@@ -170,7 +170,7 @@ jobs:
       - name: Build Test Executable (Debug Mode)
         run: |
           make clean
-          make tester
+          make tests
 
       - name: Run Tests with Valgrind
         id: valgrind
@@ -182,7 +182,7 @@ jobs:
             --track-origins=yes \
             --error-exitcode=1 \
             --log-file=valgrind.log \
-            ./Debug/tester Tools/Unicode
+            ./Debug/tests Tools/Unicode
 
       - name: Upload Valgrind Log on Failure
         if: steps.valgrind.outcome == 'failure'
