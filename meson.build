@@ -115,7 +115,7 @@ sheenbidi_dep = declare_dependency(
 )
 
 # ------------------------------------------------------------------------------
-# Parser Library (Required for generator/tester)
+# Parser Library (Required for generator/testing)
 # ------------------------------------------------------------------------------
 
 if build_generator or build_tests
@@ -204,39 +204,43 @@ endif
 
 if build_tests
   test_common_files = files(
-    'Tools/Tester/Utilities/Convert.cpp',
-    'Tools/Tester/Utilities/Convert.h',
-    'Tools/Tester/Utilities/Unicode.h'
+    'Tests/Utilities/Convert.cpp',
+    'Tests/Utilities/Convert.h',
+    'Tests/Utilities/Unicode.h'
   )
 
   test_targets = {
     'AlgorithmTests': [
-      'Tools/Tester/AlgorithmTester.h',
-      'Tools/Tester/AlgorithmTester.cpp'
+      'Tests/AlgorithmTests.h',
+      'Tests/AlgorithmTests.cpp'
     ],
     'BidiTypeLookupTests': [
-      'Tools/Tester/BidiTypeLookupTester.h',
-      'Tools/Tester/BidiTypeLookupTester.cpp'
+      'Tests/BidiTypeLookupTests.h',
+      'Tests/BidiTypeLookupTests.cpp'
+    ],
+    'BracketLookupTests': [
+      'Tests/BracketLookupTests.h',
+      'Tests/BracketLookupTests.cpp'
     ],
     'CodepointSequenceTests': [
-      'Tools/Tester/CodepointSequenceTester.h',
-      'Tools/Tester/CodepointSequenceTester.cpp'
+      'Tests/CodepointSequenceTests.h',
+      'Tests/CodepointSequenceTests.cpp'
     ],
     'GeneralCategoryLookupTests': [
-      'Tools/Tester/GeneralCategoryLookupTester.h',
-      'Tools/Tester/GeneralCategoryLookupTester.cpp'
+      'Tests/GeneralCategoryLookupTests.h',
+      'Tests/GeneralCategoryLookupTests.cpp'
     ],
     'MirrorLookupTests': [
-      'Tools/Tester/MirrorLookupTester.h',
-      'Tools/Tester/MirrorLookupTester.cpp'
+      'Tests/MirrorLookupTests.h',
+      'Tests/MirrorLookupTests.cpp'
     ],
     'ScriptLocatorTests': [
-      'Tools/Tester/ScriptLocatorTester.h',
-      'Tools/Tester/ScriptLocatorTester.cpp'
+      'Tests/ScriptLocatorTests.h',
+      'Tests/ScriptLocatorTests.cpp'
     ],
     'ScriptLookupTests': [
-      'Tools/Tester/ScriptLookupTester.h',
-      'Tools/Tester/ScriptLookupTester.cpp'
+      'Tests/ScriptLookupTests.h',
+      'Tests/ScriptLookupTests.cpp'
     ]
   }
 
