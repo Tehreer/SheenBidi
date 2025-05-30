@@ -1,13 +1,13 @@
 ROOT_DIR    = .
 HEADERS_DIR = Headers
 SOURCE_DIR  = Source
+TESTS_DIR   = Tests
 TOOLS_DIR   = Tools
 PARSER_DIR  = $(TOOLS_DIR)/Parser
-TESTER_DIR  = $(TOOLS_DIR)/Tester
 
 LIB_SHEENBIDI = sheenbidi
 LIB_PARSER    = parser
-EXEC_TESTER   = tester
+EXEC_TESTS    = tests
 
 ifndef CC
 	CC = gcc
@@ -54,17 +54,17 @@ RELEASE_OBJECTS = $(RELEASE_SOURCES:$(SOURCE_DIR)/%.c=$(RELEASE)/%.o)
 
 DEBUG_TARGET   = $(DEBUG)/lib$(LIB_SHEENBIDI).a
 PARSER_TARGET  = $(DEBUG)/lib$(LIB_PARSER).a
-TESTER_TARGET  = $(DEBUG)/$(EXEC_TESTER)
+TESTS_TARGET   = $(DEBUG)/$(EXEC_TESTS)
 RELEASE_TARGET = $(RELEASE)/lib$(LIB_SHEENBIDI).a
 
 all:     release
 release: $(RELEASE) $(RELEASE_TARGET)
 debug:   $(DEBUG) $(DEBUG_TARGET)
 
-check: tester
-	./Debug/tester Tools/Unicode
+check: tests
+	./Debug/tests Tools/Unicode
 
-clean: parser_clean tester_clean
+clean: parser_clean tests_clean
 	$(RM) $(DEBUG)/*.o
 	$(RM) $(DEBUG_TARGET)
 	$(RM) $(RELEASE)/*.o
@@ -88,7 +88,7 @@ $(DEBUG)/%.o: $(SOURCE_DIR)/%.c
 $(RELEASE)/%.o: $(SOURCE_DIR)/%.c
 	$(CC) $(CFLAGS) $(EXTRA_FLAGS) $(RELEASE_FLAGS) -c $< -o $@
 
-.PHONY: all check clean compiler debug parser release tester
+.PHONY: all check clean compiler debug parser release tests
 
 include $(PARSER_DIR)/Makefile
-include $(TESTER_DIR)/Makefile
+include $(TESTS_DIR)/Makefile
