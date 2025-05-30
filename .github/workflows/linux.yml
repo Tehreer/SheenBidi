@@ -81,7 +81,7 @@ jobs:
         if: matrix.coverage
         run: |
           lcov --capture --directory . --output-file coverage.info
-          lcov --remove coverage.info '/usr/*' 'Tools/*' --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' 'Tests/*' 'Tools/*' --output-file coverage.info
 
       - name: Upload Code Coverage
         if: matrix.coverage
