@@ -17,12 +17,12 @@
 #ifndef _SB_INTERNAL_LINE_H
 #define _SB_INTERNAL_LINE_H
 
-#include <SBBase.h>
-#include <SBCodepointSequence.h>
-#include <SBConfig.h>
-#include <SBLine.h>
-#include <SBParagraph.h>
-#include <SBRun.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepointSequence.h>
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBLine.h>
+#include <SheenBidi/SBParagraph.h>
+#include <SheenBidi/SBRun.h>
 
 #include "Object.h"
 

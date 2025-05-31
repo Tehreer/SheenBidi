@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBase.h>
-#include <Headers/SBCodepointSequence.h>
-#include <Headers/SBScript.h>
-#include <Headers/SBScriptLocator.h>
+#include <Headers/SheenBidi/SBBase.h>
+#include <Headers/SheenBidi/SBCodepointSequence.h>
+#include <Headers/SheenBidi/SBScript.h>
+#include <Headers/SheenBidi/SBScriptLocator.h>
 
 #include <cassert>
 #include <string>

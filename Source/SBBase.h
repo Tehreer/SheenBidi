@@ -17,11 +17,11 @@
 #ifndef _SB_INTERNAL_BASE_H
 #define _SB_INTERNAL_BASE_H
 
-#include <SBBase.h>
-#include <SBBidiType.h>
-#include <SBConfig.h>
-#include <SBGeneralCategory.h>
-#include <SBScript.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBGeneralCategory.h>
+#include <SheenBidi/SBScript.h>
 
 /**
  * A value that indicates an invalid unsigned index.

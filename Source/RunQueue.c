@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
 #include <stddef.h>
 
 #include "LevelRun.h"
 #include "Object.h"
+#include "RunQueue.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "RunQueue.h"
 
 static SBBoolean RunQueueInsertElement(RunQueueRef queue)
 {

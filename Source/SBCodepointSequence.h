@@ -17,9 +17,9 @@
 #ifndef _SB_INTERNAL_CODEPOINT_SEQUENCE_H
 #define _SB_INTERNAL_CODEPOINT_SEQUENCE_H
 
-#include <SBBase.h>
-#include <SBConfig.h>
-#include <SBCodepointSequence.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepointSequence.h>
+#include <SheenBidi/SBConfig.h>
 
 SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence);
 

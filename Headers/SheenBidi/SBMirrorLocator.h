@@ -17,9 +17,9 @@
 #ifndef _SB_PUBLIC_MIRROR_LOCATOR_H
 #define _SB_PUBLIC_MIRROR_LOCATOR_H
 
-#include "SBBase.h"
-#include "SBCodepoint.h"
-#include "SBLine.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBLine.h>
 
 SB_EXTERN_C_BEGIN
 
