@@ -81,7 +81,7 @@ cmake --build debug
 ctest --test-dir debug --output-on-failure
 ```
 
-In other CMake projects, SheenBidi can be found via `find_package(SheenBidi)`, providing the target `SheenBidi::sheenbidi`. SheenBidi can also be used via `FetchContent`.
+In other CMake projects, SheenBidi can be found via `find_package(SheenBidi)`, providing the target `SheenBidi::SheenBidi`. SheenBidi can also be used via `FetchContent`.
 
 ### Meson
 To build and install SheenBidi using Meson:
@@ -107,7 +107,7 @@ A simple example in C11.
 #include <stdio.h>
 #include <string.h>
 
-#include <SheenBidi.h>
+#include <SheenBidi/SheenBidi.h>
 
 int main(int argc, const char * argv[]) {
     /* Create code point sequence for a sample bidirectional text. */

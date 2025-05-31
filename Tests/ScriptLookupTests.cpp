@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBase.h>
-#include <Headers/SBConfig.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBConfig.h>
 
 extern "C" {
 #include <Source/ScriptLookup.h>

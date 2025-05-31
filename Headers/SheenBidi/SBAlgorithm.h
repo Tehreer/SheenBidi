@@ -17,10 +17,10 @@
 #ifndef _SB_PUBLIC_ALGORITHM_H
 #define _SB_PUBLIC_ALGORITHM_H
 
-#include "SBBase.h"
-#include "SBBidiType.h"
-#include "SBCodepointSequence.h"
-#include "SBParagraph.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBCodepointSequence.h>
+#include <SheenBidi/SBParagraph.h>
 
 SB_EXTERN_C_BEGIN
 

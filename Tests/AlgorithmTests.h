@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <SheenBidi.h>
+#include <SheenBidi/SheenBidi.h>
 
 #include <Parser/BidiTest.h>
 #include <Parser/BidiCharacterTest.h>

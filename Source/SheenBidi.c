@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
-#include <SheenBidi.h>
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SheenBidi.h>
 
 #ifdef SB_CONFIG_UNITY
 

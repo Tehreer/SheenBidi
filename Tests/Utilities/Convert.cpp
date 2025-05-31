@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBidiType.h>
-#include <Headers/SBGeneralCategory.h>
-#include <Headers/SBScript.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBGeneralCategory.h>
+#include <SheenBidi/SBScript.h>
 
 #include <cstdint>
 #include <string>

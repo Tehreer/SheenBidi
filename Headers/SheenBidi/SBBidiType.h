@@ -17,7 +17,7 @@
 #ifndef _SB_PUBLIC_BIDI_TYPE_H
 #define _SB_PUBLIC_BIDI_TYPE_H
 
-#include "SBBase.h"
+#include <SheenBidi/SBBase.h>
 
 SB_EXTERN_C_BEGIN
 

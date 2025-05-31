@@ -307,10 +307,10 @@ void GeneralCategoryLookupGenerator::generateFile(const std::string &directory) 
     header.append("#ifndef _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H").newLine();
     header.append("#define _SB_INTERNAL_GENERAL_CATEGORY_LOOKUP_H").newLine();
     header.newLine();
-    header.append("#include <SBBase.h>").newLine();
-    header.append("#include <SBCodepoint.h>").newLine();
-    header.append("#include <SBConfig.h>").newLine();
-    header.append("#include <SBGeneralCategory.h>").newLine();
+    header.append("#include <SheenBidi/SBBase.h>").newLine();
+    header.append("#include <SheenBidi/SBCodepoint.h>").newLine();
+    header.append("#include <SheenBidi/SBConfig.h>").newLine();
+    header.append("#include <SheenBidi/SBGeneralCategory.h>").newLine();
     header.newLine();
     header.append("SB_INTERNAL SBGeneralCategory LookupGeneralCategory(SBCodepoint codepoint);").newLine();
     header.newLine();

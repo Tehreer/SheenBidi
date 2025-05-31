@@ -5,7 +5,7 @@ TESTS_DIR   = Tests
 TOOLS_DIR   = Tools
 PARSER_DIR  = $(TOOLS_DIR)/Parser
 
-LIB_SHEENBIDI = sheenbidi
+LIB_SHEENBIDI = SheenBidi
 LIB_PARSER    = parser
 EXEC_TESTS    = tests
 

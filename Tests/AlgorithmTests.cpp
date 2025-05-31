@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include <SheenBidi.h>
+#include <SheenBidi/SheenBidi.h>
 
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
 #include <stddef.h>
 
+#include <SheenBidi/SBConfig.h>
+
 #include "BidiChain.h"
+#include "BracketQueue.h"
 #include "Object.h"
 #include "SBAssert.h"
 #include "SBBase.h"

@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_LOG_H
 #define _SB_INTERNAL_LOG_H
 
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
 
 #ifdef SB_CONFIG_LOG
 
