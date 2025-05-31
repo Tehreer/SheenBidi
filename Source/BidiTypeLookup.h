@@ -6,10 +6,10 @@
 #ifndef _SB_INTERNAL_BIDI_TYPE_LOOKUP_H
 #define _SB_INTERNAL_BIDI_TYPE_LOOKUP_H
 
-#include <SBBase.h>
-#include <SBBidiType.h>
-#include <SBCodepoint.h>
-#include <SBConfig.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBConfig.h>
 
 SB_INTERNAL SBBidiType LookupBidiType(SBCodepoint codepoint);
 

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
 #include <stddef.h>
+
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBRun.h>
 
 #include "Object.h"
 #include "PairingLookup.h"
@@ -23,9 +25,8 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
-#include "SBParagraph.h"
-#include "SBRun.h"
 #include "SBLine.h"
+#include "SBParagraph.h"
 
 typedef struct _LineContext {
     Object object;

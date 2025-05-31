@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
+
 #include <stddef.h>
+
+#include <SheenBidi/SBConfig.h>
 
 #include "BidiChain.h"
 #include "BidiTypeLookup.h"

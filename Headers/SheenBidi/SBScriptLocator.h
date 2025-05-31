@@ -17,9 +17,9 @@
 #ifndef _SB_PUBLIC_SCRIPT_LOCATOR_H
 #define _SB_PUBLIC_SCRIPT_LOCATOR_H
 
-#include "SBBase.h"
-#include "SBCodepointSequence.h"
-#include "SBScript.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepointSequence.h>
+#include <SheenBidi/SBScript.h>
 
 SB_EXTERN_C_BEGIN
 

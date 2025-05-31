@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBase.h>
-#include <Headers/SBConfig.h>
+#include <Headers/SheenBidi/SBBase.h>
+#include <Headers/SheenBidi/SBConfig.h>
 
 extern "C" {
 #include <Source/PairingLookup.h>

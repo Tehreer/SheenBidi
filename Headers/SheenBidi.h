@@ -17,18 +17,18 @@
 #ifndef _SHEEN_BIDI_H
 #define _SHEEN_BIDI_H
 
-#include "SBAlgorithm.h"
-#include "SBBase.h"
-#include "SBBidiType.h"
-#include "SBCodepoint.h"
-#include "SBCodepointSequence.h"
-#include "SBGeneralCategory.h"
-#include "SBLine.h"
-#include "SBMirrorLocator.h"
-#include "SBParagraph.h"
-#include "SBRun.h"
-#include "SBScript.h"
-#include "SBScriptLocator.h"
-#include "SBVersion.h"
+#include <SheenBidi/SBAlgorithm.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBCodepointSequence.h>
+#include <SheenBidi/SBGeneralCategory.h>
+#include <SheenBidi/SBLine.h>
+#include <SheenBidi/SBMirrorLocator.h>
+#include <SheenBidi/SBParagraph.h>
+#include <SheenBidi/SBRun.h>
+#include <SheenBidi/SBScript.h>
+#include <SheenBidi/SBScriptLocator.h>
+#include <SheenBidi/SBVersion.h>
 
 #endif

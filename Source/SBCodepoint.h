@@ -17,6 +17,6 @@
 #ifndef _SB_INTERNAL_CODEPOINT_H
 #define _SB_INTERNAL_CODEPOINT_H
 
-#include <SBCodepoint.h>
+#include <SheenBidi/SBCodepoint.h>
 
 #endif

@@ -17,7 +17,7 @@
 #ifndef _SB_INTERNAL_STATUS_STACK_H
 #define _SB_INTERNAL_STATUS_STACK_H
 
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
 
 #include "Object.h"
 #include "SBBase.h"

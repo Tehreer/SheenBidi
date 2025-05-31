@@ -17,8 +17,8 @@
 #ifndef _SB_PUBLIC_PARAGRAPH_H
 #define _SB_PUBLIC_PARAGRAPH_H
 
-#include "SBBase.h"
-#include "SBLine.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBLine.h>
 
 SB_EXTERN_C_BEGIN
 

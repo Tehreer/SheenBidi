@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Headers/SBVersion.h" VERSION_MACRO_LINE
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Headers/SheenBidi/SBVersion.h" VERSION_MACRO_LINE
   REGEX "SHEENBIDI_VERSION_STRING[ \\t]+\"([^\"]+)\""
 )
 string(REGEX REPLACE ".*\"([^\"]+)\".*" "\\1"
@@ -72,20 +72,20 @@ endfunction()
 # ------------------------------------------------------------------------------
 
 set(SHEENBIDI_HEADERS
-  Headers/SBAlgorithm.h
-  Headers/SBBase.h
-  Headers/SBBidiType.h
-  Headers/SBCodepoint.h
-  Headers/SBCodepointSequence.h
-  Headers/SBGeneralCategory.h
-  Headers/SBLine.h
-  Headers/SBMirrorLocator.h
-  Headers/SBParagraph.h
-  Headers/SBRun.h
-  Headers/SBScript.h
-  Headers/SBScriptLocator.h
-  Headers/SBVersion.h
   Headers/SheenBidi.h
+  Headers/SheenBidi/SBAlgorithm.h
+  Headers/SheenBidi/SBBase.h
+  Headers/SheenBidi/SBBidiType.h
+  Headers/SheenBidi/SBCodepoint.h
+  Headers/SheenBidi/SBCodepointSequence.h
+  Headers/SheenBidi/SBGeneralCategory.h
+  Headers/SheenBidi/SBLine.h
+  Headers/SheenBidi/SBMirrorLocator.h
+  Headers/SheenBidi/SBParagraph.h
+  Headers/SheenBidi/SBRun.h
+  Headers/SheenBidi/SBScript.h
+  Headers/SheenBidi/SBScriptLocator.h
+  Headers/SheenBidi/SBVersion.h
 )
 file(GLOB INTERNAL_HEADERS "Source/*.h")
 
@@ -109,14 +109,13 @@ endif()
 target_include_directories(sheenbidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
-    $<INSTALL_INTERFACE:include/SheenBidi>
+    $<INSTALL_INTERFACE:include>
   PRIVATE
     Source
 )
 set_target_properties(sheenbidi PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
-  PUBLIC_HEADER "${SHEENBIDI_HEADERS}"
 )
 add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
 add_sanitizers(sheenbidi)
@@ -246,17 +245,24 @@ endif()
 # Install Configuration
 # ------------------------------------------------------------------------------
 
-install(
-  TARGETS sheenbidi
-  EXPORT SheenBidiTargets
-  PUBLIC_HEADER
-    CONFIGURATIONS Release
-    DESTINATION include/SheenBidi
-)
-
 if(NOT DEFINED LIB_INSTALL_DIR)
   set(LIB_INSTALL_DIR lib)
 endif()
+
+# We do not pass PUBLIC_HEADER because it doesn't respect subdirectories.
+# Instead, we install the headers manually via a second call to `install`.
+install(
+  TARGETS sheenbidi
+  EXPORT SheenBidiTargets
+  CONFIGURATIONS Release
+  DESTINATION ${LIB_INSTALL_DIR}
+)
+install(
+  DIRECTORY Headers/
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.h"
+)
+
 set(ConfigPackageLocation "${LIB_INSTALL_DIR}/cmake/SheenBidi")
 
 include(CMakePackageConfigHelpers)

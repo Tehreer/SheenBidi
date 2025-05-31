@@ -1,7 +1,7 @@
 project('SheenBidi', ['c', 'cpp'],
   version: run_command(
     'Tools/Version/extract.py',
-    'Headers/SBVersion.h',
+    'Headers/SheenBidi/SBVersion.h',
     check: true
   ).stdout().strip(),
   meson_version: '>= 0.55.0',
@@ -25,21 +25,23 @@ soversion = project_version.split('.')[0]
 # SheenBidi Library
 # ------------------------------------------------------------------------------
 
-sheenbidi_headers = files(
-  'Headers/SBAlgorithm.h',
-  'Headers/SBBase.h',
-  'Headers/SBBidiType.h',
-  'Headers/SBCodepoint.h',
-  'Headers/SBCodepointSequence.h',
-  'Headers/SBGeneralCategory.h',
-  'Headers/SBLine.h',
-  'Headers/SBMirrorLocator.h',
-  'Headers/SBParagraph.h',
-  'Headers/SBRun.h',
-  'Headers/SBScript.h',
-  'Headers/SBScriptLocator.h',
-  'Headers/SBVersion.h',
+sheenbidi_top_level_header = files(
   'Headers/SheenBidi.h'
+)
+sheenbidi_headers = files(
+  'Headers/SheenBidi/SBAlgorithm.h',
+  'Headers/SheenBidi/SBBase.h',
+  'Headers/SheenBidi/SBBidiType.h',
+  'Headers/SheenBidi/SBCodepoint.h',
+  'Headers/SheenBidi/SBCodepointSequence.h',
+  'Headers/SheenBidi/SBGeneralCategory.h',
+  'Headers/SheenBidi/SBLine.h',
+  'Headers/SheenBidi/SBMirrorLocator.h',
+  'Headers/SheenBidi/SBParagraph.h',
+  'Headers/SheenBidi/SBRun.h',
+  'Headers/SheenBidi/SBScript.h',
+  'Headers/SheenBidi/SBScriptLocator.h',
+  'Headers/SheenBidi/SBVersion.h'
 )
 internal_headers = files(
   'Source/BidiChain.h',
@@ -100,7 +102,7 @@ endif
 
 sheenbidi = library(
   'sheenbidi',
-  sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
+  sources: [sheenbidi_top_level_header, sheenbidi_headers, internal_headers, sheenbidi_sources],
   c_args: dll_mode ? ['-DSB_CONFIG_DLL_EXPORT'] : [],
   include_directories: ['Headers', 'Source'],
   version: project_version,
@@ -266,6 +268,9 @@ endif
 # Installation
 # ------------------------------------------------------------------------------
 
+install_headers(
+  sheenbidi_top_level_header
+)
 install_headers(
   sheenbidi_headers,
   subdir: 'SheenBidi'
