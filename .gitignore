@@ -1,6 +1,12 @@
-## Build generated
-build/
-DerivedData/
+## Build directories for CMake
+/build/
+/build-*/
+
+## Build directory for Meson
+/builddir/
+
+## Generated files
+/DerivedData/
 
 ## Various settings
 *.pbxuser
