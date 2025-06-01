@@ -14,6 +14,7 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/MirrorLookupTests.cpp \
              $(TESTS_DIR)/ScriptLocatorTests.cpp \
              $(TESTS_DIR)/ScriptLookupTests.cpp \
+             $(TESTS_DIR)/ScriptTests.cpp \
              $(TESTS_DIR)/Utilities/Convert.cpp
 
 TESTS_OBJS = $(TESTS_SRCS:$(TESTS_DIR)/%.cpp=$(TESTS)/%.o)
