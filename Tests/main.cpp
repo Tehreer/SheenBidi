@@ -33,6 +33,7 @@
 #include "MirrorLookupTests.h"
 #include "ScriptLocatorTests.h"
 #include "ScriptLookupTests.h"
+#include "ScriptTests.h"
 
 using namespace std;
 using namespace SheenBidi;
@@ -60,6 +61,7 @@ int main(int argc, const char *argv[]) {
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
     AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
     ScriptLocatorTests scriptLocatorTests;
+    ScriptTests scriptTests;
 
     bidiTypeLookupTests.run();
     codepointSequenceTests.run();
@@ -69,6 +71,7 @@ int main(int argc, const char *argv[]) {
     scriptLookupTests.run();
     algorithmTests.run();
     scriptLocatorTests.run();
+    scriptTests.run();
 
     return 0;
 }

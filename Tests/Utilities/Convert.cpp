@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBGeneralCategory.h>
 #include <SheenBidi/SBScript.h>
-
-#include <cstdint>
-#include <string>
-#include <unordered_map>
 
 #include "Convert.h"
 
@@ -297,6 +299,19 @@ const string &Convert::generalCategoryToString(SBGeneralCategory generalCategory
 
 const string &Convert::scriptToString(SBScript script) {
     return MAP_SCRIPT_TO_STRING[script];
+}
+
+uint32_t Convert::stringToTag(const string &str) {
+    if (str.length() != 4) {
+        throw invalid_argument("The length of tag string is not equal to four");
+    }
+
+    uint32_t a = static_cast<unsigned char>(str[0]);
+    uint32_t b = static_cast<unsigned char>(str[1]);
+    uint32_t c = static_cast<unsigned char>(str[2]);
+    uint32_t d = static_cast<unsigned char>(str[3]);
+
+    return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
 uint32_t Convert::toCodePoint(const string &bidiType) {
