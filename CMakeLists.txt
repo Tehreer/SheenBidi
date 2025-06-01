@@ -173,6 +173,7 @@ if(BUILD_TESTS)
     MirrorLookupTests
     ScriptLocatorTests
     ScriptLookupTests
+    ScriptTests
   )
   set(AlgorithmTests
     Tests/AlgorithmTests.h
@@ -205,6 +206,10 @@ if(BUILD_TESTS)
   set(ScriptLookupTests
     Tests/ScriptLookupTests.h
     Tests/ScriptLookupTests.cpp
+  )
+  set(ScriptTests
+    Tests/ScriptTests.h
+    Tests/ScriptTests.cpp
   )
 
   foreach(TEST_NAME IN LISTS TEST_TARGETS)
