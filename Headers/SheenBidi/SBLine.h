@@ -17,8 +17,8 @@
 #ifndef _SB_PUBLIC_LINE_H
 #define _SB_PUBLIC_LINE_H
 
-#include "SBBase.h"
-#include "SBRun.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBRun.h>
 
 SB_EXTERN_C_BEGIN
 

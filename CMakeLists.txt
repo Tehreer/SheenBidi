@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Headers/SBVersion.h" VERSION_MACRO_LINE
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Headers/SheenBidi/SBVersion.h" VERSION_MACRO_LINE
   REGEX "SHEENBIDI_VERSION_STRING[ \\t]+\"([^\"]+)\""
 )
 string(REGEX REPLACE ".*\"([^\"]+)\".*" "\\1"
@@ -72,20 +72,20 @@ endfunction()
 # ------------------------------------------------------------------------------
 
 set(SHEENBIDI_HEADERS
-  Headers/SBAlgorithm.h
-  Headers/SBBase.h
-  Headers/SBBidiType.h
-  Headers/SBCodepoint.h
-  Headers/SBCodepointSequence.h
-  Headers/SBGeneralCategory.h
-  Headers/SBLine.h
-  Headers/SBMirrorLocator.h
-  Headers/SBParagraph.h
-  Headers/SBRun.h
-  Headers/SBScript.h
-  Headers/SBScriptLocator.h
-  Headers/SBVersion.h
-  Headers/SheenBidi.h
+  Headers/SheenBidi/SheenBidi.h
+  Headers/SheenBidi/SBAlgorithm.h
+  Headers/SheenBidi/SBBase.h
+  Headers/SheenBidi/SBBidiType.h
+  Headers/SheenBidi/SBCodepoint.h
+  Headers/SheenBidi/SBCodepointSequence.h
+  Headers/SheenBidi/SBGeneralCategory.h
+  Headers/SheenBidi/SBLine.h
+  Headers/SheenBidi/SBMirrorLocator.h
+  Headers/SheenBidi/SBParagraph.h
+  Headers/SheenBidi/SBRun.h
+  Headers/SheenBidi/SBScript.h
+  Headers/SheenBidi/SBScriptLocator.h
+  Headers/SheenBidi/SBVersion.h
 )
 file(GLOB INTERNAL_HEADERS "Source/*.h")
 
@@ -96,30 +96,30 @@ else()
   file(GLOB SHEENBIDI_SOURCES Source/*.c)
 endif()
 
-add_library(sheenbidi
+add_library(SheenBidi
   ${SHEENBIDI_HEADERS}
   ${INTERNAL_HEADERS}
   ${SHEENBIDI_SOURCES}
 )
 if(BUILDING_DLL)
-  target_compile_definitions(sheenbidi PRIVATE SB_CONFIG_DLL_EXPORT)
-  target_compile_definitions(sheenbidi INTERFACE SB_CONFIG_DLL_IMPORT)
+  target_compile_definitions(SheenBidi PRIVATE SB_CONFIG_DLL_EXPORT)
+  target_compile_definitions(SheenBidi INTERFACE SB_CONFIG_DLL_IMPORT)
   set(SHEENBIDI_PKGCONFIG_CFLAGS "${SHEENBIDI_PKGCONFIG_CFLAGS} -DSB_CONFIG_DLL_IMPORT")
 endif()
-target_include_directories(sheenbidi
+target_include_directories(SheenBidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
-    $<INSTALL_INTERFACE:include/SheenBidi>
+    $<INSTALL_INTERFACE:include>
   PRIVATE
     Source
 )
-set_target_properties(sheenbidi PROPERTIES
+set_target_properties(SheenBidi PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
   PUBLIC_HEADER "${SHEENBIDI_HEADERS}"
 )
-add_library(SheenBidi::sheenbidi ALIAS sheenbidi)
-add_sanitizers(sheenbidi)
+add_library(SheenBidi::SheenBidi ALIAS SheenBidi)
+add_sanitizers(SheenBidi)
 
 # ------------------------------------------------------------------------------
 # Parser Library (Required for generator/testing)
@@ -219,7 +219,7 @@ if(BUILD_TESTS)
         ${CMAKE_CURRENT_SOURCE_DIR}/Tools
     )
     target_compile_definitions(${TEST_NAME} PRIVATE STANDALONE_TESTING)
-    target_link_libraries(${TEST_NAME} PRIVATE parser sheenbidi)
+    target_link_libraries(${TEST_NAME} PRIVATE parser SheenBidi)
     add_sanitizers(${TEST_NAME})
 
     add_test(
@@ -236,8 +236,8 @@ if(BUILD_TESTS)
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
       message(WARNING "Code coverage is not supported with MSVC")
     else()
-      target_compile_options(sheenbidi PUBLIC --coverage)
-      target_link_options(sheenbidi PUBLIC --coverage)
+      target_compile_options(SheenBidi PUBLIC --coverage)
+      target_link_options(SheenBidi PUBLIC --coverage)
     endif()
   endif()
 endif()
@@ -246,18 +246,16 @@ endif()
 # Install Configuration
 # ------------------------------------------------------------------------------
 
+include(GNUInstallDirs)
+
 install(
-  TARGETS sheenbidi
+  TARGETS SheenBidi
   EXPORT SheenBidiTargets
-  PUBLIC_HEADER
-    CONFIGURATIONS Release
-    DESTINATION include/SheenBidi
+  CONFIGURATIONS Release
+  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SheenBidi"
 )
 
-if(NOT DEFINED LIB_INSTALL_DIR)
-  set(LIB_INSTALL_DIR lib)
-endif()
-set(ConfigPackageLocation "${LIB_INSTALL_DIR}/cmake/SheenBidi")
+set(ConfigPackageLocation "${CMAKE_INSTALL_LIBDIR}/cmake/SheenBidi")
 
 include(CMakePackageConfigHelpers)
 
@@ -294,5 +292,5 @@ install(
 configure_file(sheenbidi.pc.in ${CMAKE_CURRENT_BINARY_DIR}/sheenbidi.pc @ONLY)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/sheenbidi.pc
-  DESTINATION ${LIB_INSTALL_DIR}/pkgconfig
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBase.h>
-#include <Headers/SBConfig.h>
-#include <Headers/SBGeneralCategory.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBGeneralCategory.h>
 
 extern "C" {
 #include <Source/GeneralCategoryLookup.h>

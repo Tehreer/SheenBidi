@@ -20,9 +20,9 @@
 #include <cstdint>
 #include <string>
 
-#include <Headers/SBBidiType.h>
-#include <Headers/SBGeneralCategory.h>
-#include <Headers/SBScript.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBGeneralCategory.h>
+#include <SheenBidi/SBScript.h>
 
 namespace SheenBidi {
 namespace Utilities {

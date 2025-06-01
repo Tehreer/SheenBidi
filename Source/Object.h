@@ -17,8 +17,9 @@
 #ifndef _SB_INTERNAL_OBJECT_H
 #define _SB_INTERNAL_OBJECT_H
 
-#include <SBBase.h>
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
+
+#include "SBBase.h"
 
 /**
  * Represents a single dynamically allocated memory block.

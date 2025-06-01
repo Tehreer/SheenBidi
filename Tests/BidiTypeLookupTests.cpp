@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <Headers/SBBase.h>
-#include <Headers/SBBidiType.h>
-#include <Headers/SBConfig.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBConfig.h>
 
 extern "C" {
 #include <Source/BidiTypeLookup.h>

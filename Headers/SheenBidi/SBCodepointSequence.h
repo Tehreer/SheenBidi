@@ -17,8 +17,8 @@
 #ifndef _SB_PUBLIC_CODEPOINT_SEQUENCE_H
 #define _SB_PUBLIC_CODEPOINT_SEQUENCE_H
 
-#include "SBBase.h"
-#include "SBCodepoint.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepoint.h>
 
 SB_EXTERN_C_BEGIN
 

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
+
 #include "SBBase.h"
 
 #define TAG(a, b, c, d) \

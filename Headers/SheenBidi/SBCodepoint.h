@@ -17,10 +17,10 @@
 #ifndef _SB_PUBLIC_CODEPOINT_H
 #define _SB_PUBLIC_CODEPOINT_H
 
-#include "SBBase.h"
-#include "SBBidiType.h"
-#include "SBGeneralCategory.h"
-#include "SBScript.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBBidiType.h>
+#include <SheenBidi/SBGeneralCategory.h>
+#include <SheenBidi/SBScript.h>
 
 SB_EXTERN_C_BEGIN
 

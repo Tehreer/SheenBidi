@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <SBBase.h>
-#include <SBCodepointSequence.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepointSequence.h>
 
 #include <cassert>
 #include <vector>

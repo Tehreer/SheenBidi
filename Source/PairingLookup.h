@@ -6,9 +6,9 @@
 #ifndef _SB_INTERNAL_PAIRING_LOOKUP_H
 #define _SB_INTERNAL_PAIRING_LOOKUP_H
 
-#include <SBBase.h>
-#include <SBCodepoint.h>
-#include <SBConfig.h>
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBConfig.h>
 
 #include "BracketType.h"
 

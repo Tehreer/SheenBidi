@@ -17,12 +17,12 @@
 #ifndef _SB_INTERNAL_BRACKET_QUEUE_H
 #define _SB_INTERNAL_BRACKET_QUEUE_H
 
-#include <SBConfig.h>
+#include <SheenBidi/SBConfig.h>
 
 #include "BidiChain.h"
 #include "Object.h"
-#include "SBBase.h"
-#include "SBCodepoint.h"
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBCodepoint.h>
 
 #define BracketQueueList_Length         8
 #define BracketQueueList_MaxIndex       (BracketQueueList_Length - 1)
