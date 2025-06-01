@@ -241,6 +241,10 @@ if build_tests
     'ScriptLookupTests': [
       'Tests/ScriptLookupTests.h',
       'Tests/ScriptLookupTests.cpp'
+    ],
+    'ScriptTests': [
+      'Tests/ScriptTests.h',
+      'Tests/ScriptTests.cpp'
     ]
   }
 
@@ -265,6 +269,7 @@ endif
 # ------------------------------------------------------------------------------
 # Installation
 # ------------------------------------------------------------------------------
+
 install_headers(
   sheenbidi_headers,
   subdir: 'SheenBidi'
