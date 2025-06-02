@@ -34,6 +34,7 @@ public:
     static const std::string &scriptToString(SBScript script);
     static uint32_t stringToTag(const std::string &str);
     static uint32_t toCodePoint(const std::string &bidiType);
+    static void toLowercase(std::string &str);
 };
 
 }

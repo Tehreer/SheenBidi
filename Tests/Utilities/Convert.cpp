@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cctype>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -316,4 +318,9 @@ uint32_t Convert::stringToTag(const string &str) {
 
 uint32_t Convert::toCodePoint(const string &bidiType) {
     return MAP_BIDI_TYPE_TO_CODE_POINT[bidiType];
+}
+
+void Convert::toLowercase(string &str) {
+    transform(str.begin(), str.end(), str.begin(),
+              [](auto c) { return tolower(c); });
 }
