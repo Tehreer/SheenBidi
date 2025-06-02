@@ -26,6 +26,7 @@ public:
     void run();
 
 private:
+    void testGetOpenTypeTag();
     void testGetUnicodeTag();
 };
 

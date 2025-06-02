@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <SheenBidi/SBBase.h>
@@ -34,19 +36,62 @@ ScriptTests::ScriptTests()
 }
 
 void ScriptTests::run() {
+    testGetOpenTypeTag();
     testGetUnicodeTag();
+}
+
+void ScriptTests::testGetOpenTypeTag() {
+    const string defaultTag = "DFLT";
+    const unordered_map<string, string> replacementTags = {
+        {"zinh", defaultTag},
+        {"zyyy", defaultTag},
+        {"zzzz", defaultTag},
+        {"beng", "bng2"},
+        {"deva", "dev2"},
+        {"gujr", "gjr2"},
+        {"guru", "gur2"},
+        {"hira", "kana"},
+        {"knda", "knd2"},
+        {"laoo", "lao "},
+        {"mlym", "mlm2"},
+        {"orya", "ory2"},
+        {"taml", "tml2"},
+        {"telu", "tel2"},
+        {"mymr", "mym2"},
+        {"yiii", "yi  "},
+        {"nkoo", "nko "},
+        {"vaii", "vai "}
+    };
+
+    for (size_t script = 0; script <= UINT8_MAX; script++) {
+        auto &alias = Convert::scriptToString(script);
+        auto match = alias;
+        Convert::toLowercase(match);
+
+        if (alias.empty()) {
+            match = defaultTag;
+        } else {
+            auto it = replacementTags.find(match);
+            if (it != replacementTags.end()) {
+                match = it->second;
+            }
+        }
+
+        auto tag = SBScriptGetOpenTypeTag(script);
+        auto expected = Convert::stringToTag(match);
+
+        assert(tag == expected);
+    }
 }
 
 void ScriptTests::testGetUnicodeTag() {
     for (size_t script = 0; script <= UINT8_MAX; script++) {
-        auto tag = SBScriptGetUnicodeTag(script);
         auto &alias = Convert::scriptToString(script);
 
-        if (tag == 0) {
-            assert(alias.empty());
-        } else {
-            assert(tag == Convert::stringToTag(alias));
-        }
+        auto tag = SBScriptGetUnicodeTag(script);
+        auto expected = (alias.empty() ? 0 : SBScriptGetUnicodeTag(script));
+
+        assert(tag == expected);
     }
 }
 
