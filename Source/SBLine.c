@@ -25,8 +25,8 @@
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
-#include "SBLine.h"
 #include "SBParagraph.h"
+#include "SBLine.h"
 
 typedef struct _LineContext {
     Object object;
@@ -42,10 +42,11 @@ static SBLevel CopyLevels(SBLevel *destination,
     SBLevel lastLevel = SBLevelInvalid;
     SBLevel maxLevel = 0;
     SBUInteger totalRuns = 0;
+    SBUInteger index;
 
-    while (length--) {
-        SBLevel level = *(source++);
-        *(destination++) = level;
+    for (index = 0; index < length; index++) {
+        SBLevel level = source[index];
+        destination[index] = level;
 
         if (level != lastLevel) {
             totalRuns += 1;
@@ -106,7 +107,7 @@ static SBLineRef AllocateLine(SBUInteger runCount)
     sizes[LINE] = sizeof(SBLine);
     sizes[RUNS] = sizeof(SBRun) * runCount;
 
-    if (ObjectCreate(sizes, COUNT, pointers)) {
+    if (runCount > 0 && ObjectCreate(sizes, COUNT, pointers)) {
         SBLineRef line = pointers[LINE];
         SBRun *runs = pointers[RUNS];
 
@@ -122,9 +123,9 @@ static SBLineRef AllocateLine(SBUInteger runCount)
 
 static void SetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 {
-    SBUInteger index = length;
+    SBUInteger index;
 
-    while (index--) {
+    for (index = 0; index < length; index++) {
         levels[index] = newLevel;
     }
 }
@@ -186,29 +187,27 @@ static void ResetLevels(LineContextRef context, SBLevel baseLevel, SBUInteger ch
 static SBUInteger InitializeRuns(SBRun *runs,
     const SBLevel *levels, SBUInteger length, SBUInteger lineOffset)
 {
+    SBUInteger runIndex = 0;
     SBUInteger index;
-    SBUInteger runCount = 1;
 
-    (*runs).offset = lineOffset;
-    (*runs).level = levels[0];
+    runs[runIndex].offset = lineOffset;
+    runs[runIndex].level = levels[0];
 
     for (index = 0; index < length; index++) {
         SBLevel level = levels[index];
 
-        if (level != (*runs).level) {
-            (*runs).length = index + lineOffset - (*runs).offset;
+        if (level != runs[runIndex].level) {
+            runs[runIndex].length = index + lineOffset - runs[runIndex].offset;
 
-            ++runs;
-            (*runs).offset = lineOffset + index;
-            (*runs).level = level;
-
-            runCount += 1;
+            runIndex += 1;
+            runs[runIndex].offset = lineOffset + index;
+            runs[runIndex].level = level;
         }
     }
 
-    (*runs).length = index + lineOffset - (*runs).offset;
+    runs[runIndex].length = index + lineOffset - runs[runIndex].offset;
 
-    return runCount;
+    return runIndex + 1;
 }
 
 static void ReverseRunSequence(SBRun *runs, SBUInteger runCount)
@@ -256,8 +255,8 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     SBUInteger innerOffset = lineOffset - paragraph->offset;
     const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
     const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
-    LineContextRef context;
-    SBLineRef line;
+    LineContextRef context = NULL;
+    SBLineRef line = NULL;
 
     /* Line range MUST be valid. */
     SBAssert(lineOffset < (lineOffset + lineLength)
@@ -282,11 +281,9 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
         }
 
         DisposeLineContext(context);
-
-        return line;
     }
 
-    return NULL;
+    return line;
 }
 
 SBUInteger SBLineGetOffset(SBLineRef line)
