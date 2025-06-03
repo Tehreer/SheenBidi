@@ -12,6 +12,7 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/GeneralCategoryLookupTests.cpp \
              $(TESTS_DIR)/main.cpp \
              $(TESTS_DIR)/MirrorLookupTests.cpp \
+             $(TESTS_DIR)/RunQueueTests.cpp \
              $(TESTS_DIR)/ScriptLocatorTests.cpp \
              $(TESTS_DIR)/ScriptLookupTests.cpp \
              $(TESTS_DIR)/ScriptTests.cpp \
