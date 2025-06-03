@@ -37,62 +37,44 @@ typedef struct _LineContext {
 } LineContext, *LineContextRef;
 
 static SBLevel CopyLevels(SBLevel *destination,
-    const SBLevel *source, SBUInteger length, SBUInteger *runCount)
+    const SBLevel *source, SBUInteger length, SBUInteger *runCount);
+static void ResetLevels(LineContextRef context, SBLevel baseLevel, SBUInteger charCount);
+
+#define LEVELS       0
+#define COUNT        1
+
+static SBBoolean InitializeLineContext(LineContextRef context,
+    const SBBidiType *types, const SBLevel *levels, SBUInteger length, SBLevel baseLevel)
 {
-    SBLevel lastLevel = SBLevelInvalid;
-    SBLevel maxLevel = 0;
-    SBUInteger totalRuns = 0;
-    SBUInteger index;
-
-    for (index = 0; index < length; index++) {
-        SBLevel level = source[index];
-        destination[index] = level;
-
-        if (level != lastLevel) {
-            totalRuns += 1;
-
-            if (level > maxLevel) {
-                maxLevel = level;
-            }
-        }
-    }
-
-    *runCount = totalRuns;
-
-    return maxLevel;
-}
-
-#define LINE_CONTEXT 0
-#define LEVELS       1
-#define COUNT        2
-
-static LineContextRef CreateLineContext(const SBBidiType *types, const SBLevel *levels, SBUInteger length)
-{
+    SBBoolean isInitialized = SBFalse;
     void *pointers[COUNT] = { NULL };
     SBUInteger sizes[COUNT];
 
-    sizes[LINE_CONTEXT] = sizeof(LineContext);
-    sizes[LEVELS]       = sizeof(SBLevel) * length;
+    sizes[LEVELS] = sizeof(SBLevel) * length;
 
-    if (ObjectCreate(sizes, COUNT, pointers)) {
-        LineContextRef context = pointers[LINE_CONTEXT];
+    ObjectInitialize(&context->object);
+
+    if (ObjectAddMemoryWithChunks(&context->object, sizes, COUNT, pointers)) {
         SBLevel *fixedLevels = pointers[LEVELS];
 
         context->refTypes = types;
         context->fixedLevels = fixedLevels;
         context->maxLevel = CopyLevels(fixedLevels, levels, length, &context->runCount);
+
+        ResetLevels(context, baseLevel, length);
+
+        isInitialized = SBTrue;
     }
 
-    return pointers[LINE_CONTEXT];
+    return isInitialized;
 }
 
-#undef LINE_CONTEXT
 #undef LEVELS
 #undef COUNT
 
-static void DisposeLineContext(LineContextRef context)
+static void FinalizeLineContext(LineContextRef context)
 {
-    ObjectDispose(&context->object);
+    ObjectFinalize(&context->object);
 }
 
 #define LINE  0
@@ -120,6 +102,32 @@ static SBLineRef AllocateLine(SBUInteger runCount)
 #undef LINE
 #undef RUNS
 #undef COUNT
+
+static SBLevel CopyLevels(SBLevel *destination,
+    const SBLevel *source, SBUInteger length, SBUInteger *runCount)
+{
+    SBLevel lastLevel = SBLevelInvalid;
+    SBLevel maxLevel = 0;
+    SBUInteger totalRuns = 0;
+    SBUInteger index;
+
+    for (index = 0; index < length; index++) {
+        SBLevel level = source[index];
+        destination[index] = level;
+
+        if (level != lastLevel) {
+            totalRuns += 1;
+
+            if (level > maxLevel) {
+                maxLevel = level;
+            }
+        }
+    }
+
+    *runCount = totalRuns;
+
+    return maxLevel;
+}
 
 static void SetNewLevel(SBLevel *levels, SBUInteger length, SBLevel newLevel)
 {
@@ -255,24 +263,20 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     SBUInteger innerOffset = lineOffset - paragraph->offset;
     const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
     const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
-    LineContextRef context = NULL;
     SBLineRef line = NULL;
+    LineContext context;
 
     /* Line range MUST be valid. */
     SBAssert(lineOffset < (lineOffset + lineLength)
              && lineOffset >= paragraph->offset
              && (lineOffset + lineLength) <= (paragraph->offset + paragraph->length));
 
-    context = CreateLineContext(refTypes, refLevels, lineLength);
-
-    if (context) {
-        ResetLevels(context, paragraph->baseLevel, lineLength);
-
-        line = AllocateLine(context->runCount);
+    if (InitializeLineContext(&context, refTypes, refLevels, lineLength, paragraph->baseLevel)) {
+        line = AllocateLine(context.runCount);
 
         if (line) {
-            line->runCount = InitializeRuns(line->fixedRuns, context->fixedLevels, lineLength, lineOffset);
-            ReorderRuns(line->fixedRuns, line->runCount, context->maxLevel);
+            line->runCount = InitializeRuns(line->fixedRuns, context.fixedLevels, lineLength, lineOffset);
+            ReorderRuns(line->fixedRuns, line->runCount, context.maxLevel);
 
             line->codepointSequence = paragraph->algorithm->codepointSequence;
             line->offset = lineOffset;
@@ -280,7 +284,7 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
             line->retainCount = 1;
         }
 
-        DisposeLineContext(context);
+        FinalizeLineContext(&context);
     }
 
     return line;
