@@ -171,6 +171,7 @@ if(BUILD_TESTS)
     CodepointSequenceTests
     GeneralCategoryLookupTests
     MirrorLookupTests
+    RunQueueTests
     ScriptLocatorTests
     ScriptLookupTests
     ScriptTests
@@ -198,6 +199,10 @@ if(BUILD_TESTS)
   set(MirrorLookupTests
     Tests/MirrorLookupTests.h
     Tests/MirrorLookupTests.cpp
+  )
+  set(RunQueueTests
+    Tests/RunQueueTests.h
+    Tests/RunQueueTests.cpp
   )
   set(ScriptLocatorTests
     Tests/ScriptLocatorTests.h
