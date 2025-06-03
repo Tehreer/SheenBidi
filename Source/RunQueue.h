@@ -17,11 +17,11 @@
 #ifndef _SB_INTERNAL_RUN_QUEUE_H
 #define _SB_INTERNAL_RUN_QUEUE_H
 
+#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
 #include "LevelRun.h"
 #include "Object.h"
-#include "SBBase.h"
 
 #define RunQueueList_Length         8
 #define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
@@ -42,7 +42,6 @@ typedef struct _RunQueue {
     SBInteger _frontTop;            /**< Index of front element in front list */
     SBInteger _rearTop;             /**< Index of rear element in rear list */
     SBInteger _partialTop;          /**< Index of partial run in partial list */
-    LevelRunRef peek;               /**< Peek element of the queue */
     SBUInteger count;               /**< Number of elements the queue contains */
     SBBoolean shouldDequeue;
 } RunQueue, *RunQueueRef;
@@ -51,6 +50,8 @@ SB_INTERNAL void RunQueueInitialize(RunQueueRef queue);
 
 SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue);
+
+SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue);
 
 SB_INTERNAL void RunQueueFinalize(RunQueueRef queue);
 

@@ -537,16 +537,16 @@ static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef level
 
     if (queue->shouldDequeue || forceFinish) {
         IsolatingRunRef isolatingRun = &context->isolatingRun;
-        LevelRunRef peek;
 
         /* Rule X10 */
         for (; queue->count != 0; RunQueueDequeue(queue)) {
-            peek = queue->peek;
-            if (RunKindIsAttachedTerminating(peek->kind)) {
+            LevelRunRef front = RunQueueGetFront(queue);
+
+            if (RunKindIsAttachedTerminating(front->kind)) {
                 continue;
             }
 
-            isolatingRun->baseLevelRun = peek;
+            isolatingRun->baseLevelRun = front;
 
             if (!IsolatingRunResolve(isolatingRun)) {
                 return SBFalse;

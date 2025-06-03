@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBConfig.h>
 #include <stddef.h>
+
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBConfig.h>
 
 #include "LevelRun.h"
 #include "Object.h"
-#include "RunQueue.h"
 #include "SBAssert.h"
-#include "SBBase.h"
+#include "RunQueue.h"
 
 static SBBoolean RunQueueInsertElement(RunQueueRef queue)
 {
@@ -97,7 +98,6 @@ SB_INTERNAL void RunQueueInitialize(RunQueueRef queue)
 
     /* Initialize rest of the elements. */
     queue->count = 0;
-    queue->peek = &queue->_frontList->elements[queue->_frontTop];
     queue->shouldDequeue = SBFalse;
 }
 
@@ -148,7 +148,14 @@ SB_INTERNAL void RunQueueDequeue(RunQueueRef queue)
     }
 
     queue->count -= 1;
-    queue->peek = &queue->_frontList->elements[queue->_frontTop];
+}
+
+SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue)
+{
+    /* The queue should not be empty. */
+    SBAssert(queue->count != 0);
+
+    return &queue->_frontList->elements[queue->_frontTop];
 }
 
 SB_INTERNAL void RunQueueFinalize(RunQueueRef queue)
