@@ -31,6 +31,7 @@
 #include "CodepointSequenceTests.h"
 #include "GeneralCategoryLookupTests.h"
 #include "MirrorLookupTests.h"
+#include "RunQueueTests.h"
 #include "ScriptLocatorTests.h"
 #include "ScriptLookupTests.h"
 #include "ScriptTests.h"
@@ -60,6 +61,7 @@ int main(int argc, const char *argv[]) {
     GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
     AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    RunQueueTests runQueueTests;
     ScriptLocatorTests scriptLocatorTests;
     ScriptTests scriptTests;
 
@@ -70,6 +72,7 @@ int main(int argc, const char *argv[]) {
     generalCategoryLookupTests.run();
     scriptLookupTests.run();
     algorithmTests.run();
+    runQueueTests.run();
     scriptLocatorTests.run();
     scriptTests.run();
 
