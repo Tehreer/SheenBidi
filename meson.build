@@ -234,6 +234,10 @@ if build_tests
       'Tests/MirrorLookupTests.h',
       'Tests/MirrorLookupTests.cpp'
     ],
+    'RunQueueTests': [
+      'Tests/RunQueueTests.h',
+      'Tests/RunQueueTests.cpp'
+    ],
     'ScriptLocatorTests': [
       'Tests/ScriptLocatorTests.h',
       'Tests/ScriptLocatorTests.cpp'
