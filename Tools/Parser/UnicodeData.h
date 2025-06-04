@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,17 @@
 #include <string>
 #include <vector>
 
+#include "DataFile.h"
+
 namespace SheenBidi {
 namespace Parser {
 
-class UnicodeData {
+class UnicodeData : public DataFile {
 public:
     UnicodeData(const std::string &directory);
 
-    uint32_t firstCodePoint() const;
-    uint32_t lastCodePoint() const;
+    uint32_t firstCodePoint() const { return m_firstCodePoint; }
+    uint32_t lastCodePoint() const { return m_lastCodePoint; }
 
     void getCharacterName(uint32_t codePoint, std::string &characterName) const;
     void getGeneralCategory(uint32_t codePoint, std::string &generalCategory) const;
@@ -48,12 +50,12 @@ public:
     void getTitlecaseMapping(uint32_t codePoint, std::string &titlecaseMapping) const;
 
 private:
-    uint32_t m_lastCodePoint;
+    uint32_t m_firstCodePoint = 0;
+    uint32_t m_lastCodePoint = 0;
 
-    std::string m_data;
-    std::vector<size_t> m_offsets;
+    std::vector<std::string> m_dataLines;
 
-    size_t offset(uint32_t codePoint) const;
+    void getField(uint32_t codePoint, size_t index, std::string &field) const;
 };
 
 }

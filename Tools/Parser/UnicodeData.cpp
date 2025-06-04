@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
 #include <string>
-#include <vector>
 
+#include "DataFile.h"
 #include "UnicodeData.h"
 
 using namespace std;
@@ -30,132 +27,113 @@ using namespace SheenBidi::Parser;
 
 static const string FILE_UNICODE_DATA = "UnicodeData.txt";
 
-static inline void getField(const string &data, size_t offset, int field, string &result) {
-    result.clear();
-
-    if (offset != SIZE_MAX) {
-        size_t start = offset;
-        size_t end = offset;
-
-        for (int i = 0; i < field; i++) {
-            start = end + 1;
-            end = data.find(';', start);
-        }
-
-        result.append(data.c_str() + start, end - start);
+static bool startsWith(const string &text, const string &matchString) {
+    if (text.length() >= matchString.length()) {
+        return text.compare(0, matchString.length(), matchString) == 0;
     }
+
+    return false;
+}
+
+static bool endsWith(const string &text, const string &matchString) {
+    if (text.length() >= matchString.length()) {
+        return text.compare(text.length() - matchString.length(), matchString.length(), matchString) == 0;
+    }
+
+    return false;
 }
 
 UnicodeData::UnicodeData(const string &directory) :
-    m_offsets(0x110000, SIZE_MAX),
-    m_lastCodePoint(0)
+    DataFile(directory, FILE_UNICODE_DATA),
+    m_dataLines(CodePointCount)
 {
-    ifstream fileStream(directory + "/" + FILE_UNICODE_DATA, ios::binary);
-    char buffer[4096];
+    uint32_t startCodePoint = 0;
 
-    while (fileStream.read(buffer, sizeof(buffer))) {
-        m_data.append(buffer, sizeof(buffer));
-    }
-    m_data.append(buffer, (size_t)fileStream.gcount());
-
-    istringstream dataStream(m_data, ios::binary);
-    uint32_t codePoint;
-
-    bool inRange = false;
+    Line line;
     string characterName;
-    uint32_t rangeFirstCodePoint = 0;
-    while (dataStream >> hex >> setw(6) >> codePoint) {
-        streamoff offset = dataStream.tellg();
-        m_offsets[codePoint] = (size_t)offset;
 
-        if (codePoint > m_lastCodePoint) {
-            m_lastCodePoint = codePoint;
-        }
+    while (readLine(line)) {
+        auto codePoint = line.parseSingleCodePoint();
+        line.getField(characterName);
 
-        getField(m_data, (size_t)offset, 1, characterName);
-        if (characterName.rfind(", First>") != std::string::npos) {
-            inRange = true;
-            rangeFirstCodePoint = codePoint;
-        }
-        if (inRange && (characterName.rfind(", Last>") != std::string::npos)) {
-            inRange = false;
-            while (++rangeFirstCodePoint < codePoint) {
-                m_offsets[rangeFirstCodePoint] = (size_t)offset;
+        m_dataLines.at(codePoint) = line.data();
+
+        if (startsWith(characterName, "<")) {
+            if (endsWith(characterName, ", First>")) {
+                startCodePoint = codePoint;
+            } else if (endsWith(characterName, ", Last>")) {
+                while (++startCodePoint < codePoint) {
+                    m_dataLines[codePoint] = line.data();
+                }
             }
         }
 
-        dataStream.ignore(1024, '\n');
+        m_lastCodePoint = max(m_lastCodePoint, codePoint);
     }
 }
 
-uint32_t UnicodeData::firstCodePoint() const {
-    return 0;
-}
+void UnicodeData::getField(uint32_t codePoint, size_t index, std::string &field) const {
+    Line line(m_dataLines.at(codePoint));
 
-uint32_t UnicodeData::lastCodePoint() const {
-    return m_lastCodePoint;
-}
-
-size_t UnicodeData::offset(uint32_t codePoint) const {
-    if (codePoint <= m_lastCodePoint) {
-        return m_offsets[codePoint];
+    for (size_t skip = 0; skip < index; ++skip) {
+        line.skip(SkipMode::Field);
     }
 
-    return SIZE_MAX;
+    line.getField(field);
 }
 
 void UnicodeData::getCharacterName(uint32_t codePoint, string &characterName) const {
-    getField(m_data, offset(codePoint), 1, characterName);
+    getField(codePoint, 1, characterName);
 }
 
 void UnicodeData::getGeneralCategory(uint32_t codePoint, string &generalCategory) const {
-    getField(m_data, offset(codePoint), 2, generalCategory);
+    getField(codePoint, 2, generalCategory);
 }
 
 void UnicodeData::getCombiningClass(uint32_t codePoint, string &combiningClass) const {
-    getField(m_data, offset(codePoint), 3, combiningClass);
+    getField(codePoint, 3, combiningClass);
 }
 
 void UnicodeData::getBidirectionalCategory(uint32_t codePoint, string &bidirectionalCategory) const {
-    getField(m_data, offset(codePoint), 4, bidirectionalCategory);
+    getField(codePoint, 4, bidirectionalCategory);
 }
 
 void UnicodeData::getDecompositionMapping(uint32_t codePoint, string &decompositionMapping) const {
-    getField(m_data, offset(codePoint), 5, decompositionMapping);
+    getField(codePoint, 5, decompositionMapping);
 }
 
 void UnicodeData::getDecimalDigitValue(uint32_t codePoint, string &decimalDigitValue) const {
-    getField(m_data, offset(codePoint), 6, decimalDigitValue);
+    getField(codePoint, 6, decimalDigitValue);
 }
 
 void UnicodeData::getDigitValue(uint32_t codePoint, string &digitValue) const {
-    getField(m_data, offset(codePoint), 7, digitValue);
+    getField(codePoint, 7, digitValue);
 }
 
 void UnicodeData::getNumericValue(uint32_t codePoint, string &numericValue) const {
-    getField(m_data, offset(codePoint), 8, numericValue);
+    getField(codePoint, 8, numericValue);
 }
 
 void UnicodeData::getMirrored(uint32_t codePoint, string &mirrored) const {
-    getField(m_data, offset(codePoint), 9, mirrored);
+    getField(codePoint, 9, mirrored);
 }
 
 void UnicodeData::getOldName(uint32_t codePoint, string &oldName) const {
-    getField(m_data, offset(codePoint), 10, oldName);
+    getField(codePoint, 10, oldName);
 }
 
 void UnicodeData::getCommentField(uint32_t codePoint, string &commentField) const {
-    getField(m_data, offset(codePoint), 11, commentField);
+    getField(codePoint, 11, commentField);
 }
 
 void UnicodeData::getUppercaseMapping(uint32_t codePoint, string &uppercaseMapping) const {
-    getField(m_data, offset(codePoint), 12, uppercaseMapping);
+    getField(codePoint, 12, uppercaseMapping);
 }
 
 void UnicodeData::getLowercaseMapping(uint32_t codePoint, string &lowercaseMapping) const {
-    getField(m_data, offset(codePoint), 13, lowercaseMapping);
+    getField(codePoint, 13, lowercaseMapping);
 }
 
 void UnicodeData::getTitlecaseMapping(uint32_t codePoint, string &titlecaseMapping) const {
-    getField(m_data, offset(codePoint), 14, titlecaseMapping);
+    getField(codePoint, 14, titlecaseMapping);
 }
