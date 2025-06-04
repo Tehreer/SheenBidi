@@ -169,6 +169,7 @@ if(BUILD_TESTS)
     BidiTypeLookupTests
     BracketLookupTests
     CodepointSequenceTests
+    CodepointTests
     GeneralCategoryLookupTests
     MirrorLookupTests
     RunQueueTests
@@ -191,6 +192,10 @@ if(BUILD_TESTS)
   set(CodepointSequenceTests
     Tests/CodepointSequenceTests.h
     Tests/CodepointSequenceTests.cpp
+  )
+  set(CodepointTests
+    Tests/CodepointTests.h
+    Tests/CodepointTests.cpp
   )
   set(GeneralCategoryLookupTests
     Tests/GeneralCategoryLookupTests.h
