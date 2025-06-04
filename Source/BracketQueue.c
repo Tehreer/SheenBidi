@@ -19,7 +19,6 @@
 #include <SheenBidi/SBConfig.h>
 
 #include "BidiChain.h"
-#include "BracketQueue.h"
 #include "Object.h"
 #include "SBAssert.h"
 #include "SBBase.h"
@@ -166,21 +165,6 @@ SB_INTERNAL void BracketQueueClosePair(BracketQueueRef queue, BidiLink closingLi
 {
     BracketQueueListRef list = queue->_rearList;
     SBInteger top = queue->_rearTop;
-    SBCodepoint canonical;
-
-    switch (bracket) {
-    case 0x232A:
-        canonical = 0x3009;
-        break;
-
-    case 0x3009:
-        canonical = 0x232A;
-        break;
-
-    default:
-        canonical = bracket;
-        break;
-    }
 
     while (1) {
         SBBoolean isFrontList = (list == queue->_frontList);
@@ -189,7 +173,7 @@ SB_INTERNAL void BracketQueueClosePair(BracketQueueRef queue, BidiLink closingLi
         do {
             if (list->openingLink[top] != BidiLinkNone
                 && list->closingLink[top] == BidiLinkNone
-                && (list->bracket[top] == bracket || list->bracket[top] == canonical)) {
+                && SBCodepointIsCanonicalEquivalentBracket(list->bracket[top], bracket)) {
                 list->closingLink[top] = closingLink;
                 BracketQueueFinalizePairs(queue, list, top);
 

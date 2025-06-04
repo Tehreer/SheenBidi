@@ -18,5 +18,9 @@
 #define _SB_INTERNAL_CODEPOINT_H
 
 #include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBConfig.h>
+
+SB_INTERNAL SBBoolean SBCodepointIsCanonicalEquivalentBracket(
+    SBCodepoint codepoint, SBCodepoint bracket);
 
 #endif

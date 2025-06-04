@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBConfig.h>
+
 #include "BidiTypeLookup.h"
 #include "GeneralCategoryLookup.h"
 #include "PairingLookup.h"
-#include "SBBase.h"
 #include "ScriptLookup.h"
 #include "SBCodepoint.h"
 
@@ -69,6 +71,34 @@ static const SBUInt8 UTF8LookupTable[256] = {
 /* LEAD: -- FE..FF -- */
     1, 1
 };
+
+SB_INTERNAL SBBoolean SBCodepointIsCanonicalEquivalentBracket(
+    SBCodepoint codepoint, SBCodepoint bracket)
+{
+    SBCodepoint canonical;
+
+    switch (codepoint) {
+    case 0x2329:
+        canonical = 0x3008;
+        break;
+    case 0x3008:
+        canonical = 0x2329;
+        break;
+
+    case 0x232A:
+        canonical = 0x3009;
+        break;
+    case 0x3009:
+        canonical = 0x232A;
+        break;
+
+    default:
+        canonical = codepoint;
+        break;
+    }
+
+    return bracket == codepoint || bracket == canonical;
+}
 
 SBBidiType SBCodepointGetBidiType(SBCodepoint codepoint)
 {
