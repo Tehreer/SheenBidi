@@ -65,6 +65,7 @@ protected:
         uint32_t parseSingleCodePoint();
         CodePointRange parseCodePointRange();
 
+        std::string data() const { return m_data; }
         bool isEmpty() const { return m_data.empty(); }
         size_t position() const { return m_position; }
         bool hasMore() const { return m_position < m_data.length(); }
