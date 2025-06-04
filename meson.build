@@ -226,6 +226,10 @@ if build_tests
       'Tests/CodepointSequenceTests.h',
       'Tests/CodepointSequenceTests.cpp'
     ],
+    'CodepintTests': [
+      'Tests/CodepointTests.h',
+      'Tests/CodepointTests.cpp'
+    ],
     'GeneralCategoryLookupTests': [
       'Tests/GeneralCategoryLookupTests.h',
       'Tests/GeneralCategoryLookupTests.cpp'
