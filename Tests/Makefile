@@ -9,6 +9,7 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/BidiTypeLookupTests.cpp \
              $(TESTS_DIR)/BracketLookupTests.cpp \
              $(TESTS_DIR)/CodepointSequenceTests.cpp \
+             $(TESTS_DIR)/CodepointTests.cpp \
              $(TESTS_DIR)/GeneralCategoryLookupTests.cpp \
              $(TESTS_DIR)/main.cpp \
              $(TESTS_DIR)/MirrorLookupTests.cpp \
