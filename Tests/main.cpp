@@ -24,11 +24,13 @@
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/PropList.h>
 #include <Parser/Scripts.h>
+#include <Parser/UnicodeData.h>
 
 #include "AlgorithmTests.h"
 #include "BidiTypeLookupTests.h"
 #include "BracketLookupTests.h"
 #include "CodepointSequenceTests.h"
+#include "CodepointTests.h"
 #include "GeneralCategoryLookupTests.h"
 #include "MirrorLookupTests.h"
 #include "RunQueueTests.h"
@@ -53,25 +55,28 @@ int main(int argc, const char *argv[]) {
     DerivedBidiClass derivedBidiClass(dir, propList, derivedCoreProperties, propertyValueAliases);
     DerivedGeneralCategory derivedGeneralCategory(dir);
     Scripts scripts(dir);
+    UnicodeData unicodeData(dir);
 
     BidiTypeLookupTests bidiTypeLookupTests(derivedBidiClass);
-    CodepointSequenceTests codepointSequenceTests;
     MirrorLookupTests mirrorLookupTests(bidiMirroring);
     BracketLookupTests bracketLookupTests(bidiBrackets);
     GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
     AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    CodepointTests codepointTests(unicodeData, bidiBrackets);
+    CodepointSequenceTests codepointSequenceTests;
     RunQueueTests runQueueTests;
     ScriptLocatorTests scriptLocatorTests;
     ScriptTests scriptTests;
 
     bidiTypeLookupTests.run();
-    codepointSequenceTests.run();
     mirrorLookupTests.run();
     bracketLookupTests.run();
     generalCategoryLookupTests.run();
     scriptLookupTests.run();
     algorithmTests.run();
+    codepointTests.run();
+    codepointSequenceTests.run();
     runQueueTests.run();
     scriptLocatorTests.run();
     scriptTests.run();
