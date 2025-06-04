@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
 #include <Source/PairingLookup.h>
 }
-
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
 
 #include <Parser/BidiMirroring.h>
 
@@ -39,7 +39,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Utilities;
 
 MirrorLookupTests::MirrorLookupTests(const BidiMirroring &bidiMirroring) :
-    m_BidiMirroring(bidiMirroring)
+    m_bidiMirroring(bidiMirroring)
 {
 }
 
@@ -49,10 +49,10 @@ void MirrorLookupTests::run() {
 #else
     cout << "Running mirror lookup tests." << endl;
 
-    size_t failCounter = 0;
+    size_t failures = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        uint32_t expMirror = m_BidiMirroring.mirrorOf(codePoint);
+        uint32_t expMirror = m_bidiMirroring.mirrorOf(codePoint);
         SBUInt32 genMirror = LookupMirror(codePoint);
 
         if (genMirror != expMirror) {
@@ -63,12 +63,14 @@ void MirrorLookupTests::run() {
                      << "  Expected Mirror: " << expMirror << endl;
             }
 
-            failCounter++;
+            failures += 1;
         }
     }
 
-    cout << failCounter << " error/s." << endl;
+    cout << failures << " error/s." << endl;
     cout << endl;
+
+    assert(failures == 0);
 #endif
 }
 

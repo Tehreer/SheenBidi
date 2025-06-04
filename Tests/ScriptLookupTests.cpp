@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
-
-extern "C" {
-#include <Source/ScriptLookup.h>
-}
-
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <string>
+
+#include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBScript.h>
+
+extern "C" {
+#include <Source/ScriptLookup.h>
+}
 
 #include <Parser/PropertyValueAliases.h>
 #include <Parser/Scripts.h>
@@ -53,7 +53,7 @@ void ScriptLookupTests::run() {
 #else
     cout << "Running script lookup tests." << endl;
 
-    size_t failCounter = 0;
+    size_t failures = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
         const string &uniScript = m_scripts.scriptOf(codePoint);
@@ -69,13 +69,15 @@ void ScriptLookupTests::run() {
                      << "  Expected Script: " << expScript << endl
                      << "  Generated Script: " << genScript << endl;
             }
-                
-            failCounter++;
+
+            failures += 1;
         }
     }
 
-    cout << failCounter << " error/s." << endl;
+    cout << failures << " error/s." << endl;
     cout << endl;
+
+    assert(failures == 0);
 #endif
 }
 

@@ -28,7 +28,7 @@ public:
     void run();
 
 private:
-    const Parser::BidiBrackets &m_BidiBrackets;
+    const Parser::BidiBrackets &m_bidiBrackets;
 };
 
 }

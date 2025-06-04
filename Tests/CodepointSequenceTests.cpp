@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#include <cassert>
+#include <cstdint>
+#include <vector>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepointSequence.h>
-
-#include <cassert>
-#include <vector>
 
 #include "CodepointSequenceTests.h"
 

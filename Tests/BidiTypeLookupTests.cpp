@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <string>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBConfig.h>
@@ -21,12 +27,6 @@
 extern "C" {
 #include <Source/BidiTypeLookup.h>
 }
-
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
-#include <string>
 
 #include <Parser/DerivedBidiClass.h>
 #include <Parser/DerivedCoreProperties.h>
@@ -55,7 +55,7 @@ void BidiTypeLookupTests::run() {
 #else
     cout << "Running bidi type lookup tests." << endl;
 
-    size_t failCounter = 0;
+    size_t failures = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
         const auto &expBidiType = m_derivedBidiClass.bidiClassOf(codePoint);
@@ -71,12 +71,14 @@ void BidiTypeLookupTests::run() {
                      << "  Generated Char Type: " << genBidiType << endl;
             }
 
-            failCounter++;
+            failures += 1;
         }
     }
 
-    cout << failCounter << " error/s." << endl;
+    cout << failures << " error/s." << endl;
     cout << endl;
+
+    assert(failures == 0);
 #endif
 }
 

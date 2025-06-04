@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <cassert>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
@@ -55,7 +56,7 @@ void AlgorithmTests::testAlgorithm() {
         cout << "Running algorithm tests." << endl;
 
         testCounter = 0;
-        failCounter = 0;
+        failures = 0;
 
         if (m_bidiTest) {
             analyzeBidiTest();
@@ -65,12 +66,14 @@ void AlgorithmTests::testAlgorithm() {
             analyzeBidiCharacterTest();
         }
 
-        cout << failCounter << " error/s." << endl << endl;
+        cout << failures << " error/s." << endl;
+        cout << endl;
     } else {
-        cout << "No test case found for algorithm testing." << endl << endl;
+        cout << "No test case found for algorithm testing." << endl;
+        cout << endl;
     }
 
-    cout << endl;
+    assert(failures == 0);
 }
 
 void AlgorithmTests::testMulticharNewline()
@@ -120,7 +123,10 @@ void AlgorithmTests::testMulticharNewline()
     SBParagraphRelease(paragraph);
     SBAlgorithmRelease(algorithm);
 
-    cout << failed << " error/s." << endl << endl;
+    cout << failed << " error/s." << endl;
+    cout << endl;
+
+    assert(failed == false);
 }
 
 void AlgorithmTests::run()
@@ -507,7 +513,7 @@ void AlgorithmTests::analyzeBidiTest() {
         }
 
         if (!passed) {
-            failCounter++;
+            failures += 1;
         }
     }
 }
@@ -540,7 +546,7 @@ void AlgorithmTests::analyzeBidiCharacterTest() {
         }
         
         if (!conductTest()) {
-            failCounter++;
+            failures += 1;
         }
     }
 }

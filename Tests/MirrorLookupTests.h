@@ -28,7 +28,7 @@ public:
     void run();
 
 private:
-    const Parser::BidiMirroring &m_BidiMirroring;
+    const Parser::BidiMirroring &m_bidiMirroring;
 };
 
 }

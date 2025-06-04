@@ -19,6 +19,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include <SheenBidi/SheenBidi.h>
@@ -44,7 +45,7 @@ private:
     Parser::BidiMirroring *m_bidiMirroring;
 
     size_t testCounter = 0;
-    size_t failCounter = 0;
+    size_t failures = 0;
 
     SBMirrorLocatorRef m_mirrorLocator = nullptr;
 

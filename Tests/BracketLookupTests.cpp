@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
@@ -21,11 +26,6 @@ extern "C" {
 #include <Source/BracketType.h>
 #include <Source/PairingLookup.h>
 }
-
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
 
 #include <Parser/BidiBrackets.h>
 
@@ -40,7 +40,7 @@ using namespace SheenBidi::Parser;
 using namespace SheenBidi::Utilities;
 
 BracketLookupTests::BracketLookupTests(const BidiBrackets &bidiBrackets) :
-    m_BidiBrackets(bidiBrackets)
+    m_bidiBrackets(bidiBrackets)
 {
 }
 
@@ -50,11 +50,11 @@ void BracketLookupTests::run() {
 #else
     cout << "Running bracket lookup tests." << endl;
 
-    size_t failCounter = 0;
+    size_t failures = 0;
 
     for (uint32_t codePoint = 0; codePoint <= Unicode::MAX_CODE_POINT; codePoint++) {
-        uint32_t expBracket = m_BidiBrackets.pairedBracketOf(codePoint);
-        char expType = m_BidiBrackets.pairedBracketTypeOf(codePoint);
+        uint32_t expBracket = m_bidiBrackets.pairedBracketOf(codePoint);
+        char expType = m_bidiBrackets.pairedBracketTypeOf(codePoint);
 
         BracketType valType;
         SBUInt32 genBracket = LookupBracketPair(codePoint, &valType);
@@ -84,12 +84,14 @@ void BracketLookupTests::run() {
                      << "  Generated Type: " << genType << endl;
             }
 
-            failCounter++;
+            failures += 1;
         }
     }
 
-    cout << failCounter << " error/s." << endl;
+    cout << failures << " error/s." << endl;
     cout << endl;
+
+    assert(failures == 0);
 #endif
 }
 
