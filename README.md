@@ -68,17 +68,17 @@ SheenBidi can be compiled with any C compiler. The recommended approach is to ad
 To build and install SheenBidi using CMake:
 
 ```bash
-cmake -S. -Brelease -DCMAKE_BUILD_TYPE=Release
-cmake --build release
-sudo cmake --install release
+cmake -S. -Bbuild-release -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release
+sudo cmake --install build-release
 ```
 
 For development and testing:
 
 ```bash
-cmake -S. -Bdebug -DSB_CONFIG_UNITY=OFF
-cmake --build debug
-ctest --test-dir debug --output-on-failure
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DSB_CONFIG_UNITY=OFF
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
 In other CMake projects, SheenBidi can be found via `find_package(SheenBidi)`, providing the target `SheenBidi::SheenBidi`. SheenBidi can also be used via `FetchContent`.
