@@ -115,7 +115,7 @@ sheenbidi_dep = declare_dependency(
 )
 
 # ------------------------------------------------------------------------------
-# Parser Library (Required for generator/testing)
+# Parser Library (Required for Generator/Tests)
 # ------------------------------------------------------------------------------
 
 if build_generator or build_tests
@@ -149,7 +149,7 @@ if build_generator or build_tests
   )
   
   parser = static_library(
-    'parser',
+    'Parser',
     sources: parser_files,
     include_directories: ['Tools']
   )
@@ -190,7 +190,7 @@ if build_generator
   )
   
   executable(
-    'generator',
+    'Generator',
     sources: generator_files,
     include_directories: ['Headers', 'Tools'],
     dependencies: [parser_dep],
