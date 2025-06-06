@@ -6,8 +6,8 @@ TOOLS_DIR   = Tools
 PARSER_DIR  = $(TOOLS_DIR)/Parser
 
 LIB_SHEENBIDI = SheenBidi
-LIB_PARSER    = parser
-EXEC_TESTS    = tests
+LIB_PARSER    = Parser
+EXEC_TESTS    = Tests
 
 ifndef CC
 	CC = gcc
@@ -62,7 +62,7 @@ release: $(RELEASE) $(RELEASE_TARGET)
 debug:   $(DEBUG) $(DEBUG_TARGET)
 
 check: tests
-	./Debug/tests Tools/Unicode
+	./Debug/Tests Tools/Unicode
 
 clean: parser_clean tests_clean
 	$(RM) $(DEBUG)/*.o
