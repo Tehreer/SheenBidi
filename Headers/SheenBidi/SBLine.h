@@ -84,4 +84,5 @@ SB_PUBLIC SBLineRef SBLineRetain(SBLineRef line);
 SB_PUBLIC void SBLineRelease(SBLineRef line);
 
 SB_EXTERN_C_END
+
 #endif

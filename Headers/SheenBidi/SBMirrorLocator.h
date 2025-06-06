@@ -104,4 +104,5 @@ SB_PUBLIC SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator);
 SB_PUBLIC void SBMirrorLocatorRelease(SBMirrorLocatorRef locator);
 
 SB_EXTERN_C_END
+
 #endif

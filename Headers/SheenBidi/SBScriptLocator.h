@@ -102,4 +102,5 @@ SB_PUBLIC SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator);
 SB_PUBLIC void SBScriptLocatorRelease(SBScriptLocatorRef locator);
 
 SB_EXTERN_C_END
+
 #endif

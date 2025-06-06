@@ -20,12 +20,12 @@
 
 #include "BidiTypeLookup.h"
 #include "Object.h"
-#include "SBAlgorithm.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
 #include "SBCodepointSequence.h"
 #include "SBLog.h"
 #include "SBParagraph.h"
+#include "SBAlgorithm.h"
 
 #define ALGORITHM  0
 #define BIDI_TYPES 1

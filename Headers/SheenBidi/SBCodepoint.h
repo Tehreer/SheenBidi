@@ -180,4 +180,5 @@ SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer,
     SBUInteger *index);
 
 SB_EXTERN_C_END
+
 #endif

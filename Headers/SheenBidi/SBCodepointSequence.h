@@ -66,4 +66,5 @@ SB_PUBLIC SBCodepoint SBCodepointSequenceGetCodepointAt(
     const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex);
 
 SB_EXTERN_C_END
+
 #endif

@@ -106,4 +106,5 @@ typedef SBUInt8 SBGeneralCategory;
 #define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
 
 SB_EXTERN_C_END
+
 #endif

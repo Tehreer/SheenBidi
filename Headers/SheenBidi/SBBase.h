@@ -17,7 +17,6 @@
 #ifndef _SB_PUBLIC_BASE_H
 #define _SB_PUBLIC_BASE_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

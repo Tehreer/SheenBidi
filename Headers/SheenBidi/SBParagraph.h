@@ -101,4 +101,5 @@ SB_PUBLIC SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph);
 SB_PUBLIC void SBParagraphRelease(SBParagraphRef paragraph);
 
 SB_EXTERN_C_END
+
 #endif

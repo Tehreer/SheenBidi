@@ -119,4 +119,5 @@ SB_PUBLIC SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm);
 SB_PUBLIC void SBAlgorithmRelease(SBAlgorithmRef algorithm);
 
 SB_EXTERN_C_END
+
 #endif

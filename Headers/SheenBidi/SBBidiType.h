@@ -81,4 +81,5 @@ typedef SBUInt8 SBBidiType;
 #define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
 
 SB_EXTERN_C_END
+
 #endif
