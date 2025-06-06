@@ -15,8 +15,11 @@
  */
 
 #include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBVersion.h>
 
 #include "SBBase.h"
+
+static const char LibraryVersion[] = SHEENBIDI_VERSION_STRING;
 
 #define TAG(a, b, c, d) \
 (SBUInt32)              \
@@ -807,4 +810,9 @@ SBUInt32 SBScriptGetUnicodeTag(SBScript script)
     default:
         return 0;
     }
+}
+
+const char *SBVersionGetString(void)
+{
+    return LibraryVersion;
 }

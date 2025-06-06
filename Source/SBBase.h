@@ -20,7 +20,6 @@
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBConfig.h>
-#include <SheenBidi/SBGeneralCategory.h>
 #include <SheenBidi/SBScript.h>
 
 /**
