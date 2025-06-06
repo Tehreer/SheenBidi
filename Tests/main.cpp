@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include <iostream>
+
+#include <SheenBidi/SheenBidi.h>
+
 #include <Parser/BidiBrackets.h>
 #include <Parser/BidiCharacterTest.h>
 #include <Parser/BidiMirroring.h>
@@ -69,6 +73,9 @@ int main(int argc, const char *argv[]) {
     ScriptLocatorTests scriptLocatorTests;
     ScriptTests scriptTests;
 
+    cout << "Testing SheenBidi " << SBVersionGetString() << endl;
+    cout << endl;
+
     bidiTypeLookupTests.run();
     mirrorLookupTests.run();
     bracketLookupTests.run();
@@ -80,6 +87,8 @@ int main(int argc, const char *argv[]) {
     runQueueTests.run();
     scriptLocatorTests.run();
     scriptTests.run();
+
+    cout << "Finished." << endl;
 
     return 0;
 }
