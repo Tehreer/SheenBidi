@@ -122,7 +122,7 @@ add_library(SheenBidi::SheenBidi ALIAS SheenBidi)
 add_sanitizers(SheenBidi)
 
 # ------------------------------------------------------------------------------
-# Parser Library (Required for generator/testing)
+# Parser Library (Required for Generator/Tests)
 # ------------------------------------------------------------------------------
 
 if(BUILD_GENERATOR OR BUILD_TESTS)
@@ -130,8 +130,8 @@ if(BUILD_GENERATOR OR BUILD_TESTS)
     Tools/Parser/*.h
     Tools/Parser/*.cpp
   )
-  add_library(parser STATIC ${PARSER_FILES})
-  add_sanitizers(parser)
+  add_library(Parser STATIC ${PARSER_FILES})
+  add_sanitizers(Parser)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -143,15 +143,15 @@ if(BUILD_GENERATOR)
     Tools/Generator/*.h
     Tools/Generator/*.cpp
   )
-  add_executable(generator ${GENERATOR_FILES})
-  target_include_directories(generator
+  add_executable(Generator ${GENERATOR_FILES})
+  target_include_directories(Generator
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}/Headers
       ${CMAKE_CURRENT_SOURCE_DIR}/Tools
   )
-  target_link_libraries(generator PRIVATE parser)
-  add_sanitizers(generator)
+  target_link_libraries(Generator PRIVATE Parser)
+  add_sanitizers(Generator)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ if(BUILD_TESTS)
         ${CMAKE_CURRENT_SOURCE_DIR}/Tools
     )
     target_compile_definitions(${TEST_NAME} PRIVATE STANDALONE_TESTING)
-    target_link_libraries(${TEST_NAME} PRIVATE parser SheenBidi)
+    target_link_libraries(${TEST_NAME} PRIVATE Parser SheenBidi)
     add_sanitizers(${TEST_NAME})
 
     add_test(
