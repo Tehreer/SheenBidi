@@ -32,6 +32,7 @@ DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/GeneralCategoryLookup.c \
                 $(SOURCE_DIR)/IsolatingRun.c \
                 $(SOURCE_DIR)/LevelRun.c \
+                $(SOURCE_DIR)/Memory.c \
                 $(SOURCE_DIR)/Object.c \
                 $(SOURCE_DIR)/PairingLookup.c \
                 $(SOURCE_DIR)/RunQueue.c \
