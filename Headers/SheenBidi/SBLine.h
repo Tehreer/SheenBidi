@@ -22,7 +22,7 @@
 
 SB_EXTERN_C_BEGIN
 
-typedef struct _SBLine *SBLineRef;
+typedef const struct _SBLine *SBLineRef;
 
 /**
  * Returns the index to the first code unit of the line in source string.

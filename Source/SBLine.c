@@ -27,6 +27,8 @@
 #include "SBParagraph.h"
 #include "SBLine.h"
 
+typedef SBLine *SBMutableLineRef;
+
 typedef struct _LineContext {
     Memory memory;
     const SBBidiType *refTypes;
@@ -80,9 +82,9 @@ static void FinalizeLineContext(LineContextRef context)
 #define RUNS  1
 #define COUNT 2
 
-static SBLineRef AllocateLine(SBUInteger runCount)
+static SBMutableLineRef AllocateLine(SBUInteger runCount)
 {
-    SBLineRef line = NULL;
+    SBMutableLineRef line = NULL;
 
     if (runCount > 0) {
         void *pointers[COUNT] = { NULL };
@@ -265,7 +267,7 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     SBUInteger innerOffset = lineOffset - paragraph->offset;
     const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
     const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
-    SBLineRef line = NULL;
+    SBMutableLineRef line = NULL;
     LineContext context;
 
     /* Line range MUST be valid. */
