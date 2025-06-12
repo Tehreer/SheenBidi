@@ -35,6 +35,8 @@
 #include "StatusStack.h"
 #include "SBParagraph.h"
 
+typedef SBParagraph *SBMutableParagraphRef;
+
 typedef struct _ParagraphContext {
     Memory memory;
     BidiChain bidiChain;
@@ -100,11 +102,11 @@ static void FinalizeParagraphContext(ParagraphContextRef context)
 #define LEVELS    1
 #define COUNT     2
 
-static SBParagraphRef AllocateParagraph(SBUInteger length)
+static SBMutableParagraphRef AllocateParagraph(SBUInteger length)
 {
     void *pointers[COUNT] = { NULL };
     SBUInteger sizes[COUNT] = { 0 };
-    SBParagraphRef paragraph;
+    SBMutableParagraphRef paragraph;
 
     sizes[PARAGRAPH] = sizeof(SBParagraph);
     sizes[LEVELS]    = sizeof(SBLevel) * (length + 2);
@@ -581,7 +583,7 @@ static void SaveLevels(BidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
     }
 }
 
-static SBBoolean ResolveParagraph(SBParagraphRef paragraph,
+static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph,
     SBAlgorithmRef algorithm, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     const SBBidiType *bidiTypes = algorithm->fixedTypes + offset;
@@ -630,7 +632,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SBUInteger stringLength = codepointSequence->stringLength;
     SBUInteger actualLength;
 
-    SBParagraphRef paragraph;
+    SBMutableParagraphRef paragraph;
 
     /* The given range MUST be valid. */
     SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);

@@ -22,7 +22,7 @@
 
 SB_EXTERN_C_BEGIN
 
-typedef struct _SBParagraph *SBParagraphRef;
+typedef const struct _SBParagraph *SBParagraphRef;
 
 /**
  * Returns the index to the first code unit of the paragraph in source string.
