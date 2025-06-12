@@ -19,17 +19,16 @@
 #include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBRun.h>
 
+#include "Memory.h"
 #include "Object.h"
-#include "PairingLookup.h"
 #include "SBAlgorithm.h"
 #include "SBAssert.h"
 #include "SBBase.h"
-#include "SBCodepointSequence.h"
 #include "SBParagraph.h"
 #include "SBLine.h"
 
 typedef struct _LineContext {
-    Object object;
+    Memory memory;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
@@ -52,9 +51,9 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 
     sizes[LEVELS] = sizeof(SBLevel) * length;
 
-    ObjectInitialize(&context->object);
+    MemoryInitialize(&context->memory);
 
-    if (ObjectAddMemoryWithChunks(&context->object, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(&context->memory, sizes, COUNT, pointers)) {
         SBLevel *fixedLevels = pointers[LEVELS];
 
         context->refTypes = types;
@@ -74,7 +73,7 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 
 static void FinalizeLineContext(LineContextRef context)
 {
-    ObjectFinalize(&context->object);
+    MemoryFinalize(&context->memory);
 }
 
 #define LINE  0
@@ -83,20 +82,23 @@ static void FinalizeLineContext(LineContextRef context)
 
 static SBLineRef AllocateLine(SBUInteger runCount)
 {
-    void *pointers[COUNT] = { NULL };
-    SBUInteger sizes[COUNT];
+    SBLineRef line = NULL;
 
-    sizes[LINE] = sizeof(SBLine);
-    sizes[RUNS] = sizeof(SBRun) * runCount;
+    if (runCount > 0) {
+        void *pointers[COUNT] = { NULL };
+        SBUInteger sizes[COUNT] = { 0 };
 
-    if (runCount > 0 && ObjectCreate(sizes, COUNT, pointers)) {
-        SBLineRef line = pointers[LINE];
-        SBRun *runs = pointers[RUNS];
+        sizes[LINE] = sizeof(SBLine);
+        sizes[RUNS] = sizeof(SBRun) * runCount;
 
-        line->fixedRuns = runs;
+        line = ObjectCreate(sizes, COUNT, pointers, NULL);
+
+        if (line) {
+            line->fixedRuns = pointers[RUNS];
+        }
     }
 
-    return pointers[LINE];
+    return line;
 }
 
 #undef LINE

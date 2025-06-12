@@ -20,7 +20,7 @@
 #include <SheenBidi/SBConfig.h>
 
 #include "LevelRun.h"
-#include "Object.h"
+#include "Memory.h"
 #include "SBAssert.h"
 #include "RunQueue.h"
 
@@ -33,7 +33,7 @@ static SBBoolean RunQueueInsertElement(RunQueueRef queue)
         RunQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = ObjectAddMemory(&queue->_object, sizeof(RunQueueList));
+            rearList = MemoryAllocateBlock(&queue->_memory, sizeof(RunQueueList));
             if (!rearList) {
                 return SBFalse;
             }
@@ -80,7 +80,7 @@ static void FindPreviousPartialRun(RunQueueRef queue)
 
 SB_INTERNAL void RunQueueInitialize(RunQueueRef queue)
 {
-    ObjectInitialize(&queue->_object);
+    MemoryInitialize(&queue->_memory);
 
     /* Initialize first list. */
     queue->_firstList.previous = NULL;
@@ -160,5 +160,5 @@ SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue)
 
 SB_INTERNAL void RunQueueFinalize(RunQueueRef queue)
 {
-    ObjectFinalize(&queue->_object);
+    MemoryFinalize(&queue->_memory);
 }

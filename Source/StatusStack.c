@@ -18,7 +18,7 @@
 
 #include <SheenBidi/SBConfig.h>
 
-#include "Object.h"
+#include "Memory.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "StatusStack.h"
@@ -32,7 +32,7 @@ static SBBoolean StatusStackInsertElement(StatusStackRef stack)
         _StatusStackListRef peekList = previousList->next;
 
         if (!peekList) {
-            peekList = ObjectAddMemory(&stack->_object, sizeof(_StatusStackList));
+            peekList = MemoryAllocateBlock(&stack->_memory, sizeof(_StatusStackList));
             if (!peekList) {
                 return SBFalse;
             }
@@ -53,7 +53,7 @@ static SBBoolean StatusStackInsertElement(StatusStackRef stack)
 
 SB_INTERNAL void StatusStackInitialize(StatusStackRef stack)
 {
-    ObjectInitialize(&stack->_object);
+    MemoryInitialize(&stack->_memory);
 
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
@@ -117,5 +117,5 @@ SB_INTERNAL SBBoolean StatusStackGetIsolateStatus(StatusStackRef stack)
 
 SB_INTERNAL void StatusStackFinalize(StatusStackRef stack)
 {
-    ObjectFinalize(&stack->_object);
+    MemoryFinalize(&stack->_memory);
 }

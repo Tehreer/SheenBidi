@@ -23,6 +23,7 @@
 #include "BidiTypeLookup.h"
 #include "IsolatingRun.h"
 #include "LevelRun.h"
+#include "Memory.h"
 #include "Object.h"
 #include "RunQueue.h"
 #include "SBAlgorithm.h"
@@ -35,7 +36,7 @@
 #include "SBParagraph.h"
 
 typedef struct _ParagraphContext {
-    Object object;
+    Memory memory;
     BidiChain bidiChain;
     StatusStack statusStack;
     RunQueue runQueue;
@@ -44,6 +45,7 @@ typedef struct _ParagraphContext {
 
 static void PopulateBidiChain(BidiChainRef chain, const SBBidiType *types, SBUInteger length);
 static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish);
+static void FinalizeParagraph(ObjectRef object);
 
 #define BIDI_LINKS        0
 #define BIDI_TYPES        1
@@ -61,9 +63,9 @@ static SBBoolean InitializeParagraphContext(ParagraphContextRef context,
     sizes[BIDI_TYPES] = sizeof(SBBidiType) * (length + 2);
     sizes[BIDI_FLAGS] = sizeof(BidiFlag) * (length + 2);
 
-    ObjectInitialize(&context->object);
+    MemoryInitialize(&context->memory);
 
-    if (ObjectAddMemoryWithChunks(&context->object, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(&context->memory, sizes, COUNT, pointers)) {
         BidiLink *fixedLinks = pointers[BIDI_LINKS];
         SBBidiType *fixedTypes = pointers[BIDI_TYPES];
         BidiFlag *fixedFlags = pointers[BIDI_FLAGS];
@@ -91,7 +93,7 @@ static void FinalizeParagraphContext(ParagraphContextRef context)
     StatusStackFinalize(&context->statusStack);
     RunQueueFinalize(&context->runQueue);
     IsolatingRunFinalize(&context->isolatingRun);
-    ObjectFinalize(&context->object);
+    MemoryFinalize(&context->memory);
 }
 
 #define PARAGRAPH 0
@@ -101,19 +103,19 @@ static void FinalizeParagraphContext(ParagraphContextRef context)
 static SBParagraphRef AllocateParagraph(SBUInteger length)
 {
     void *pointers[COUNT] = { NULL };
-    SBUInteger sizes[COUNT];
+    SBUInteger sizes[COUNT] = { 0 };
+    SBParagraphRef paragraph;
 
     sizes[PARAGRAPH] = sizeof(SBParagraph);
     sizes[LEVELS]    = sizeof(SBLevel) * (length + 2);
 
-    if (ObjectCreate(sizes, COUNT, pointers)) {
-        SBParagraphRef paragraph = pointers[PARAGRAPH];
-        SBLevel *levels = pointers[LEVELS];
+    paragraph = ObjectCreate(sizes, COUNT, pointers, &FinalizeParagraph);
 
-        paragraph->fixedLevels = levels;
+    if (paragraph) {
+        paragraph->fixedLevels = pointers[LEVELS];
     }
 
-    return pointers[PARAGRAPH];
+    return paragraph;
 }
 
 #undef PARAGRAPH

@@ -21,7 +21,7 @@
 #include <SheenBidi/SBConfig.h>
 
 #include "LevelRun.h"
-#include "Object.h"
+#include "Memory.h"
 
 #define RunQueueList_Length         8
 #define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
@@ -34,7 +34,7 @@ typedef struct _RunQueueList {
 } RunQueueList, *RunQueueListRef;
 
 typedef struct _RunQueue {
-    Object _object;
+    Memory _memory;
     RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
     RunQueueListRef _frontList;     /**< The list containing front element of the queue */
     RunQueueListRef _rearList;      /**< The list containing rear element of the queue */

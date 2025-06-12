@@ -22,7 +22,7 @@
 #include <SheenBidi/SBConfig.h>
 
 #include "BidiChain.h"
-#include "Object.h"
+#include "Memory.h"
 
 #define BracketQueueList_Length         8
 #define BracketQueueList_MaxIndex       (BracketQueueList_Length - 1)
@@ -39,7 +39,7 @@ typedef struct _BracketQueueList {
 } BracketQueueList, *BracketQueueListRef;
 
 typedef struct _BracketQueue {
-    Object _object;
+    Memory _memory;
     BracketQueueList _firstList;
     BracketQueueListRef _frontList;
     BracketQueueListRef _rearList;

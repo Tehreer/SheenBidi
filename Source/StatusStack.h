@@ -17,10 +17,10 @@
 #ifndef _SB_INTERNAL_STATUS_STACK_H
 #define _SB_INTERNAL_STATUS_STACK_H
 
+#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
-#include "Object.h"
-#include "SBBase.h"
+#include "Memory.h"
 
 #define _StatusStackList_Length         16
 #define _StatusStackList_MaxIndex       (_StatusStackList_Length - 1)
@@ -39,7 +39,7 @@ typedef struct _StatusStackList {
 } _StatusStackList, *_StatusStackListRef;
 
 typedef struct _StatusStack {
-    Object _object;
+    Memory _memory;
     _StatusStackList _firstList;
     _StatusStackListRef _peekList;
     SBUInteger _peekTop;
