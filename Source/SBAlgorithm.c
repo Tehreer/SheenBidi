@@ -27,15 +27,17 @@
 #include "SBParagraph.h"
 #include "SBAlgorithm.h"
 
+typedef SBAlgorithm *SBMutableAlgorithmRef;
+
 #define ALGORITHM  0
 #define BIDI_TYPES 1
 #define COUNT      2
 
-static SBAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
+static SBMutableAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
 {
     void *pointers[COUNT] = { NULL };
     SBUInteger sizes[COUNT] = { 0 };
-    SBAlgorithmRef algorithm;
+    SBMutableAlgorithmRef algorithm;
 
     sizes[ALGORITHM]  = sizeof(SBAlgorithm);
     sizes[BIDI_TYPES] = sizeof(SBBidiType) * stringLength;
@@ -72,7 +74,7 @@ static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *
 static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequence)
 {
     SBUInteger stringLength = codepointSequence->stringLength;
-    SBAlgorithmRef algorithm;
+    SBMutableAlgorithmRef algorithm;
 
     SB_LOG_BLOCK_OPENER("Algorithm Input");
     SB_LOG_STATEMENT("Codepoints", 1, SB_LOG_CODEPOINT_SEQUENCE(codepointSequence));

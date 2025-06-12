@@ -24,7 +24,7 @@
 
 SB_EXTERN_C_BEGIN
 
-typedef struct _SBAlgorithm *SBAlgorithmRef;
+typedef const struct _SBAlgorithm *SBAlgorithmRef;
 
 /**
  * Creates an algorithm object for the specified code point sequence. The source string inside the
