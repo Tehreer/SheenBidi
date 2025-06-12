@@ -182,7 +182,7 @@ jobs:
             --track-origins=yes \
             --error-exitcode=1 \
             --log-file=valgrind.log \
-            ./Debug/tests Tools/Unicode
+            ./Debug/Tests Tools/Unicode
 
       - name: Upload Valgrind Log on Failure
         if: steps.valgrind.outcome == 'failure'
