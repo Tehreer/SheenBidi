@@ -23,25 +23,34 @@
 #include "SBLine.h"
 #include "SBMirrorLocator.h"
 
+static void FinalizeMirrorLocator(ObjectRef object)
+{
+    SBMirrorLocatorRef locator = object;
+    SBLineRelease(locator->_line);
+}
+
 SBMirrorLocatorRef SBMirrorLocatorCreate(void)
 {
     const SBUInteger size = sizeof(SBMirrorLocator);
     void *pointer = NULL;
+    SBMirrorLocatorRef locator;
 
-    if (ObjectCreate(&size, 1, &pointer)) {
-        SBMirrorLocatorRef locator = pointer;
+    locator = ObjectCreate(&size, 1, &pointer, &FinalizeMirrorLocator);
+
+    if (locator) {
         locator->_line = NULL;
-        locator->retainCount = 1;
-
         SBMirrorLocatorReset(locator);
     }
 
-    return pointer;
+    return locator;
 }
 
 void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *stringBuffer)
 {
-    SBLineRelease(locator->_line);
+    if (locator->_line) {
+        SBLineRelease(locator->_line);
+        locator->_line = NULL;
+    }
 
     if (line && stringBuffer == line->codepointSequence.stringBuffer) {
         locator->_line = SBLineRetain(line);
@@ -110,17 +119,10 @@ void SBMirrorLocatorReset(SBMirrorLocatorRef locator)
 
 SBMirrorLocatorRef SBMirrorLocatorRetain(SBMirrorLocatorRef locator)
 {
-    if (locator) {
-        locator->retainCount += 1;
-    }
-
-    return locator;
+    return ObjectRetain((ObjectRef)locator);
 }
 
 void SBMirrorLocatorRelease(SBMirrorLocatorRef locator)
 {
-    if (locator && --locator->retainCount == 0) {
-        SBLineRelease(locator->_line);
-        ObjectDispose(&locator->_object);
-    }
+    ObjectRelease((ObjectRef)locator);
 }

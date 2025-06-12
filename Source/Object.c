@@ -15,142 +15,54 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 
+#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
+#include "Memory.h"
 #include "SBAssert.h"
-#include "SBBase.h"
 #include "Object.h"
 
-/**
- * Calculates the total size from a list of chunk sizes.
- */
-static SBUInteger CalculateTotalSize(const SBUInteger *sizes, SBUInteger count)
+SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chunkCount,
+    void **outPointers, FinalizeFunc finalizer)
 {
-    SBUInteger totalSize = 0;
-    SBUInteger index;
+    ObjectBaseRef base = NULL;
+    Memory memory;
 
-    for (index = 0; index < count; index++) {
-        totalSize += sizes[index];
-    }
+    /* Number of chunks MUST be greater than or equal to one. */
+    SBAssert(chunkCount >= 1);
+    /* Size of first chunk MUST be greater than the size of ObjectBase structure. */
+    SBAssert(chunkSizes[0] > sizeof(ObjectBase));
 
-    return totalSize;
-}
+    MemoryInitialize(&memory);
 
-/**
- * Allocates a single block of memory large enough to store an optional header followed by a
- * sequence of memory chunks. Initializes the `pointers` array with addresses to each chunk.
- */
-static void *AllocateMemory(SBUInteger headerSize, SBUInteger totalSize,
-    const SBUInteger *sizes, SBUInteger count, void **pointers)
-{
-    void *base = malloc(headerSize + totalSize);
-
-    if (base) {
-        SBUInt8 *memory = (SBUInt8 *)base;
-        SBUInteger offset = headerSize;
-        SBUInteger index;
-
-        for (index = 0; index < count; index++) {
-            pointers[index] = memory + offset;
-            offset += sizes[index];
-        }
+    if (MemoryAllocateChunks(&memory, chunkSizes, chunkCount, outPointers)) {
+        base = outPointers[0];
+        base->memory = memory;
+        base->finalize = finalizer;
+        base->retainCount = 1;
     }
 
     return base;
 }
 
-SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *sizes, SBUInteger count, void **pointers)
+SB_INTERNAL ObjectRef ObjectRetain(ObjectRef object)
 {
-    SBUInteger totalSize = CalculateTotalSize(sizes, count);
-    ObjectRef object;
-
-    /* Total size MUST be greater than the size of Object structure. */
-    SBAssert(totalSize > sizeof(Object));
-
-    object = AllocateMemory(0, totalSize, sizes, count, pointers);
-
-    if (object) {
-        ObjectInitialize(object);
-    }
+    ObjectBaseRef base = (ObjectBaseRef)object;
+    base->retainCount += 1;
 
     return object;
 }
 
-SB_INTERNAL void ObjectInitialize(ObjectRef object)
+SB_INTERNAL void ObjectRelease(ObjectRef object)
 {
-    object->_memoryList = NULL;
-}
+    ObjectBaseRef base = (ObjectBaseRef)object;
 
-SB_INTERNAL void *ObjectAddMemory(ObjectRef object, SBUInteger size)
-{
-    void *pointer;
-
-    if (ObjectAddMemoryWithChunks(object, &size, 1, &pointer)) {
-        return pointer;
-    }
-
-    return NULL;
-}
-
-SB_INTERNAL SBBoolean ObjectAddMemoryWithChunks(ObjectRef object,
-    const SBUInteger *sizes, SBUInteger count, void **pointers)
-{
-    MemoryListRef memoryList = object->_memoryList;
-    SBUInteger totalSize = CalculateTotalSize(sizes, count);
-
-    /* Total size MUST be greater than zero. */
-    SBAssert(totalSize > 0);
-
-    if (memoryList) {
-        MemoryBlockRef block = AllocateMemory(sizeof(MemoryBlock), totalSize, sizes, count, pointers);
-
-        if (block) {
-            block->next = NULL;
-
-            memoryList->last->next = block;
-            memoryList->last = block;
-
-            return SBTrue;
-        }
-    } else {
-        memoryList = AllocateMemory(sizeof(MemoryList), totalSize, sizes, count, pointers);
-
-        if (memoryList) {
-            memoryList->first.next = NULL;
-            memoryList->last = &memoryList->first;
-
-            object->_memoryList = memoryList;
-
-            return SBTrue;
-        }
-    }
-
-    return SBFalse;
-}
-
-SB_INTERNAL void ObjectFinalize(ObjectRef object)
-{
-    MemoryListRef memoryList = object->_memoryList;
-
-    if (memoryList) {
-        MemoryBlockRef block = &memoryList->first;
-
-        while (block) {
-            MemoryBlockRef next = block->next;
-            /* Free the block along with its data as they were allocated together. */
-            free(block);
-
-            block = next;
+    if (--base->retainCount == 0) {
+        if (base->finalize) {
+            base->finalize(object);
         }
 
-        object->_memoryList = NULL;
+        MemoryFinalize(&base->memory);
     }
-}
-
-SB_INTERNAL void ObjectDispose(ObjectRef object)
-{
-    ObjectFinalize(object);
-    free(object);
 }

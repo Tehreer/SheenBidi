@@ -37,18 +37,19 @@ SBScriptLocatorRef SBScriptLocatorCreate(void)
 {
     const SBUInteger size = sizeof(SBScriptLocator);
     void *pointer = NULL;
+    SBScriptLocatorRef locator;
 
-    if (ObjectCreate(&size, 1, &pointer)) {
-        SBScriptLocatorRef locator = pointer;
+    locator = ObjectCreate(&size, 1, &pointer, NULL);
+
+    if (locator) {
         locator->_codepointSequence.stringEncoding = SBStringEncodingUTF8;
         locator->_codepointSequence.stringBuffer = NULL;
         locator->_codepointSequence.stringLength = 0;
-        locator->retainCount = 1;
 
         SBScriptLocatorReset(locator);
     }
 
-    return pointer;
+    return locator;
 }
 
 void SBScriptLocatorLoadCodepoints(SBScriptLocatorRef locator, const SBCodepointSequence *codepointSequence)
@@ -164,16 +165,10 @@ void SBScriptLocatorReset(SBScriptLocatorRef locator)
 
 SBScriptLocatorRef SBScriptLocatorRetain(SBScriptLocatorRef locator)
 {
-    if (locator) {
-        locator->retainCount += 1;
-    }
-
-    return locator;
+    return ObjectRetain((ObjectRef)locator);
 }
 
 void SBScriptLocatorRelease(SBScriptLocatorRef locator)
 {
-    if (locator && --locator->retainCount == 0) {
-        ObjectDispose(&locator->_object);
-    }
+    ObjectRelease((ObjectRef)locator);
 }

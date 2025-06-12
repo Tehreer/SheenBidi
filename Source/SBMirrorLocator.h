@@ -24,12 +24,11 @@
 #include "Object.h"
 
 typedef struct _SBMirrorLocator {
-    Object _object;
+    ObjectBase _base;
     SBLineRef _line;
     SBUInteger _runIndex;
     SBUInteger _stringIndex;
     SBMirrorAgent agent;
-    SBUInteger retainCount;
 } SBMirrorLocator;
 
 #endif

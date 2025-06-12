@@ -17,7 +17,6 @@
 #ifndef _SB_INTERNAL_SCRIPT_LOCATOR_H
 #define _SB_INTERNAL_SCRIPT_LOCATOR_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBScriptLocator.h>
 
@@ -25,11 +24,10 @@
 #include "ScriptStack.h"
 
 typedef struct _SBScriptLocator {
-    Object _object;
+    ObjectBase _base;
     SBCodepointSequence _codepointSequence;
     ScriptStack _scriptStack;
     SBScriptAgent agent;
-    SBUInteger retainCount;
 } SBScriptLocator;
 
 #endif

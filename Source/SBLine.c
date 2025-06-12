@@ -283,7 +283,6 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
             line->codepointSequence = paragraph->algorithm->codepointSequence;
             line->offset = lineOffset;
             line->length = lineLength;
-            line->retainCount = 1;
         }
 
         FinalizeLineContext(&context);
@@ -314,16 +313,10 @@ const SBRun *SBLineGetRunsPtr(SBLineRef line)
 
 SBLineRef SBLineRetain(SBLineRef line)
 {
-    if (line) {
-        line->retainCount += 1;
-    }
-    
-    return line;
+    return ObjectRetain((ObjectRef)line);
 }
 
 void SBLineRelease(SBLineRef line)
 {
-    if (line && --line->retainCount == 0) {
-        ObjectDispose(&line->_object);
-    }
+    ObjectRelease((ObjectRef)line);
 }

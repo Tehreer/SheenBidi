@@ -26,10 +26,9 @@
 #include "Object.h"
 
 typedef struct _SBAlgorithm {
-    Object _object;
+    ObjectBase _base;
     SBCodepointSequence codepointSequence;
     SBBidiType *fixedTypes;
-    SBUInteger retainCount;
 } SBAlgorithm;
 
 SB_INTERNAL SBUInteger SBAlgorithmGetSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex);

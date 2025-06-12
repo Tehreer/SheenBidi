@@ -27,13 +27,12 @@
 #include "Object.h"
 
 typedef struct _SBLine {
-    Object _object;
+    ObjectBase _base;
     SBCodepointSequence codepointSequence;
     SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;
     SBUInteger length;
-    SBUInteger retainCount;
 } SBLine;
 
 SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,

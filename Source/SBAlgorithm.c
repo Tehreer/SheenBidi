@@ -34,19 +34,19 @@
 static SBAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
 {
     void *pointers[COUNT] = { NULL };
-    SBUInteger sizes[COUNT];
+    SBUInteger sizes[COUNT] = { 0 };
+    SBAlgorithmRef algorithm;
 
     sizes[ALGORITHM]  = sizeof(SBAlgorithm);
     sizes[BIDI_TYPES] = sizeof(SBBidiType) * stringLength;
 
-    if (ObjectCreate(sizes, COUNT, pointers)) {
-        SBAlgorithmRef algorithm = pointers[ALGORITHM];
-        SBBidiType *fixedTypes = pointers[BIDI_TYPES];
+    algorithm = ObjectCreate(sizes, COUNT, pointers, NULL);
 
-        algorithm->fixedTypes = fixedTypes;
+    if (algorithm) {
+        algorithm->fixedTypes = pointers[BIDI_TYPES];
     }
 
-    return pointers[ALGORITHM];
+    return algorithm;
 }
 
 #undef ALGORITHM
@@ -82,7 +82,6 @@ static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequen
 
     if (algorithm) {
         algorithm->codepointSequence = *codepointSequence;
-        algorithm->retainCount = 1;
 
         DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
@@ -187,16 +186,10 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
 
 SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
 {
-    if (algorithm) {
-        algorithm->retainCount += 1;
-    }
-
-    return algorithm;
+    return ObjectRetain((ObjectRef)algorithm);
 }
 
 void SBAlgorithmRelease(SBAlgorithmRef algorithm)
 {
-    if (algorithm && --algorithm->retainCount == 0) {
-        ObjectDispose(&algorithm->_object);
-    }
+    ObjectRelease((ObjectRef)algorithm);
 }

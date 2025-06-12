@@ -122,9 +122,10 @@ static SBParagraphRef AllocateParagraph(SBUInteger length)
 #undef LEVELS
 #undef COUNT
 
-static void DisposeParagraph(SBParagraphRef paragraph)
+static void FinalizeParagraph(ObjectRef object)
 {
-    ObjectDispose(&paragraph->_object);
+    SBParagraphRef paragraph = object;
+    SBAlgorithmRelease(paragraph->algorithm);
 }
 
 static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
@@ -612,7 +613,6 @@ static SBBoolean ResolveParagraph(SBParagraphRef paragraph,
             paragraph->offset = offset;
             paragraph->length = length;
             paragraph->baseLevel = resolvedLevel;
-            paragraph->retainCount = 1;
 
             isSucceeded = SBTrue;
         }
@@ -654,7 +654,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
             return paragraph;
         }
 
-        DisposeParagraph(paragraph);
+        ObjectRelease(paragraph);
     }
 
     SB_LOG_BREAKER();
@@ -698,17 +698,10 @@ SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset,
 
 SBParagraphRef SBParagraphRetain(SBParagraphRef paragraph)
 {
-    if (paragraph) {
-        paragraph->retainCount += 1;
-    }
-    
-    return paragraph;
+    return ObjectRetain((ObjectRef)paragraph);
 }
 
 void SBParagraphRelease(SBParagraphRef paragraph)
 {
-    if (paragraph && --paragraph->retainCount == 0) {
-        SBAlgorithmRelease(paragraph->algorithm);
-        DisposeParagraph(paragraph);
-    }
+    ObjectRelease((ObjectRef)paragraph);
 }

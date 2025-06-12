@@ -25,14 +25,13 @@
 #include "Object.h"
 
 typedef struct _SBParagraph {
-    Object _object;
+    ObjectBase _base;
     SBAlgorithmRef algorithm;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger offset;
     SBUInteger length;
     SBLevel baseLevel;
-    SBUInteger retainCount;
 } SBParagraph;
 
 SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,

@@ -17,98 +17,89 @@
 #ifndef _SB_INTERNAL_OBJECT_H
 #define _SB_INTERNAL_OBJECT_H
 
+#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
-#include "SBBase.h"
+#include "Memory.h"
 
 /**
- * Represents a single dynamically allocated memory block.
- * The actual memory for use starts right after the MemoryBlock structure.
+ * Represents a generic reference-counted object backed by a memory arena.
  */
-typedef struct _MemoryBlock {
-    struct _MemoryBlock *next;
-} MemoryBlock, *MemoryBlockRef;
+typedef void *ObjectRef;
 
 /**
- * Represents a linked list of memory blocks allocated by an object.
- */
-typedef struct _MemoryList {
-    MemoryBlock first;
-    MemoryBlockRef last;
-} MemoryList, *MemoryListRef;
-
-/**
- * Base object containing a memory list.
- */
-typedef struct Object {
-    MemoryListRef _memoryList;
-} Object, *ObjectRef;
-
-/**
- * Creates and initializes an Object with one or more memory chunks.
+ * Function signature for finalizing a reference-counted object.
+ * This is called once the reference count reaches zero.
  *
- * @param sizes
- *      Array of chunk sizes.
- * @param count
- *      Number of chunks.
- * @param pointers
- *      Output array to receive addresses of allocated chunks.
+ * @param object
+ *      The object being finalized.
+ */
+typedef void (*FinalizeFunc)(ObjectRef object);
+
+/**
+ * Internal structure representing the base of an object.
+ */
+typedef struct ObjectBase {
+    Memory memory;
+    FinalizeFunc finalize;
+    SBUInteger retainCount;
+} ObjectBase, *ObjectBaseRef;
+
+/**
+ * Creates a reference-counted object and allocates memory chunks for it.
+ *
+ * This function allocates a single contiguous memory block and divides it into chunks according to
+ * the provided `chunkSizes`. The addresses of these chunks are returned in the `outPointers` array.
+ *
+ * The first chunk (i.e., `outPointers[0]`) MUST correspond to a user-defined struct that has
+ * `ObjectBase` as its **first field**. This is critical because all Object-related functionalities
+ * such as reference counting, memory management, and finalization rely on being able to treat the
+ * object as an `ObjectBaseRef`.
+ *
+ * Example:
+ * ```
+ * typedef struct MyObject {
+ *     ObjectBase base; // MUST be first
+ *     int field1;
+ *     float field2;
+ * } MyObject;
+ *
+ * SBUInteger sizes[] = { sizeof(MyObject), otherSize1, otherSize2 };
+ * void *pointers[3];
+ * MyObject *obj = ObjectCreate(sizes, 3, pointers, FinalizeMyObject);
+ * ```
+ *
+ * @param chunkSizes
+ *      An array of sizes (in bytes) for each memory chunk.
+ * @param chunkCount
+ *      Number of chunks (must be >= 1).
+ * @param outPointers
+ *      Output array to receive the addresses of the allocated chunks.
+ * @param finalizer
+ *      Optional function to finalize the object when its reference count drops to zero.
  * @return
- *      A pointer to the initialized Object, or NULL on failure.
+ *      A reference to the created object (same as `outPointers[0]`), or NULL if allocation failed.
  */
-SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *sizes, SBUInteger count, void **pointers);
+SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chunkCount,
+    void **outPointers, FinalizeFunc finalizer);
 
 /**
- * Initializes an already-allocated Object.
+ * Retains the object by incrementing its reference count.
  *
  * @param object
- *      The Object to initialize.
- */
-SB_INTERNAL void ObjectInitialize(ObjectRef object);
-
-/**
- * Allocates and adds a single memory chunk to an existing Object, tracking it internally.
- *
- * @param object
- *      The Object to which the memory is added.
- * @param size
- *      The size of the chunk to allocate.
+ *      The object to retain.
  * @return
- *      Pointer to the newly allocated memory, or NULL on failure.
+ *      The same object.
  */
-SB_INTERNAL void *ObjectAddMemory(ObjectRef object, SBUInteger size);
+SB_INTERNAL ObjectRef ObjectRetain(ObjectRef object);
 
 /**
- * Allocates and adds multiple memory chunks to an existing Object, tracking them internally.
+ * Releases the object by decrementing its reference count. When the count reaches zero, the
+ * finalizer (if any) is called, and all associated memory is freed.
  *
  * @param object
- *      The Object to which the chunks are added.
- * @param sizes
- *      Array of chunk sizes.
- * @param count
- *      Number of chunks.
- * @param pointers
- *      Output array to receive addresses of allocated chunks.
- * @return
- *      `SBTrue` if successful, `SBFalse` otherwise.
+ *      The object to release.
  */
-SB_INTERNAL SBBoolean ObjectAddMemoryWithChunks(ObjectRef object,
-    const SBUInteger *sizes, SBUInteger count, void **pointers);
-
-/**
- * Frees all memory chunks added to the Object using ObjectAddMemory*.
- *
- * @param object
- *      The Object whose internal memory is released.
- */
-SB_INTERNAL void ObjectFinalize(ObjectRef object);
-
-/**
- * Frees the Object and all associated memory.
- *
- * @param object
- *      The Object to dispose.
- */
-SB_INTERNAL void ObjectDispose(ObjectRef object);
+SB_INTERNAL void ObjectRelease(ObjectRef object);
 
 #endif
