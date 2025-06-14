@@ -42,6 +42,7 @@ sheenbidi_headers = files(
   'Headers/SheenBidi/SheenBidi.h'
 )
 internal_headers = files(
+  'Source/AtomicUInt.h',
   'Source/BidiChain.h',
   'Source/BidiTypeLookup.h',
   'Source/BracketQueue.h',
@@ -75,6 +76,7 @@ if unity_mode
   sheenbidi_sources = files('Source/SheenBidi.c')
 else
   sheenbidi_sources = files(
+    'Source/AtomicUInt.c',
     'Source/BidiChain.c',
     'Source/BidiTypeLookup.c',
     'Source/BracketQueue.c',
