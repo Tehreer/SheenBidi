@@ -19,6 +19,7 @@
 
 #ifdef SB_CONFIG_UNITY
 
+#include "AtomicUInt.h"
 #include "BidiChain.c"
 #include "BidiTypeLookup.c"
 #include "BracketQueue.c"

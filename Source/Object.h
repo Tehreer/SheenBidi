@@ -20,6 +20,7 @@
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
+#include "AtomicUInt.h"
 #include "Memory.h"
 
 /**
@@ -42,7 +43,7 @@ typedef void (*FinalizeFunc)(ObjectRef object);
 typedef struct ObjectBase {
     Memory memory;
     FinalizeFunc finalize;
-    SBUInteger retainCount;
+    AtomicUInt retainCount;
 } ObjectBase, *ObjectBaseRef;
 
 /**

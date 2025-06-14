@@ -19,6 +19,7 @@
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
+#include "AtomicUInt.h"
 #include "Memory.h"
 #include "SBAssert.h"
 #include "Object.h"
@@ -40,7 +41,8 @@ SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chun
         base = outPointers[0];
         base->memory = memory;
         base->finalize = finalizer;
-        base->retainCount = 1;
+
+        AtomicUIntInitialize(&base->retainCount, 1);
     }
 
     return base;
@@ -49,7 +51,8 @@ SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chun
 SB_INTERNAL ObjectRef ObjectRetain(ObjectRef object)
 {
     ObjectBaseRef base = (ObjectBaseRef)object;
-    base->retainCount += 1;
+
+    AtomicUIntIncrement(&base->retainCount);
 
     return object;
 }
@@ -58,7 +61,7 @@ SB_INTERNAL void ObjectRelease(ObjectRef object)
 {
     ObjectBaseRef base = (ObjectBaseRef)object;
 
-    if (--base->retainCount == 0) {
+    if (AtomicUIntDecrement(&base->retainCount) == 0) {
         if (base->finalize) {
             base->finalize(object);
         }

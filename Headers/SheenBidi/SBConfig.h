@@ -19,6 +19,7 @@
 
 /* #define SB_CONFIG_DLL_EXPORT */
 /* #define SB_CONFIG_DLL_IMPORT */
+/* #define SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK */
 /* #define SB_CONFIG_LOG */
 /* #define SB_CONFIG_UNITY */
 
