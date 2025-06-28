@@ -26,8 +26,7 @@ RELEASE_FLAGS = -DNDEBUG -DSB_CONFIG_UNITY -Os
 DEBUG = Debug
 RELEASE = Release
 
-DEBUG_SOURCES = $(SOURCE_DIR)/AtomicUInt.c \
-                $(SOURCE_DIR)/BidiChain.c \
+DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/BidiTypeLookup.c \
                 $(SOURCE_DIR)/BracketQueue.c \
                 $(SOURCE_DIR)/GeneralCategoryLookup.c \
