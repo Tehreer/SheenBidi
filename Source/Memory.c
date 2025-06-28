@@ -20,6 +20,7 @@
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
+#include "SBAllocator.h"
 #include "SBAssert.h"
 #include "Memory.h"
 
@@ -59,53 +60,61 @@ SB_INTERNAL void MemoryInitialize(MemoryRef memory)
     memory->_list = NULL;
 }
 
-SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, SBUInteger size)
+SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, MemoryType type, SBUInteger size)
 {
-    MemoryListRef memoryList = memory->_list;
+    SBAllocatorRef allocator = SBAllocatorGetCurrent();
     void *pointer = NULL;
 
     /* Size MUST be greater than zero. */
     SBAssert(size > 0);
 
-    if (memoryList) {
-        const SBUInteger headerSize = sizeof(MemoryBlock);
+    if (type == MemoryTypeScratch) {
+        pointer = SBAllocatorAllocateScratch(allocator, size);
+    }
 
-        pointer = malloc(headerSize + size);
+    if (!pointer) {
+        MemoryListRef memoryList = memory->_list;
 
-        if (pointer) {
-            SBUInt8 *base = pointer;
-            MemoryBlockRef block;
+        if (memoryList) {
+            const SBUInteger headerSize = sizeof(MemoryBlock);
 
-            block = pointer;
-            block->next = NULL;
+            pointer = SBAllocatorAllocateBlock(allocator, headerSize + size);
 
-            memoryList->last->next = block;
-            memoryList->last = block;
+            if (pointer) {
+                SBUInt8 *base = pointer;
+                MemoryBlockRef block;
 
-            pointer = base + headerSize;
-        }
-    } else {
-        const SBUInteger headerSize = sizeof(MemoryList);
+                block = pointer;
+                block->next = NULL;
 
-        pointer = malloc(headerSize + size);
+                memoryList->last->next = block;
+                memoryList->last = block;
 
-        if (pointer) {
-            SBUInt8 *base = pointer;
+                pointer = base + headerSize;
+            }
+        } else {
+            const SBUInteger headerSize = sizeof(MemoryList);
 
-            memoryList = pointer;
-            memoryList->first.next = NULL;
-            memoryList->last = &memoryList->first;
+            pointer = SBAllocatorAllocateBlock(allocator, headerSize + size);
 
-            memory->_list = memoryList;
+            if (pointer) {
+                SBUInt8 *base = pointer;
 
-            pointer = base + headerSize;
+                memoryList = pointer;
+                memoryList->first.next = NULL;
+                memoryList->last = &memoryList->first;
+
+                memory->_list = memoryList;
+
+                pointer = base + headerSize;
+            }
         }
     }
 
     return pointer;
 }
 
-SB_INTERNAL SBBoolean MemoryAllocateChunks(MemoryRef memory,
+SB_INTERNAL SBBoolean MemoryAllocateChunks(MemoryRef memory, MemoryType type,
     const SBUInteger *chunkSizes, SBUInteger chunkCount, void **outPointers)
 {
     SBUInteger totalSize = CalculateTotalSize(chunkSizes, chunkCount);
@@ -115,7 +124,7 @@ SB_INTERNAL SBBoolean MemoryAllocateChunks(MemoryRef memory,
     /* Total size MUST be greater than zero. */
     SBAssert(totalSize > 0);
 
-    pointer = MemoryAllocateBlock(memory, totalSize);
+    pointer = MemoryAllocateBlock(memory, type, totalSize);
 
     if (pointer) {
         SplitMemoryBlock(pointer, chunkSizes, chunkCount, outPointers);

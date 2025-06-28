@@ -22,6 +22,7 @@
 #include "Memory.h"
 #include "Object.h"
 #include "SBAlgorithm.h"
+#include "SBAllocator.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBParagraph.h"
@@ -55,7 +56,7 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 
     MemoryInitialize(&context->memory);
 
-    if (MemoryAllocateChunks(&context->memory, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(&context->memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
         SBLevel *fixedLevels = pointers[LEVELS];
 
         context->refTypes = types;
@@ -76,6 +77,7 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 static void FinalizeLineContext(LineContextRef context)
 {
     MemoryFinalize(&context->memory);
+    SBAllocatorResetScratch(SBAllocatorGetCurrent());
 }
 
 #define LINE  0

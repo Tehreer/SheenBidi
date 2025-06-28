@@ -27,6 +27,7 @@
 #include "Object.h"
 #include "RunQueue.h"
 #include "SBAlgorithm.h"
+#include "SBAllocator.h"
 #include "SBAssert.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
@@ -67,7 +68,7 @@ static SBBoolean InitializeParagraphContext(ParagraphContextRef context,
 
     MemoryInitialize(&context->memory);
 
-    if (MemoryAllocateChunks(&context->memory, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(&context->memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
         BidiLink *fixedLinks = pointers[BIDI_LINKS];
         SBBidiType *fixedTypes = pointers[BIDI_TYPES];
         BidiFlag *fixedFlags = pointers[BIDI_FLAGS];
@@ -96,6 +97,7 @@ static void FinalizeParagraphContext(ParagraphContextRef context)
     RunQueueFinalize(&context->runQueue);
     IsolatingRunFinalize(&context->isolatingRun);
     MemoryFinalize(&context->memory);
+    SBAllocatorResetScratch(SBAllocatorGetCurrent());
 }
 
 #define PARAGRAPH 0

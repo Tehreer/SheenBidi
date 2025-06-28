@@ -34,7 +34,7 @@ static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
         BracketQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = MemoryAllocateBlock(&queue->_memory, sizeof(BracketQueueList));
+            rearList = MemoryAllocateBlock(&queue->_memory, MemoryTypeScratch, sizeof(BracketQueueList));
             if (!rearList) {
                 return SBFalse;
             }

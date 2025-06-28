@@ -37,7 +37,7 @@ SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chun
 
     MemoryInitialize(&memory);
 
-    if (MemoryAllocateChunks(&memory, chunkSizes, chunkCount, outPointers)) {
+    if (MemoryAllocateChunks(&memory, MemoryTypePermanent, chunkSizes, chunkCount, outPointers)) {
         base = outPointers[0];
         base->memory = memory;
         base->finalize = finalizer;

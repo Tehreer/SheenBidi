@@ -17,6 +17,8 @@
 #ifndef _SB_INTERNAL_MEMORY_H
 #define _SB_INTERNAL_MEMORY_H
 
+#include <stddef.h>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
@@ -47,6 +49,14 @@ typedef struct Memory {
     MemoryListRef _list;
 } Memory, *MemoryRef;
 
+enum {
+    MemoryTypePermanent = 0,
+    MemoryTypeScratch = 1
+};
+typedef SBUInt8 MemoryType;
+
+#define MemoryMake() { NULL }
+
 /**
  * Initializes a Memory structure to prepare it for allocations.
  *
@@ -66,7 +76,7 @@ SB_INTERNAL void MemoryInitialize(MemoryRef memory);
  * @return
  *      Pointer to the allocated memory block, or NULL on failure.
  */
-SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, SBUInteger size);
+SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, MemoryType type, SBUInteger size);
 
 /**
  * Allocates a single contiguous memory block and splits it into multiple chunks. The entire memory
@@ -83,7 +93,7 @@ SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, SBUInteger size);
  * @return
  *      `SBTrue` if successful, `SBFalse` otherwise.
  */
-SB_INTERNAL SBBoolean MemoryAllocateChunks(MemoryRef memory,
+SB_INTERNAL SBBoolean MemoryAllocateChunks(MemoryRef memory, MemoryType type,
     const SBUInteger *chunkSizes, SBUInteger chunkCount, void **outPointers);
 
 /**

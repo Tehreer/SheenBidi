@@ -33,7 +33,7 @@ static SBBoolean RunQueueInsertElement(RunQueueRef queue)
         RunQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = MemoryAllocateBlock(&queue->_memory, sizeof(RunQueueList));
+            rearList = MemoryAllocateBlock(&queue->_memory, MemoryTypeScratch, sizeof(RunQueueList));
             if (!rearList) {
                 return SBFalse;
             }

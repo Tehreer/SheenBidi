@@ -32,7 +32,7 @@ static SBBoolean StatusStackInsertElement(StatusStackRef stack)
         _StatusStackListRef peekList = previousList->next;
 
         if (!peekList) {
-            peekList = MemoryAllocateBlock(&stack->_memory, sizeof(_StatusStackList));
+            peekList = MemoryAllocateBlock(&stack->_memory, MemoryTypeScratch, sizeof(_StatusStackList));
             if (!peekList) {
                 return SBFalse;
             }

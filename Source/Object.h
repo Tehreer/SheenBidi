@@ -17,6 +17,8 @@
 #ifndef _SB_INTERNAL_OBJECT_H
 #define _SB_INTERNAL_OBJECT_H
 
+#include <stddef.h>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
@@ -45,6 +47,17 @@ typedef struct ObjectBase {
     FinalizeFunc finalize;
     AtomicUInt retainCount;
 } ObjectBase, *ObjectBaseRef;
+
+#ifndef SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK
+
+#if !defined(HAS_ATOMIC_UINT_SUPPORT)
+#error "No atomic operations available. For thread-unsafe reference counting, manually define \
+`SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK`."
+#endif
+
+#endif
+
+#define ObjectBaseMake() { MemoryMake(), NULL, 0 }
 
 /**
  * Creates a reference-counted object and allocates memory chunks for it.
