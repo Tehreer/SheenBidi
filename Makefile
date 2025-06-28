@@ -34,9 +34,11 @@ DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/LevelRun.c \
                 $(SOURCE_DIR)/Memory.c \
                 $(SOURCE_DIR)/Object.c \
+                $(SOURCE_DIR)/Once.c \
                 $(SOURCE_DIR)/PairingLookup.c \
                 $(SOURCE_DIR)/RunQueue.c \
                 $(SOURCE_DIR)/SBAlgorithm.c \
+                $(SOURCE_DIR)/SBAllocator.c \
                 $(SOURCE_DIR)/SBBase.c \
                 $(SOURCE_DIR)/SBCodepoint.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
