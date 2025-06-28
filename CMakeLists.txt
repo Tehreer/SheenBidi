@@ -74,6 +74,7 @@ endfunction()
 set(SHEENBIDI_HEADERS
   Headers/SheenBidi/SheenBidi.h
   Headers/SheenBidi/SBAlgorithm.h
+  Headers/SheenBidi/SBAllocator.h
   Headers/SheenBidi/SBBase.h
   Headers/SheenBidi/SBBidiType.h
   Headers/SheenBidi/SBCodepoint.h
