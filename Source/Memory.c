@@ -15,7 +15,6 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
@@ -139,12 +138,13 @@ SB_INTERNAL void MemoryFinalize(MemoryRef memory)
     MemoryListRef memoryList = memory->_list;
 
     if (memoryList) {
+        SBAllocatorRef allocator = SBAllocatorGetCurrent();
         MemoryBlockRef block = &memoryList->first;
 
         while (block) {
             MemoryBlockRef next = block->next;
-            /* Free the block along with its data as they were allocated together. */
-            free(block);
+            /* Deallocate the block along with its data as they were allocated together. */
+            SBAllocatorDeallocateBlock(allocator, block);
 
             block = next;
         }
