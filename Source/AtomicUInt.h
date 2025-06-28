@@ -33,7 +33,6 @@ typedef SBUInteger AtomicUInt;
 
 #elif defined(USE_WIN_INTRINSICS)
 
-#include <intrin.h>
 #define HAS_ATOMIC_UINT_SUPPORT
 #ifdef _WIN64
 typedef volatile __int64 AtomicUInt;
