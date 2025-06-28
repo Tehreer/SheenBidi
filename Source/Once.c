@@ -20,7 +20,7 @@
 #include "ThreadFence.h"
 #include "Once.h"
 
-SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void))
+SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void *info), void *info)
 {
     SBBoolean result = SBTrue;
 
@@ -28,7 +28,7 @@ SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void))
         result = AtomicFlagTestAndSet(&once->flag) == SBFalse;
 
         if (result) {
-            func();
+            func(info);
             ThreadFence();
             once->executed = SBTrue;
         }

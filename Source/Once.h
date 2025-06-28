@@ -34,6 +34,6 @@ typedef struct _Once {
 
 #define OnceMake() { SBFalse, AtomicFlagMake() }
 
-SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void));
+SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void *info), void *info);
 
 #endif

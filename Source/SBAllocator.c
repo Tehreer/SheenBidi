@@ -55,7 +55,7 @@ static ThreadLocalStorage ScratchBuffer;
 
 #define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 
-static void InitializeBufferStack(void)
+static void InitializeBufferStack(void *info)
 {
     SBUInteger index;
 
@@ -72,7 +72,7 @@ static void InitializeBufferStack(void)
 static SBBoolean TryLazyInitializeBufferStack(void)
 {
     static Once once = OnceMake();
-    return OnceTryExecute(&once, InitializeBufferStack);
+    return OnceTryExecute(&once, InitializeBufferStack, NULL);
 }
 
 static BufferRef DetachBuffer(void)
@@ -109,7 +109,7 @@ static void RecycleBuffer(BufferRef buffer)
     } while (!AtomicPointerCompareAndSet(&BufferStack, &expected, buffer));
 }
 
-static void InitializeScratchBuffer(void)
+static void InitializeScratchBuffer(void *info)
 {
     ThreadLocalStorageInitialize(ScratchBuffer);
 }
@@ -117,7 +117,7 @@ static void InitializeScratchBuffer(void)
 static SBBoolean TryLazyInitializeScratchBuffer(void)
 {
     static Once once = OnceMake();
-    return OnceTryExecute(&once, InitializeScratchBuffer);
+    return OnceTryExecute(&once, InitializeScratchBuffer, NULL);
 }
 
 static void *NativeAllocateScratch(SBUInteger size, void *info)
