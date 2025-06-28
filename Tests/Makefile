@@ -6,6 +6,7 @@ TESTS      = $(DEBUG)/Testing
 TESTS_UTIL = $(TESTS)/Utilities
 
 TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
+             $(TESTS_DIR)/AtomicTests.cpp \
              $(TESTS_DIR)/BidiTypeLookupTests.cpp \
              $(TESTS_DIR)/BracketLookupTests.cpp \
              $(TESTS_DIR)/CodepointSequenceTests.cpp \
@@ -13,10 +14,12 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/GeneralCategoryLookupTests.cpp \
              $(TESTS_DIR)/main.cpp \
              $(TESTS_DIR)/MirrorLookupTests.cpp \
+             $(TESTS_DIR)/OnceTests.cpp \
              $(TESTS_DIR)/RunQueueTests.cpp \
              $(TESTS_DIR)/ScriptLocatorTests.cpp \
              $(TESTS_DIR)/ScriptLookupTests.cpp \
              $(TESTS_DIR)/ScriptTests.cpp \
+             $(TESTS_DIR)/ThreadLocalStorageTests.cpp \
              $(TESTS_DIR)/Utilities/Convert.cpp
 
 TESTS_OBJS = $(TESTS_SRCS:$(TESTS_DIR)/%.cpp=$(TESTS)/%.o)
