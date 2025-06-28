@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef _SHEEN_BIDI_H
-#define _SHEEN_BIDI_H
+#ifndef _SHEENBIDI_H
+#define _SHEENBIDI_H
 
 #include <SheenBidi/SBAlgorithm.h>
+#include <SheenBidi/SBAllocator.h>
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBCodepoint.h>

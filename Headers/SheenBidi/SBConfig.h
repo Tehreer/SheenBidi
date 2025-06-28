@@ -19,9 +19,31 @@
 
 /* #define SB_CONFIG_DLL_EXPORT */
 /* #define SB_CONFIG_DLL_IMPORT */
-/* #define SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK */
 /* #define SB_CONFIG_LOG */
 /* #define SB_CONFIG_UNITY */
+/* #define SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK */
+
+/**
+ * Disable scratch memory functionality of default allocator.
+ * When defined, all scratch memory operations will return NULL/do nothing.
+ */
+/* #define SB_CONFIG_DISABLE_SCRATCH_MEMORY */
+
+/**
+ * Define the size of each scratch buffer in bytes.
+ * Default is 8192 bytes (8KB) if not specified.
+ */
+#ifndef SB_CONFIG_SCRATCH_BUFFER_SIZE
+#define SB_CONFIG_SCRATCH_BUFFER_SIZE 8192
+#endif
+
+/**
+ * Define the number of scratch buffers in the pool.
+ * Default is 3 buffers if not specified.
+ */
+#ifndef SB_CONFIG_SCRATCH_POOL_SIZE
+#define SB_CONFIG_SCRATCH_POOL_SIZE 3
+#endif
 
 #ifdef SB_CONFIG_UNITY
 #define SB_INTERNAL static
