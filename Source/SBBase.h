@@ -58,6 +58,7 @@
 #elif defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__)
 
 #if _MSC_VER >= 1700    /* VS 2012+ */
+#include <intrin.h>
 #define USE_WIN_INTRINSICS
 #pragma intrinsic(_InterlockedExchange8, _InterlockedExchange, _InterlockedExchange64)
 #pragma intrinsic(_InterlockedCompareExchange, _InterlockedCompareExchange64)
