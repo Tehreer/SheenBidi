@@ -76,7 +76,6 @@ if unity_mode
   sheenbidi_sources = files('Source/SheenBidi.c')
 else
   sheenbidi_sources = files(
-    'Source/AtomicUInt.c',
     'Source/BidiChain.c',
     'Source/BidiTypeLookup.c',
     'Source/BracketQueue.c',
