@@ -22,6 +22,54 @@
 #include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBScript.h>
 
+/* ---------- Compiler Version Detection ---------- */
+
+/* Detect GCC and its version */
+#if defined(__GNUC__) && !defined(__clang__)
+#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#else
+#define GCC_VERSION 0
+#endif
+
+/* Detect Clang and its version */
+#if defined(__clang__)
+#define CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
+#else
+#define CLANG_VERSION 0
+#endif
+
+/* ---------- Atomic Support Feature Detection ---------- */
+
+/* Prefer C11 atomics if available */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__)
+#define USE_C11_ATOMICS
+
+/* Fallback to compiler intrinsics for GCC/Clang */
+#elif defined(__GNUC__) || defined(__clang__)
+/* Modern __atomic builtins (GCC 4.7+, Clang 3.1+) */
+#if GCC_VERSION >= 407 || CLANG_VERSION >= 301
+#define USE_ATOMIC_BUILTINS
+/* Legacy __sync builtins (GCC 4.1+, Clang 1.0+) */
+#elif GCC_VERSION >= 401 || CLANG_VERSION >= 100
+#define USE_SYNC_BUILTINS
+#endif
+
+/* Windows-specific intrinsics */
+#elif defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__)
+
+#if _MSC_VER >= 1700    /* VS 2012+ */
+#define USE_WIN_INTRINSICS
+#pragma intrinsic(_InterlockedExchange8, _InterlockedExchange, _InterlockedExchange64)
+#pragma intrinsic(_InterlockedCompareExchange, _InterlockedCompareExchange64)
+#pragma intrinsic(_InterlockedIncrement, _InterlockedIncrement64)
+#pragma intrinsic(_InterlockedDecrement, _InterlockedDecrement64)
+#else
+#define USE_WIN_INTERLOCKED
+#endif
+
+#endif
+
+
 /**
  * A value that indicates an invalid unsigned index.
  */

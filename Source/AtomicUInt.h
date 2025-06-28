@@ -17,82 +17,129 @@
 #ifndef _SB_INTERNAL_ATOMIC_UINT_H
 #define _SB_INTERNAL_ATOMIC_UINT_H
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
+#include "SBBase.h"
 
-/* ---------- Compiler Version Detection ---------- */
-
-/* Detect GCC and its version */
-#if defined(__GNUC__) && !defined(__clang__)
-#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-#else
-#define GCC_VERSION 0
-#endif
-
-/* Detect Clang and its version */
-#if defined(__clang__)
-#define CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
-#else
-#define CLANG_VERSION 0
-#endif
-
-
-/* ---------- Atomic Support Feature Detection ---------- */
-
-/* Prefer C11 atomics if available */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__)
-#define USE_C11_ATOMICS
-
-/* Fallback to compiler intrinsics for GCC/Clang */
-#elif defined(__GNUC__) || defined(__clang__)
-/* Modern __atomic builtins (GCC 4.7+, Clang 3.1+) */
-#if GCC_VERSION >= 407 || CLANG_VERSION >= 301
-#define USE_ATOMIC_BUILTINS
-/* Legacy __sync builtins (GCC 4.1+, Clang 1.0+) */
-#elif GCC_VERSION >= 401 || CLANG_VERSION >= 100
-#define USE_SYNC_BUILTINS
-#endif
-
-/* Windows-specific intrinsics */
-#elif defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__)
-#if defined(_WIN64)
-#define USE_WIN64_INTRINSICS
-#elif defined(_WIN32)
-#define USE_WIN32_INTRINSICS
-#endif
-
-#endif
-
-
-/* ---------- AtomicUInt Type Definition ---------- */
-
+/* Define data type for atomic uint. */
 #ifdef USE_C11_ATOMICS
+
 #include <stdatomic.h>
-typedef atomic_size_t AtomicUInt;
+#define HAS_ATOMIC_UINT_SUPPORT
+typedef _Atomic(SBUInteger) AtomicUInt;
+
 #elif defined(USE_ATOMIC_BUILTINS) || defined(USE_SYNC_BUILTINS)
-#include <stddef.h>
-typedef size_t AtomicUInt;
-#elif defined(USE_WIN64_INTRINSICS)
-#include <windows.h>
-typedef volatile LONG64 AtomicUInt;
-#elif defined(USE_WIN32_INTRINSICS)
-#include <windows.h>
-typedef volatile LONG AtomicUInt;
-#elif defined(SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK)
+
+#define HAS_ATOMIC_UINT_SUPPORT
 typedef SBUInteger AtomicUInt;
+
+#elif defined(USE_WIN_INTRINSICS)
+
+#include <intrin.h>
+#define HAS_ATOMIC_UINT_SUPPORT
+#ifdef _WIN64
+typedef volatile __int64 AtomicUInt;
 #else
-#error "No atomic operations available. For thread-unsafe reference counting, manually define \
-`SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK`."
+typedef volatile long AtomicUInt;
+#endif
+
+#elif defined(USE_WIN_INTERLOCKED)
+
+#include <windows.h>
+#define HAS_ATOMIC_UINT_SUPPORT
+#ifdef _WIN64
+typedef volatile LONG64 AtomicUInt;
+#else
+typedef volatile LONG AtomicUInt;
+#endif
+
+#else
+
+typedef SBUInteger AtomicUInt;
+
 #endif
 
 typedef AtomicUInt *AtomicUIntRef;
 
+/* Define functions for atomic uint. */
+#if defined(USE_C11_ATOMICS)
 
-/* ---------- API ---------- */
+#define AtomicUIntInitialize(aui, value)    atomic_init(aui, value)
+#define AtomicUIntLoad(aui)                 atomic_load(aui)
+#define AtomicUIntStore(aui, value)         atomic_store(aui, value)
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    atomic_compare_exchange_strong(aui, expected, desired)
+#define AtomicUIntIncrement(aui)            ((SBUInteger)(atomic_fetch_add(aui, 1) + 1))
+#define AtomicUIntDecrement(aui)            ((SBUInteger)(atomic_fetch_sub(aui, 1) - 1))
 
-SB_INTERNAL void AtomicUIntInitialize(AtomicUIntRef aui, SBUInteger value);
+#elif defined(USE_ATOMIC_BUILTINS)
 
-SB_INTERNAL SBUInteger AtomicUIntIncrement(AtomicUIntRef aui);
-SB_INTERNAL SBUInteger AtomicUIntDecrement(AtomicUIntRef aui);
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (value))
+#define AtomicUIntLoad(aui)                 __atomic_load_n(aui, __ATOMIC_SEQ_CST)
+#define AtomicUIntStore(aui, value)         __atomic_store_n(aui, value, __ATOMIC_SEQ_CST)
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    __atomic_compare_exchange_n(aui, expected, desired, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)
+#define AtomicUIntIncrement(aui)            __atomic_add_fetch(aui, 1, __ATOMIC_SEQ_CST)
+#define AtomicUIntDecrement(aui)            __atomic_sub_fetch(aui, 1, __ATOMIC_SEQ_CST)
+
+#elif defined(USE_SYNC_BUILTINS)
+
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (value))
+#define AtomicUIntLoad(aui)                 __sync_fetch_and_add(aui, 0)
+#define AtomicUIntStore(aui, value)         __sync_lock_test_and_set(aui, value)
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    __sync_bool_compare_and_swap(aui, *(expected), desired)
+#define AtomicUIntIncrement(aui)            __sync_add_and_fetch(aui, 1)
+#define AtomicUIntDecrement(aui)            __sync_sub_and_fetch(aui, 1)
+
+#elif defined(USE_WIN_INTRINSICS)
+
+#ifdef _WIN64
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (__int64)(value))
+#define AtomicUIntLoad(aui)                 ((SBUInteger)_InterlockedCompareExchange64(aui, 0, 0))
+#define AtomicUIntStore(aui, value)         _InterlockedExchange64(aui, (__int64)(value))
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    (((SBUInteger)InterlockedCompareExchange64(aui, (__int64)(desired), (__int64)(*(expected)))) == *(expected))
+#define AtomicUIntIncrement(aui)            ((SBUInteger)_InterlockedIncrement64(aui))
+#define AtomicUIntDecrement(aui)            ((SBUInteger)_InterlockedDecrement64(aui))
+#else
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (long)(value))
+#define AtomicUIntLoad(aui)                 ((SBUInteger)_InterlockedCompareExchange(aui, 0, 0))
+#define AtomicUIntStore(aui, value)         _InterlockedExchange(aui, (long)(value))
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    (((SBUInteger)_InterlockedCompareExchange(aui, (long)(desired), (long)(*(expected)))) == *(expected))
+#define AtomicUIntIncrement(aui)            ((SBUInteger)_InterlockedIncrement(aui))
+#define AtomicUIntDecrement(aui)            ((SBUInteger)_InterlockedDecrement(aui))
+#endif
+
+#elif defined(USE_WIN_INTERLOCKED)
+
+#ifdef _WIN64
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (LONG64)(value))
+#define AtomicUIntLoad(aui)                 ((SBUInteger)InterlockedCompareExchange64(aui, 0, 0))
+#define AtomicUIntStore(aui, value)         InterlockedExchange64(aui, (LONG64)(value))
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    (((SBUInteger)InterlockedCompareExchange64(aui, (LONG64)(desired), (LONG64)(*(expected)))) == *(expected))
+#define AtomicUIntIncrement(aui)            ((SBUInteger)InterlockedIncrement64(aui))
+#define AtomicUIntDecrement(aui)            ((SBUInteger)InterlockedDecrement64(aui))
+#else
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (LONG)(value))
+#define AtomicUIntLoad(aui)                 ((SBUInteger)InterlockedCompareExchange(aui, 0, 0))
+#define AtomicUIntStore(aui, value)         InterlockedExchange(aui, (LONG)(value))
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    (((SBUInteger)InterlockedCompareExchange(aui, (LONG)(desired), (LONG)(*(expected)))) == *(expected))
+#define AtomicUIntIncrement(aui)            ((SBUInteger)InterlockedIncrement(aui))
+#define AtomicUIntDecrement(aui)            ((SBUInteger)InterlockedDecrement(aui))
+#endif
+
+#else /* Non-atomic fallback */
+
+#define AtomicUIntInitialize(aui, value)    (*(aui) = (value))
+#define AtomicUIntLoad(aui)                 (*(aui))
+#define AtomicUIntCompareAndSet(aui, expected, desired) \
+    ((*(aui) == *(expected)) ? ((*(aui) = (desired)), SBTrue) : SBFalse)
+#define AtomicUIntStore(aui, value)         (*(aui) = (value))
+#define AtomicUIntIncrement(aui)            (++(*(aui)))
+#define AtomicUIntDecrement(aui)            (--(*(aui)))
+
+#endif
 
 #endif
