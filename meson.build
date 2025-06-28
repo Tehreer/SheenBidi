@@ -42,6 +42,8 @@ sheenbidi_headers = files(
   'Headers/SheenBidi/SheenBidi.h'
 )
 internal_headers = files(
+  'Source/AtomicFlag.h',
+  'Source/AtomicPointer.h',
   'Source/AtomicUInt.h',
   'Source/BidiChain.h',
   'Source/BidiTypeLookup.h',
@@ -52,11 +54,13 @@ internal_headers = files(
   'Source/LevelRun.h',
   'Source/Memory.h',
   'Source/Object.h',
+  'Source/Once.h',
   'Source/PairingLookup.h',
   'Source/RunExtrema.h',
   'Source/RunKind.h',
   'Source/RunQueue.h',
   'Source/SBAlgorithm.h',
+  'Source/SBAllocator.h',
   'Source/SBAssert.h',
   'Source/SBBase.h',
   'Source/SBCodepoint.h',
@@ -68,7 +72,9 @@ internal_headers = files(
   'Source/SBScriptLocator.h',
   'Source/ScriptLookup.h',
   'Source/ScriptStack.h',
-  'Source/StatusStack.h'
+  'Source/StatusStack.h',
+  'Source/ThreadFence.h',
+  'Source/ThreadLocalStorage.h'
 )
 
 if unity_mode
@@ -84,9 +90,11 @@ else
     'Source/LevelRun.c',
     'Source/Memory.c',
     'Source/Object.c',
+    'Source/Once.c',
     'Source/PairingLookup.c',
     'Source/RunQueue.c',
     'Source/SBAlgorithm.c',
+    'Source/SBAllocator.c',
     'Source/SBBase.c',
     'Source/SBCodepoint.c',
     'Source/SBCodepointSequence.c',
