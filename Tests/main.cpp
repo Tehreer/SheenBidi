@@ -31,16 +31,19 @@
 #include <Parser/UnicodeData.h>
 
 #include "AlgorithmTests.h"
+#include "AtomicTests.h"
 #include "BidiTypeLookupTests.h"
 #include "BracketLookupTests.h"
 #include "CodepointSequenceTests.h"
 #include "CodepointTests.h"
 #include "GeneralCategoryLookupTests.h"
 #include "MirrorLookupTests.h"
+#include "OnceTests.h"
 #include "RunQueueTests.h"
 #include "ScriptLocatorTests.h"
 #include "ScriptLookupTests.h"
 #include "ScriptTests.h"
+#include "ThreadLocalStorageTests.h"
 
 using namespace std;
 using namespace SheenBidi;
@@ -67,11 +70,14 @@ int main(int argc, const char *argv[]) {
     GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
     AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    AtomicTests atomicTests;
     CodepointTests codepointTests(unicodeData, bidiBrackets);
     CodepointSequenceTests codepointSequenceTests;
+    OnceTests onceTests;
     RunQueueTests runQueueTests;
     ScriptLocatorTests scriptLocatorTests;
     ScriptTests scriptTests;
+    ThreadLocalStorageTests threadLocalStorageTests;
 
     cout << "Testing SheenBidi " << SBVersionGetString() << endl;
     cout << endl;
@@ -82,11 +88,14 @@ int main(int argc, const char *argv[]) {
     generalCategoryLookupTests.run();
     scriptLookupTests.run();
     algorithmTests.run();
+    atomicTests.run();
     codepointTests.run();
     codepointSequenceTests.run();
+    onceTests.run();
     runQueueTests.run();
     scriptLocatorTests.run();
     scriptTests.run();
+    threadLocalStorageTests.run();
 
     cout << "Finished." << endl;
 
