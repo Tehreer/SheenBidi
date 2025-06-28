@@ -167,20 +167,27 @@ if(BUILD_TESTS)
 
   set(TEST_TARGETS
     AlgorithmTests
+    AtomicTests
     BidiTypeLookupTests
     BracketLookupTests
     CodepointSequenceTests
     CodepointTests
     GeneralCategoryLookupTests
     MirrorLookupTests
+    OnceTests
     RunQueueTests
     ScriptLocatorTests
     ScriptLookupTests
     ScriptTests
+    ThreadLocalStorageTests
   )
   set(AlgorithmTests
     Tests/AlgorithmTests.h
     Tests/AlgorithmTests.cpp
+  )
+  set(AtomicTests
+    Tests/AtomicTests.h
+    Tests/AtomicTests.cpp
   )
   set(BidiTypeLookupTests
     Tests/BidiTypeLookupTests.h
@@ -206,6 +213,10 @@ if(BUILD_TESTS)
     Tests/MirrorLookupTests.h
     Tests/MirrorLookupTests.cpp
   )
+  set(OnceTests
+    Tests/OnceTests.h
+    Tests/OnceTests.cpp
+  )
   set(RunQueueTests
     Tests/RunQueueTests.h
     Tests/RunQueueTests.cpp
@@ -221,6 +232,10 @@ if(BUILD_TESTS)
   set(ScriptTests
     Tests/ScriptTests.h
     Tests/ScriptTests.cpp
+  )
+  set(ThreadLocalStorageTests
+    Tests/ThreadLocalStorageTests.h
+    Tests/ThreadLocalStorageTests.cpp
   )
 
   foreach(TEST_NAME IN LISTS TEST_TARGETS)
