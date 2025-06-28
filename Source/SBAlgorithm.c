@@ -99,11 +99,13 @@ static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequen
 
 SBAlgorithmRef SBAlgorithmCreate(const SBCodepointSequence *codepointSequence)
 {
+    SBAlgorithmRef algorithm = NULL;
+
     if (SBCodepointSequenceIsValid(codepointSequence)) {
-        return CreateAlgorithm(codepointSequence);
+        algorithm = CreateAlgorithm(codepointSequence);
     }
 
-    return NULL;
+    return algorithm;
 }
 
 const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm)
