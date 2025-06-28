@@ -225,6 +225,10 @@ if build_tests
       'Tests/AlgorithmTests.h',
       'Tests/AlgorithmTests.cpp'
     ],
+    'AtomicTests': [
+      'Tests/AtomicTests.h',
+      'Tests/AtomicTests.cpp'
+    ],
     'BidiTypeLookupTests': [
       'Tests/BidiTypeLookupTests.h',
       'Tests/BidiTypeLookupTests.cpp'
@@ -249,6 +253,10 @@ if build_tests
       'Tests/MirrorLookupTests.h',
       'Tests/MirrorLookupTests.cpp'
     ],
+    'OnceTests': [
+      'Tests/OnceTests.h',
+      'Tests/OnceTests.cpp'
+    ],
     'RunQueueTests': [
       'Tests/RunQueueTests.h',
       'Tests/RunQueueTests.cpp'
@@ -264,6 +272,10 @@ if build_tests
     'ScriptTests': [
       'Tests/ScriptTests.h',
       'Tests/ScriptTests.cpp'
+    ],
+    'ThreadLocalStorageTests': [
+      'Tests/ThreadLocalStorageTests.h',
+      'Tests/ThreadLocalStorageTests.cpp'
     ]
   }
 
