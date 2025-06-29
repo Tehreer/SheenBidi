@@ -108,15 +108,15 @@ void AtomicTests::testAtomicUIntCompareAndSet() {
     SBUInteger unknownNumber = 0x9999;
     SBUInteger expected;
 
-    AtomicPointerStore(&value, initialNumber);
+    AtomicUIntStore(&value, initialNumber);
 
     expected = initialNumber;
-    assert(AtomicPointerCompareAndSet(&value, &expected, newNumber) == true);
-    assert(AtomicPointerLoad(&value) == newNumber);
+    assert(AtomicUIntCompareAndSet(&value, &expected, newNumber) == true);
+    assert(AtomicUIntLoad(&value) == newNumber);
 
     expected = unknownNumber;
-    assert(AtomicPointerCompareAndSet(&value, &expected, unknownNumber) == false);
-    assert(AtomicPointerLoad(&value) == newNumber);
+    assert(AtomicUIntCompareAndSet(&value, &expected, unknownNumber) == false);
+    assert(AtomicUIntLoad(&value) == newNumber);
 }
 
 void AtomicTests::testAtomicUIntIncrementDecrement() {
@@ -154,7 +154,7 @@ void AtomicTests::testAtomicUIntThreadSafety() {
 }
 
 void AtomicTests::testAtomicPointerLoadStore() {
-    AtomicType(uint32_t) *pointer = nullptr;
+    AtomicPointerType(uint32_t) pointer = nullptr;
 
     uint32_t numbers[] = { 0x1234 };
     uint32_t *value = &numbers[0];
@@ -164,7 +164,7 @@ void AtomicTests::testAtomicPointerLoadStore() {
 }
 
 void AtomicTests::testAtomicPointerCompareAndSet() {
-    AtomicType(uint32_t) *pointer = nullptr;
+    AtomicPointerType(uint32_t) pointer = nullptr;
 
     uint32_t numbers[] = { 0x1234, 0x5678, 0x9999 };
     uint32_t *initialValue = &numbers[0];
@@ -184,7 +184,7 @@ void AtomicTests::testAtomicPointerCompareAndSet() {
 }
 
 void AtomicTests::testAtomicPointerThreadSafety() {
-    AtomicType(uint32_t) *pointer = nullptr;
+    AtomicPointerType(uint32_t) pointer = nullptr;
 
     vector<uint32_t> numbers(NumThreads);
     vector<uint32_t *> values(NumThreads);
