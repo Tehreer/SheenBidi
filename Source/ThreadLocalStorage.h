@@ -34,7 +34,7 @@
 #define USE_CLANG_THREAD_LOCAL
 
 /* Detect MSVC thread-local support (available since MSVC 2005) */
-#elif defined(_MSC_VER) && _MSC_VER >= 1400
+#elif MSVC_VERSION >= 1400
 #define USE_MSVC_THREAD_LOCAL
 
 /* Check for pthread availability */

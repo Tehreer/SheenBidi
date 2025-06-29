@@ -25,24 +25,33 @@
 #include <stdatomic.h>
 #define HAS_ATOMIC_POINTER_SUPPORT
 typedef _Atomic(void *) AtomicPointer;
-#define AtomicType(type) _Atomic(type)
+#define AtomicPointerType(type) _Atomic(type *)
 
 #elif defined(USE_ATOMIC_BUILTINS) || defined(USE_SYNC_BUILTINS)
 
 #define HAS_ATOMIC_POINTER_SUPPORT
 typedef void *AtomicPointer;
-#define AtomicType(type) type
+#define AtomicPointerType(type) type *
 
-#elif defined(USE_WIN_INTRINSICS) || defined(USE_WIN_INTERLOCKED)
+#elif defined(USE_WIN_INTRINSICS)
 
+#include <intrin.h>
 #define HAS_ATOMIC_POINTER_SUPPORT
-typedef void *volatile AtomicPointer;
-#define AtomicType(type) type volatile
+#pragma intrinsic(_InterlockedExchangePointer, _InterlockedCompareExchangePointer)
+typedef void * volatile AtomicPointer;
+#define AtomicPointerType(type) type * volatile
+
+#elif defined(USE_WIN_INTERLOCKED)
+
+#include <windows.h>
+#define HAS_ATOMIC_POINTER_SUPPORT
+typedef void * volatile AtomicPointer;
+#define AtomicPointerType(type) type * volatile
 
 #else
 
 typedef void *AtomicPointer;
-#define AtomicType(type) type
+#define AtomicPointerType(type) type *
 
 #endif
 
@@ -78,38 +87,29 @@ typedef AtomicPointer *AtomicPointerRef;
 
 #elif defined(USE_WIN_INTRINSICS)
 
-#ifdef _WIN64
 #define AtomicPointerLoad(pointer)                              \
-    ((void *)_InterlockedCompareExchange64((volatile __int64 *)(pointer), 0, 0))
+    _InterlockedCompareExchangePointer((AtomicPointerRef)(pointer), NULL, NULL)
 #define AtomicPointerStore(pointer, value)                      \
-    _InterlockedExchange64((volatile __int64 *)(pointer), (__int64)(value))
+    _InterlockedExchangePointer((AtomicPointerRef)(pointer), (void *)(value))
 #define AtomicPointerCompareAndSet(pointer, expected, desired)  \
-    (((void *)_InterlockedCompareExchange64((volatile __int64 *)(pointer), (__int64)(desired), (__int64)(*(expected)))) == *(expected))
-#else
-#define AtomicPointerLoad(pointer)                              \
-    ((void *)_InterlockedCompareExchange((volatile long *)(pointer), 0, 0))
-#define AtomicPointerStore(pointer, value)                      \
-    _InterlockedExchange((volatile long *)(pointer), (long)(value))
-#define AtomicPointerCompareAndSet(pointer, expected, desired)  \
-    (((void *)_InterlockedCompareExchange((volatile long *)(pointer), (long)(desired), (long)(*(expected)))) == *(expected))
-#endif
+    (_InterlockedCompareExchangePointer((AtomicPointerRef)(pointer), (void *)(desired), (void *)(*(expected))) == *(expected))
 
 #elif defined(USE_WIN_INTERLOCKED)
 
 #ifdef _WIN64
 #define AtomicPointerLoad(pointer)                              \
-    ((void *)InterlockedCompareExchange64((volatile LONG64 *)(pointer), 0, 0))
+    ((void *)InterlockedCompareExchange64((LONG64 volatile *)(pointer), 0, 0))
 #define AtomicPointerStore(pointer, value)                      \
-    InterlockedExchange64((volatile LONG64 *)(pointer), (LONG64)(value))
+    InterlockedExchange64((LONG64 volatile *)(pointer), (LONG64)(value))
 #define AtomicPointerCompareAndSet(pointer, expected, desired)  \
-    (((void *)InterlockedCompareExchange64((volatile LONG64 *)(pointer), (LONG64)(desired), (LONG64)(*(expected)))) == *(expected))
+    (((void *)InterlockedCompareExchange64((LONG64 volatile *)(pointer), (LONG64)(desired), (LONG64)(*(expected)))) == *(expected))
 #else
 #define AtomicPointerLoad(pointer)                              \
-    ((void *)InterlockedCompareExchange((volatile LONG *)(pointer), 0, 0))
+    ((void *)InterlockedCompareExchange((LONG volatile *)(pointer), 0, 0))
 #define AtomicPointerStore(pointer, value)                      \
-    InterlockedExchange((volatile LONG *)(pointer), (LONG)(value))
+    InterlockedExchange((LONG volatile *)(pointer), (LONG)(value))
 #define AtomicPointerCompareAndSet(pointer, expected, desired)  \
-    (((void *)InterlockedCompareExchange((volatile LONG *)(pointer), (LONG)(desired), (LONG)(*(expected)))) == *(expected))
+    (((void *)InterlockedCompareExchange((LONG volatile *)(pointer), (LONG)(desired), (LONG)(*(expected)))) == *(expected))
 #endif
 
 #else /* Non-atomic fallback */

@@ -33,7 +33,9 @@ typedef SBBoolean AtomicFlag;
 
 #elif defined(USE_WIN_INTRINSICS)
 
+#include <intrin.h>
 #define HAS_ATOMIC_FLAG_SUPPORT
+#pragma intrinsic(_InterlockedExchange8)
 typedef volatile char AtomicFlag;
 
 #elif defined(USE_WIN_INTERLOCKED)
@@ -72,13 +74,13 @@ typedef AtomicFlag *AtomicFlagRef;
 #elif defined(USE_WIN_INTRINSICS)
 
 #define AtomicFlagMake()            0
-#define AtomicFlagTestAndSet(flag)  ((SBBoolean)_InterlockedExchange8(flag, 1))
+#define AtomicFlagTestAndSet(flag)  (_InterlockedExchange8(flag, 1) == 1)
 #define AtomicFlagClear(flag)       _InterlockedExchange8(flag, 0)
 
 #elif defined(USE_WIN_INTERLOCKED)
 
 #define AtomicFlagMake()            0
-#define AtomicFlagTestAndSet(flag)  ((SBBoolean)InterlockedExchange(flag, 1))
+#define AtomicFlagTestAndSet(flag)  (InterlockedExchange(flag, 1) == 1)
 #define AtomicFlagClear(flag)       InterlockedExchange(flag, 0)
 
 #else /* Non-atomic fallback */

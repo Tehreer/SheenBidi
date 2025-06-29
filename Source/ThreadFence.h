@@ -35,7 +35,7 @@
 #define HAS_THREAD_FENCE_SUPPORT
 #define ThreadFence()               __sync_synchronize()
 
-#elif defined(_MSC_VER) && _MSC_VER >= 1400
+#elif MSVC_VERSION >= 1400
 
 #include <windows.h>
 #define HAS_THREAD_FENCE_SUPPORT

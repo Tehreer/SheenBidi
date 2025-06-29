@@ -33,10 +33,15 @@ typedef SBUInteger AtomicUInt;
 
 #elif defined(USE_WIN_INTRINSICS)
 
+#include <intrin.h>
 #define HAS_ATOMIC_UINT_SUPPORT
 #ifdef _WIN64
+#pragma intrinsic(_InterlockedExchange64, _InterlockedCompareExchange64)
+#pragma intrinsic(_InterlockedIncrement64, _InterlockedDecrement64)
 typedef volatile __int64 AtomicUInt;
 #else
+#pragma intrinsic(_InterlockedExchange, _InterlockedCompareExchange)
+#pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement)
 typedef volatile long AtomicUInt;
 #endif
 
@@ -96,7 +101,7 @@ typedef AtomicUInt *AtomicUIntRef;
 #define AtomicUIntLoad(aui)                 ((SBUInteger)_InterlockedCompareExchange64(aui, 0, 0))
 #define AtomicUIntStore(aui, value)         _InterlockedExchange64(aui, (__int64)(value))
 #define AtomicUIntCompareAndSet(aui, expected, desired) \
-    (((SBUInteger)InterlockedCompareExchange64(aui, (__int64)(desired), (__int64)(*(expected)))) == *(expected))
+    (((SBUInteger)_InterlockedCompareExchange64(aui, (__int64)(desired), (__int64)(*(expected)))) == *(expected))
 #define AtomicUIntIncrement(aui)            ((SBUInteger)_InterlockedIncrement64(aui))
 #define AtomicUIntDecrement(aui)            ((SBUInteger)_InterlockedDecrement64(aui))
 #else

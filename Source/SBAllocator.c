@@ -26,9 +26,10 @@
 #include "ThreadLocalStorage.h"
 #include "SBAllocator.h"
 
-typedef struct _SBAllocator *SBMutableAllocatorRef;
+typedef SBAllocator *SBMutableAllocatorRef;
+typedef AtomicPointerType(SBAllocator) SBAtomicAllocatorRef;
 
-static AtomicType(SBAllocatorRef) DefaultAllocator = NULL;
+static SBAtomicAllocatorRef DefaultAllocator = NULL;
 
 #ifndef SB_CONFIG_DISABLE_SCRATCH_MEMORY
 
@@ -48,9 +49,10 @@ typedef struct _Buffer {
     SBUInteger offset;
     SBUInt8 data[SB_CONFIG_SCRATCH_BUFFER_SIZE];
 } Buffer, *BufferRef;
+typedef AtomicPointerType(Buffer) AtomicBufferRef;
 
 static Buffer BufferPool[SB_CONFIG_SCRATCH_POOL_SIZE];
-static AtomicType(BufferRef) BufferStack = NULL;
+static AtomicBufferRef BufferStack = NULL;
 static ThreadLocalStorage ScratchBuffer;
 
 #define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))

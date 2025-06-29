@@ -28,14 +28,21 @@
 #if defined(__GNUC__) && !defined(__clang__)
 #define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #else
-#define GCC_VERSION 0
+#define GCC_VERSION     0
 #endif
 
 /* Detect Clang and its version */
 #if defined(__clang__)
 #define CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
 #else
-#define CLANG_VERSION 0
+#define CLANG_VERSION   0
+#endif
+
+/* Detect MSVC and its version */
+#if defined(_MSC_VER)
+#define MSVC_VERSION    _MSC_VER
+#else
+#define MSVC_VERSION    0
 #endif
 
 /* ---------- Atomic Support Feature Detection ---------- */
@@ -57,13 +64,8 @@
 /* Windows-specific intrinsics */
 #elif defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__)
 
-#if _MSC_VER >= 1700    /* VS 2012+ */
-#include <intrin.h>
+#if MSVC_VERSION >= 1700    /* VS 2012+ */
 #define USE_WIN_INTRINSICS
-#pragma intrinsic(_InterlockedExchange8, _InterlockedExchange, _InterlockedExchange64)
-#pragma intrinsic(_InterlockedCompareExchange, _InterlockedCompareExchange64)
-#pragma intrinsic(_InterlockedIncrement, _InterlockedIncrement64)
-#pragma intrinsic(_InterlockedDecrement, _InterlockedDecrement64)
 #else
 #define USE_WIN_INTERLOCKED
 #endif
