@@ -472,9 +472,9 @@ static void ResolveImplicitLevels(IsolatingRunRef isolatingRun)
     }
 }
 
-SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun)
+SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun, MemoryRef memory)
 {
-    BracketQueueInitialize(&isolatingRun->_bracketQueue);
+    BracketQueueInitialize(&isolatingRun->_bracketQueue, memory);
 }
 
 SB_INTERNAL SBBoolean IsolatingRunResolve(IsolatingRunRef isolatingRun)
@@ -530,9 +530,4 @@ SB_INTERNAL SBBoolean IsolatingRunResolve(IsolatingRunRef isolatingRun)
     SB_LOG_BLOCK_CLOSER();
 
     return SBTrue;
-}
-
-SB_INTERNAL void IsolatingRunFinalize(IsolatingRunRef isolatingRun)
-{
-    BracketQueueFinalize(&isolatingRun->_bracketQueue);
 }

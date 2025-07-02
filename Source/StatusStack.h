@@ -39,15 +39,14 @@ typedef struct _StatusStackList {
 } _StatusStackList, *_StatusStackListRef;
 
 typedef struct _StatusStack {
-    Memory _memory;
+    MemoryRef _memory;
     _StatusStackList _firstList;
     _StatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
 } StatusStack, *StatusStackRef;
 
-SB_INTERNAL void StatusStackInitialize(StatusStackRef stack);
-SB_INTERNAL void StatusStackFinalize(StatusStackRef stack);
+SB_INTERNAL void StatusStackInitialize(StatusStackRef stack, MemoryRef memory);
 
 SB_INTERNAL SBBoolean StatusStackPush(StatusStackRef stack,
    SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus);

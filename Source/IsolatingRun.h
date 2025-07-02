@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2025 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "BidiChain.h"
 #include "BracketQueue.h"
 #include "LevelRun.h"
+#include "Memory.h"
 #include "SBBase.h"
 #include "SBCodepointSequence.h"
 
@@ -39,9 +40,7 @@ typedef struct _IsolatingRun {
     SBLevel paragraphLevel;
 } IsolatingRun, *IsolatingRunRef;
 
-SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun);
+SB_INTERNAL void IsolatingRunInitialize(IsolatingRunRef isolatingRun, MemoryRef memory);
 SB_INTERNAL SBBoolean IsolatingRunResolve(IsolatingRunRef isolatingRun);
-
-SB_INTERNAL void IsolatingRunFinalize(IsolatingRunRef isolatingRun);
 
 #endif

@@ -34,7 +34,7 @@ static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
         BracketQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = MemoryAllocateBlock(&queue->_memory, MemoryTypeScratch, sizeof(BracketQueueList));
+            rearList = MemoryAllocateBlock(queue->_memory, MemoryTypeScratch, sizeof(BracketQueueList));
             if (!rearList) {
                 return SBFalse;
             }
@@ -70,10 +70,9 @@ static void BracketQueueFinalizePairs(BracketQueueRef queue, BracketQueueListRef
     } while (list);
 }
 
-SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue)
+SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue, MemoryRef memory)
 {
-    MemoryInitialize(&queue->_memory);
-
+    queue->_memory = memory;
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
     queue->_frontList = NULL;
@@ -217,9 +216,4 @@ SB_INTERNAL BidiLink BracketQueueGetClosingLink(BracketQueueRef queue)
 SB_INTERNAL SBBidiType BracketQueueGetStrongType(BracketQueueRef queue)
 {
     return queue->_frontList->strongType[queue->_frontTop];
-}
-
-SB_INTERNAL void BracketQueueFinalize(BracketQueueRef queue)
-{
-    MemoryFinalize(&queue->_memory);
 }

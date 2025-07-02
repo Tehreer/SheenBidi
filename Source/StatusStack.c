@@ -32,7 +32,7 @@ static SBBoolean StatusStackInsertElement(StatusStackRef stack)
         _StatusStackListRef peekList = previousList->next;
 
         if (!peekList) {
-            peekList = MemoryAllocateBlock(&stack->_memory, MemoryTypeScratch, sizeof(_StatusStackList));
+            peekList = MemoryAllocateBlock(stack->_memory, MemoryTypeScratch, sizeof(_StatusStackList));
             if (!peekList) {
                 return SBFalse;
             }
@@ -51,9 +51,9 @@ static SBBoolean StatusStackInsertElement(StatusStackRef stack)
     return SBTrue;
 }
 
-SB_INTERNAL void StatusStackInitialize(StatusStackRef stack)
+SB_INTERNAL void StatusStackInitialize(StatusStackRef stack, MemoryRef memory)
 {
-    MemoryInitialize(&stack->_memory);
+    stack->_memory = memory;
 
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
@@ -113,9 +113,4 @@ SB_INTERNAL SBBidiType StatusStackGetOverrideStatus(StatusStackRef stack)
 SB_INTERNAL SBBoolean StatusStackGetIsolateStatus(StatusStackRef stack)
 {
     return stack->_peekList->elements[stack->_peekTop].isolateStatus;
-}
-
-SB_INTERNAL void StatusStackFinalize(StatusStackRef stack)
-{
-    MemoryFinalize(&stack->_memory);
 }

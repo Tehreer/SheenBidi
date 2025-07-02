@@ -31,7 +31,6 @@
 typedef SBLine *SBMutableLineRef;
 
 typedef struct _LineContext {
-    Memory memory;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger runCount;
@@ -45,7 +44,7 @@ static void ResetLevels(LineContextRef context, SBLevel baseLevel, SBUInteger ch
 #define LEVELS       0
 #define COUNT        1
 
-static SBBoolean InitializeLineContext(LineContextRef context,
+static SBBoolean InitializeLineContext(LineContextRef context, MemoryRef memory,
     const SBBidiType *types, const SBLevel *levels, SBUInteger length, SBLevel baseLevel)
 {
     SBBoolean isInitialized = SBFalse;
@@ -54,9 +53,7 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 
     sizes[LEVELS] = sizeof(SBLevel) * length;
 
-    MemoryInitialize(&context->memory);
-
-    if (MemoryAllocateChunks(&context->memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
         SBLevel *fixedLevels = pointers[LEVELS];
 
         context->refTypes = types;
@@ -73,12 +70,6 @@ static SBBoolean InitializeLineContext(LineContextRef context,
 
 #undef LEVELS
 #undef COUNT
-
-static void FinalizeLineContext(LineContextRef context)
-{
-    MemoryFinalize(&context->memory);
-    SBAllocatorResetScratch(SBAllocatorGetCurrent());
-}
 
 #define LINE  0
 #define RUNS  1
@@ -270,6 +261,7 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
     const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
     SBMutableLineRef line = NULL;
+    Memory memory;
     LineContext context;
 
     /* Line range MUST be valid. */
@@ -277,7 +269,9 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
              && lineOffset >= paragraph->offset
              && (lineOffset + lineLength) <= (paragraph->offset + paragraph->length));
 
-    if (InitializeLineContext(&context, refTypes, refLevels, lineLength, paragraph->baseLevel)) {
+    MemoryInitialize(&memory);
+
+    if (InitializeLineContext(&context, &memory, refTypes, refLevels, lineLength, paragraph->baseLevel)) {
         line = AllocateLine(context.runCount);
 
         if (line) {
@@ -288,9 +282,10 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
             line->offset = lineOffset;
             line->length = lineLength;
         }
-
-        FinalizeLineContext(&context);
     }
+
+    MemoryFinalize(&memory);
+    SBAllocatorResetScratch(SBAllocatorGetCurrent());
 
     return line;
 }

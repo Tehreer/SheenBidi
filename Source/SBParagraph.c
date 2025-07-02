@@ -39,7 +39,6 @@
 typedef SBParagraph *SBMutableParagraphRef;
 
 typedef struct _ParagraphContext {
-    Memory memory;
     BidiChain bidiChain;
     StatusStack statusStack;
     RunQueue runQueue;
@@ -55,7 +54,7 @@ static void FinalizeParagraph(ObjectRef object);
 #define BIDI_FLAGS        2
 #define COUNT             3
 
-static SBBoolean InitializeParagraphContext(ParagraphContextRef context,
+static SBBoolean InitializeParagraphContext(ParagraphContextRef context, MemoryRef memory,
     const SBBidiType *types, SBLevel *levels, SBUInteger length)
 {
     SBBoolean isInitialized = SBFalse;
@@ -66,17 +65,15 @@ static SBBoolean InitializeParagraphContext(ParagraphContextRef context,
     sizes[BIDI_TYPES] = sizeof(SBBidiType) * (length + 2);
     sizes[BIDI_FLAGS] = sizeof(BidiFlag) * (length + 2);
 
-    MemoryInitialize(&context->memory);
-
-    if (MemoryAllocateChunks(&context->memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
+    if (MemoryAllocateChunks(memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
         BidiLink *fixedLinks = pointers[BIDI_LINKS];
         SBBidiType *fixedTypes = pointers[BIDI_TYPES];
         BidiFlag *fixedFlags = pointers[BIDI_FLAGS];
 
         BidiChainInitialize(&context->bidiChain, fixedTypes, levels, fixedFlags, fixedLinks);
-        StatusStackInitialize(&context->statusStack);
-        RunQueueInitialize(&context->runQueue);
-        IsolatingRunInitialize(&context->isolatingRun);
+        StatusStackInitialize(&context->statusStack, memory);
+        RunQueueInitialize(&context->runQueue, memory);
+        IsolatingRunInitialize(&context->isolatingRun, memory);
 
         PopulateBidiChain(&context->bidiChain, types, length);
 
@@ -90,15 +87,6 @@ static SBBoolean InitializeParagraphContext(ParagraphContextRef context,
 #undef BIDI_TYPES
 #undef BIDI_FLAGS
 #undef COUNT
-
-static void FinalizeParagraphContext(ParagraphContextRef context)
-{
-    StatusStackFinalize(&context->statusStack);
-    RunQueueFinalize(&context->runQueue);
-    IsolatingRunFinalize(&context->isolatingRun);
-    MemoryFinalize(&context->memory);
-    SBAllocatorResetScratch(SBAllocatorGetCurrent());
-}
 
 #define PARAGRAPH 0
 #define LEVELS    1
@@ -585,14 +573,14 @@ static void SaveLevels(BidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
     }
 }
 
-static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph,
+static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph, MemoryRef memory,
     SBAlgorithmRef algorithm, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
     const SBBidiType *bidiTypes = algorithm->fixedTypes + offset;
     SBBoolean isSucceeded = SBFalse;
     ParagraphContext context;
 
-    if (InitializeParagraphContext(&context, bidiTypes, paragraph->fixedLevels, length)) {
+    if (InitializeParagraphContext(&context, memory, bidiTypes, paragraph->fixedLevels, length)) {
         SBLevel resolvedLevel = DetermineParagraphLevel(&context.bidiChain, baseLevel);
 
         SB_LOG_BLOCK_OPENER("Determined Paragraph Level");
@@ -620,8 +608,6 @@ static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph,
 
             isSucceeded = SBTrue;
         }
-
-        FinalizeParagraphContext(&context);
     }
 
     return isSucceeded;
@@ -633,7 +619,6 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringLength = codepointSequence->stringLength;
     SBUInteger actualLength;
-
     SBMutableParagraphRef paragraph;
 
     /* The given range MUST be valid. */
@@ -654,16 +639,21 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     paragraph = AllocateParagraph(actualLength);
 
     if (paragraph) {
-        if (ResolveParagraph(paragraph, algorithm, paragraphOffset, actualLength, baseLevel)) {
-            return paragraph;
+        Memory memory;
+        MemoryInitialize(&memory);
+
+        if (!ResolveParagraph(paragraph, &memory, algorithm, paragraphOffset, actualLength, baseLevel)) {
+            ObjectRelease(paragraph);
+            paragraph = NULL;
         }
 
-        ObjectRelease(paragraph);
+        MemoryFinalize(&memory);
+        SBAllocatorResetScratch(SBAllocatorGetCurrent());
     }
 
     SB_LOG_BREAKER();
 
-    return NULL;
+    return paragraph;
 }
 
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph)

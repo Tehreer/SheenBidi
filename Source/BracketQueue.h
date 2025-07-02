@@ -39,7 +39,7 @@ typedef struct _BracketQueueList {
 } BracketQueueList, *BracketQueueListRef;
 
 typedef struct _BracketQueue {
-    Memory _memory;
+    MemoryRef _memory;
     BracketQueueList _firstList;
     BracketQueueListRef _frontList;
     BracketQueueListRef _rearList;
@@ -52,7 +52,7 @@ typedef struct _BracketQueue {
 
 #define BracketQueueGetMaxCapacity()        63
 
-SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue);
+SB_INTERNAL void BracketQueueInitialize(BracketQueueRef queue, MemoryRef memory);
 SB_INTERNAL void BracketQueueReset(BracketQueueRef queue, SBBidiType direction);
 
 SB_INTERNAL SBBoolean BracketQueueEnqueue(BracketQueueRef queue,
@@ -69,7 +69,5 @@ SB_INTERNAL BidiLink BracketQueueGetPriorStrongLink(BracketQueueRef queue);
 SB_INTERNAL BidiLink BracketQueueGetOpeningLink(BracketQueueRef queue);
 SB_INTERNAL BidiLink BracketQueueGetClosingLink(BracketQueueRef queue);
 SB_INTERNAL SBBidiType BracketQueueGetStrongType(BracketQueueRef queue);
-
-SB_INTERNAL void BracketQueueFinalize(BracketQueueRef queue);
 
 #endif

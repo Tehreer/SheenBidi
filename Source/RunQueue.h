@@ -34,7 +34,7 @@ typedef struct _RunQueueList {
 } RunQueueList, *RunQueueListRef;
 
 typedef struct _RunQueue {
-    Memory _memory;
+    MemoryRef _memory;
     RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
     RunQueueListRef _frontList;     /**< The list containing front element of the queue */
     RunQueueListRef _rearList;      /**< The list containing rear element of the queue */
@@ -46,13 +46,11 @@ typedef struct _RunQueue {
     SBBoolean shouldDequeue;
 } RunQueue, *RunQueueRef;
 
-SB_INTERNAL void RunQueueInitialize(RunQueueRef queue);
+SB_INTERNAL void RunQueueInitialize(RunQueueRef queue, MemoryRef memory);
 
 SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue);
 
 SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue);
-
-SB_INTERNAL void RunQueueFinalize(RunQueueRef queue);
 
 #endif

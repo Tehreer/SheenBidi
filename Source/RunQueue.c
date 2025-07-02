@@ -33,7 +33,7 @@ static SBBoolean RunQueueInsertElement(RunQueueRef queue)
         RunQueueListRef rearList = previousList->next;
 
         if (!rearList) {
-            rearList = MemoryAllocateBlock(&queue->_memory, MemoryTypeScratch, sizeof(RunQueueList));
+            rearList = MemoryAllocateBlock(queue->_memory, MemoryTypeScratch, sizeof(RunQueueList));
             if (!rearList) {
                 return SBFalse;
             }
@@ -78,9 +78,9 @@ static void FindPreviousPartialRun(RunQueueRef queue)
     queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL void RunQueueInitialize(RunQueueRef queue)
+SB_INTERNAL void RunQueueInitialize(RunQueueRef queue, MemoryRef memory)
 {
-    MemoryInitialize(&queue->_memory);
+    queue->_memory = memory;
 
     /* Initialize first list. */
     queue->_firstList.previous = NULL;
@@ -156,9 +156,4 @@ SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue)
     SBAssert(queue->count != 0);
 
     return &queue->_frontList->elements[queue->_frontTop];
-}
-
-SB_INTERNAL void RunQueueFinalize(RunQueueRef queue)
-{
-    MemoryFinalize(&queue->_memory);
 }
