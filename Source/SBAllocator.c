@@ -189,6 +189,15 @@ static SBAllocator NativeAllocator = SBAllocatorMake(
     NativeAllocateBlock, NativeReallocateBlock, NativeDeallocateBlock,
     NativeAllocateScratch, NativeResetScratch, NULL);
 
+static void FinalizeAllocator(ObjectRef object)
+{
+    SBAllocatorRef allocator = object;
+
+    if (allocator->_protocol.finalize) {
+        allocator->_protocol.finalize(allocator->_info);
+    }
+}
+
 SB_INTERNAL SBAllocatorRef SBAllocatorGetCurrent(void)
 {
     SBAllocatorRef allocator = AtomicPointerLoad(&DefaultAllocator);
@@ -252,7 +261,7 @@ SBAllocatorRef SBAllocatorCreate(const SBAllocatorProtocol *protocol, void *info
     void *pointer = NULL;
     SBMutableAllocatorRef allocator = NULL;
 
-    allocator = ObjectCreate(&size, 1, &pointer, protocol->finalize);
+    allocator = ObjectCreate(&size, 1, &pointer, FinalizeAllocator);
 
     if (allocator) {
         allocator->_info = info;
