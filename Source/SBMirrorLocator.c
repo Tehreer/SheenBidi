@@ -45,7 +45,7 @@ SBMirrorLocatorRef SBMirrorLocatorCreate(void)
     return locator;
 }
 
-void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, void *stringBuffer)
+void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, const void *stringBuffer)
 {
     if (locator->_line) {
         SBLineRelease(locator->_line);

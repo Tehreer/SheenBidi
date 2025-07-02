@@ -53,7 +53,7 @@ SB_PUBLIC SBMirrorLocatorRef SBMirrorLocatorCreate(void);
  *      The string buffer from which the line's algorithm was created.
  */
 SB_PUBLIC void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line,
-    void *stringBuffer);
+    const void *stringBuffer);
 
 /**
  * Returns the agent containing the information of current located mirror.
