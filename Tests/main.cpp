@@ -69,7 +69,7 @@ int main(int argc, const char *argv[]) {
     BracketLookupTests bracketLookupTests(bidiBrackets);
     GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
-    AlgorithmTests algorithmTests(&bidiTest, &bidiCharacterTest, &bidiMirroring);
+    AlgorithmTests algorithmTests(bidiTest, bidiCharacterTest, bidiMirroring);
     AtomicTests atomicTests;
     CodepointTests codepointTests(unicodeData, bidiBrackets);
     CodepointSequenceTests codepointSequenceTests;

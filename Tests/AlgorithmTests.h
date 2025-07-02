@@ -32,52 +32,17 @@ namespace SheenBidi {
 
 class AlgorithmTests {
 public:
-    AlgorithmTests(Parser::BidiTest *bidiTest, Parser::BidiCharacterTest *bidiBracketTest, Parser::BidiMirroring *bidiMirroring);
-    ~AlgorithmTests();
+    AlgorithmTests(Parser::BidiTest &bidiTest, Parser::BidiCharacterTest &bidiBracketTest,
+        const Parser::BidiMirroring &bidiMirroring);
 
+    void run();
     void testAlgorithm();
     void testMulticharNewline();
-    void run();
 
 private:
-    Parser::BidiTest *m_bidiTest;
-    Parser::BidiCharacterTest *m_bidiCharacterTest;
-    Parser::BidiMirroring *m_bidiMirroring;
-
-    size_t testCounter = 0;
-    size_t failures = 0;
-
-    SBMirrorLocatorRef m_mirrorLocator = nullptr;
-
-    SBCodepoint m_genChars[256] = { };
-    SBUInteger m_charCount = 0;
-
-    SBLevel m_inputLevel = SBLevelInvalid;
-    uint8_t m_paragraphLevel = UINT8_MAX;
-
-    SBUInteger m_runCount = 0;
-    const SBRun *m_runArray = nullptr;
-
-    uint32_t m_genMirrors[256] = { };
-    size_t m_mirrorCount = 0;
-
-    const std::vector<uint8_t> *m_levels = nullptr;
-    const std::vector<size_t> *m_order = nullptr;
-
-    void loadCharacters(const std::vector<std::string> &types);
-    void loadCharacters(const std::vector<uint32_t> &codePoints);
-    void loadMirrors();
-
-    void displayBidiTestCase() const;
-    void displayBidiCharacterTestCase() const;
-
-    bool testLevels() const;
-    bool testOrder() const;
-    bool testMirrors() const;
-
-    bool conductTest();
-    void analyzeBidiTest();
-    void analyzeBidiCharacterTest();
+    Parser::BidiTest &m_bidiTest;
+    Parser::BidiCharacterTest &m_bidiCharacterTest;
+    const Parser::BidiMirroring &m_bidiMirroring;
 };
 
 }
