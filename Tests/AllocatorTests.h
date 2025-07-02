@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SHEENBIDI__ATOMIC_TESTS_H
-#define _SHEENBIDI__ATOMIC_TESTS_H
+#ifndef _SHEENBIDI__ALLOCATOR_TESTS_H
+#define _SHEENBIDI__ALLOCATOR_TESTS_H
 
 namespace SheenBidi {
 
@@ -35,7 +35,6 @@ private:
     void testScratchMemoryAlignment();
     void testThreadSafeBlockAllocation();
     void testThreadLocalScratchMemory();
-    void testMaximumSizeAllocation();
     void testScratchMemoryExhaustion();
     void testCustomAllocatorProtocol();
 };

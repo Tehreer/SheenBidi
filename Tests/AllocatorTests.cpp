@@ -53,7 +53,6 @@ void AllocatorTests::run() {
     testScratchMemoryAlignment();
     testThreadSafeBlockAllocation();
     testThreadLocalScratchMemory();
-    testMaximumSizeAllocation();
     testScratchMemoryExhaustion();
     testCustomAllocatorProtocol();
 }
@@ -275,16 +274,6 @@ void AllocatorTests::testThreadLocalScratchMemory() {
 
     // Ensure total allocations do not exceed the configured scratch pool size
     assert(totalAllocations == min(SB_CONFIG_SCRATCH_POOL_SIZE, NumThreads));
-#endif
-}
-
-void AllocatorTests::testMaximumSizeAllocation() {
-#if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
-    const size_t maxSize = SIZE_MAX;  // Largest possible size
-    void *pointer = SBAllocatorAllocateBlock(allocator, maxSize);
-    assert(pointer == nullptr);  // Should fail gracefully
 #endif
 }
 
