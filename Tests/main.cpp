@@ -31,6 +31,7 @@
 #include <Parser/UnicodeData.h>
 
 #include "AlgorithmTests.h"
+#include "AllocatorTests.h"
 #include "AtomicTests.h"
 #include "BidiTypeLookupTests.h"
 #include "BracketLookupTests.h"
@@ -70,6 +71,7 @@ int main(int argc, const char *argv[]) {
     GeneralCategoryLookupTests generalCategoryLookupTests(derivedGeneralCategory);
     ScriptLookupTests scriptLookupTests(scripts, propertyValueAliases);
     AlgorithmTests algorithmTests(bidiTest, bidiCharacterTest, bidiMirroring);
+    AllocatorTests allocatorTests;
     AtomicTests atomicTests;
     CodepointTests codepointTests(unicodeData, bidiBrackets);
     CodepointSequenceTests codepointSequenceTests;
@@ -88,6 +90,7 @@ int main(int argc, const char *argv[]) {
     generalCategoryLookupTests.run();
     scriptLookupTests.run();
     algorithmTests.run();
+    allocatorTests.run();
     atomicTests.run();
     codepointTests.run();
     codepointSequenceTests.run();
