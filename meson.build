@@ -225,6 +225,10 @@ if build_tests
       'Tests/AlgorithmTests.h',
       'Tests/AlgorithmTests.cpp'
     ],
+    'AllocatorTests': [
+      'Tests/AllocatorTests.h',
+      'Tests/AllocatorTests.cpp'
+    ],
     'AtomicTests': [
       'Tests/AtomicTests.h',
       'Tests/AtomicTests.cpp'
