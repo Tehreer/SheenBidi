@@ -167,6 +167,7 @@ if(BUILD_TESTS)
 
   set(TEST_TARGETS
     AlgorithmTests
+    AllocatorTests
     AtomicTests
     BidiTypeLookupTests
     BracketLookupTests
@@ -184,6 +185,10 @@ if(BUILD_TESTS)
   set(AlgorithmTests
     Tests/AlgorithmTests.h
     Tests/AlgorithmTests.cpp
+  )
+  set(AllocatorTests
+    Tests/AllocatorTests.h
+    Tests/AllocatorTests.cpp
   )
   set(AtomicTests
     Tests/AtomicTests.h
