@@ -62,10 +62,6 @@ static void u32Test(const u32string string, const vector<run> runs)
     assert(runs == output);
 }
 
-ScriptLocatorTests::ScriptLocatorTests()
-{
-}
-
 void ScriptLocatorTests::run()
 {
     /* Test with an empty string. */

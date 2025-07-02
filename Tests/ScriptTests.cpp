@@ -31,10 +31,6 @@ using namespace std;
 using namespace SheenBidi;
 using namespace SheenBidi::Utilities;
 
-ScriptTests::ScriptTests()
-{
-}
-
 void ScriptTests::run() {
     testGetOpenTypeTag();
     testGetUnicodeTag();

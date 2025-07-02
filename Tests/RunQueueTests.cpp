@@ -24,6 +24,7 @@
 extern "C" {
 #include <Source/BidiChain.h>
 #include <Source/LevelRun.h>
+#include <Source/Memory.h>
 #include <Source/RunQueue.h>
 }
 
@@ -56,18 +57,19 @@ static bool areEqual(LevelRunRef firstRun, LevelRunRef secondRun) {
         && firstRun->level == secondRun->level;
 }
 
-RunQueueTests::RunQueueTests()
-{
-}
-
 void RunQueueTests::run() {
     testInitialize();
     testBulkInsertion();
 }
 
 void RunQueueTests::testInitialize() {
+    Memory memory;
     RunQueue queue;
-    RunQueueInitialize(&queue);
+
+    MemoryInitialize(&memory);
+    RunQueueInitialize(&queue, &memory);
+
+    assert(queue._memory == &memory);
 
     assert(queue._firstList.previous == nullptr);
     assert(queue._firstList.next == nullptr);
@@ -83,12 +85,15 @@ void RunQueueTests::testInitialize() {
     assert(queue.count == 0);
     assert(queue.shouldDequeue == false);
 
-    RunQueueFinalize(&queue);
+    MemoryFinalize(&memory);
 }
 
 void RunQueueTests::testBulkInsertion() {
+    Memory memory;
     RunQueue queue;
-    RunQueueInitialize(&queue);
+
+    MemoryInitialize(&memory);
+    RunQueueInitialize(&queue, &memory);
 
     array<LevelRun, 32> levelRuns{};
     uint32_t runCount = 0;
@@ -115,7 +120,7 @@ void RunQueueTests::testBulkInsertion() {
         runCount -= 1;
     }
 
-    RunQueueFinalize(&queue);
+    MemoryFinalize(&memory);
 }
 
 #ifdef STANDALONE_TESTING

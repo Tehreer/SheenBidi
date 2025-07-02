@@ -21,7 +21,7 @@ namespace SheenBidi {
 
 class RunQueueTests {
 public:
-    RunQueueTests();
+    RunQueueTests() = default;
 
     void run();
 

@@ -21,7 +21,7 @@ namespace SheenBidi {
 
 class ScriptLocatorTests {
 public:
-    ScriptLocatorTests();
+    ScriptLocatorTests() = default;
 
     void run();
 };

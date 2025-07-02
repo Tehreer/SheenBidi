@@ -21,7 +21,7 @@ namespace SheenBidi {
 
 class CodepointSequenceTests {
 public:
-    CodepointSequenceTests();
+    CodepointSequenceTests() = default;
 
     void run();
 

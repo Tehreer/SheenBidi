@@ -21,7 +21,7 @@ namespace SheenBidi {
 
 class ScriptTests {
 public:
-    ScriptTests();
+    ScriptTests() = default;
 
     void run();
 
