@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <chrono>
@@ -55,47 +56,43 @@ void AllocatorTests::run() {
     testThreadLocalScratchMemory();
     testScratchMemoryExhaustion();
     testCustomAllocatorProtocol();
+    testDefaultAllocatorChanges();
+    testThreadSafeDefaultAllocatorSwitch();
 }
 
 void AllocatorTests::testBasicBlockAllocation() {
 #if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
-    void *pointer = SBAllocatorAllocateBlock(allocator, 100);
+    void *pointer = SBAllocatorAllocateBlock(nullptr, 100);
     assert(pointer != nullptr);
-    
-    SBAllocatorDeallocateBlock(allocator, pointer);
+
+    SBAllocatorDeallocateBlock(nullptr, pointer);
 #endif
 }
 
 void AllocatorTests::testLargeAllocation() {
 #if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     const size_t blockSize = 1 << 25;  // 32MB
-    void *pointer = SBAllocatorAllocateBlock(allocator, blockSize);
+    void *pointer = SBAllocatorAllocateBlock(nullptr, blockSize);
 
     assert(pointer != nullptr);
     memset(pointer, 0xAA, blockSize);  // Test we can actually use the memory
 
-    SBAllocatorDeallocateBlock(allocator, pointer);
+    SBAllocatorDeallocateBlock(nullptr, pointer);
 #endif
 }
 
 void AllocatorTests::testBasicReallocation() {
 #if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     const size_t initialSize = 100;
     const size_t newSize = 200;
 
-    void *pointer = SBAllocatorAllocateBlock(allocator, initialSize);
+    void *pointer = SBAllocatorAllocateBlock(nullptr, initialSize);
     assert(pointer != nullptr);
 
     // Fill with pattern
     memset(pointer, 0xBB, initialSize);
 
-    void *newPointer = SBAllocatorReallocateBlock(allocator, pointer, newSize);
+    void *newPointer = SBAllocatorReallocateBlock(nullptr, pointer, newSize);
     assert(pointer != nullptr);
 
     // Verify content was preserved
@@ -103,65 +100,57 @@ void AllocatorTests::testBasicReallocation() {
         assert(((uint8_t *)newPointer)[i] == 0xBB);
     }
 
-    SBAllocatorDeallocateBlock(allocator, newPointer);
+    SBAllocatorDeallocateBlock(nullptr, newPointer);
 #endif
 }
 
 void AllocatorTests::testReallocationFromNull() {
 #if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
-    void *pointer = SBAllocatorReallocateBlock(allocator, nullptr, 100);
+    void *pointer = SBAllocatorReallocateBlock(nullptr, nullptr, 100);
     assert(pointer != nullptr);  // Should behave like malloc
 
-    SBAllocatorDeallocateBlock(allocator, pointer);
+    SBAllocatorDeallocateBlock(nullptr, pointer);
 #endif
 }
 
 void AllocatorTests::testBasicScratchAllocation() {
 #if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
-    void *pointer = SBAllocatorAllocateScratch(allocator, 100);
+    void *pointer = SBAllocatorAllocateScratch(nullptr, 100);
     assert(pointer != nullptr);
 
     // Should be able to use the memory
     memset(pointer, 0xCC, 100);
 
-    SBAllocatorResetScratch(allocator);
+    SBAllocatorResetScratch(nullptr);
 #endif
 }
 
 void AllocatorTests::testScratchMemoryReuse() {
 #if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
-    void *pointer1 = SBAllocatorAllocateScratch(allocator, 100);
+    void *pointer1 = SBAllocatorAllocateScratch(nullptr, 100);
     assert(pointer1 != nullptr);
 
-    SBAllocatorResetScratch(allocator);
+    SBAllocatorResetScratch(nullptr);
 
-    void *pointer2 = SBAllocatorAllocateScratch(allocator, 100);
+    void *pointer2 = SBAllocatorAllocateScratch(nullptr, 100);
     assert(pointer2 != nullptr);
     
     // Should reuse the same memory after reset
     assert(pointer1 == pointer2);
 
-    SBAllocatorResetScratch(allocator);
+    SBAllocatorResetScratch(nullptr);
 #endif
 }
 
 void AllocatorTests::testScratchMemoryAlignment() {
 #if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     const size_t sizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 29, 31, 37, 61 };
     const size_t align = sizeof(uintptr_t);
 
     vector<void *> allocations;
 
     for (auto s : sizes) {
-        void *pointer = SBAllocatorAllocateScratch(allocator, s);
+        void *pointer = SBAllocatorAllocateScratch(nullptr, s);
         if (!pointer) {
             break;  // No more scratch memory available
         }
@@ -178,14 +167,12 @@ void AllocatorTests::testScratchMemoryAlignment() {
         }
     }
 
-    SBAllocatorResetScratch(allocator);
+    SBAllocatorResetScratch(nullptr);
 #endif
 }
 
 void AllocatorTests::testThreadSafeBlockAllocation() {
 #if !defined(SB_CONFIG_UNITY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     constexpr int NumThreads = 8;
     constexpr int AllocationsPerThread = 1000;
 
@@ -195,7 +182,7 @@ void AllocatorTests::testThreadSafeBlockAllocation() {
     auto worker = [&](size_t id) {
         for (size_t i = 0; i < AllocationsPerThread; i++) {
             size_t index = (id * AllocationsPerThread) + i;
-            allocations[index] = SBAllocatorAllocateBlock(allocator, 100);
+            allocations[index] = SBAllocatorAllocateBlock(nullptr, 100);
             assert(allocations[index] != nullptr);
             memset(allocations[index], id + i, 100);  // Use the memory
         }
@@ -215,15 +202,13 @@ void AllocatorTests::testThreadSafeBlockAllocation() {
             assert(allocations[i] != allocations[j]);
         }
 
-        SBAllocatorDeallocateBlock(allocator, allocations[i]);
+        SBAllocatorDeallocateBlock(nullptr, allocations[i]);
     }
 #endif
 }
 
 void AllocatorTests::testThreadLocalScratchMemory() {
 #if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     constexpr int NumThreads = 16;
 
     vector<thread> threads;
@@ -232,7 +217,7 @@ void AllocatorTests::testThreadLocalScratchMemory() {
     size_t totalAllocations = 0;
 
     auto worker = [&](size_t id) {
-        void *pointer = SBAllocatorAllocateScratch(allocator, 100);
+        void *pointer = SBAllocatorAllocateScratch(nullptr, 100);
         threadPointers[id] = pointer;
         threadAllocations += 1;
 
@@ -249,7 +234,7 @@ void AllocatorTests::testThreadLocalScratchMemory() {
            this_thread::sleep_for(chrono::milliseconds(10));
         }
 
-        SBAllocatorResetScratch(allocator);
+        SBAllocatorResetScratch(nullptr);
     };
 
     for (size_t i = 0; i < NumThreads; i++) {
@@ -279,28 +264,28 @@ void AllocatorTests::testThreadLocalScratchMemory() {
 
 void AllocatorTests::testScratchMemoryExhaustion() {
 #if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
-
     vector<void *> allocations;
-    while (void *pointer = SBAllocatorAllocateScratch(allocator, SB_CONFIG_SCRATCH_BUFFER_SIZE / 4)) {
+    while (void *pointer = SBAllocatorAllocateScratch(nullptr, SB_CONFIG_SCRATCH_BUFFER_SIZE / 4)) {
         allocations.push_back(pointer);
     }
 
     // Should eventually return null when exhausted
-    assert(SBAllocatorAllocateScratch(allocator, 1) == nullptr);
+    assert(SBAllocatorAllocateScratch(nullptr, 1) == nullptr);
 
     // Reset should allow new allocations
-    SBAllocatorResetScratch(allocator);
-    void *pointer = SBAllocatorAllocateScratch(allocator, SB_CONFIG_SCRATCH_BUFFER_SIZE / 2);
+    SBAllocatorResetScratch(nullptr);
+    void *pointer = SBAllocatorAllocateScratch(nullptr, SB_CONFIG_SCRATCH_BUFFER_SIZE / 2);
     assert(pointer != nullptr);
 
-    SBAllocatorResetScratch(allocator);
+    SBAllocatorResetScratch(nullptr);
 #endif
 }
 
 void AllocatorTests::testCustomAllocatorProtocol() {
     struct Data {
-        uint8_t scratchBuffer[256];
+        uint8_t allocateBuffer[1] = { 0xAA };
+        uint8_t reallocateBuffer[1] = { 0xBB };
+        uint8_t scratchBuffer[1] = { 0xCC };
         size_t allocateCount = 0;
         size_t reallocateCount = 0;
         size_t deallocateCount = 0;
@@ -309,54 +294,44 @@ void AllocatorTests::testCustomAllocatorProtocol() {
         size_t finalizeCount = 0;
     } data;
 
-    auto allocateFunc = [](SBUInteger size, void *info) -> void * {
-        auto data = static_cast<Data *>(info);
-        data->allocateCount += 1;
-        return malloc(size);
-    };
-
-    auto reallocateFunc = [](void *pointer, SBUInteger newSize, void *info) -> void * {
-        auto data = static_cast<Data *>(info);
-        data->reallocateCount += 1;
-        return realloc(pointer, newSize);
-    };
-
-    auto deallocateFunc = [](void *pointer, void *info) {
-        auto data = static_cast<Data *>(info);
-        data->deallocateCount += 1;
-        free(pointer);
-    };
-
-    auto allocateScratchFunc = [](SBUInteger size, void *info) -> void * {
-        auto data = static_cast<Data *>(info);
-        data->allocateScratchCount += 1;
-        return data->scratchBuffer;
-    };
-
-    auto resetScratchFunc = [](void *info) {
-        auto data = static_cast<Data *>(info);
-        data->resetScratchCount += 1;
-    };
-
-    auto finalizeFunc = [](void *info) {
-        auto data = static_cast<Data *>(info);
-        data->finalizeCount += 1;
-    };
-
     SBAllocatorProtocol protocol = {
-        allocateFunc, reallocateFunc, deallocateFunc,
-        allocateScratchFunc, resetScratchFunc,
-        finalizeFunc
+        [](SBUInteger size, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->allocateCount += 1;
+            return data->allocateBuffer;
+        },
+        [](void *pointer, SBUInteger newSize, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->reallocateCount += 1;
+            return data->reallocateBuffer;
+        },
+        [](void *pointer, void *info) {
+            auto data = static_cast<Data *>(info);
+            data->deallocateCount += 1;
+        },
+        [](SBUInteger size, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->allocateScratchCount += 1;
+            return data->scratchBuffer;
+        },
+        [](void *info) {
+            auto data = static_cast<Data *>(info);
+            data->resetScratchCount += 1;
+        },
+        [](void *info) {
+            auto data = static_cast<Data *>(info);
+            data->finalizeCount += 1;
+        }
     };
 
     auto customAllocator = SBAllocatorCreate(&protocol, &data);
 
     void *pointer = SBAllocatorAllocateBlock(customAllocator, 100);
-    assert(pointer != nullptr);
+    assert(pointer == data.allocateBuffer);
     assert(data.allocateCount == 1);
 
     void *newPointer = SBAllocatorReallocateBlock(customAllocator, pointer, 200);
-    assert(newPointer != nullptr);
+    assert(newPointer == data.reallocateBuffer);
     assert(data.reallocateCount == 1);
 
     SBAllocatorDeallocateBlock(customAllocator, newPointer);
@@ -377,6 +352,136 @@ void AllocatorTests::testCustomAllocatorProtocol() {
 
     SBAllocatorRelease(customAllocator);
     assert(data.finalizeCount == 1);
+}
+
+void AllocatorTests::testDefaultAllocatorChanges() {
+    assert(SBAllocatorGetDefault() == nullptr);
+
+    struct Data {
+        uint8_t allocateBuffer[1] = { 0xAA };
+        uint8_t reallocateBuffer[1] = { 0xBB };
+        uint8_t scratchBuffer[1] = { 0xCC };
+        size_t allocateCount = 0;
+        size_t reallocateCount = 0;
+        size_t deallocateCount = 0;
+        size_t allocateScratchCount = 0;
+        size_t resetScratchCount = 0;
+    } data;
+
+    SBAllocatorProtocol protocol = {
+        [](SBUInteger size, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->allocateCount += 1;
+            return data->allocateBuffer;
+        },
+        [](void *pointer, SBUInteger newSize, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->reallocateCount += 1;
+            return data->reallocateBuffer;
+        },
+        [](void *pointer, void *info) {
+            auto data = static_cast<Data *>(info);
+            data->deallocateCount += 1;
+        },
+        [](SBUInteger size, void *info) -> void * {
+            auto data = static_cast<Data *>(info);
+            data->allocateScratchCount += 1;
+            return data->scratchBuffer;
+        },
+        [](void *info) {
+            auto data = static_cast<Data *>(info);
+            data->resetScratchCount += 1;
+        },
+        nullptr
+    };
+    SBAllocatorRef customAllocator = SBAllocatorCreate(&protocol, &data);
+
+    SBAllocatorSetDefault(customAllocator);
+    assert(SBAllocatorGetDefault() == customAllocator);
+
+    void *pointer = SBAllocatorAllocateBlock(nullptr, 100);
+    assert(pointer == data.allocateBuffer);
+    assert(data.allocateCount == 1);
+
+    void *newPointer = SBAllocatorReallocateBlock(nullptr, pointer, 200);
+    assert(newPointer == data.reallocateBuffer);
+    assert(data.reallocateCount == 1);
+
+    SBAllocatorDeallocateBlock(nullptr, newPointer);
+    assert(data.deallocateCount == 1);
+
+    void *scratchPointer = SBAllocatorAllocateScratch(nullptr, 100);
+    assert(scratchPointer == data.scratchBuffer);
+    assert(data.allocateScratchCount == 1);
+
+    SBAllocatorResetScratch(nullptr);
+    assert(data.resetScratchCount == 1);
+
+    SBAllocatorSetDefault(nullptr);
+    assert(SBAllocatorGetDefault() == nullptr);
+
+    SBAllocatorRelease(customAllocator);
+}
+
+void AllocatorTests::testThreadSafeDefaultAllocatorSwitch() {
+    constexpr size_t NumThreads = 8;
+    constexpr size_t Iterations = 1000;
+
+    vector<thread> threads;
+    atomic<size_t> allocationCounts[2] = { {0}, {0} };
+
+    SBAllocatorProtocol protocol = {
+        [](SBUInteger size, void *info) -> void * {
+            auto counter = static_cast<atomic<size_t> *>(info);
+            *counter += 1;
+            return malloc(size);
+        },
+        [](void *pointer, SBUInteger newSize, void *info) -> void * {
+            return realloc(pointer, newSize);
+        },
+        [](void *pointer, void *info) {
+            free(pointer);
+        },
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    // Create two custom allocators
+    SBAllocatorRef allocators[2] = {
+        SBAllocatorCreate(&protocol, &allocationCounts[0]),
+        SBAllocatorCreate(&protocol, &allocationCounts[1])
+    };
+
+    auto worker = [&]() {
+        for (size_t i = 0; i < Iterations; i++) {
+            // Randomly switch between allocators
+            auto which = rand() % 2;
+            SBAllocatorSetDefault(allocators[which]);
+
+            // Do some allocations
+            void *pointer = SBAllocatorAllocateBlock(nullptr, 16);
+            if (pointer) {
+                SBAllocatorDeallocateBlock(nullptr, pointer);
+            }
+        }
+    };
+
+    // Threads will randomly switch the default allocator
+    for (size_t i = 0; i < NumThreads; i++) {
+        threads.emplace_back(worker);
+    }
+
+    for (auto &t : threads) {
+        t.join();
+    }
+
+    // Verify both allocators were used
+    assert(allocationCounts[0] > 0);
+    assert(allocationCounts[1] > 0);
+    assert((allocationCounts[0] + allocationCounts[1]) == (NumThreads * Iterations));
+
+    // Reset to original
+    SBAllocatorSetDefault(nullptr);
 }
 
 #ifdef STANDALONE_TESTING

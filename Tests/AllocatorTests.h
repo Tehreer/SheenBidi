@@ -37,6 +37,8 @@ private:
     void testThreadLocalScratchMemory();
     void testScratchMemoryExhaustion();
     void testCustomAllocatorProtocol();
+    void testDefaultAllocatorChanges();
+    void testThreadSafeDefaultAllocatorSwitch();
 };
 
 }
