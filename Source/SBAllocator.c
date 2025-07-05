@@ -198,7 +198,7 @@ static void FinalizeAllocator(ObjectRef object)
     }
 }
 
-SB_INTERNAL SBAllocatorRef SBAllocatorGetCurrent(void)
+static SBAllocatorRef SBAllocatorGetCurrent(void)
 {
     SBAllocatorRef allocator = AtomicPointerLoad(&DefaultAllocator);
 
@@ -211,23 +211,41 @@ SB_INTERNAL SBAllocatorRef SBAllocatorGetCurrent(void)
 
 SB_INTERNAL void *SBAllocatorAllocateBlock(SBAllocatorRef allocator, SBUInteger size)
 {
+    if (!allocator) {
+        allocator = SBAllocatorGetCurrent();
+    }
+
     return allocator->_protocol.allocateBlock(size, allocator->_info);
 }
 
 SB_INTERNAL void *SBAllocatorReallocateBlock(SBAllocatorRef allocator, void *pointer, SBUInteger newSize)
 {
+    if (!allocator) {
+        allocator = SBAllocatorGetCurrent();
+    }
+
     return allocator->_protocol.reallocateBlock(pointer, newSize, allocator->_info);
 }
 
 SB_INTERNAL void SBAllocatorDeallocateBlock(SBAllocatorRef allocator, void *pointer)
 {
+    if (!allocator) {
+        allocator = SBAllocatorGetCurrent();
+    }
+
     allocator->_protocol.deallocateBlock(pointer, allocator->_info);
 }
 
 SB_INTERNAL void *SBAllocatorAllocateScratch(SBAllocatorRef allocator, SBUInteger size)
 {
-    SBAllocatorAllocateScratchFunc func = allocator->_protocol.allocateScratch;
+    SBAllocatorAllocateScratchFunc func;
     void *pointer = NULL;
+
+    if (!allocator) {
+        allocator = SBAllocatorGetCurrent();
+    }
+
+    func = allocator->_protocol.allocateScratch;
 
     if (func) {
         pointer = func(size, allocator->_info);
@@ -238,7 +256,13 @@ SB_INTERNAL void *SBAllocatorAllocateScratch(SBAllocatorRef allocator, SBUIntege
 
 SB_INTERNAL void SBAllocatorResetScratch(SBAllocatorRef allocator)
 {
-    SBAllocatorResetScratchFunc func = allocator->_protocol.resetScratch;
+    SBAllocatorResetScratchFunc func;
+
+    if (!allocator) {
+        allocator = SBAllocatorGetCurrent();
+    }
+
+    func = allocator->_protocol.resetScratch;
 
     if (func) {
         func(allocator->_info);
@@ -252,7 +276,7 @@ SBAllocatorRef SBAllocatorGetDefault(void)
 
 void SBAllocatorSetDefault(SBAllocatorRef allocator)
 {
-    AtomicPointerStore(&DefaultAllocator, allocator);
+    AtomicPointerStore(&DefaultAllocator, (SBAllocator *)allocator);
 }
 
 SBAllocatorRef SBAllocatorCreate(const SBAllocatorProtocol *protocol, void *info)

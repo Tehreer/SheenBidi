@@ -648,7 +648,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
         }
 
         MemoryFinalize(&memory);
-        SBAllocatorResetScratch(SBAllocatorGetCurrent());
+        SBAllocatorResetScratch(NULL);
     }
 
     SB_LOG_BREAKER();

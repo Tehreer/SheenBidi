@@ -61,14 +61,13 @@ SB_INTERNAL void MemoryInitialize(MemoryRef memory)
 
 SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, MemoryType type, SBUInteger size)
 {
-    SBAllocatorRef allocator = SBAllocatorGetCurrent();
     void *pointer = NULL;
 
     /* Size MUST be greater than zero. */
     SBAssert(size > 0);
 
     if (type == MemoryTypeScratch) {
-        pointer = SBAllocatorAllocateScratch(allocator, size);
+        pointer = SBAllocatorAllocateScratch(NULL, size);
     }
 
     if (!pointer) {
@@ -77,7 +76,7 @@ SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, MemoryType type, SBUInte
         if (memoryList) {
             const SBUInteger headerSize = sizeof(MemoryBlock);
 
-            pointer = SBAllocatorAllocateBlock(allocator, headerSize + size);
+            pointer = SBAllocatorAllocateBlock(NULL, headerSize + size);
 
             if (pointer) {
                 SBUInt8 *base = pointer;
@@ -94,7 +93,7 @@ SB_INTERNAL void *MemoryAllocateBlock(MemoryRef memory, MemoryType type, SBUInte
         } else {
             const SBUInteger headerSize = sizeof(MemoryList);
 
-            pointer = SBAllocatorAllocateBlock(allocator, headerSize + size);
+            pointer = SBAllocatorAllocateBlock(NULL, headerSize + size);
 
             if (pointer) {
                 SBUInt8 *base = pointer;
@@ -138,13 +137,12 @@ SB_INTERNAL void MemoryFinalize(MemoryRef memory)
     MemoryListRef memoryList = memory->_list;
 
     if (memoryList) {
-        SBAllocatorRef allocator = SBAllocatorGetCurrent();
         MemoryBlockRef block = &memoryList->first;
 
         while (block) {
             MemoryBlockRef next = block->next;
             /* Deallocate the block along with its data as they were allocated together. */
-            SBAllocatorDeallocateBlock(allocator, block);
+            SBAllocatorDeallocateBlock(NULL, block);
 
             block = next;
         }

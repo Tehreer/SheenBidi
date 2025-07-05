@@ -285,7 +285,7 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
     }
 
     MemoryFinalize(&memory);
-    SBAllocatorResetScratch(SBAllocatorGetCurrent());
+    SBAllocatorResetScratch(NULL);
 
     return line;
 }

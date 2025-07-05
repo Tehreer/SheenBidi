@@ -38,8 +38,6 @@ typedef struct _SBAllocator {
     }                                                                    \
 }
 
-SB_INTERNAL SBAllocatorRef SBAllocatorGetCurrent(void);
-
 SB_INTERNAL void *SBAllocatorAllocateBlock(SBAllocatorRef allocator, SBUInteger size);
 SB_INTERNAL void *SBAllocatorReallocateBlock(SBAllocatorRef allocator, void *pointer, SBUInteger newSize);
 SB_INTERNAL void SBAllocatorDeallocateBlock(SBAllocatorRef allocator, void *pointer);
