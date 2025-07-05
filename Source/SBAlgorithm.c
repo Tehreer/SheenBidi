@@ -178,14 +178,15 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBUInteger stringLength = codepointSequence->stringLength;
+    SBParagraphRef paragraph = NULL;
 
     SBUIntegerNormalizeRange(stringLength, &paragraphOffset, &suggestedLength);
 
     if (suggestedLength > 0) {
-        return SBParagraphCreate(algorithm, paragraphOffset, suggestedLength, baseLevel);
+        paragraph = SBParagraphCreate(algorithm, paragraphOffset, suggestedLength, baseLevel);
     }
 
-    return NULL;
+    return paragraph;
 }
 
 SBAlgorithmRef SBAlgorithmRetain(SBAlgorithmRef algorithm)
