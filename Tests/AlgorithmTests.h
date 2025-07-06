@@ -36,8 +36,11 @@ public:
         const Parser::BidiMirroring &bidiMirroring);
 
     void run();
-    void testAlgorithm();
-    void testMulticharNewline();
+
+    void testBidiTypes();
+    void testParagraphBoundary();
+    void testParagraphCreation();
+    void testBidiAlgorithm();
 
 private:
     Parser::BidiTest &m_bidiTest;

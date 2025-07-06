@@ -41,8 +41,8 @@ using namespace SheenBidi::Utilities;
 constexpr uint8_t LEVEL_X = UINT8_MAX;
 
 struct TestInput {
-    const SBCodepoint *codePointBuffer;
-    SBUInteger codePointCount;
+    const SBCodepoint *codePoints;
+    SBUInteger count;
     SBLevel baseLevel;
     SBMirrorLocatorRef mirrorLocator;
 };
@@ -52,68 +52,71 @@ struct TestOutput {
     const vector<uint8_t> &levels;
     const vector<size_t> &order;
     const uint32_t *mirrors;
-    size_t mirrorCount;
+    size_t foundMirrors;
 };
 
-static bool testLevels(const TestInput &input, const TestOutput &output, SBLineRef line, SBLevel paragraphLevel);
-static bool testOrder(const TestInput &input, const TestOutput &output, SBLineRef line);
-static bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef line);
+static bool checkLevels(const TestInput &input, const TestOutput &output, SBLineRef line, SBLevel paragraphLevel);
+static bool checkVisualOrder(const TestInput &input, const TestOutput &output, SBLineRef line);
+static bool checkMirrors(const TestInput &input, const TestOutput &output, SBLineRef line);
 
-static SBUInteger loadCodePoints(const vector<uint32_t> &codePoints, SBCodepoint *codePointBuffer) {
-    for (auto &cp : codePoints) {
-        *(codePointBuffer++) = cp;
+static void printTestCase(size_t testNumber, const BidiTest::TestCase &testCase);
+static void printTestCase(size_t testNumber, const BidiCharacterTest::TestCase &testCase);
+
+static SBUInteger fillCodePoints(const vector<uint32_t> &source, SBCodepoint *codePoints) {
+    for (auto &cp : source) {
+        *(codePoints++) = cp;
     }
 
-    return codePoints.size();
+    return source.size();
 }
 
-static SBUInteger loadCodePoints(const vector<string> &bidiTypes, SBCodepoint *codePointBuffer) {
+static SBUInteger fillCodePoints(const vector<string> &bidiTypes, SBCodepoint *codePoints) {
     for (auto &t : bidiTypes) {
-        *(codePointBuffer++) = Convert::toCodePoint(t);
+        *(codePoints++) = Convert::toCodePoint(t);
     }
 
     return bidiTypes.size();
 }
 
-static size_t loadMirrors(const BidiMirroring &bidiMirroring,
-    const SBCodepoint *codePointBuffer, SBUInteger codePointCount,
-    const vector<uint8_t> &levels, uint32_t *mirrorBuffer)
+static size_t fillMirrors(const BidiMirroring &bidiMirroring,
+    const SBCodepoint *codePoints, SBUInteger count,
+    const vector<uint8_t> &levels, uint32_t *mirrors)
 {
-    size_t mirrorCount = 0;
+    size_t foundMirrors = 0;
 
-    for (size_t i = 0; i < codePointCount; i++) {
+    for (size_t i = 0; i < count; i++) {
         auto level = levels.at(i);
         if (level & 1) {
-            mirrorBuffer[i] = bidiMirroring.mirrorOf(codePointBuffer[i]);
-            if (mirrorBuffer[i]) {
-                mirrorCount += 1;
+            mirrors[i] = bidiMirroring.mirrorOf(codePoints[i]);
+            if (mirrors[i]) {
+                foundMirrors += 1;
             }
         } else {
-            mirrorBuffer[i] = 0;
+            mirrors[i] = 0;
         }
     }
 
-    return mirrorCount;
+    return foundMirrors;
 }
 
-static bool testAlgorithm(const TestInput &input, const TestOutput &output) {
+static bool runBidiTest(const TestInput &input, const TestOutput &output) {
     bool passed = true;
 
     SBCodepointSequence sequence;
     sequence.stringEncoding = SBStringEncodingUTF32;
-    sequence.stringBuffer = input.codePointBuffer;
-    sequence.stringLength = input.codePointCount;
+    sequence.stringBuffer = input.codePoints;
+    sequence.stringLength = input.count;
 
     auto algorithm = SBAlgorithmCreate(&sequence);
-    auto paragraph = SBAlgorithmCreateParagraph(algorithm, 0, input.codePointCount, input.baseLevel);
+    auto paragraph = SBAlgorithmCreateParagraph(algorithm, 0, input.count, input.baseLevel);
     auto paragraphlevel = SBParagraphGetBaseLevel(paragraph);
 
     if (paragraphlevel == output.paragraphLevel || output.paragraphLevel == LEVEL_X) {
-        auto line = SBParagraphCreateLine(paragraph, 0, input.codePointCount);
+        auto line = SBParagraphCreateLine(paragraph, 0, input.count);
 
-        passed &= testLevels(input, output, line, paragraphlevel);
-        passed &= testOrder(input, output, line);
-        passed &= testMirrors(input, output, line);
+        passed &= checkLevels(input, output, line, paragraphlevel);
+        passed &= checkVisualOrder(input, output, line);
+        passed &= checkMirrors(input, output, line);
 
         SBLineRelease(line);
     } else {
@@ -122,8 +125,7 @@ static bool testAlgorithm(const TestInput &input, const TestOutput &output) {
             cout << "  Discovered Paragraph Level: " << (int)paragraphlevel << endl;
             cout << "  Expected Paragraph Level: " << (int)output.paragraphLevel << endl;
         }
-
-        passed &= false;
+        passed = false;
     }
 
     SBParagraphRelease(paragraph);
@@ -132,7 +134,7 @@ static bool testAlgorithm(const TestInput &input, const TestOutput &output) {
     return passed;
 }
 
-static bool testLevels(const TestInput &input, const TestOutput &output, SBLineRef line, SBLevel paragraphLevel) {
+static bool checkLevels(const TestInput &input, const TestOutput &output, SBLineRef line, SBLevel paragraphLevel) {
     auto runArray = SBLineGetRunsPtr(line);
     auto runCount = SBLineGetRunCount(line);
 
@@ -142,10 +144,10 @@ static bool testLevels(const TestInput &input, const TestOutput &output, SBLineR
         auto end = start + runPtr->length - 1;
         auto level = runPtr->level;
 
-        if (end >= input.codePointCount) {
+        if (end >= input.count) {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Test failed due to invalid run indexes." << endl;
-                cout << "  Text Length: " << input.codePointCount << endl;
+                cout << "  Text Length: " << input.count << endl;
                 cout << "  Run Start Index: " << start << endl;
                 cout << "  Run End Index: " << end << endl;
             }
@@ -185,7 +187,7 @@ static bool testLevels(const TestInput &input, const TestOutput &output, SBLineR
     return true;
 }
 
-bool testOrder(const TestInput &input, const TestOutput &output, SBLineRef line) {
+static bool checkVisualOrder(const TestInput &input, const TestOutput &output, SBLineRef line) {
     bool passed = true;
 
     auto runArray = SBLineGetRunsPtr(line);
@@ -247,8 +249,8 @@ bool testOrder(const TestInput &input, const TestOutput &output, SBLineRef line)
     return passed;
 }
 
-bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef line) {
-    SBMirrorLocatorLoadLine(input.mirrorLocator, line, input.codePointBuffer);
+static bool checkMirrors(const TestInput &input, const TestOutput &output, SBLineRef line) {
+    SBMirrorLocatorLoadLine(input.mirrorLocator, line, input.codePoints);
 
     auto agent = SBMirrorLocatorGetAgent(input.mirrorLocator);
     SBMirrorLocatorReset(input.mirrorLocator);
@@ -256,7 +258,7 @@ bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef lin
     size_t locatedMirrors = 0;
 
     while (SBMirrorLocatorMoveNext(input.mirrorLocator)) {
-        if (agent->index < input.codePointCount) {
+        if (agent->index < input.count) {
             if (agent->mirror == output.mirrors[agent->index]) {
                 locatedMirrors += 1;
             } else {
@@ -278,7 +280,7 @@ bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef lin
         } else {
             if (Configuration::DISPLAY_ERROR_DETAILS) {
                 cout << "Test failed due to invalid mirror index." << endl;
-                cout << "  Text Length: " << input.codePointCount;
+                cout << "  Text Length: " << input.count;
                 cout << "  Located Index: " << agent->index << endl;
             }
 
@@ -286,11 +288,11 @@ bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef lin
         }
     }
 
-    if (locatedMirrors != output.mirrorCount) {
+    if (locatedMirrors != output.foundMirrors) {
         if (Configuration::DISPLAY_ERROR_DETAILS) {
             cout << "Test failed due to mismatch in mirror count." << endl;
             cout << "  Discovered Mirrors: " << locatedMirrors << endl;
-            cout << "  Expected Mirrors: " << output.mirrorCount << endl;
+            cout << "  Expected Mirrors: " << output.foundMirrors << endl;
         }
 
         return false;
@@ -299,9 +301,56 @@ bool testMirrors(const TestInput &input, const TestOutput &output, SBLineRef lin
     return true;
 }
 
-static void displayTestCase(size_t testCounter, const BidiTest::TestCase &testCase) {
+static size_t runBidiTestCases(BidiTest &bidiTest, const BidiMirroring &bidiMirroring) {
+    auto mirrorLocator = SBMirrorLocatorCreate();
+
+    SBCodepoint codePoints[256] = { 0 };
+    SBCodepoint mirrors[256] = { 0 };
+
+    size_t testNumber = 0;
+    size_t failures = 0;
+
+    auto &testCase = bidiTest.testCase();
+    bidiTest.reset();
+
+    for (; bidiTest.fetchNext(); testNumber++) {
+        bool passed = true;
+
+        printTestCase(testNumber, testCase);
+
+        auto count = fillCodePoints(testCase.types, codePoints);
+        auto foundMirrors = fillMirrors(bidiMirroring, codePoints, count,
+            testCase.levels, mirrors);
+
+        if (testCase.directions & BidiTest::ParagraphDirection::Auto) {
+            passed &= runBidiTest(
+                {codePoints, count, SBLevelDefaultLTR, mirrorLocator},
+                {LEVEL_X, testCase.levels, testCase.order, mirrors, foundMirrors});
+        }
+        if (testCase.directions & BidiTest::ParagraphDirection::LTR) {
+            passed &= runBidiTest(
+                {codePoints, count, 0, mirrorLocator},
+                {LEVEL_X, testCase.levels, testCase.order, mirrors, foundMirrors});
+        }
+        if (testCase.directions & BidiTest::ParagraphDirection::RTL) {
+            passed &= runBidiTest(
+                {codePoints, count, 1, mirrorLocator},
+                {LEVEL_X, testCase.levels, testCase.order, mirrors, foundMirrors});
+        }
+
+        if (!passed) {
+            failures += 1;
+        }
+    }
+
+    SBMirrorLocatorRelease(mirrorLocator);
+
+    return failures;
+}
+
+static void printTestCase(size_t testNumber, const BidiTest::TestCase &testCase) {
     if (Configuration::DISPLAY_TEST_CASE) {
-        cout << "Bidi Test # " << testCounter << ':' << endl;
+        cout << "Bidi Test #" << testNumber << ':' << endl;
 
         cout << "Paragraph Directions: " << endl << '\t';
         if (testCase.directions & BidiTest::ParagraphDirection::Auto) {
@@ -344,9 +393,54 @@ static void displayTestCase(size_t testCounter, const BidiTest::TestCase &testCa
     }
 }
 
-static void displayTestCase(size_t testCounter, const BidiCharacterTest::TestCase &testCase) {
+static size_t runBidiCharacterTestCases(BidiCharacterTest &bidiCharacterTest, const BidiMirroring &bidiMirroring) {
+    auto mirrorLocator = SBMirrorLocatorCreate();
+
+    SBCodepoint codePoints[256] = { 0 };
+    SBCodepoint mirrors[256] = { 0 };
+
+    size_t testNumber = 0;
+    size_t failures = 0;
+
+    auto &testCase = bidiCharacterTest.testCase();
+    bidiCharacterTest.reset();
+
+    for (; bidiCharacterTest.fetchNext(); testNumber++) {
+        printTestCase(testNumber, testCase);
+
+        auto count = fillCodePoints(testCase.text, codePoints);
+        auto foundMirrors = fillMirrors(bidiMirroring, codePoints, count,
+            testCase.levels, mirrors);
+        SBLevel inputLevel;
+
+        switch (testCase.paragraphDirection) {
+        case BidiCharacterTest::ParagraphDirection::LTR:
+            inputLevel = 0;
+            break;
+        case BidiCharacterTest::ParagraphDirection::RTL:
+            inputLevel = 1;
+            break;
+        default:
+            inputLevel = SBLevelDefaultLTR;
+            break;
+        }
+
+        if (!runBidiTest(
+                {codePoints, count, inputLevel, mirrorLocator},
+                {testCase.paragraphLevel, testCase.levels, testCase.order,
+                    mirrors, foundMirrors})) {
+            failures += 1;
+        }
+    }
+
+    SBMirrorLocatorRelease(mirrorLocator);
+
+    return failures;
+}
+
+static void printTestCase(size_t testNumber, const BidiCharacterTest::TestCase &testCase) {
     if (Configuration::DISPLAY_TEST_CASE) {
-        cout << "Bidi Character Test # " << testCounter << endl;
+        cout << "Bidi Character Test #" << testNumber << endl;
 
         cout << "Paragraph Direction: " << endl << '\t';
         switch (testCase.paragraphDirection) {
@@ -398,101 +492,6 @@ static void displayTestCase(size_t testCounter, const BidiCharacterTest::TestCas
     }
 }
 
-static size_t testAllCases(BidiTest &bidiTest, const BidiMirroring &bidiMirroring) {
-    auto mirrorLocator = SBMirrorLocatorCreate();
-
-    SBCodepoint codePointBuffer[256] = { 0 };
-    SBCodepoint mirrorBuffer[256] = { 0 };
-
-    size_t testCounter = 0;
-    size_t failures = 0;
-
-    auto &testCase = bidiTest.testCase();
-    bidiTest.reset();
-
-    for (; bidiTest.fetchNext(); testCounter++) {
-        displayTestCase(testCounter, testCase);
-
-        bool passed = true;
-        auto codePointCount = loadCodePoints(testCase.types, codePointBuffer);
-        auto mirrorCount = loadMirrors(bidiMirroring, codePointBuffer, codePointCount,
-            testCase.levels, mirrorBuffer);
-
-        if (testCase.directions & BidiTest::ParagraphDirection::Auto) {
-            passed &= testAlgorithm(
-                { codePointBuffer, codePointCount, SBLevelDefaultLTR, mirrorLocator },
-                { LEVEL_X, testCase.levels, testCase.order, mirrorBuffer, mirrorCount });
-        }
-
-        if (testCase.directions & BidiTest::ParagraphDirection::LTR) {
-            passed &= testAlgorithm(
-                { codePointBuffer, codePointCount, 0, mirrorLocator },
-                { LEVEL_X, testCase.levels, testCase.order, mirrorBuffer, mirrorCount });
-        }
-
-        if (testCase.directions & BidiTest::ParagraphDirection::RTL) {
-            passed &= testAlgorithm(
-                { codePointBuffer, codePointCount, 1, mirrorLocator },
-                { LEVEL_X, testCase.levels, testCase.order, mirrorBuffer, mirrorCount });
-        }
-
-        if (!passed) {
-            failures += 1;
-        }
-    }
-
-    SBMirrorLocatorRelease(mirrorLocator);
-
-    return failures;
-}
-
-static size_t testAllCases(BidiCharacterTest &bidiCharacterTest, const BidiMirroring &bidiMirroring) {
-    auto mirrorLocator = SBMirrorLocatorCreate();
-
-    SBCodepoint codePointBuffer[256] = { 0 };
-    SBCodepoint mirrorBuffer[256] = { 0 };
-
-    size_t testCounter = 0;
-    size_t failures = 0;
-
-    auto &testCase = bidiCharacterTest.testCase();
-    bidiCharacterTest.reset();
-
-    for (; bidiCharacterTest.fetchNext(); testCounter++) {
-        displayTestCase(testCounter, testCase);
-
-        auto codePointCount = loadCodePoints(testCase.text, codePointBuffer);
-        auto mirrorCount = loadMirrors(bidiMirroring, codePointBuffer, codePointCount,
-            testCase.levels, mirrorBuffer);
-        SBLevel inputLevel;
-
-        switch (testCase.paragraphDirection) {
-        case BidiCharacterTest::ParagraphDirection::LTR:
-            inputLevel = 0;
-            break;
-
-        case BidiCharacterTest::ParagraphDirection::RTL:
-            inputLevel = 1;
-            break;
-
-        default:
-            inputLevel = SBLevelDefaultLTR;
-            break;
-        }
-
-        if (!testAlgorithm(
-                { codePointBuffer, codePointCount, inputLevel, mirrorLocator },
-                { testCase.paragraphLevel, testCase.levels, testCase.order,
-                  mirrorBuffer, mirrorCount })) {
-            failures += 1;
-        }
-    }
-
-    SBMirrorLocatorRelease(mirrorLocator);
-
-    return failures;
-}
-
 AlgorithmTests::AlgorithmTests(BidiTest &bidiTest, BidiCharacterTest &bidiCharacterTest,
     const BidiMirroring &bidiMirroring) :
     m_bidiTest(bidiTest),
@@ -503,16 +502,18 @@ AlgorithmTests::AlgorithmTests(BidiTest &bidiTest, BidiCharacterTest &bidiCharac
 
 void AlgorithmTests::run()
 {
-    testAlgorithm();
-    testMulticharNewline();
+    testBidiTypes();
+    testParagraphBoundary();
+    testParagraphCreation();
+    testBidiAlgorithm();
 }
 
-void AlgorithmTests::testAlgorithm() {
-    cout << "Running algorithm tests." << endl;
+void AlgorithmTests::testBidiAlgorithm() {
+    cout << "Running bidi algorithm tests." << endl;
 
     size_t failures = 0;
-    failures += testAllCases(m_bidiTest, m_bidiMirroring);
-    failures += testAllCases(m_bidiCharacterTest, m_bidiMirroring);
+    failures += runBidiTestCases(m_bidiTest, m_bidiMirroring);
+    failures += runBidiCharacterTestCases(m_bidiCharacterTest, m_bidiMirroring);
 
     cout << failures << " error/s." << endl;
     cout << endl;
@@ -520,56 +521,187 @@ void AlgorithmTests::testAlgorithm() {
     assert(failures == 0);
 }
 
-void AlgorithmTests::testMulticharNewline() {
-    cout << "Running multi character new line test." << endl;
+void AlgorithmTests::testBidiTypes() {
+    cout << "Running bidi types tests." << endl;
 
-    size_t failed = 0;
-    SBCodepoint codepointArray[] = { 'L', 'i', 'n', 'e', '\r', '\n', '.' };
-    SBUInteger codepointCount = sizeof(codepointArray) / sizeof(SBCodepoint);
+    struct Entry {
+        char32_t codePoint;
+        SBBidiType bidiType;
+    };
+
+    // List of representative characters, one per Bidi_Class
+    const vector<Entry> entries = {
+        {U'\u0041', SBBidiTypeL},    // L   (Latin Capital Letter A)
+        {U'\u05D0', SBBidiTypeR},    // R   (Hebrew Letter Alef)
+        {U'\u0627', SBBidiTypeAL},   // AL  (Arabic Letter Alef)
+        {U'\u202D', SBBidiTypeLRO},  // LRO (Left-to-Right Override)
+        {U'\u202E', SBBidiTypeRLO},  // RLO (Right-to-Left Override)
+        {U'\u202A', SBBidiTypeLRE},  // LRE (Left-to-Right Embedding)
+        {U'\u202B', SBBidiTypeRLE},  // RLE (Right-to-Left Embedding)
+        {U'\u202C', SBBidiTypePDF},  // PDF (Pop Directional Format)
+        {U'\u2066', SBBidiTypeLRI},  // LRI (Left-to-Right Isolate)
+        {U'\u2067', SBBidiTypeRLI},  // RLI (Right-to-Left Isolate)
+        {U'\u2068', SBBidiTypeFSI},  // FSI (First Strong Isolate)
+        {U'\u2069', SBBidiTypePDI},  // PDI (Pop Directional Isolate)
+        {U'\u0030', SBBidiTypeEN},   // EN  (European Number)
+        {U'\u002B', SBBidiTypeES},   // ES  (Plus Sign - European Separator)
+        {U'\u0025', SBBidiTypeET},   // ET  (Percent Sign - European Terminator)
+        {U'\u0660', SBBidiTypeAN},   // AN  (Arabic-Indic Digit Zero)
+        {U'\u002C', SBBidiTypeCS},   // CS  (Comma - Common Separator)
+        {U'\u0020', SBBidiTypeWS},   // WS  (Space - Whitespace)
+        {U'\u0009', SBBidiTypeS},    // S   (Tab - Segment Separator)
+        {U'\u000A', SBBidiTypeB},    // B   (Line Feed - Paragraph Separator)
+        {U'\u2060', SBBidiTypeBN},   // BN  (Word Joiner - Boundary Neutral)
+        {U'\u0021', SBBidiTypeON}    // ON  (Exclamation Mark - Other Neutrals)
+    };
+
+    u32string sample;
+    for (auto &e : entries) {
+        sample += e.codePoint;
+    }
 
     SBCodepointSequence sequence;
     sequence.stringEncoding = SBStringEncodingUTF32;
-    sequence.stringBuffer = codepointArray;
-    sequence.stringLength = codepointCount;
+    sequence.stringBuffer = sample.data();
+    sequence.stringLength = sample.length();
 
     auto algorithm = SBAlgorithmCreate(&sequence);
-    auto paragraph = SBAlgorithmCreateParagraph(algorithm, 0, codepointCount, 0);
-    auto offset = SBParagraphGetOffset(paragraph);
-    auto length = SBParagraphGetLength(paragraph);
-    auto levels = SBParagraphGetLevelsPtr(paragraph);
+    auto bidiTypes = SBAlgorithmGetBidiTypesPtr(algorithm);
 
-    if (offset != 0 && length != 6) {
-        failed = 1;
-
-        if (Configuration::DISPLAY_ERROR_DETAILS) {
-            cout << "Test failed due to invalid paragraph range." << endl;
-            cout << "  Paragraph Offset: " << offset << endl;
-            cout << "  Paragraph Length: " << length << endl;
-            cout << "  Expected Offset: " << 0 << endl;
-            cout << "  Expected Length: " << 6 << endl;
-        }
+    for (size_t i = 0; i < sample.length(); i++) {
+        assert(bidiTypes[i] == entries[i].bidiType);
     }
 
-    for (size_t i = 0; i < length; i++) {
-        if (levels[i] != 0) {
-            failed = 1;
-
-            if (Configuration::DISPLAY_ERROR_DETAILS) {
-                cout << "Test failed due to level mismatch." << endl;
-                cout << "  Text Index: " << i << endl;
-                cout << "  Discovered Level: " << (int)levels[i] << endl;
-                cout << "  Expected Level: " << 0 << endl;
-            }
-        }
-    }
-
-    SBParagraphRelease(paragraph);
     SBAlgorithmRelease(algorithm);
 
-    cout << failed << " error/s." << endl;
+    cout << "Passed." << endl;
     cout << endl;
+}
 
-    assert(failed == false);
+void AlgorithmTests::testParagraphBoundary() {
+    cout << "Running paragraph boundary tests." << endl;
+
+    u16string text = u"abcdابجد\r\n";
+
+    SBCodepointSequence sequence;
+    sequence.stringEncoding = SBStringEncodingUTF16;
+    sequence.stringBuffer = text.data();
+    sequence.stringLength = text.length();
+
+    auto algorithm = SBAlgorithmCreate(&sequence);
+    SBAlgorithmGetParagraphBoundary(algorithm, 0, 10, nullptr, nullptr);
+
+    struct Input {
+        SBUInteger paragraphOffset;
+        SBUInteger suggestedLength;
+    };
+    struct Output {
+        SBUInteger actualLength;
+        SBUInteger separatorLength;
+    };
+
+    auto test = [&](const Input &input, const Output &output) {
+        SBUInteger actualLength = UINTPTR_MAX;
+        SBUInteger separatorLength = UINTPTR_MAX;
+
+        SBAlgorithmGetParagraphBoundary(algorithm, input.paragraphOffset, input.suggestedLength,
+            &actualLength, &separatorLength);
+
+        assert(actualLength == output.actualLength);
+        assert(separatorLength == output.separatorLength);
+    };
+
+    test({0, 0}, {0, 0});
+    test({0, 4}, {4, 0});
+    test({0, 8}, {8, 0});
+    test({0, 9}, {10, 2});
+    test({0, 10}, {10, 2});
+    test({0, UINTPTR_MAX}, {10, 2});
+    test({4, 0}, {0, 0});
+    test({4, 4}, {4, 0});
+    test({4, 5}, {6, 2});
+    test({4, 6}, {6, 2});
+    test({4, UINTPTR_MAX}, {6, 2});
+    test({8, 0}, {0, 0});
+    test({8, 1}, {2, 2});
+    test({8, 2}, {2, 2});
+    test({10, 0}, {0, 0});
+    test({10, UINTPTR_MAX}, {0, 0});
+    test({UINTPTR_MAX, 0}, {0, 0});
+    test({UINTPTR_MAX, UINTPTR_MAX}, {0, 0});
+
+    SBAlgorithmRelease(algorithm);
+
+    cout << "Passed." << endl;
+    cout << endl;
+}
+
+void AlgorithmTests::testParagraphCreation() {
+    cout << "Running paragraph creation tests." << endl;
+
+    string text = "Line\r\n.";
+
+    SBCodepointSequence sequence;
+    sequence.stringEncoding = SBStringEncodingUTF8;
+    sequence.stringBuffer = text.data();
+    sequence.stringLength = text.length();
+
+    auto algorithm = SBAlgorithmCreate(&sequence);
+
+    struct Input {
+        SBUInteger paragraphOffset;
+        SBUInteger suggestedLength;
+    };
+    struct Output {
+        SBUInteger paragraphLength;
+    };
+
+    auto test = [&](const Input &input, const Output &output) {
+        auto paragraph = SBAlgorithmCreateParagraph(algorithm, input.paragraphOffset, input.suggestedLength, 0);
+
+        if (output.paragraphLength == 0) {
+            assert(paragraph == nullptr);
+        } else {
+            assert(paragraph != nullptr);
+
+            auto actualOffset = SBParagraphGetOffset(paragraph);
+            auto actualLength = SBParagraphGetLength(paragraph);
+            auto levels = SBParagraphGetLevelsPtr(paragraph);
+
+            assert(actualOffset == input.paragraphOffset);
+            assert(actualLength == output.paragraphLength);
+
+            for (size_t i = 0; i < actualLength; i++) {
+                assert(levels[i] == 0);
+            }
+
+            SBParagraphRelease(paragraph);
+        }
+    };
+
+    test({0, 0}, {0});
+    test({0, 4}, {4});
+    test({0, 5}, {6});
+    test({0, 6}, {6});
+    test({0, 7}, {6});
+    test({0, UINTPTR_MAX}, {6});
+    test({4, 0}, {0});
+    test({4, 1}, {2});
+    test({4, 2}, {2});
+    test({4, 3}, {2});
+    test({4, UINTPTR_MAX}, {2});
+    test({6, 0}, {0});
+    test({6, 1}, {1});
+    test({6, UINTPTR_MAX}, {1});
+    test({7, 0}, {0});
+    test({7, UINTPTR_MAX}, {0});
+    test({UINTPTR_MAX, 0}, {0});
+    test({UINTPTR_MAX, UINTPTR_MAX}, {0});
+
+    SBAlgorithmRelease(algorithm);
+
+    cout << "Passed." << endl;
+    cout << endl;
 }
 
 #ifdef STANDALONE_TESTING
