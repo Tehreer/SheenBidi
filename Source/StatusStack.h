@@ -22,26 +22,28 @@
 
 #include "Memory.h"
 
-#define _StatusStackList_Length         16
-#define _StatusStackList_MaxIndex       (_StatusStackList_Length - 1)
+#define StatusStackEmbeddedElementCount     16
+#define StatusStackMaxCapacity              127
 
 typedef struct _StatusStackElement {
     SBBoolean isolateStatus;
     SBBidiType overrideStatus;
     SBLevel embeddingLevel;
-} _StatusStackElement, *_StatusStackElementRef;
+} StatusStackElement, *StatusStackElementRef;
 
 typedef struct _StatusStackList {
-    _StatusStackElement elements[_StatusStackList_Length];
+    StatusStackElement *elements;
+    SBUInteger capacity;
 
     struct _StatusStackList *previous;
     struct _StatusStackList *next;
-} _StatusStackList, *_StatusStackListRef;
+} StatusStackList, *StatusStackListRef;
 
 typedef struct _StatusStack {
     MemoryRef _memory;
-    _StatusStackList _firstList;
-    _StatusStackListRef _peekList;
+    StatusStackElement _elements[StatusStackEmbeddedElementCount];
+    StatusStackList _firstList;
+    StatusStackListRef _peekList;
     SBUInteger _peekTop;
     SBUInteger count;
 } StatusStack, *StatusStackRef;
@@ -49,7 +51,7 @@ typedef struct _StatusStack {
 SB_INTERNAL void StatusStackInitialize(StatusStackRef stack, MemoryRef memory);
 
 SB_INTERNAL SBBoolean StatusStackPush(StatusStackRef stack,
-   SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus);
+    SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus);
 SB_INTERNAL void StatusStackPop(StatusStackRef stack);
 SB_INTERNAL void StatusStackSetEmpty(StatusStackRef stack);
 

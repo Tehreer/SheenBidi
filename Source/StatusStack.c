@@ -23,80 +23,113 @@
 #include "SBBase.h"
 #include "StatusStack.h"
 
-static SBBoolean StatusStackInsertElement(StatusStackRef stack)
+#define LIST            0
+#define ELEMENTS        1
+#define COUNT           2
+
+static StatusStackElementRef InsertStatusStackElement(StatusStackRef stack)
 {
-    if (stack->_peekTop != _StatusStackList_MaxIndex) {
+    StatusStackListRef peekList = stack->_peekList;
+    StatusStackElementRef element = NULL;
+
+    if ((stack->_peekTop + 1) < peekList->capacity) {
         stack->_peekTop += 1;
+        stack->count += 1;
+
+        element = &peekList->elements[stack->_peekTop];
     } else {
-        _StatusStackListRef previousList = stack->_peekList;
-        _StatusStackListRef peekList = previousList->next;
+        StatusStackListRef previousList = peekList;
+
+        peekList = previousList->next;
 
         if (!peekList) {
-            peekList = MemoryAllocateBlock(stack->_memory, MemoryTypeScratch, sizeof(_StatusStackList));
-            if (!peekList) {
-                return SBFalse;
+            const SBUInteger capacity = stack->count;
+            void *pointers[COUNT] = { NULL };
+            SBUInteger sizes[COUNT];
+
+            sizes[LIST]     = sizeof(StatusStackList);
+            sizes[ELEMENTS] = sizeof(StatusStackElement) * capacity;
+
+            if (MemoryAllocateChunks(stack->_memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
+                peekList = pointers[LIST];
+                peekList->elements = pointers[ELEMENTS];
+                peekList->capacity = capacity;
+                peekList->previous = previousList;
+                peekList->next = NULL;
+
+                previousList->next = peekList;
             }
-
-            peekList->previous = previousList;
-            peekList->next = NULL;
-
-            previousList->next = peekList;
         }
 
-        stack->_peekList = peekList;
-        stack->_peekTop = 0;
-    }
-    stack->count += 1;
+        if (peekList) {
+            stack->_peekList = peekList;
+            stack->_peekTop = 0;
+            stack->count += 1;
 
-    return SBTrue;
+            element = &peekList->elements[0];
+        }
+    }
+
+    return element;
 }
+
+#undef LIST
+#undef ELEMENTS
+#undef COUNT
 
 SB_INTERNAL void StatusStackInitialize(StatusStackRef stack, MemoryRef memory)
 {
     stack->_memory = memory;
 
+    stack->_firstList.elements = stack->_elements;
+    stack->_firstList.capacity = StatusStackEmbeddedElementCount;
     stack->_firstList.previous = NULL;
     stack->_firstList.next = NULL;
-    
+
     StatusStackSetEmpty(stack);
 }
 
 SB_INTERNAL SBBoolean StatusStackPush(StatusStackRef stack,
     SBLevel embeddingLevel, SBBidiType overrideStatus, SBBoolean isolateStatus)
 {
+    SBBoolean isPushed = SBFalse;
+    StatusStackElementRef element;
+
     /* The stack can hold upto 127 elements. */
     SBAssert(stack->count <= 127);
 
-    if (StatusStackInsertElement(stack)) {
-        _StatusStackElementRef element = &stack->_peekList->elements[stack->_peekTop];
+    element = InsertStatusStackElement(stack);
+
+    if (element) {
         element->embeddingLevel = embeddingLevel;
         element->overrideStatus = overrideStatus;
         element->isolateStatus = isolateStatus;
 
-        return SBTrue;
+        isPushed = SBTrue;
     }
 
-    return SBFalse;
+    return isPushed;
 }
 
 SB_INTERNAL void StatusStackPop(StatusStackRef stack)
 {
     /* The stack should not be empty. */
-    SBAssert(stack->count != 0);
+    SBAssert(stack->count > 0);
 
     if (stack->_peekTop != 0) {
         stack->_peekTop -= 1;
     } else {
         stack->_peekList = stack->_peekList->previous;
-        stack->_peekTop = _StatusStackList_MaxIndex;
+        stack->_peekTop = stack->_peekList->capacity - 1;
     }
+
     stack->count -= 1;
 }
 
 SB_INTERNAL void StatusStackSetEmpty(StatusStackRef stack)
 {
     stack->_peekList = &stack->_firstList;
-    stack->_peekTop = 0;
+    stack->_peekTop = SBInvalidIndex;
     stack->count = 0;
 }
 
