@@ -482,6 +482,10 @@ void AllocatorTests::testThreadSafeDefaultAllocatorSwitch() {
 
     // Reset to original
     SBAllocatorSetDefault(nullptr);
+
+    // Release the custom allocators
+    SBAllocatorRelease(allocators[0]);
+    SBAllocatorRelease(allocators[1]);
 }
 
 #ifdef STANDALONE_TESTING
