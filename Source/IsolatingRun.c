@@ -245,23 +245,17 @@ static SBBoolean ResolveBrackets(IsolatingRunRef isolatingRun)
 
             switch (bracketType) {
             case BracketTypeOpen:
-                if (queue->count < BracketQueueGetMaxCapacity()) {
-                    if (!BracketQueueEnqueue(queue, priorStrongLink, link, bracketValue)) {
-                        return SBFalse;
-                    }
-                } else {
-                    goto Resolve;
+                if (BracketQueueGetOpenPairCount(queue) >= BracketQueueMaxOpenPairs) {
+                    /* Stop further processing. */
+                    return SBTrue;
+                }
+                if (!BracketQueueEnqueue(queue, priorStrongLink, link, bracketValue)) {
+                    return SBFalse;
                 }
                 break;
 
             case BracketTypeClose:
-                if (queue->count != 0) {
-                    BracketQueueClosePair(queue, link, codepoint);
-
-                    if (BracketQueueShouldDequeue(queue)) {
-                        ResolveAvailableBracketPairs(isolatingRun);
-                    }
-                }
+                BracketQueueClosePair(queue, link, codepoint);
                 break;
             }
             break;
@@ -272,17 +266,15 @@ static SBBoolean ResolveBrackets(IsolatingRunRef isolatingRun)
 
         case SBBidiTypeR:
         case SBBidiTypeL:
-            if (queue->count != 0) {
-                BracketQueueSetStrongType(queue, type);
-            }
-
+            BracketQueueAssignInnerStrongType(queue, type);
             priorStrongLink = link;
             break;
         }
     }
 
-Resolve:
+    BracketQueueMarkPopulated(queue);
     ResolveAvailableBracketPairs(isolatingRun);
+
     return SBTrue;
 }
 
@@ -299,68 +291,67 @@ static void ResolveAvailableBracketPairs(IsolatingRunRef isolatingRun)
     embeddingDirection = SBLevelAsNormalBidiType(runLevel);
     oppositeDirection = SBLevelAsOppositeBidiType(runLevel);
 
-    while (queue->count != 0) {
+    while (queue->pairCount > 0) {
         BidiLink openingLink = BracketQueueGetOpeningLink(queue);
         BidiLink closingLink = BracketQueueGetClosingLink(queue);
+        SBBidiType innerStrongType = BracketQueueGetInnerStrongType(queue);
+        SBBidiType pairType;
 
-        if ((openingLink != BidiLinkNone) && (closingLink != BidiLinkNone)) {
-            SBBidiType innerStrongType;
-            SBBidiType pairType;
+        /* Rule: N0.b */
+        if (innerStrongType == embeddingDirection) {
+            pairType = innerStrongType;
+        }
+        /* Rule: N0.c */
+        else if (innerStrongType == oppositeDirection) {
+            BidiLink priorStrongLink;
+            SBBidiType priorStrongType;
 
-            innerStrongType = BracketQueueGetStrongType(queue);
+            priorStrongLink = BracketQueueGetPriorStrongLink(queue);
 
-            /* Rule: N0.b */
-            if (innerStrongType == embeddingDirection) {
-                pairType = innerStrongType;
-            }
-            /* Rule: N0.c */
-            else if (innerStrongType == oppositeDirection) {
-                BidiLink priorStrongLink;
-                SBBidiType priorStrongType;
+            if (priorStrongLink != BidiLinkNone) {
+                BidiLink link;
 
-                priorStrongLink = BracketQueueGetPriorStrongLink(queue);
+                priorStrongType = BidiChainGetType(chain, priorStrongLink);
+                if (SBBidiTypeIsNumber(priorStrongType)) {
+                    priorStrongType = SBBidiTypeR;
+                }
 
-                if (priorStrongLink != BidiLinkNone) {
-                    BidiLink link;
+                link = BidiChainGetNext(chain, priorStrongLink);
 
-                    priorStrongType = BidiChainGetType(chain, priorStrongLink);
-                    if (SBBidiTypeIsNumber(priorStrongType)) {
-                        priorStrongType = SBBidiTypeR;
+                /*
+                 * Iterate over in-between links to find the proper prior strong type because there
+                 * might be resolved brackets with different strong types.
+                 */
+                while (link != openingLink) {
+                    SBBidiType type = BidiChainGetType(chain, link);
+                    if (type == SBBidiTypeL || type == SBBidiTypeR) {
+                        priorStrongType = type;
                     }
 
-                    link = BidiChainGetNext(chain, priorStrongLink);
-
-                    while (link != openingLink) {
-                        SBBidiType type = BidiChainGetType(chain, link);
-                        if (type == SBBidiTypeL || type == SBBidiTypeR) {
-                            priorStrongType = type;
-                        }
-
-                        link = BidiChainGetNext(chain, link);
-                    }
-                } else {
-                    priorStrongType = isolatingRun->_sos;
+                    link = BidiChainGetNext(chain, link);
                 }
-
-                /* Rule: N0.c.1 */
-                if (priorStrongType == oppositeDirection) {
-                    pairType = oppositeDirection;
-                }
-                /* Rule: N0.c.2 */
-                else {
-                    pairType = embeddingDirection;
-                }
+            } else {
+                priorStrongType = isolatingRun->_sos;
             }
-            /* Rule: N0.d */
+
+            /* Rule: N0.c.1 */
+            if (priorStrongType == oppositeDirection) {
+                pairType = oppositeDirection;
+            }
+            /* Rule: N0.c.2 */
             else {
-                pairType = SBBidiTypeNil;
+                pairType = embeddingDirection;
             }
+        }
+        /* Rule: N0.d */
+        else {
+            pairType = SBBidiTypeNil;
+        }
 
-            if (pairType != SBBidiTypeNil) {
-                /* Do the substitution */
-                BidiChainSetType(chain, openingLink, pairType);
-                BidiChainSetType(chain, closingLink, pairType);
-            }
+        if (pairType != SBBidiTypeNil) {
+            /* Do the substitution */
+            BidiChainSetType(chain, openingLink, pairType);
+            BidiChainSetType(chain, closingLink, pairType);
         }
 
         BracketQueueDequeue(queue);
