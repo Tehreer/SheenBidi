@@ -19,13 +19,14 @@
 #include <cstddef>
 #include <cstdint>
 
-#include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBConfig.h>
 
 extern "C" {
 #include <Source/BidiChain.h>
 #include <Source/LevelRun.h>
 #include <Source/Memory.h>
 #include <Source/RunQueue.h>
+#include <Source/SBBase.h>
 }
 
 #include "RunQueueTests.h"
@@ -33,7 +34,7 @@ extern "C" {
 using namespace std;
 using namespace SheenBidi;
 
-static void initialize(LevelRunRef levelRun, BidiLink link) {
+static void initialize(LevelRun *levelRun, BidiLink link) {
     levelRun->next = levelRun;
     levelRun->firstLink = link;
     levelRun->lastLink = link;
@@ -43,7 +44,7 @@ static void initialize(LevelRunRef levelRun, BidiLink link) {
     levelRun->level = SBLevelInvalid;
 }
 
-static bool areEqual(LevelRunRef firstRun, LevelRunRef secondRun) {
+static bool areEqual(const LevelRun *firstRun, const LevelRun *secondRun) {
     if (firstRun == secondRun) {
         return true;
     }
@@ -74,16 +75,14 @@ void RunQueueTests::testInitialize() {
     assert(queue._firstList.previous == nullptr);
     assert(queue._firstList.next == nullptr);
 
-    assert(queue._frontList == &queue._firstList);
-    assert(queue._rearList == &queue._firstList);
-    assert(queue._partialList == nullptr);
-
-    assert(queue._frontTop == 0);
-    assert(queue._rearTop == -1);
-    assert(queue._partialTop == -1);
-
+    assert(queue._listPool == &queue._firstList);
+    assert(queue._rearList == nullptr);
+    assert(queue._rearTop == SBInvalidIndex);
+    assert(queue._front.list == nullptr);
+    assert(queue._front.index == SBInvalidIndex);
+    assert(queue._lastPartialRun.list == nullptr);
+    assert(queue._lastPartialRun.index == SBInvalidIndex);
     assert(queue.count == 0);
-    assert(queue.shouldDequeue == false);
 
     MemoryFinalize(&memory);
 }
@@ -99,7 +98,7 @@ void RunQueueTests::testBulkInsertion() {
     uint32_t runCount = 0;
 
     for (uint32_t index = 0; index < levelRuns.size(); index++) {
-        LevelRunRef run = &levelRuns[index];
+        auto run = &levelRuns[index];
         initialize(run, index);
 
         RunQueueEnqueue(&queue, run);
@@ -110,10 +109,10 @@ void RunQueueTests::testBulkInsertion() {
     }
 
     for (auto &run : levelRuns) {
-        LevelRunRef front = RunQueueGetFront(&queue);
+        auto front = RunQueueGetFront(&queue);
 
         assert(queue.count == runCount);
-        assert(front == &queue._frontList->elements[queue._frontTop]);
+        assert(front == &queue._front.list->elements[queue._front.index]);
         assert(areEqual(front, &run));
 
         RunQueueDequeue(&queue);
