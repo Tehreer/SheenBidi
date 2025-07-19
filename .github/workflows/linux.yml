@@ -38,7 +38,9 @@ jobs:
 
       - name: Install Dependencies
         if: matrix.coverage
-        run: sudo apt install lcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install lcov
 
       - name: Setup Compiler
         run: |
@@ -159,7 +161,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install Dependencies
-        run: sudo apt install valgrind
+        run: |
+          sudo apt-get update
+          sudo apt-get install valgrind
 
       - name: Build in Release Mode
         continue-on-error: true
