@@ -241,6 +241,10 @@ if build_tests
       'Tests/BracketLookupTests.h',
       'Tests/BracketLookupTests.cpp'
     ],
+    'BracketQueueTests': [
+      'Tests/BracketQueueTests.h',
+      'Tests/BracketQueueTests.cpp'
+    ],
     'CodepointSequenceTests': [
       'Tests/CodepointSequenceTests.h',
       'Tests/CodepointSequenceTests.cpp'
