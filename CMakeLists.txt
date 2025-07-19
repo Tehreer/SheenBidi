@@ -171,6 +171,7 @@ if(BUILD_TESTS)
     AtomicTests
     BidiTypeLookupTests
     BracketLookupTests
+    BracketQueueTests
     CodepointSequenceTests
     CodepointTests
     GeneralCategoryLookupTests
@@ -201,6 +202,10 @@ if(BUILD_TESTS)
   set(BracketLookupTests
     Tests/BracketLookupTests.h
     Tests/BracketLookupTests.cpp
+  )
+  set(BracketQueueTests
+    Tests/BracketQueueTests.h
+    Tests/BracketQueueTests.cpp
   )
   set(CodepointSequenceTests
     Tests/CodepointSequenceTests.h
