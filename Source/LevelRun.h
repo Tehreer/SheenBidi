@@ -25,18 +25,18 @@
 #include "SBBase.h"
 
 typedef struct _LevelRun {
-    struct _LevelRun *next;   /**< Reference to the next sequence of run links. */
-    BidiLink firstLink;       /**< First link of the run. */
-    BidiLink lastLink;        /**< Last link of the run. */
-    BidiLink subsequentLink;  /**< Subsequent link of the run. */
+    const struct _LevelRun *next;   /**< Reference to the next sequence of run links. */
+    BidiLink firstLink;             /**< First link of the run. */
+    BidiLink lastLink;              /**< Last link of the run. */
+    BidiLink subsequentLink;        /**< Subsequent link of the run. */
     RunExtrema extrema;
     RunKind kind;
     SBLevel level;
-} LevelRun, *LevelRunRef;
+} LevelRun;
 
-SB_INTERNAL void LevelRunInitialize(LevelRunRef levelRun,
+SB_INTERNAL void LevelRunInitialize(LevelRun *levelRun,
     BidiChainRef bidiChain, BidiLink firstLink, BidiLink lastLink,
     SBBidiType sor, SBBidiType eor);
-SB_INTERNAL void LevelRunAttach(LevelRunRef levelRun, LevelRunRef next);
+SB_INTERNAL void LevelRunAttach(LevelRun *levelRun, LevelRun *next);
 
 #endif

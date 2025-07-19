@@ -16,66 +16,159 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
 #include "LevelRun.h"
 #include "Memory.h"
+#include "RunKind.h"
 #include "SBAssert.h"
+#include "SBBase.h"
 #include "RunQueue.h"
 
-static SBBoolean RunQueueInsertElement(RunQueueRef queue)
+#define MakeRunQueuePosition()                      \
+    { NULL, SBInvalidIndex }
+#define SetRunQueuePosition(rqi, _list, _index)     \
+    ((rqi).list = (_list), (rqi).index = (_index))
+#define IsInvalidRunQueuePosition(rqi)              \
+    ((rqi).list == NULL)
+
+static const RunQueuePosition InvalidRunQueuePosition = MakeRunQueuePosition();
+
+static RunQueueListRef AllocateRunQueueListPool(RunQueueRef queue)
 {
-    if (queue->_rearTop != RunQueueList_MaxIndex) {
-        queue->_rearTop += 1;
-    } else {
-        RunQueueListRef previousList = queue->_rearList;
-        RunQueueListRef rearList = previousList->next;
+    const SBUInteger newCapacity = queue->count;
+    const SBUInteger embeddedCount = RunQueueListElementCount;
+    const SBUInteger listCount = (newCapacity + embeddedCount - 1) / embeddedCount;
+    const SBUInteger blockSize = sizeof(RunQueueList) * listCount;
+    RunQueueList *pool;
 
-        if (!rearList) {
-            rearList = MemoryAllocateBlock(queue->_memory, MemoryTypeScratch, sizeof(RunQueueList));
-            if (!rearList) {
-                return SBFalse;
-            }
+    pool = MemoryAllocateBlock(queue->_memory, MemoryTypeScratch, blockSize);
 
-            rearList->previous = previousList;
-            rearList->next = NULL;
+    if (pool) {
+        RunQueueListRef previous;
+        RunQueueListRef current;
+        SBUInteger index;
 
-            previousList->next = rearList;
+        /* First element. */
+        current = &pool[0];
+        current->previous = NULL;
+        previous = current;
+
+        /* Middle elements. */
+        for (index = 1; index < listCount - 1; index++) {
+            current = &pool[index];
+            current->previous = previous;
+            previous->next = current;
+            previous = current;
         }
 
-        queue->_rearList = rearList;
-        queue->_rearTop = 0;
+        /* Last element. */
+        current->previous = previous;
+        current->next = NULL;
     }
-    queue->count += 1;
 
-    return SBTrue;
+    return pool;
+}
+
+static void AddRunQueueListToReusablePool(RunQueueRef queue, RunQueueListRef list)
+{
+    RunQueueListRef head = queue->_listPool;
+
+    if (head) {
+        head->previous = list;
+    }
+
+    list->previous = NULL;
+    list->next = head;
+
+    queue->_listPool = list;
+}
+
+static RunQueueListRef GetReusableRunQueueList(RunQueueRef queue)
+{
+    RunQueueListRef head = queue->_listPool;
+    RunQueueListRef list = NULL;
+
+    if (!head) {
+        head = AllocateRunQueueListPool(queue);
+    }
+
+    if (head) {
+        list = head;
+        head = head->next;
+
+        list->previous = NULL;
+        list->next = NULL;
+
+        if (head) {
+            head->previous = NULL;
+        }
+        queue->_listPool = head;
+    }
+
+    return list;
+}
+
+static LevelRun *InsertRunQueueElement(RunQueueRef queue)
+{
+    RunQueueListRef rearList = queue->_rearList;
+    LevelRun *element = NULL;
+
+    if ((queue->_rearTop + 1) < RunQueueListElementCount) {
+        queue->_rearTop += 1;
+        queue->count += 1;
+
+        element = &rearList->elements[queue->_rearTop];
+    } else {
+        RunQueueListRef previousList = rearList;
+
+        rearList = GetReusableRunQueueList(queue);
+
+        if (rearList) {
+            rearList->previous = previousList;
+            previousList->next = rearList;
+
+            queue->_rearList = rearList;
+            queue->_rearTop = 0;
+            queue->count += 1;
+
+            element = &rearList->elements[0];
+        }
+    }
+
+    return element;
 }
 
 static void FindPreviousPartialRun(RunQueueRef queue)
 {
-    RunQueueListRef list = queue->_partialList;
-    SBInteger top = queue->_partialTop;
+    RunQueuePosition partial = queue->_lastPartialRun;
 
-    do {
-        SBInteger limit = (list == queue->_frontList ? queue->_frontTop : 0);
+    if (!IsInvalidRunQueuePosition(partial)) {
+        RunQueuePosition front = queue->_front;
+        RunQueueListRef breakList = front.list->previous;
+        RunQueuePosition current;
+
+        SetRunQueuePosition(current, partial.list, partial.index + 1);
 
         do {
-            LevelRunRef levelRun = &list->elements[top];
-            if (RunKindIsPartialIsolate(levelRun->kind)) {
-                queue->_partialList = list;
-                queue->_partialTop = top;
-                return;
+            SBUInteger start = (current.list == front.list ? front.index : 0);
+
+            while (current.index-- > start) {
+                const LevelRun *levelRun = &current.list->elements[current.index];
+
+                if (RunKindIsPartialIsolate(levelRun->kind)) {
+                    queue->_lastPartialRun = current;
+                    return;
+                }
             }
-        } while (top-- > limit);
 
-        list = list->previous;
-        top = RunQueueList_MaxIndex;
-    } while (list);
+            current.list = current.list->previous;
+            current.index = RunQueueListElementCount;
+        } while (current.list != breakList);
 
-    queue->_partialList = NULL;
-    queue->_partialTop = -1;
-    queue->shouldDequeue = SBFalse;
+        /* No more partial run. */
+        queue->_lastPartialRun = InvalidRunQueuePosition;
+    }
 }
 
 SB_INTERNAL void RunQueueInitialize(RunQueueRef queue, MemoryRef memory)
@@ -86,74 +179,78 @@ SB_INTERNAL void RunQueueInitialize(RunQueueRef queue, MemoryRef memory)
     queue->_firstList.previous = NULL;
     queue->_firstList.next = NULL;
 
-    /* Initialize front and rear lists with first list. */
-    queue->_frontList = &queue->_firstList;
-    queue->_rearList = &queue->_firstList;
-    queue->_partialList = NULL;
-
-    /* Initialize list indexes. */
-    queue->_frontTop = 0;
-    queue->_rearTop = -1;
-    queue->_partialTop = -1;
-
     /* Initialize rest of the elements. */
+    queue->_listPool = NULL;
+    queue->_rearList = &queue->_firstList;
+    queue->_rearTop = SBInvalidIndex;
+    queue->_front = InvalidRunQueuePosition;
+    queue->_lastPartialRun = InvalidRunQueuePosition;
     queue->count = 0;
-    queue->shouldDequeue = SBFalse;
 }
 
-SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun)
+SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRun *levelRun)
 {
-    if (RunQueueInsertElement(queue)) {
-        LevelRunRef element = &queue->_rearList->elements[queue->_rearTop];
+    SBBoolean isEnqueued = SBFalse;
+    LevelRun *element;
 
+    element = InsertRunQueueElement(queue);
+
+    if (element) {
         /* Copy the level run into the current element. */
         *element = *levelRun;
 
         /* Complete the latest isolating run with this terminating run. */
-        if (queue->_partialTop != -1 && RunKindIsTerminating(element->kind)) {
-            LevelRunRef incompleteRun = &queue->_partialList->elements[queue->_partialTop];
+        if (!IsInvalidRunQueuePosition(queue->_lastPartialRun)
+                && RunKindIsTerminating(element->kind)) {
+            LevelRun *incompleteRun = &queue->_lastPartialRun.list->elements[queue->_lastPartialRun.index];
             LevelRunAttach(incompleteRun, element);
             FindPreviousPartialRun(queue);
         }
 
         /* Save the location of the isolating run. */
         if (RunKindIsIsolate(element->kind)) {
-            queue->_partialList = queue->_rearList;
-            queue->_partialTop = queue->_rearTop;
+            SetRunQueuePosition(queue->_lastPartialRun, queue->_rearList, queue->_rearTop);
         }
 
-        return SBTrue;
+        if (IsInvalidRunQueuePosition(queue->_front)) {
+            /* This is the first element in the queue. */
+            SetRunQueuePosition(queue->_front, queue->_rearList, queue->_rearTop);
+        }
+
+        isEnqueued = SBTrue;
     }
 
-    return SBFalse;
+    return isEnqueued;
 }
 
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue)
 {
     /* The queue should not be empty. */
-    SBAssert(queue->count != 0);
+    SBAssert(queue->count > 0);
 
-    if (queue->_frontTop != RunQueueList_MaxIndex) {
-        queue->_frontTop += 1;
+    if ((queue->_front.index + 1) < RunQueueListElementCount) {
+        queue->_front.index += 1;
     } else {
-        RunQueueListRef frontList = queue->_frontList;
+        RunQueueListRef frontList = queue->_front.list;
 
-        if (frontList == queue->_rearList) {
-            queue->_rearTop = -1;
-        } else {
-            queue->_frontList = frontList->next;
+        queue->_front.list = frontList->next;
+        queue->_front.index = 0;
+
+        if (queue->_front.list) {
+            queue->_front.list->previous = NULL;
         }
 
-        queue->_frontTop = 0;
+        AddRunQueueListToReusablePool(queue, frontList);
     }
 
     queue->count -= 1;
+
+    if (queue->count == 0) {
+        queue->_front = InvalidRunQueuePosition;
+    }
 }
 
-SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue)
+SB_INTERNAL const LevelRun *RunQueueGetFront(RunQueueRef queue)
 {
-    /* The queue should not be empty. */
-    SBAssert(queue->count != 0);
-
-    return &queue->_frontList->elements[queue->_frontTop];
+    return &queue->_front.list->elements[queue->_front.index];
 }

@@ -30,8 +30,8 @@ typedef struct _IsolatingRun {
     const SBCodepointSequence *codepointSequence;
     const SBBidiType *bidiTypes;
     BidiChainRef bidiChain;
-    LevelRunRef baseLevelRun;
-    LevelRunRef _lastLevelRun;
+    const LevelRun *baseLevelRun;
+    const LevelRun *_lastLevelRun;
     BracketQueue _bracketQueue;
     SBUInteger paragraphOffset;
     BidiLink _originalLink;

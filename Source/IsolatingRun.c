@@ -32,9 +32,9 @@ static void ResolveAvailableBracketPairs(IsolatingRunRef isolatingRun);
 static void AttachLevelRunLinks(IsolatingRunRef isolatingRun)
 {
     BidiChainRef chain = isolatingRun->bidiChain;
-    LevelRunRef baseLevelRun = isolatingRun->baseLevelRun;
-    LevelRunRef current;
-    LevelRunRef next;
+    const LevelRun *baseLevelRun = isolatingRun->baseLevelRun;
+    const LevelRun *current;
+    const LevelRun *next;
 
     isolatingRun->_originalLink = BidiChainGetNext(chain, chain->roller);
     BidiChainSetNext(chain, chain->roller, baseLevelRun->firstLink);
@@ -61,7 +61,7 @@ static void AttachLevelRunLinks(IsolatingRunRef isolatingRun)
 static void AttachOriginalLinks(IsolatingRunRef isolatingRun)
 {
     BidiChainRef chain = isolatingRun->bidiChain;
-    LevelRunRef current;
+    const LevelRun *current;
 
     BidiChainSetNext(chain, chain->roller, isolatingRun->_originalLink);
 

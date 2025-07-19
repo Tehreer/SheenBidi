@@ -23,34 +23,36 @@
 #include "LevelRun.h"
 #include "Memory.h"
 
-#define RunQueueList_Length         8
-#define RunQueueList_MaxIndex       (RunQueueList_Length - 1)
+#define RunQueueListElementCount    8
 
 typedef struct _RunQueueList {
-    LevelRun elements[RunQueueList_Length];
+    LevelRun elements[RunQueueListElementCount];
 
-    struct _RunQueueList *previous; /**< Reference to the previous list of queue elements */
-    struct _RunQueueList *next;     /**< Reference to the next list of queue elements */
+    struct _RunQueueList *previous;     /**< Reference to the previous list of queue elements */
+    struct _RunQueueList *next;         /**< Reference to the next list of queue elements */
 } RunQueueList, *RunQueueListRef;
+
+typedef struct _RunQueuePosition {
+    RunQueueListRef list;               /**< Reference to the list containing the element */
+    SBUInteger index;                   /**< Index of the element in the list */
+} RunQueuePosition;
 
 typedef struct _RunQueue {
     MemoryRef _memory;
-    RunQueueList _firstList;        /**< First list of elements, which is part of the queue */
-    RunQueueListRef _frontList;     /**< The list containing front element of the queue */
-    RunQueueListRef _rearList;      /**< The list containing rear element of the queue */
-    RunQueueListRef _partialList;   /**< The list containing latest partial isolating run */
-    SBInteger _frontTop;            /**< Index of front element in front list */
-    SBInteger _rearTop;             /**< Index of rear element in rear list */
-    SBInteger _partialTop;          /**< Index of partial run in partial list */
-    SBUInteger count;               /**< Number of elements the queue contains */
-    SBBoolean shouldDequeue;
+    RunQueueList _firstList;            /**< First list of elements, which is part of the queue */
+    RunQueueListRef _listPool;          /**< Pool of reusable lists */
+    RunQueueListRef _rearList;          /**< The list containing rear element of the queue */
+    SBUInteger _rearTop;                /**< Index of rear element in rear list */
+    RunQueuePosition _front;            /**< Position of the front element */
+    RunQueuePosition _lastPartialRun;   /**< Position of the last partial run */
+    SBUInteger count;                   /**< Number of elements the queue contains */
 } RunQueue, *RunQueueRef;
 
 SB_INTERNAL void RunQueueInitialize(RunQueueRef queue, MemoryRef memory);
 
-SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRunRef levelRun);
+SB_INTERNAL SBBoolean RunQueueEnqueue(RunQueueRef queue, const LevelRun *levelRun);
 SB_INTERNAL void RunQueueDequeue(RunQueueRef queue);
 
-SB_INTERNAL LevelRunRef RunQueueGetFront(RunQueueRef queue);
+SB_INTERNAL const LevelRun *RunQueueGetFront(RunQueueRef queue);
 
 #endif

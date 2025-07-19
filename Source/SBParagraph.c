@@ -46,7 +46,7 @@ typedef struct _ParagraphContext {
 } ParagraphContext, *ParagraphContextRef;
 
 static void PopulateBidiChain(BidiChainRef chain, const SBBidiType *types, SBUInteger length);
-static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish);
+static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRun *levelRun, SBBoolean resolveIsolatingRuns);
 static void FinalizeParagraph(ObjectRef object);
 
 #define BIDI_LINKS        0
@@ -524,7 +524,7 @@ static SBBoolean DetermineLevels(ParagraphContextRef context, SBLevel baseLevel)
     return SBTrue;
 }
 
-static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef levelRun, SBBoolean forceFinish)
+static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRun *levelRun, SBBoolean resolveIsolatingRuns)
 {
     RunQueueRef queue = &context->runQueue;
 
@@ -532,12 +532,12 @@ static SBBoolean ProcessRun(ParagraphContextRef context, const LevelRunRef level
         return SBFalse;
     }
 
-    if (queue->shouldDequeue || forceFinish) {
+    if (resolveIsolatingRuns) {
         IsolatingRunRef isolatingRun = &context->isolatingRun;
 
         /* Rule X10 */
-        for (; queue->count != 0; RunQueueDequeue(queue)) {
-            LevelRunRef front = RunQueueGetFront(queue);
+        for (; queue->count > 0; RunQueueDequeue(queue)) {
+            const LevelRun *front = RunQueueGetFront(queue);
 
             if (RunKindIsAttachedTerminating(front->kind)) {
                 continue;

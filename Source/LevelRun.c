@@ -24,7 +24,7 @@
 #include "SBAssert.h"
 #include "LevelRun.h"
 
-SB_INTERNAL void LevelRunInitialize(LevelRunRef levelRun,
+SB_INTERNAL void LevelRunInitialize(LevelRun *levelRun,
     BidiChainRef bidiChain, BidiLink firstLink, BidiLink lastLink,
     SBBidiType sor, SBBidiType eor)
 {
@@ -44,7 +44,7 @@ SB_INTERNAL void LevelRunInitialize(LevelRunRef levelRun,
     levelRun->level = BidiChainGetLevel(bidiChain, firstLink);
 }
 
-SB_INTERNAL void LevelRunAttach(LevelRunRef levelRun, LevelRunRef next)
+SB_INTERNAL void LevelRunAttach(LevelRun *levelRun, LevelRun *next)
 {
     /* Only the runs of same level can be attached. */
     SBAssert(levelRun->level == next->level);
