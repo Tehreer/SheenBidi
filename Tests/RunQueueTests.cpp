@@ -75,8 +75,8 @@ void RunQueueTests::testInitialize() {
     assert(queue._firstList.previous == nullptr);
     assert(queue._firstList.next == nullptr);
 
-    assert(queue._listPool == &queue._firstList);
-    assert(queue._rearList == nullptr);
+    assert(queue._listPool == nullptr);
+    assert(queue._rearList == &queue._firstList);
     assert(queue._rearTop == SBInvalidIndex);
     assert(queue._front.list == nullptr);
     assert(queue._front.index == SBInvalidIndex);
