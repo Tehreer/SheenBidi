@@ -25,33 +25,35 @@
 #include "SBCodepoint.h"
 #include "BracketQueue.h"
 
-#define MakeBracketQueueIndex()                     \
+#define MakeBracketQueuePosition()                  \
     { NULL, SBInvalidIndex }
-#define SetBracketQueueIndex(bqi, _list, _index)    \
-    ((bqi).list = (_list), (bqi).index = (_index))
-#define IsInvalidBracketQueueIndex(bqi)             \
-    ((bqi).list == NULL)
+#define SetBracketQueuePosition(bqp, _list, _index) \
+    ((bqp).list = (_list), (bqp).index = (_index))
+#define IsInvalidBracketQueuePosition(bqp)          \
+    ((bqp).list == NULL)
 
-static const BracketQueueIndex NullBracketQueueIndex = MakeBracketQueueIndex();
+static const BracketQueuePosition InvalidBracketQueuePosition = MakeBracketQueuePosition();
 
 #define LIST            0
 #define ELEMENTS        1
 #define COUNT           2
 
-static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
+static BracketQueueElement *InsertBracketQueueElement(BracketQueueRef queue)
 {
-    SBBoolean isInserted = SBFalse;
+    BracketQueueListRef rearList = queue->_rearList;
+    BracketQueueElement *element = NULL;
 
-    if ((queue->_rearTop + 1) < queue->_rearList->capacity) {
+    if ((queue->_rearTop + 1) < rearList->capacity) {
         queue->_rearTop += 1;
         queue->_actualCount += 1;
 
-        isInserted = SBTrue;
+        element = &rearList->elements[queue->_rearTop];
     } else {
-        BracketQueueListRef previousList = queue->_rearList;
-        BracketQueueListRef nextList = previousList->next;
+        BracketQueueListRef previousList = rearList;
 
-        if (!nextList) {
+        rearList = previousList->next;
+
+        if (!rearList) {
             const SBUInteger capacity = queue->_actualCount;
             void *pointers[COUNT] = { NULL };
             SBUInteger sizes[COUNT];
@@ -60,34 +62,34 @@ static SBBoolean BracketQueueInsertElement(BracketQueueRef queue)
             sizes[ELEMENTS] = sizeof(BracketQueueElement) * capacity;
 
             if (MemoryAllocateChunks(queue->_memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
-                nextList = pointers[LIST];
-                nextList->elements = pointers[ELEMENTS];
-                nextList->capacity = capacity;
-                nextList->previous = previousList;
-                nextList->next = NULL;
+                rearList = pointers[LIST];
+                rearList->elements = pointers[ELEMENTS];
+                rearList->capacity = capacity;
+                rearList->previous = previousList;
+                rearList->next = NULL;
 
-                previousList->next = nextList;
+                previousList->next = rearList;
             }
         }
 
-        if (nextList) {
-            queue->_rearList = nextList;
+        if (rearList) {
+            queue->_rearList = rearList;
             queue->_rearTop = 0;
             queue->_actualCount += 1;
 
-            isInserted = SBTrue;
+            element = &rearList->elements[0];
         }
     }
 
-    return isInserted;
+    return element;
 }
 
-static void MarkOpenPairsAsInvalid(BracketQueueRef queue, BracketQueueIndex from)
+static void InvalidateOpenPairs(BracketQueueRef queue, BracketQueuePosition from)
 {
     BracketQueueListRef rearList = queue->_rearList;
-    BracketQueueListRef processedList = NULL;
+    BracketQueueListRef breakList = rearList->next;
     SBUInteger invalidCount = 0;
-    BracketQueueIndex current;
+    BracketQueuePosition current;
 
     current = from;
 
@@ -105,10 +107,9 @@ static void MarkOpenPairsAsInvalid(BracketQueueRef queue, BracketQueueIndex from
             current.index += 1;
         }
 
-        processedList = current.list;
-        current.list = processedList->next;
+        current.list = current.list->next;
         current.index = 0;
-    } while (processedList != rearList);
+    } while (current.list != breakList);
 
     queue->_actualCount -= invalidCount;
 }
@@ -116,9 +117,9 @@ static void MarkOpenPairsAsInvalid(BracketQueueRef queue, BracketQueueIndex from
 static void SkipToNextBracketPair(BracketQueueRef queue)
 {
     BracketQueueListRef rearList = queue->_rearList;
-    BracketQueueListRef processedList = NULL;
+    BracketQueueListRef breakList = rearList->next;
     SBBoolean hasProcessedFirst = SBFalse;
-    BracketQueueIndex current;
+    BracketQueuePosition current;
 
     current = queue->_front;
 
@@ -141,13 +142,12 @@ static void SkipToNextBracketPair(BracketQueueRef queue)
             current.index += 1;
         }
 
-        processedList = current.list;
-        current.list = processedList->next;
+        current.list = current.list->next;
         current.index = 0;
-    } while (processedList != rearList);
+    } while (current.list != breakList);
 
-    /* All pairs have been skipped at this point. */
-    queue->_front = NullBracketQueueIndex;
+    /* No more pairs. */
+    queue->_front = InvalidBracketQueuePosition;
 }
 
 #undef LIST
@@ -170,8 +170,8 @@ SB_INTERNAL void BracketQueueReset(BracketQueueRef queue, SBBidiType direction)
 {
     queue->_rearList = &queue->_firstList;
     queue->_rearTop = SBInvalidIndex;
-    queue->_firstOpenPair = NullBracketQueueIndex;
-    queue->_front = NullBracketQueueIndex;
+    queue->_firstOpenPair = InvalidBracketQueuePosition;
+    queue->_front = InvalidBracketQueuePosition;
     queue->_actualCount = 0;
     queue->pairCount = 0;
     queue->_direction = direction;
@@ -185,7 +185,7 @@ SB_INTERNAL void BracketQueueMarkPopulated(BracketQueueRef queue)
     if (queue->pairCount > 0) {
         BracketQueueElement *first = &queue->_firstList.elements[0];
 
-        SetBracketQueueIndex(queue->_front, &queue->_firstList, 0);
+        SetBracketQueuePosition(queue->_front, &queue->_firstList, 0);
 
         if (first->openingLink == BidiLinkNone
                 || first->closingLink == BidiLinkNone) {
@@ -201,22 +201,24 @@ SB_INTERNAL SBBoolean BracketQueueEnqueue(BracketQueueRef queue,
     BidiLink priorStrongLink, BidiLink openingLink, SBCodepoint bracket)
 {
     SBBoolean isEnqueued = SBFalse;
+    BracketQueueElement *element;
 
     /* The queue must NOT be populated yet. */
     SBAssert(!queue->_isPopulated);
     /* The queue can ONLY have a maximum of 63 open pairs. */
     SBAssert(BracketQueueGetOpenPairCount(queue) < BracketQueueMaxOpenPairs);
 
-    if (BracketQueueInsertElement(queue)) {
-        BracketQueueElement *element = &queue->_rearList->elements[queue->_rearTop];
+    element = InsertBracketQueueElement(queue);
+
+    if (element) {
         element->priorStrongLink = priorStrongLink;
         element->openingLink = openingLink;
         element->closingLink = BidiLinkNone;
         element->bracket = bracket;
         element->innerStrongType = SBBidiTypeNil;
 
-        if (IsInvalidBracketQueueIndex(queue->_firstOpenPair)) {
-            SetBracketQueueIndex(queue->_firstOpenPair, queue->_rearList, queue->_rearTop);
+        if (IsInvalidBracketQueuePosition(queue->_firstOpenPair)) {
+            SetBracketQueuePosition(queue->_firstOpenPair, queue->_rearList, queue->_rearTop);
         }
 
         isEnqueued = SBTrue;
@@ -240,7 +242,7 @@ SB_INTERNAL SBUInteger BracketQueueGetOpenPairCount(BracketQueueRef queue)
 
 SB_INTERNAL void BracketQueueAssignInnerStrongType(BracketQueueRef queue, SBBidiType strongType)
 {
-    BracketQueueIndex first = queue->_firstOpenPair;
+    BracketQueuePosition first = queue->_firstOpenPair;
 
     /* The queue must NOT be populated yet. */
     SBAssert(!queue->_isPopulated);
@@ -248,12 +250,12 @@ SB_INTERNAL void BracketQueueAssignInnerStrongType(BracketQueueRef queue, SBBidi
     SBAssert(strongType == SBBidiTypeL || strongType == SBBidiTypeR);
 
     /* Proceed if at least one open pair exists. */
-    if (!IsInvalidBracketQueueIndex(first)) {
+    if (!IsInvalidBracketQueuePosition(first)) {
         BracketQueueListRef rearList = queue->_rearList;
-        BracketQueueListRef processedList = NULL;
-        BracketQueueIndex current;
+        BracketQueueListRef breakList = first.list->previous;
+        BracketQueuePosition current;
 
-        SetBracketQueueIndex(current, queue->_rearList, queue->_rearTop + 1);
+        SetBracketQueuePosition(current, queue->_rearList, queue->_rearTop + 1);
 
         /* Assign the strong type to all open pairs. */
         do {
@@ -272,27 +274,26 @@ SB_INTERNAL void BracketQueueAssignInnerStrongType(BracketQueueRef queue, SBBidi
                 }
             }
 
-            processedList = current.list;
-            current.list = processedList->previous;
-        } while (processedList != first.list);
+            current.list = current.list->previous;
+        } while (current.list != breakList);
     }
 }
 
 SB_INTERNAL void BracketQueueClosePair(BracketQueueRef queue,
     BidiLink closingLink, SBCodepoint bracket)
 {
-    BracketQueueIndex first = queue->_firstOpenPair;
+    BracketQueuePosition first = queue->_firstOpenPair;
 
     /* The queue must NOT be populated yet. */
     SBAssert(!queue->_isPopulated);
 
     /* Proceed if at least one open pair exists. */
-    if (!IsInvalidBracketQueueIndex(first)) {
+    if (!IsInvalidBracketQueuePosition(first)) {
         BracketQueueListRef rearList = queue->_rearList;
-        BracketQueueListRef processedList = NULL;
-        BracketQueueIndex current;
+        BracketQueueListRef breakList = first.list->previous;
+        BracketQueuePosition current;
 
-        SetBracketQueueIndex(current, rearList, queue->_rearTop + 1);
+        SetBracketQueuePosition(current, rearList, queue->_rearTop + 1);
 
         /* Find out the matching open pair. */
         do {
@@ -309,20 +310,19 @@ SB_INTERNAL void BracketQueueClosePair(BracketQueueRef queue,
                         && SBCodepointIsCanonicalEquivalentBracket(element->bracket, bracket)) {
                     element->closingLink = closingLink;
                     queue->pairCount += 1;
-                    MarkOpenPairsAsInvalid(queue, current);
+                    InvalidateOpenPairs(queue, current);
 
                     if (queue->_firstOpenPair.list == current.list
                             && queue->_firstOpenPair.index == current.index) {
                         /* No open pair exists at this point. */
-                        queue->_firstOpenPair = NullBracketQueueIndex;
+                        queue->_firstOpenPair = InvalidBracketQueuePosition;
                     }
                     return;
                 }
             }
 
-            processedList = current.list;
-            current.list = processedList->previous;
-        } while (processedList != first.list);
+            current.list = current.list->previous;
+        } while (current.list != breakList);
     }
 }
 

@@ -43,10 +43,10 @@ typedef struct _BracketQueueList {
     struct _BracketQueueList *next;
 } BracketQueueList, *BracketQueueListRef;
 
-typedef struct _BracketQueueIndex {
+typedef struct _BracketQueuePosition {
     BracketQueueListRef list;
     SBUInteger index;
-} BracketQueueIndex;
+} BracketQueuePosition;
 
 typedef struct _BracketQueue {
     MemoryRef _memory;
@@ -54,8 +54,8 @@ typedef struct _BracketQueue {
     BracketQueueList _firstList;
     BracketQueueListRef _rearList;
     SBUInteger _rearTop;
-    BracketQueueIndex _firstOpenPair;
-    BracketQueueIndex _front;
+    BracketQueuePosition _firstOpenPair;
+    BracketQueuePosition _front;
     SBUInteger _actualCount;
     SBUInteger pairCount;
     SBBidiType _direction;
