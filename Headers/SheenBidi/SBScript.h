@@ -217,31 +217,37 @@ enum {
     SBScriptNAND = 0x98,    /**< Nandinagari */
     SBScriptWCHO = 0x99,    /**< Wancho */
 
-    /* Unicde 13.0 */
+    /* Unicode 13.0 */
     SBScriptCHRS = 0x9A,    /**< Chorasmian */
     SBScriptDIAK = 0x9B,    /**< Dives_Akuru */
     SBScriptKITS = 0x9C,    /**< Khitan_Small_Script */
     SBScriptYEZI = 0x9D,    /**< Yezidi */
 
-    /* Unicde 14.0 */
+    /* Unicode 14.0 */
     SBScriptCPMN = 0x9E,    /**< Cypro_Minoan */
     SBScriptOUGR = 0x9F,    /**< Old_Uyghur */
     SBScriptTNSA = 0xA0,    /**< Tangsa */
     SBScriptTOTO = 0xA1,    /**< Toto */
     SBScriptVITH = 0xA2,    /**< Vithkuqi */
 
-    /* Unicde 15.1 */
+    /* Unicode 15.1 */
     SBScriptKAWI = 0xA3,    /**< Kawi */
     SBScriptNAGM = 0xA4,    /**< Nag_Mundari */
 
-    /* Unicde 16.0 */
+    /* Unicode 16.0 */
     SBScriptGARA = 0xA5,    /**< Garay */
     SBScriptGUKH = 0xA6,    /**< Gurung_Khema */
     SBScriptKRAI = 0xA7,    /**< Kirat_Rai */
     SBScriptONAO = 0xA8,    /**< Ol_Onal */
     SBScriptSUNU = 0xA9,    /**< Sunuwar */
     SBScriptTODR = 0xAA,    /**< Todhri */
-    SBScriptTUTG = 0xAB     /**< Tulu_Tigalari */
+    SBScriptTUTG = 0xAB,    /**< Tulu_Tigalari */
+
+    /* Unicode 17.0 */
+    SBScriptBERF = 0xAC,    /**< Beria_Erfe */
+    SBScriptSIDT = 0xAD,    /**< Sidetic */
+    SBScriptTAYO = 0xAE,    /**< Tai_Yo */
+    SBScriptTOLS = 0xAF     /**< Tolong_Siki */
 };
 
 /**

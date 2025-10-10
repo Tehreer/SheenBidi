@@ -117,6 +117,8 @@ SBUInt32 SBScriptGetOpenTypeTag(SBScript script)
         return TAG('b', 'e', 'n', 'g'); */
     case SBScriptBENG:
         return TAG('b', 'n', 'g', '2');
+    case SBScriptBERF:
+        return TAG('b', 'e', 'r', 'f');
     case SBScriptBHKS:
         return TAG('b', 'h', 'k', 's');
     case SBScriptBOPO:
@@ -381,6 +383,8 @@ SBUInt32 SBScriptGetOpenTypeTag(SBScript script)
         return TAG('s', 'h', 'a', 'w');
     case SBScriptSIDD:
         return TAG('s', 'i', 'd', 'd');
+    case SBScriptSIDT:
+        return TAG('s', 'i', 'd', 't');
     case SBScriptSGNW:
         return TAG('s', 'g', 'n', 'w');
     case SBScriptSINH:
@@ -421,6 +425,8 @@ SBUInt32 SBScriptGetOpenTypeTag(SBScript script)
         return TAG('t', 'n', 's', 'a');
     case SBScriptTANG:
         return TAG('t', 'a', 'n', 'g');
+    case SBScriptTAYO:
+        return TAG('t', 'a', 'y', 'o');
  /* case SBScriptTELU:
         return TAG('t', 'e', 'l', 'u'); */
     case SBScriptTELU:
@@ -437,6 +443,8 @@ SBUInt32 SBScriptGetOpenTypeTag(SBScript script)
         return TAG('t', 'i', 'r', 'h');
     case SBScriptTODR:
         return TAG('t', 'o', 'd', 'r');
+    case SBScriptTOLS:
+        return TAG('t', 'o', 'l', 's');
     case SBScriptTOTO:
         return TAG('t', 'o', 't', 'o');
     case SBScriptTUTG:
@@ -489,6 +497,8 @@ SBUInt32 SBScriptGetUnicodeTag(SBScript script)
         return TAG('B', 'a', 't', 'k');
     case SBScriptBENG:
         return TAG('B', 'e', 'n', 'g');
+    case SBScriptBERF:
+        return TAG('B', 'e', 'r', 'f');
     case SBScriptBHKS:
         return TAG('B', 'h', 'k', 's');
     case SBScriptBOPO:
@@ -725,6 +735,8 @@ SBUInt32 SBScriptGetUnicodeTag(SBScript script)
         return TAG('S', 'h', 'r', 'd');
     case SBScriptSIDD:
         return TAG('S', 'i', 'd', 'd');
+    case SBScriptSIDT:
+        return TAG('S', 'i', 'd', 't');
     case SBScriptSIND:
         return TAG('S', 'i', 'n', 'd');
     case SBScriptSINH:
@@ -759,6 +771,8 @@ SBUInt32 SBScriptGetUnicodeTag(SBScript script)
         return TAG('T', 'a', 'n', 'g');
     case SBScriptTAVT:
         return TAG('T', 'a', 'v', 't');
+    case SBScriptTAYO:
+        return TAG('T', 'a', 'y', 'o');
     case SBScriptTELU:
         return TAG('T', 'e', 'l', 'u');
     case SBScriptTFNG:
@@ -777,6 +791,8 @@ SBUInt32 SBScriptGetUnicodeTag(SBScript script)
         return TAG('T', 'n', 's', 'a');
     case SBScriptTODR:
         return TAG('T', 'o', 'd', 'r');
+    case SBScriptTOLS:
+        return TAG('T', 'o', 'l', 's');
     case SBScriptTOTO:
         return TAG('T', 'o', 't', 'o');
     case SBScriptTUTG:
