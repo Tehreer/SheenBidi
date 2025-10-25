@@ -288,7 +288,11 @@ static unordered_map<SBScript, string> MAP_SCRIPT_TO_STRING = {
     {SBScriptONAO, "Onao"},
     {SBScriptSUNU, "Sunu"},
     {SBScriptTODR, "Todr"},
-    {SBScriptTUTG, "Tutg"}
+    {SBScriptTUTG, "Tutg"},
+    {SBScriptBERF, "Berf"},
+    {SBScriptSIDT, "Sidt"},
+    {SBScriptTAYO, "Tayo"},
+    {SBScriptTOLS, "Tols"}
 };
 
 const string &Convert::bidiTypeToString(SBBidiType bidiType) {
