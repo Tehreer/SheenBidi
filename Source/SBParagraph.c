@@ -101,7 +101,7 @@ static SBMutableParagraphRef AllocateParagraph(SBUInteger length)
     sizes[PARAGRAPH] = sizeof(SBParagraph);
     sizes[LEVELS]    = sizeof(SBLevel) * (length + 2);
 
-    paragraph = ObjectCreate(sizes, COUNT, pointers, &FinalizeParagraph);
+    paragraph = ObjectCreate(sizes, COUNT, pointers, FinalizeParagraph);
 
     if (paragraph) {
         paragraph->fixedLevels = pointers[LEVELS];
@@ -117,18 +117,24 @@ static SBMutableParagraphRef AllocateParagraph(SBUInteger length)
 static void FinalizeParagraph(ObjectRef object)
 {
     SBParagraphRef paragraph = object;
-    SBAlgorithmRelease(paragraph->algorithm);
+    SBAlgorithmRef algorithm;
+
+    algorithm = paragraph->_algorithm;
+
+    if (algorithm) {
+        SBAlgorithmRelease(algorithm);
+    }
 }
 
-static SBUInteger DetermineBoundary(SBAlgorithmRef algorithm, SBUInteger paragraphOffset, SBUInteger suggestedLength)
+static SBUInteger DetermineBoundary(const SBCodepointSequence *codepointSequence,
+    const SBBidiType *bidiTypes, SBUInteger paragraphOffset, SBUInteger suggestedLength)
 {
-    SBBidiType *bidiTypes = algorithm->fixedTypes;
     SBUInteger suggestedLimit = paragraphOffset + suggestedLength;
     SBUInteger stringIndex;
 
     for (stringIndex = paragraphOffset; stringIndex < suggestedLimit; stringIndex++) {
         if (bidiTypes[stringIndex] == SBBidiTypeB) {
-            stringIndex += SBAlgorithmGetSeparatorLength(algorithm, stringIndex);
+            stringIndex += SBCodepointSequenceGetSeparatorLength(codepointSequence, stringIndex);
             goto Return;
         }
     }
@@ -574,9 +580,10 @@ static void SaveLevels(BidiChainRef chain, SBLevel *levels, SBLevel baseLevel)
 }
 
 static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph, MemoryRef memory,
-    SBAlgorithmRef algorithm, SBUInteger offset, SBUInteger length, SBLevel baseLevel)
+    const SBCodepointSequence *codepointSequence, const SBBidiType *refBidiTypes,
+    SBUInteger offset, SBUInteger length, SBLevel baseLevel)
 {
-    const SBBidiType *bidiTypes = algorithm->fixedTypes + offset;
+    const SBBidiType *bidiTypes = &refBidiTypes[offset];
     SBBoolean isSucceeded = SBFalse;
     ParagraphContext context;
 
@@ -587,20 +594,20 @@ static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph, MemoryRef mem
         SB_LOG_STATEMENT("Base Level", 1, SB_LOG_LEVEL(resolvedLevel));
         SB_LOG_BLOCK_CLOSER();
 
-        context.isolatingRun.codepointSequence = &algorithm->codepointSequence;
+        context.isolatingRun.codepointSequence = codepointSequence;
         context.isolatingRun.bidiTypes = bidiTypes;
         context.isolatingRun.bidiChain = &context.bidiChain;
         context.isolatingRun.paragraphOffset = offset;
         context.isolatingRun.paragraphLevel = resolvedLevel;
 
         if (DetermineLevels(&context, resolvedLevel)) {
-            SaveLevels(&context.bidiChain, ++paragraph->fixedLevels, resolvedLevel);
+            SaveLevels(&context.bidiChain, paragraph->fixedLevels, resolvedLevel);
 
             SB_LOG_BLOCK_OPENER("Determined Embedding Levels");
             SB_LOG_STATEMENT("Levels", 1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
             SB_LOG_BLOCK_CLOSER();
 
-            paragraph->algorithm = SBAlgorithmRetain(algorithm);
+            paragraph->codepointSequence = *codepointSequence;
             paragraph->refTypes = bidiTypes;
             paragraph->offset = offset;
             paragraph->length = length;
@@ -613,16 +620,17 @@ static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph, MemoryRef mem
     return isSucceeded;
 }
 
-SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
+static SBParagraphRef CreateParagraph(SBAlgorithmRef algorithm,
+    const SBCodepointSequence *codepointSequence, const SBBidiType *refBidiTypes,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
 {
-    const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
-    SBUInteger stringLength = codepointSequence->stringLength;
     SBUInteger actualLength;
     SBMutableParagraphRef paragraph;
 
-    /* The given range MUST be valid. */
-    SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
+    if (algorithm) {
+        codepointSequence = &algorithm->codepointSequence;
+        refBidiTypes = algorithm->fixedTypes;
+    }
 
     SB_LOG_BLOCK_OPENER("Paragraph Input");
     SB_LOG_STATEMENT("Paragraph Offset", 1, SB_LOG_NUMBER(paragraphOffset));
@@ -630,7 +638,7 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_STATEMENT("Base Direction",   1, SB_LOG_BASE_LEVEL(baseLevel));
     SB_LOG_BLOCK_CLOSER();
 
-    actualLength = DetermineBoundary(algorithm, paragraphOffset, suggestedLength);
+    actualLength = DetermineBoundary(codepointSequence, refBidiTypes, paragraphOffset, suggestedLength);
 
     SB_LOG_BLOCK_OPENER("Determined Paragraph Boundary");
     SB_LOG_STATEMENT("Actual Length", 1, SB_LOG_NUMBER(actualLength));
@@ -639,10 +647,18 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     paragraph = AllocateParagraph(actualLength);
 
     if (paragraph) {
+        SBBoolean isResolved;
         Memory memory;
-        MemoryInitialize(&memory);
 
-        if (!ResolveParagraph(paragraph, &memory, algorithm, paragraphOffset, actualLength, baseLevel)) {
+        MemoryInitialize(&memory);
+        isResolved = ResolveParagraph(
+            paragraph, &memory, codepointSequence, refBidiTypes,
+            paragraphOffset, actualLength, baseLevel
+        );
+
+        if (isResolved) {
+            paragraph->_algorithm = (algorithm ? SBAlgorithmRetain(algorithm) : NULL);
+        } else {
             ObjectRelease(paragraph);
             paragraph = NULL;
         }
@@ -654,6 +670,29 @@ SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
     SB_LOG_BREAKER();
 
     return paragraph;
+}
+
+SB_INTERNAL SBParagraphRef SBParagraphCreateWithAlgorithm(SBAlgorithmRef algorithm,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
+{
+    SBUInteger stringLength = algorithm->codepointSequence.stringLength;
+
+    /* The specified range MUST be valid */
+    SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
+
+    return CreateParagraph(algorithm, NULL, NULL, paragraphOffset, suggestedLength, baseLevel);
+}
+
+SB_INTERNAL SBParagraphRef SBParagraphCreateWithCodepointSequence(
+    const SBCodepointSequence *codepointSequence, const SBBidiType *refBidiTypes,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel)
+{
+    SBUInteger stringLength = codepointSequence->stringLength;
+
+    /* The specified range MUST be valid */
+    SBAssert(SBUIntegerVerifyRange(stringLength, paragraphOffset, suggestedLength) && suggestedLength > 0);
+
+    return CreateParagraph(NULL, codepointSequence, refBidiTypes, paragraphOffset, suggestedLength, baseLevel);
 }
 
 SBUInteger SBParagraphGetOffset(SBParagraphRef paragraph)

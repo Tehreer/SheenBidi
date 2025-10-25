@@ -26,7 +26,8 @@
 
 typedef struct _SBParagraph {
     ObjectBase _base;
-    SBAlgorithmRef algorithm;
+    SBAlgorithmRef _algorithm;
+    SBCodepointSequence codepointSequence;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger offset;
@@ -34,7 +35,11 @@ typedef struct _SBParagraph {
     SBLevel baseLevel;
 } SBParagraph;
 
-SB_INTERNAL SBParagraphRef SBParagraphCreate(SBAlgorithmRef algorithm,
+SB_INTERNAL SBParagraphRef SBParagraphCreateWithAlgorithm(SBAlgorithmRef algorithm,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel);
+
+SB_INTERNAL SBParagraphRef SBParagraphCreateWithCodepointSequence(
+    const SBCodepointSequence *codepointSequence, const SBBidiType *refBidiTypes,
     SBUInteger paragraphOffset, SBUInteger suggestedLength, SBLevel baseLevel);
 
 #endif

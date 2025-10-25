@@ -21,6 +21,17 @@
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBConfig.h>
 
-SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence);
+SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *sequence);
+
+SB_INTERNAL SBUInteger SBCodepointSequenceGetSeparatorLength(
+    const SBCodepointSequence *sequence, SBUInteger separatorIndex);
+
+SB_INTERNAL void SBCodepointSequenceDetermineBidiTypes(
+    const SBCodepointSequence *sequence, SBBidiType *bidiTypes);
+
+SB_INTERNAL void SBCodepointSequenceGetParagraphBoundary(
+    const SBCodepointSequence *sequence, const SBBidiType *bidiTypes,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength,
+    SBUInteger *actualLength, SBUInteger *separatorLength);
 
 #endif

@@ -16,16 +16,17 @@
 
 #include <SheenBidi/SBConfig.h>
 
+#include "BidiTypeLookup.h"
 #include "SBBase.h"
 #include "SBCodepoint.h"
 #include "SBCodepointSequence.h"
 
-SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *codepointSequence)
+SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *sequence)
 {
-    if (codepointSequence) {
+    if (sequence) {
         SBBoolean encodingValid = SBFalse;
 
-        switch (codepointSequence->stringEncoding) {
+        switch (sequence->stringEncoding) {
         case SBStringEncodingUTF8:
         case SBStringEncodingUTF16:
         case SBStringEncodingUTF32:
@@ -33,10 +34,83 @@ SB_INTERNAL SBBoolean SBCodepointSequenceIsValid(const SBCodepointSequence *code
             break;
         }
 
-        return (encodingValid && codepointSequence->stringBuffer && codepointSequence->stringLength > 0);
+        return (encodingValid && sequence->stringBuffer && sequence->stringLength > 0);
     }
 
     return SBFalse;
+}
+
+SB_INTERNAL SBUInteger SBCodepointSequenceGetSeparatorLength(
+    const SBCodepointSequence *sequence, SBUInteger separatorIndex)
+{
+    SBUInteger stringIndex = separatorIndex;
+    SBCodepoint codepoint;
+    SBUInteger separatorLength;
+
+    codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
+    separatorLength = stringIndex - separatorIndex;
+
+    if (codepoint == '\r') {
+        /* Don't break in between 'CR' and 'LF'. */
+        if (stringIndex < sequence->stringLength) {
+            codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex);
+
+            if (codepoint == '\n') {
+                separatorLength = stringIndex - separatorIndex;
+            }
+        }
+    }
+
+    return separatorLength;
+}
+
+SB_INTERNAL void SBCodepointSequenceDetermineBidiTypes(
+    const SBCodepointSequence *sequence, SBBidiType *bidiTypes)
+{
+    SBUInteger stringIndex = 0;
+    SBUInteger firstIndex = 0;
+    SBCodepoint codepoint;
+
+    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex)) != SBCodepointInvalid) {
+        bidiTypes[firstIndex] = LookupBidiType(codepoint);
+
+        /* Subsequent code units get 'BN' type. */
+        while (++firstIndex < stringIndex) {
+            bidiTypes[firstIndex] = SBBidiTypeBN;
+        }
+    }
+}
+
+SB_INTERNAL void SBCodepointSequenceGetParagraphBoundary(
+    const SBCodepointSequence *sequence, const SBBidiType *bidiTypes,
+    SBUInteger paragraphOffset, SBUInteger suggestedLength,
+    SBUInteger *actualLength, SBUInteger *separatorLength)
+{
+    SBUInteger limit = paragraphOffset + suggestedLength;
+    SBUInteger index;
+
+    if (separatorLength) {
+        *separatorLength = 0;
+    }
+
+    for (index = paragraphOffset; index < limit; index++) {
+        SBBidiType currentType = bidiTypes[index];
+
+        if (currentType == SBBidiTypeB) {
+            SBUInteger codeUnitCount = SBCodepointSequenceGetSeparatorLength(sequence, index);
+
+            index += codeUnitCount;
+
+            if (separatorLength) {
+                *separatorLength = codeUnitCount;
+            }
+            break;
+        }
+    }
+
+    if (actualLength) {
+        *actualLength = index - paragraphOffset;
+    }
 }
 
 SBCodepoint SBCodepointSequenceGetCodepointBefore(const SBCodepointSequence *codepointSequence, SBUInteger *stringIndex)

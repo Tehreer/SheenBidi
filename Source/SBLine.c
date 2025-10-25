@@ -278,7 +278,7 @@ SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
             line->runCount = InitializeRuns(line->fixedRuns, context.fixedLevels, lineLength, lineOffset);
             ReorderRuns(line->fixedRuns, line->runCount, context.maxLevel);
 
-            line->codepointSequence = paragraph->algorithm->codepointSequence;
+            line->codepointSequence = paragraph->codepointSequence;
             line->offset = lineOffset;
             line->length = lineLength;
         }

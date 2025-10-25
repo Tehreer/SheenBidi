@@ -55,22 +55,6 @@ static SBMutableAlgorithmRef AllocateAlgorithm(SBUInteger stringLength)
 #undef BIDI_TYPES
 #undef COUNT
 
-static void DetermineBidiTypes(const SBCodepointSequence *sequence, SBBidiType *types)
-{
-    SBUInteger stringIndex = 0;
-    SBUInteger firstIndex = 0;
-    SBCodepoint codepoint;
-
-    while ((codepoint = SBCodepointSequenceGetCodepointAt(sequence, &stringIndex)) != SBCodepointInvalid) {
-        types[firstIndex] = LookupBidiType(codepoint);
-
-        /* Subsequent code units get 'BN' type. */
-        while (++firstIndex < stringIndex) {
-            types[firstIndex] = SBBidiTypeBN;
-        }
-    }
-}
-
 static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequence)
 {
     SBUInteger stringLength = codepointSequence->stringLength;
@@ -85,7 +69,7 @@ static SBAlgorithmRef CreateAlgorithm(const SBCodepointSequence *codepointSequen
     if (algorithm) {
         algorithm->codepointSequence = *codepointSequence;
 
-        DetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
+        SBCodepointSequenceDetermineBidiTypes(codepointSequence, algorithm->fixedTypes);
 
         SB_LOG_BLOCK_OPENER("Determined Types");
         SB_LOG_STATEMENT("Types",  1, SB_LOG_BIDI_TYPES_ARRAY(algorithm->fixedTypes, stringLength));
@@ -113,64 +97,21 @@ const SBBidiType *SBAlgorithmGetBidiTypesPtr(SBAlgorithmRef algorithm)
     return algorithm->fixedTypes;
 }
 
-SB_INTERNAL SBUInteger SBAlgorithmGetSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex)
-{
-    const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
-    SBUInteger stringIndex = separatorIndex;
-    SBCodepoint codepoint;
-    SBUInteger separatorLength;
-
-    codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &stringIndex);
-    separatorLength = stringIndex - separatorIndex;
-
-    if (codepoint == '\r') {
-        /* Don't break in between 'CR' and 'LF'. */
-        if (stringIndex < codepointSequence->stringLength) {
-            codepoint = SBCodepointSequenceGetCodepointAt(codepointSequence, &stringIndex);
-
-            if (codepoint == '\n') {
-                separatorLength = stringIndex - separatorIndex;
-            }
-        }
-    }
-
-    return separatorLength;
-}
-
 void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
     SBUInteger paragraphOffset, SBUInteger suggestedLength,
-    SBUInteger *acutalLength, SBUInteger *separatorLength)
+    SBUInteger *actualLength, SBUInteger *separatorLength)
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBBidiType *bidiTypes = algorithm->fixedTypes;
     SBUInteger limitIndex;
     SBUInteger startIndex;
 
-    if (separatorLength) {
-        *separatorLength = 0;
-    }
-
     SBUIntegerNormalizeRange(codepointSequence->stringLength, &paragraphOffset, &suggestedLength);
-    limitIndex = paragraphOffset + suggestedLength;
 
-    for (startIndex = paragraphOffset; startIndex < limitIndex; startIndex++) {
-        SBBidiType currentType = bidiTypes[startIndex];
-
-        if (currentType == SBBidiTypeB) {
-            SBUInteger codeUnitCount = SBAlgorithmGetSeparatorLength(algorithm, startIndex);
-
-            startIndex += codeUnitCount;
-
-            if (separatorLength) {
-                *separatorLength = codeUnitCount;
-            }
-            break;
-        }
-    }
-
-    if (acutalLength) {
-        *acutalLength = startIndex - paragraphOffset;
-    }
+    SBCodepointSequenceGetParagraphBoundary(
+        codepointSequence, bidiTypes, paragraphOffset, suggestedLength,
+        actualLength, separatorLength
+    );
 }
 
 SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
@@ -183,7 +124,9 @@ SBParagraphRef SBAlgorithmCreateParagraph(SBAlgorithmRef algorithm,
     SBUIntegerNormalizeRange(stringLength, &paragraphOffset, &suggestedLength);
 
     if (suggestedLength > 0) {
-        paragraph = SBParagraphCreate(algorithm, paragraphOffset, suggestedLength, baseLevel);
+        paragraph = SBParagraphCreateWithAlgorithm(
+            algorithm, paragraphOffset, suggestedLength, baseLevel
+        );
     }
 
     return paragraph;
