@@ -2185,12 +2185,6 @@ static const SBUInt16 BranchScriptIndexes[1793] = {
 SB_INTERNAL SBScript LookupScript(SBCodepoint codepoint)
 {
     if (codepoint <= 0x0E01EF) {
-        SBUInt16 c1 = codepoint / 0x0200;
-        SBUInt16 bi = BranchScriptIndexes[codepoint / 0x0200];
-        SBUInt16 c2 = bi + (codepoint % 0x0200) / 0x0010;
-        SBUInt16 mi = MainScriptIndexes[bi + (codepoint % 0x0200) / 0x0010];
-        SBUInt16 c3 = mi + codepoint % 0x0010;
-        SBUInt16 pi = PrimaryScriptData[mi + codepoint % 0x0010];
         return PrimaryScriptData[
                 MainScriptIndexes[
                  BranchScriptIndexes[
