@@ -23,7 +23,7 @@
 #include "SBBase.h"
 #include "StatusStack.h"
 
-#define LIST            0
+#define STACK_LIST      0
 #define ELEMENTS        1
 #define COUNT           2
 
@@ -47,11 +47,11 @@ static StatusStackElementRef InsertStatusStackElement(StatusStackRef stack)
             void *pointers[COUNT] = { NULL };
             SBUInteger sizes[COUNT];
 
-            sizes[LIST]     = sizeof(StatusStackList);
-            sizes[ELEMENTS] = sizeof(StatusStackElement) * capacity;
+            sizes[STACK_LIST] = sizeof(StatusStackList);
+            sizes[ELEMENTS]   = sizeof(StatusStackElement) * capacity;
 
             if (MemoryAllocateChunks(stack->_memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
-                peekList = pointers[LIST];
+                peekList = pointers[STACK_LIST];
                 peekList->elements = pointers[ELEMENTS];
                 peekList->capacity = capacity;
                 peekList->previous = previousList;
@@ -73,7 +73,7 @@ static StatusStackElementRef InsertStatusStackElement(StatusStackRef stack)
     return element;
 }
 
-#undef LIST
+#undef STACK_LIST
 #undef ELEMENTS
 #undef COUNT
 

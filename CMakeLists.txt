@@ -75,6 +75,8 @@ set(SHEENBIDI_HEADERS
   Headers/SheenBidi/SheenBidi.h
   Headers/SheenBidi/SBAlgorithm.h
   Headers/SheenBidi/SBAllocator.h
+  Headers/SheenBidi/SBAttributeInfo.h
+  Headers/SheenBidi/SBAttributeRegistry.h
   Headers/SheenBidi/SBBase.h
   Headers/SheenBidi/SBBidiType.h
   Headers/SheenBidi/SBCodepoint.h
@@ -86,6 +88,10 @@ set(SHEENBIDI_HEADERS
   Headers/SheenBidi/SBRun.h
   Headers/SheenBidi/SBScript.h
   Headers/SheenBidi/SBScriptLocator.h
+  Headers/SheenBidi/SBText.h
+  Headers/SheenBidi/SBTextConfig.h
+  Headers/SheenBidi/SBTextIterators.h
+  Headers/SheenBidi/SBTextType.h
   Headers/SheenBidi/SBVersion.h
 )
 file(GLOB INTERNAL_HEADERS "Source/*.h")
@@ -169,19 +175,26 @@ if(BUILD_TESTS)
     AlgorithmTests
     AllocatorTests
     AtomicTests
+    AttributeManagerTests
+    AttributeRunIteratorTests
     BidiTypeLookupTests
     BracketLookupTests
     BracketQueueTests
     CodepointSequenceTests
     CodepointTests
     GeneralCategoryLookupTests
+    LogicalRunIteratorTests
     MirrorLookupTests
     OnceTests
+    ParagraphIteratorTests
     RunQueueTests
     ScriptLocatorTests
     ScriptLookupTests
+    ScriptRunIteratorTests
     ScriptTests
+    TextTests
     ThreadLocalStorageTests
+    VisualRunIteratorTests
   )
   set(AlgorithmTests
     Tests/AlgorithmTests.h
@@ -194,6 +207,14 @@ if(BUILD_TESTS)
   set(AtomicTests
     Tests/AtomicTests.h
     Tests/AtomicTests.cpp
+  )
+  set(AttributeManagerTests
+    Tests/AttributeManagerTests.h
+    Tests/AttributeManagerTests.cpp
+  )
+  set(AttributeRunIteratorTests
+    Tests/AttributeRunIteratorTests.h
+    Tests/AttributeRunIteratorTests.cpp
   )
   set(BidiTypeLookupTests
     Tests/BidiTypeLookupTests.h
@@ -219,6 +240,10 @@ if(BUILD_TESTS)
     Tests/GeneralCategoryLookupTests.h
     Tests/GeneralCategoryLookupTests.cpp
   )
+  set(LogicalRunIteratorTests
+    Tests/LogicalRunIteratorTests.h
+    Tests/LogicalRunIteratorTests.cpp
+  )
   set(MirrorLookupTests
     Tests/MirrorLookupTests.h
     Tests/MirrorLookupTests.cpp
@@ -226,6 +251,10 @@ if(BUILD_TESTS)
   set(OnceTests
     Tests/OnceTests.h
     Tests/OnceTests.cpp
+  )
+  set(ParagraphIteratorTests
+    Tests/ParagraphIteratorTests.h
+    Tests/ParagraphIteratorTests.cpp
   )
   set(RunQueueTests
     Tests/RunQueueTests.h
@@ -239,13 +268,25 @@ if(BUILD_TESTS)
     Tests/ScriptLookupTests.h
     Tests/ScriptLookupTests.cpp
   )
+  set(ScriptRunIteratorTests
+    Tests/ScriptRunIteratorTests.h
+    Tests/ScriptRunIteratorTests.cpp
+  )
   set(ScriptTests
     Tests/ScriptTests.h
     Tests/ScriptTests.cpp
   )
+  set(TextTests
+    Tests/TextTests.h
+    Tests/TextTests.cpp
+  )
   set(ThreadLocalStorageTests
     Tests/ThreadLocalStorageTests.h
     Tests/ThreadLocalStorageTests.cpp
+  )
+  set(VisualRunIteratorTests
+    Tests/VisualRunIteratorTests.h
+    Tests/VisualRunIteratorTests.cpp
   )
 
   foreach(TEST_NAME IN LISTS TEST_TARGETS)

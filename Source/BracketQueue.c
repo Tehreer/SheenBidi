@@ -34,7 +34,7 @@
 
 static const BracketQueuePosition InvalidBracketQueuePosition = MakeBracketQueuePosition();
 
-#define LIST            0
+#define QUEUE_LIST      0
 #define ELEMENTS        1
 #define COUNT           2
 
@@ -58,11 +58,11 @@ static BracketQueueElement *InsertBracketQueueElement(BracketQueueRef queue)
             void *pointers[COUNT] = { NULL };
             SBUInteger sizes[COUNT];
 
-            sizes[LIST]     = sizeof(BracketQueueList);
-            sizes[ELEMENTS] = sizeof(BracketQueueElement) * capacity;
+            sizes[QUEUE_LIST] = sizeof(BracketQueueList);
+            sizes[ELEMENTS]   = sizeof(BracketQueueElement) * capacity;
 
             if (MemoryAllocateChunks(queue->_memory, MemoryTypeScratch, sizes, COUNT, pointers)) {
-                rearList = pointers[LIST];
+                rearList = pointers[QUEUE_LIST];
                 rearList->elements = pointers[ELEMENTS];
                 rearList->capacity = capacity;
                 rearList->previous = previousList;
@@ -150,7 +150,7 @@ static void SkipToNextBracketPair(BracketQueueRef queue)
     queue->_front = InvalidBracketQueuePosition;
 }
 
-#undef LIST
+#undef QUEUE_LIST
 #undef ELEMENTS
 #undef COUNT
 

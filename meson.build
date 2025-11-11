@@ -27,6 +27,9 @@ soversion = project_version.split('.')[0]
 
 sheenbidi_headers = files(
   'Headers/SheenBidi/SBAlgorithm.h',
+  'Headers/SheenBidi/SBAllocator.h',
+  'Headers/SheenBidi/SBAttributeInfo.h',
+  'Headers/SheenBidi/SBAttributeRegistry.h',
   'Headers/SheenBidi/SBBase.h',
   'Headers/SheenBidi/SBBidiType.h',
   'Headers/SheenBidi/SBCodepoint.h',
@@ -38,6 +41,9 @@ sheenbidi_headers = files(
   'Headers/SheenBidi/SBRun.h',
   'Headers/SheenBidi/SBScript.h',
   'Headers/SheenBidi/SBScriptLocator.h',
+  'Headers/SheenBidi/SBText.h',
+  'Headers/SheenBidi/SBTextConfig.h',
+  'Headers/SheenBidi/SBTextIterators.h',
   'Headers/SheenBidi/SBVersion.h',
   'Headers/SheenBidi/SheenBidi.h'
 )
@@ -45,6 +51,8 @@ internal_headers = files(
   'Source/AtomicFlag.h',
   'Source/AtomicPointer.h',
   'Source/AtomicUInt.h',
+  'Source/AttributeDictionary.h',
+  'Source/AttributeManager.h',
   'Source/BidiChain.h',
   'Source/BidiTypeLookup.h',
   'Source/BracketQueue.h',
@@ -52,6 +60,7 @@ internal_headers = files(
   'Source/GeneralCategoryLookup.h',
   'Source/IsolatingRun.h',
   'Source/LevelRun.h',
+  'Source/List.h',
   'Source/Memory.h',
   'Source/Object.h',
   'Source/Once.h',
@@ -62,6 +71,7 @@ internal_headers = files(
   'Source/SBAlgorithm.h',
   'Source/SBAllocator.h',
   'Source/SBAssert.h',
+  'Source/SBAttributeRegistry.h',
   'Source/SBBase.h',
   'Source/SBCodepoint.h',
   'Source/SBCodepointSequence.h',
@@ -70,6 +80,9 @@ internal_headers = files(
   'Source/SBMirrorLocator.h',
   'Source/SBParagraph.h',
   'Source/SBScriptLocator.h',
+  'Source/SBText.h',
+  'Source/SBTextConfig.h',
+  'Source/SBTextIterators.h',
   'Source/ScriptLookup.h',
   'Source/ScriptStack.h',
   'Source/StatusStack.h',
@@ -82,12 +95,15 @@ if unity_mode
   sheenbidi_sources = files('Source/SheenBidi.c')
 else
   sheenbidi_sources = files(
+    'Source/AttributeDictionary.c',
+    'Source/AttributeManager.c',
     'Source/BidiChain.c',
     'Source/BidiTypeLookup.c',
     'Source/BracketQueue.c',
     'Source/GeneralCategoryLookup.c',
     'Source/IsolatingRun.c',
     'Source/LevelRun.c',
+    'Source/List.c',
     'Source/Memory.c',
     'Source/Object.c',
     'Source/Once.c',
@@ -95,6 +111,7 @@ else
     'Source/RunQueue.c',
     'Source/SBAlgorithm.c',
     'Source/SBAllocator.c',
+    'Source/SBAttributeRegistry.c',
     'Source/SBBase.c',
     'Source/SBCodepoint.c',
     'Source/SBCodepointSequence.c',
@@ -103,6 +120,9 @@ else
     'Source/SBMirrorLocator.c',
     'Source/SBParagraph.c',
     'Source/SBScriptLocator.c',
+    'Source/SBText.c',
+    'Source/SBTextConfig.c',
+    'Source/SBTextIterators.c',
     'Source/ScriptLookup.c',
     'Source/ScriptStack.c',
     'Source/StatusStack.c'
@@ -233,6 +253,14 @@ if build_tests
       'Tests/AtomicTests.h',
       'Tests/AtomicTests.cpp'
     ],
+    'AttributeManagerTests': [
+      'Tests/AttributeManagerTests.h',
+      'Tests/AttributeManagerTests.cpp'
+    ],
+    'AttributeRunIteratorTests': [
+      'Tests/AttributeRunIteratorTests.h',
+      'Tests/AttributeRunIteratorTests.cpp'
+    ],
     'BidiTypeLookupTests': [
       'Tests/BidiTypeLookupTests.h',
       'Tests/BidiTypeLookupTests.cpp'
@@ -257,6 +285,10 @@ if build_tests
       'Tests/GeneralCategoryLookupTests.h',
       'Tests/GeneralCategoryLookupTests.cpp'
     ],
+    'LogicalRunIteratorTests': [
+      'Tests/LogicalRunIteratorTests.h',
+      'Tests/LogicalRunIteratorTests.cpp'
+    ],
     'MirrorLookupTests': [
       'Tests/MirrorLookupTests.h',
       'Tests/MirrorLookupTests.cpp'
@@ -264,6 +296,10 @@ if build_tests
     'OnceTests': [
       'Tests/OnceTests.h',
       'Tests/OnceTests.cpp'
+    ],
+    'ParagraphIteratorTests': [
+      'Tests/ParagraphIteratorTests.h',
+      'Tests/ParagraphIteratorTests.cpp'
     ],
     'RunQueueTests': [
       'Tests/RunQueueTests.h',
@@ -277,13 +313,25 @@ if build_tests
       'Tests/ScriptLookupTests.h',
       'Tests/ScriptLookupTests.cpp'
     ],
+    'ScriptRunIteratorTests': [
+      'Tests/ScriptRunIteratorTests.h',
+      'Tests/ScriptRunIteratorTests.cpp'
+    ],
     'ScriptTests': [
       'Tests/ScriptTests.h',
       'Tests/ScriptTests.cpp'
     ],
+    'TextTests': [
+      'Tests/TextTests.h',
+      'Tests/TextTests.cpp'
+    ],
     'ThreadLocalStorageTests': [
       'Tests/ThreadLocalStorageTests.h',
       'Tests/ThreadLocalStorageTests.cpp'
+    ],
+    'VisualRunIteratorTests': [
+      'Tests/VisualRunIteratorTests.h',
+      'Tests/VisualRunIteratorTests.cpp'
     ]
   }
 

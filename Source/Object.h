@@ -98,6 +98,16 @@ SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chun
     void **outPointers, FinalizeFunc finalizer);
 
 /**
+ * Retrieves the current reference count of an object.
+ * 
+ * @param object
+ *      The object whose reference count is queried.
+ * @return
+ *      The current reference count.
+ */
+SB_INTERNAL SBUInteger ObjectGetRetainCount(ObjectRef object);
+
+/**
  * Retains the object by incrementing its reference count.
  *
  * @param object

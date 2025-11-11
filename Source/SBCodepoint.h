@@ -18,7 +18,17 @@
 #define _SB_INTERNAL_CODEPOINT_H
 
 #include <SheenBidi/SBCodepoint.h>
+#include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBConfig.h>
+
+SB_INTERNAL const void *SBCodepointGetBufferOffset(const void *buffer,
+    SBStringEncoding encoding, SBUInteger index);
+
+SB_INTERNAL void SBCodepointSkipToStart(const void *buffer, SBUInteger length,
+    SBStringEncoding encoding, SBUInteger *index);
+
+SB_INTERNAL void SBCodepointSkipToEnd(const void *buffer, SBUInteger length,
+    SBStringEncoding encoding, SBUInteger *index);
 
 SB_INTERNAL SBBoolean SBCodepointIsCanonicalEquivalentBracket(
     SBCodepoint codepoint, SBCodepoint bracket);

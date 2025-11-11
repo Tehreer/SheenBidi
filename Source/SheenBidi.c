@@ -19,12 +19,15 @@
 
 #ifdef SB_CONFIG_UNITY
 
+#include "AttributeDictionary.c"
+#include "AttributeManager.c"
 #include "BidiChain.c"
 #include "BidiTypeLookup.c"
 #include "BracketQueue.c"
 #include "GeneralCategoryLookup.c"
 #include "IsolatingRun.c"
 #include "LevelRun.c"
+#include "List.c"
 #include "Memory.c"
 #include "Object.c"
 #include "Once.c"
@@ -32,6 +35,7 @@
 #include "RunQueue.c"
 #include "SBAlgorithm.c"
 #include "SBAllocator.c"
+#include "SBAttributeRegistry.c"
 #include "SBBase.c"
 #include "SBCodepoint.c"
 #include "SBCodepointSequence.c"
@@ -40,6 +44,9 @@
 #include "SBMirrorLocator.c"
 #include "SBParagraph.c"
 #include "SBScriptLocator.c"
+#include "SBText.c"
+#include "SBTextConfig.c"
+#include "SBTextIterators.c"
 #include "ScriptLookup.c"
 #include "ScriptStack.c"
 #include "StatusStack.c"

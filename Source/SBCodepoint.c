@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <stddef.h>
+
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBConfig.h>
 
@@ -21,6 +23,7 @@
 #include "GeneralCategoryLookup.h"
 #include "PairingLookup.h"
 #include "ScriptLookup.h"
+#include "SBAssert.h"
 #include "SBCodepoint.h"
 
 typedef struct {
@@ -71,6 +74,122 @@ static const SBUInt8 UTF8LookupTable[256] = {
 /* LEAD: -- FE..FF -- */
     1, 1
 };
+
+SB_INTERNAL const void *SBCodepointGetBufferOffset(const void *buffer,
+    SBStringEncoding encoding, SBUInteger index)
+{
+    switch (encoding) {
+    case SBStringEncodingUTF8:
+        return (const SBUInt8 *)buffer + index;
+    
+    case SBStringEncodingUTF16:
+        return (const SBUInt16 *)buffer + index;
+
+    case SBStringEncodingUTF32:
+        return (const SBUInt32 *)buffer + index;
+
+    default:
+        return NULL;
+    }
+}
+
+SB_INTERNAL void SBCodepointSkipToStart(const void *buffer, SBUInteger length,
+    SBStringEncoding encoding, SBUInteger *index)
+{
+    /* Index MUST be valid */
+    SBAssert(*index < length);
+
+    switch (encoding) {
+    case SBStringEncodingUTF8: {
+        const SBUInt8 *codeUnits = buffer;
+        SBUInteger start = *index;
+
+        /* Advance 4 code units to take trailing ones into account */
+        if (*index + 4 < length) {
+            *index += 4;
+        } else {
+            *index = length;
+        }
+
+        /* Get previous code point until start is reached/passed */
+        do {
+            SBCodepointDecodePreviousFromUTF8(codeUnits, length, index);
+        } while (*index > start);
+
+        break;
+    }
+
+    case SBStringEncodingUTF16: {
+        const SBUInt16 *codeUnits = buffer;
+        SBUInteger start = *index;
+
+        /* Advance one code unit to take surrogate into account. */
+        if (*index < length) {
+            *index += 1;
+        }
+
+        /* Get previous code point until start is reached/passed. */
+        do {
+            SBCodepointDecodePreviousFromUTF16(codeUnits, length, index);
+        } while (*index > start);
+
+        break;
+    }
+
+    case SBStringEncodingUTF32:
+        /* Nothing to do here. */
+        break;
+    }
+}
+
+SB_INTERNAL void SBCodepointSkipToEnd(const void *buffer, SBUInteger length,
+    SBStringEncoding encoding, SBUInteger *index)
+{
+    /* Index MUST be valid */
+    SBAssert(*index < length);
+
+    switch (encoding) {
+    case SBStringEncodingUTF8: {
+        const SBUInt8 *codeUnits = buffer;
+        SBUInteger end = *index + 1;
+
+        /* Advance 4 code units to take leading ones into account. */
+        if (*index > 4) {
+            *index -= 4;
+        } else {
+            *index = 0;
+        }
+
+        /* Get next code point until end is reached/passed. */
+        do {
+            SBCodepointDecodeNextFromUTF8(codeUnits, length, index);
+        } while (*index < end);
+
+        break;
+    }
+
+    case SBStringEncodingUTF16: {
+        const SBUInt16 *codeUnits = buffer;
+        SBUInteger end = *index + 1;
+
+        /* Advance one code unit to take surrogate into account. */
+        if (*index > 1) {
+            *index -= 1;
+        }
+
+        /* Get next code point until end is reached/passed. */
+        do {
+            SBCodepointDecodeNextFromUTF16(codeUnits, length, index);
+        } while (*index < end);
+
+        break;
+    }
+
+    case SBStringEncodingUTF32:
+        *index += 1;
+        break;
+    }
+}
 
 SB_INTERNAL SBBoolean SBCodepointIsCanonicalEquivalentBracket(
     SBCodepoint codepoint, SBCodepoint bracket)

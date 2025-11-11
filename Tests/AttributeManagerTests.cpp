@@ -1,0 +1,840 @@
+/*
+ * Copyright (C) 2025 Muhammad Tayyab Akram
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <cassert>
+#include <cstddef>
+#include <random>
+#include <string>
+#include <vector>
+
+#include <SheenBidi/SBBase.h>
+
+extern "C" {
+#include <Source/AttributeManager.h>
+#include "Source/SBAttributeRegistry.h"
+#include <Source/SBText.h>
+}
+
+#include "AttributeManagerTests.h"
+
+using namespace std;
+using namespace SheenBidi;
+
+class Number {
+public:
+    static Number *create(uint8_t value) {
+        return new Number(value);
+    }
+
+    static SBBoolean equal(const void *first, const void *second) {
+        auto number1 = static_cast<const Number *>(first);
+        auto number2 = static_cast<const Number *>(second);
+
+        return number1->m_value == number2->m_value;
+    }
+
+    static const void *retain(const void *value) {
+        auto number = static_cast<Number *>(const_cast<void *>(value));
+        number->m_retainCount += 1;
+        return number;
+    }
+
+    static void release(const void *value) {
+        auto number = static_cast<Number *>(const_cast<void *>(value));
+        if (--number->m_retainCount == 0) {
+            delete number;
+        }
+    }
+
+    static auto callbacks() {
+        return SBAttributeCallbacks {
+            equal, retain, release
+        };
+    }
+
+private:
+    const uint8_t m_value;
+    size_t m_retainCount = 1;
+
+    explicit Number(uint8_t value) : m_value(value) { }
+};
+
+class AutoNumber {
+public:
+    explicit AutoNumber(uint8_t value)
+        : m_ptr(Number::create(value)) { }
+
+    ~AutoNumber() {
+        Number::release(m_ptr);
+    }
+
+    operator const void *() const { return m_ptr; }
+
+private:
+    const Number *m_ptr;
+};
+
+struct Attribute {
+    static constexpr auto Alignment = "alignment";
+    static constexpr auto Color = "color";
+    static constexpr auto Font = "font";
+    static constexpr auto Language = "language";
+};
+
+struct Alignment {
+    static auto leading() { return AutoNumber(11); }
+    static auto center() { return AutoNumber(12); }
+    static auto training() { return AutoNumber(13); }
+};
+
+struct Color {
+    static auto red() { return AutoNumber(21); }
+    static auto green() { return AutoNumber(22); }
+    static auto blue() { return AutoNumber(23); }
+    static auto yellow() { return AutoNumber(24); }
+    static auto black() { return AutoNumber(25); }
+    static auto purple() { return AutoNumber(26); }
+};
+
+struct Font {
+    static auto arial() { return AutoNumber(31); }
+    static auto times() { return AutoNumber(32); }
+};
+
+struct Language {
+    static auto english() { return AutoNumber(41); }
+    static auto urdu() { return AutoNumber(42); }
+};
+
+static const vector<SBAttributeInfo> TestAttributes = {
+    {Attribute::Color, 1, SBAttributeScopeCharacter, Number::callbacks()},
+    {Attribute::Font, 1, SBAttributeScopeCharacter, Number::callbacks()},
+    {Attribute::Language, 2, SBAttributeScopeParagraph, Number::callbacks()},
+    {Attribute::Alignment, 3, SBAttributeScopeParagraph, Number::callbacks()}
+};
+
+// Helper to generate random strings
+static string generateString(size_t length) {
+    static const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    static random_device rd;
+    static mt19937 generator(rd());
+    static uniform_int_distribution<> distribution(0, characters.size() - 1);
+
+    string result;
+    result.reserve(length);
+    for (size_t i = 0; i < length; i++) {
+        result += characters[distribution(generator)];
+    }
+    return result;
+}
+
+// Helper to verify attribute at position
+static bool verifyAttribute(AttributeManagerRef manager, size_t index,
+    SBAttributeID attributeID, const void *expectedValue)
+{
+    auto dictionary = ListGetVal(&manager->attributeDicts, index);
+    if (!dictionary) {
+        return expectedValue == nullptr;
+    }
+
+    auto item = AttributeDictionaryFindItem(dictionary, attributeID);
+    if (!item) {
+        return expectedValue == nullptr;
+    }
+
+    return SBAttributeRegistryIsEqualAttribute(manager->_registry, attributeID,
+        item->attributeValue, expectedValue);
+}
+
+static SBMutableTextRef SBTextCreateWithRegistry(SBAttributeRegistryRef registry) {
+    auto config = SBTextConfigCreate();
+    SBTextConfigSetAttributeRegistry(config, registry);
+
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+
+    SBTextConfigRelease(config);
+
+    return text;
+}
+
+static SBMutableTextRef SBTextCreateWithDefaultRegistry() {
+    auto registry = SBAttributeRegistryCreate(TestAttributes.data(), TestAttributes.size());
+    auto text = SBTextCreateWithRegistry(registry);
+
+    SBAttributeRegistryRelease(text->attributeRegistry);
+
+    return text;
+}
+
+static void SBTextAppendRandomCodeUnits(SBMutableTextRef text, SBUInteger length) {
+    const string &randomString = generateString(length);
+    SBTextAppendCodeUnits(text, randomString.c_str(), length);
+}
+
+static void SBTextInsertRandomCodeUnits(SBMutableTextRef text,
+    SBUInteger index, SBUInteger length) {
+    const string &randomString = generateString(length);
+    SBTextInsertCodeUnits(text, index, randomString.c_str(), length);
+}
+
+static void SBTextInsertRandomParagraph(SBMutableTextRef text,
+    SBUInteger index, SBUInteger length) {
+    const string paragraph = generateString(length - 1) + '\n';
+    SBTextInsertCodeUnits(text, index, paragraph.c_str(), length);
+}
+
+void AttributeManagerTests::run() {
+    testInitializeWithNullRegistry();
+    testInitializeWithValidRegistry();
+    testAttributePropagation();
+    testSetCharacterAttribute();
+    testSetParagraphAttributeExtension();
+    testRemoveAttribute();
+    testRemoveRangeWithAttributes();
+    testParagraphMergingOnRemove();
+    testGetRunByIDBasic();
+    testGetRunByFilteredCollection();
+    testFilterByAttributeGroup();
+    testComplexRunDetectionScenarios();
+    testMultipleAttributesSameRange();
+    testOverwriteAttributeValue();
+    testDictionaryCaching();
+    testEmptyRuns();
+    testComplexAttributeOverlapping();
+    testBoundaryConditions();
+    testLargeTextOperations();
+    testMultipleParagraphAttributes();
+    testRunBoundariesWithMixedAttributes();
+    testAttributeRemovalEdgeCases();
+    testOperationsWithNullRegistry();
+    testZeroLengthOperations();
+}
+
+void AttributeManagerTests::testInitializeWithNullRegistry() {
+    auto text = SBTextCreateWithRegistry(nullptr);
+    auto manager = &text->attributeManager;
+
+    assert(manager->_registry == nullptr);
+    assert(manager->parent == text);
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testInitializeWithValidRegistry() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    auto manager = &text->attributeManager;
+
+    assert(manager->_registry != nullptr);
+    assert(manager->_registry == text->attributeRegistry);
+    assert(manager->parent == text);
+    assert(manager->attributeDicts.count == 0);
+
+    SBTextInsertRandomCodeUnits(text, 0, 5);
+    assert(manager->attributeDicts.count == 5);
+
+    // All positions should have NULL dictionaries initially
+    for (SBUInteger i = 0; i < 5; i++) {
+        assert(verifyAttribute(manager, i, 0, nullptr));
+    }
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testAttributePropagation() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 1);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attribute at position 0
+    SBTextSetAttribute(text, 0, 1, colorID, Color::red());
+
+    // Insert after position 0
+    SBTextInsertRandomCodeUnits(text, 1, 3);
+
+    // Verify propagation
+    assert(verifyAttribute(manager, 0, colorID, Color::red()));
+    assert(verifyAttribute(manager, 1, colorID, Color::red()));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testSetCharacterAttribute() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    SBTextSetAttribute(text, 1, 3, colorID, Color::blue());
+
+    // Verify attributes in range
+    for (size_t i = 1; i < 4; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::blue()));
+    }
+
+    // Verify position 0 doesn't have the attribute
+    assert(verifyAttribute(manager, 0, colorID, nullptr));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testSetParagraphAttributeExtension() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+    SBTextInsertRandomParagraph(text, 10, 10);
+    SBTextInsertRandomParagraph(text, 20, 10);
+
+    auto manager = &text->attributeManager;
+    auto langID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Language);
+
+    // Set the paragraph attribute in the middle of the first paragraph
+    SBTextSetAttribute(text, 6, 5, langID, Language::english());
+
+    // Should extend to the entire first and second paragraphs (0-19)
+    for (size_t i = 0; i < 20; i++) {
+        assert(verifyAttribute(manager, i, langID, Language::english()));
+    }
+
+    // The third paragraph should not have the attribute
+    assert(verifyAttribute(manager, 20, langID, nullptr));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testRemoveAttribute() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set and verify attribute
+    SBTextSetAttribute(text, 1, 3, colorID, Color::green());
+    assert(verifyAttribute(manager, 2, colorID, Color::green()));
+
+    // Remove attribute
+    SBTextRemoveAttribute(text, 2, 1, colorID);
+    assert(verifyAttribute(manager, 2, colorID, nullptr));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testRemoveRangeWithAttributes() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attributes across the entire text
+    SBTextSetAttribute(text, 0, 10, colorID, Color::yellow());
+
+    // Remove range
+    SBTextDeleteCodeUnits(text, 3, 4);
+    assert(manager->attributeDicts.count == 6);
+
+    // Verify remaining positions still have attributes
+    for (size_t i = 0; i < 6; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::yellow()));
+    }
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testParagraphMergingOnRemove() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+    SBTextInsertRandomParagraph(text, 10, 10);
+
+    auto manager = &text->attributeManager;
+    auto langID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Language);
+    auto alignID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Alignment);
+
+    // Set different attributes for each paragraph
+    SBTextSetAttribute(text, 0, 1, langID, Language::english());
+    SBTextSetAttribute(text, 10, 1, alignID, Alignment::center());
+
+    // Verify initial state
+    for (size_t i = 0; i < 10; i++) {
+        assert(verifyAttribute(manager, i, langID, Language::english()));
+    }
+    for (size_t i = 10; i < 20; i++) {
+        assert(verifyAttribute(manager, i, alignID, Alignment::center()));
+    }
+
+    // Remove the newline character that separates paragraphs (position 9)
+    // This should merge the two paragraphs
+    SBTextDeleteCodeUnits(text, 9, 1);
+    assert(manager->attributeDicts.count == 19);
+
+    // Verify attributes of the whole string
+    for (size_t i = 0; i < 19; i++) {
+        assert(verifyAttribute(manager, i, alignID, Alignment::center()));
+        assert(verifyAttribute(manager, i, langID, Language::english()));
+    }
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testGetRunByIDBasic() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attribute on first half
+    SBTextSetAttribute(text, 0, 5, colorID, Color::purple());
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+    SBUInteger endIndex = 10;
+
+    // First run (0-4 with color)
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
+        &startIndex, endIndex, colorID, &outputItems));
+    assert(outputItems.count == 1);
+    assert(startIndex == 5);
+
+    // Second run (5-9 without color)
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
+        &startIndex, endIndex, colorID, &outputItems));
+    assert(outputItems.count == 0);
+    assert(startIndex == 10);
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testGetRunByFilteredCollection() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+
+    // Set different attributes in different ranges
+    SBTextSetAttribute(text, 0, 3, colorID, Color::red());
+    SBTextSetAttribute(text, 0, 3, fontID, Font::arial());
+    SBTextSetAttribute(text, 3, 4, colorID, Color::blue());
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+    SBUInteger endIndex = 10;
+
+    // Get runs filtered by character scope
+    assert(AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, endIndex, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems));
+
+    assert(outputItems.count == 2); // color and font
+    assert(startIndex == 3);
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testFilterByAttributeGroup() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+    auto langID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Language);
+
+    // Set attributes from different groups
+    SBTextSetAttribute(text, 0, 5, colorID, Color::red());
+    SBTextSetAttribute(text, 0, 5, fontID, Font::arial());
+    SBTextSetAttribute(text, 3, 5, langID, Language::english());
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+    SBUInteger endIndex = 10;
+
+    // Filter by character group (group 1)
+    assert(AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, endIndex, SBAttributeScopeCharacter, 1, &outputItems));
+
+    // Should only get color and font (both group 1), not language (group 2)
+    assert(startIndex == 5);
+    assert(outputItems.count == 2);
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testComplexRunDetectionScenarios() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 20);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+
+    // Create a complex pattern: A-B-A-B where A=color, B=font, AB=both
+    SBTextSetAttribute(text, 0, 5, colorID, Color::red());      // 0-4: color
+    SBTextSetAttribute(text, 5, 5, fontID, Font::arial());     // 5-9: font
+    SBTextSetAttribute(text, 10, 5, colorID, Color::blue());    // 10-14: color
+    SBTextSetAttribute(text, 10, 5, fontID, Font::arial());    // 10-14: both
+    SBTextSetAttribute(text, 15, 5, fontID, Font::times());    // 15-19: font
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+
+    // Test run detection with mixed attributes
+    AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+    assert(startIndex == 5); // First run: positions 0-4 (color only)
+
+    AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+    assert(startIndex == 10); // Second run: positions 5-9 (font only)
+
+    AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+    assert(startIndex == 15); // Third run: positions 10-14 (both color and font)
+
+    AttributeManagerGetOnwardRunByFilteringCollection(manager, 
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+    assert(startIndex == 20); // Fourth run: positions 15-19 (font only)
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testMultipleAttributesSameRange() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+
+    // Set multiple attributes at the same position
+    SBTextSetAttribute(text, 2, 1, colorID, Color::purple());
+    SBTextSetAttribute(text, 2, 1, fontID, Font::arial());
+
+    auto dict = ListGetVal(&manager->attributeDicts, 2);
+    assert(dict != nullptr);
+    assert(dict->_list.count == 2);
+
+    assert(verifyAttribute(manager, 2, colorID, Color::purple()));
+    assert(verifyAttribute(manager, 2, fontID, Font::arial()));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testOverwriteAttributeValue() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 3);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set initial value
+    SBTextSetAttribute(text, 1, 1, colorID, Color::red());
+    assert(verifyAttribute(manager, 1, colorID, Color::red()));
+
+    // Overwrite with new value
+    SBTextSetAttribute(text, 1, 1, colorID, Color::black());
+    assert(verifyAttribute(manager, 1, colorID, Color::black()));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testDictionaryCaching() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attribute
+    SBTextSetAttribute(text, 2, 1, colorID, Color::red());
+    auto originalDict = ListGetVal(&manager->attributeDicts, 2);
+    assert(originalDict != nullptr);
+
+    // Remove attribute (should cache the dictionary)
+    AttributeManagerRemoveAttribute(manager, 2, 1, colorID);
+
+    // Set attribute again (should reuse cached dictionary)
+    SBTextSetAttribute(text, 2, 1, colorID, Color::blue());
+    auto newDict = ListGetVal(&manager->attributeDicts, 2);
+    assert(originalDict == newDict);
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testEmptyRuns() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+    SBUInteger endIndex = 5;
+
+    // Should find a run with no attributes
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
+        &startIndex, endIndex, colorID, &outputItems));
+    assert(outputItems.count == 0);
+    assert(startIndex == 5);
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testComplexAttributeOverlapping() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 20);
+    SBTextInsertRandomParagraph(text, 20, 20);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+
+    // Create overlapping attribute regions
+    SBTextSetAttribute(text, 0, 10, colorID, Color::red());
+    SBTextSetAttribute(text, 5, 10, fontID, Font::arial());
+    SBTextSetAttribute(text, 10, 10, colorID, Color::blue());
+
+    // Verify overlapping regions
+    for (size_t i = 0; i < 5; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::red()));
+        assert(verifyAttribute(manager, i, fontID, nullptr));
+    }
+
+    for (size_t i = 5; i < 10; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::red()));
+        assert(verifyAttribute(manager, i, fontID, Font::arial()));
+    }
+
+    for (size_t i = 10; i < 15; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::blue()));
+        assert(verifyAttribute(manager, i, fontID, Font::arial()));
+    }
+
+    for (size_t i = 15; i < 20; i++) {
+        assert(verifyAttribute(manager, i, colorID, Color::blue()));
+        assert(verifyAttribute(manager, i, fontID, nullptr));
+    }
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testBoundaryConditions() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Test at the start boundary
+    SBTextSetAttribute(text, 0, 1, colorID, Color::red());
+    assert(verifyAttribute(manager, 0, colorID, Color::red()));
+
+    // Test at the end boundary
+    SBTextSetAttribute(text, 9, 1, colorID, Color::blue());
+    assert(verifyAttribute(manager, 9, colorID, Color::blue()));
+
+    // Test a single character in the middle
+    SBTextSetAttribute(text, 5, 1, colorID, Color::green());
+    assert(verifyAttribute(manager, 5, colorID, Color::green()));
+
+    // Test zero-length range (should not crash)
+    SBTextSetAttribute(text, 5, 0, colorID, Color::yellow());
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testLargeTextOperations() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 1000);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attributes in chunks
+    SBTextSetAttribute(text, 0, 250, colorID, Color::red());
+    SBTextSetAttribute(text, 250, 250, colorID, Color::green());
+    SBTextSetAttribute(text, 500, 250, colorID, Color::blue());
+    SBTextSetAttribute(text, 750, 250, colorID, Color::yellow());
+
+    // Verify chunks
+    assert(verifyAttribute(manager, 0, colorID, Color::red()));
+    assert(verifyAttribute(manager, 249, colorID, Color::red()));
+    assert(verifyAttribute(manager, 250, colorID, Color::green()));
+    assert(verifyAttribute(manager, 499, colorID, Color::green()));
+    assert(verifyAttribute(manager, 500, colorID, Color::blue()));
+    assert(verifyAttribute(manager, 749, colorID, Color::blue()));
+    assert(verifyAttribute(manager, 750, colorID, Color::yellow()));
+    assert(verifyAttribute(manager, 999, colorID, Color::yellow()));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testMultipleParagraphAttributes() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+    SBTextInsertRandomParagraph(text, 10, 10);
+    SBTextInsertRandomParagraph(text, 20, 10);
+    SBTextInsertRandomParagraph(text, 30, 10);
+
+    auto manager = &text->attributeManager;
+    auto langID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Language);
+    auto alignID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Alignment);
+
+    // Set different paragraph attributes
+    SBTextSetAttribute(text, 5, 1, langID, Language::english());
+    SBTextSetAttribute(text, 15, 1, langID, Language::urdu());
+    SBTextSetAttribute(text, 25, 1, alignID, Alignment::center());
+
+    // Verify paragraph-level extension
+    for (size_t i = 0; i < 10; i++) {
+        assert(verifyAttribute(manager, i, langID, Language::english()));
+    }
+    for (size_t i = 10; i < 20; i++) {
+        assert(verifyAttribute(manager, i, langID, Language::urdu()));
+    }
+    for (size_t i = 20; i < 30; i++) {
+        assert(verifyAttribute(manager, i, alignID, Alignment::center()));
+    }
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testRunBoundariesWithMixedAttributes() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 30);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+    auto fontID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Font);
+
+    // Create a pattern: color-only, both, font-only, none
+    SBTextSetAttribute(text, 0, 5, colorID, Color::red());
+    SBTextSetAttribute(text, 5, 5, colorID, Color::red());
+    SBTextSetAttribute(text, 5, 5, fontID, Font::arial());
+    SBTextSetAttribute(text, 10, 5, fontID, Font::arial());
+    // 15-30: no attributes
+
+    AttributeItemList outputItems;
+    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+
+    SBUInteger startIndex = 0;
+    SBUInteger endIndex = 30;
+
+    // Get runs for the color
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
+        &startIndex, endIndex, colorID, &outputItems));
+    assert(startIndex == 10); // color ends at 10
+
+    // Continue to the next run (no color)
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
+        &startIndex, endIndex, colorID, &outputItems));
+    assert(startIndex == 30); // no color from 10-30
+
+    ListFinalize(&outputItems);
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testAttributeRemovalEdgeCases() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextInsertRandomParagraph(text, 0, 10);
+
+    auto manager = &text->attributeManager;
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Set attribute
+    SBTextSetAttribute(text, 0, 10, colorID, Color::red());
+
+    // Remove from middle
+    SBTextRemoveAttribute(text, 3, 4, colorID);
+
+    // Verify boundaries
+    assert(verifyAttribute(manager, 0, colorID, Color::red()));
+    assert(verifyAttribute(manager, 2, colorID, Color::red()));
+    assert(verifyAttribute(manager, 3, colorID, nullptr));
+    assert(verifyAttribute(manager, 6, colorID, nullptr));
+    assert(verifyAttribute(manager, 7, colorID, Color::red()));
+    assert(verifyAttribute(manager, 9, colorID, Color::red()));
+
+    // Remove from start
+    SBTextRemoveAttribute(text, 0, 3, colorID);
+    assert(verifyAttribute(manager, 0, colorID, nullptr));
+    assert(verifyAttribute(manager, 2, colorID, nullptr));
+
+    // Remove from end
+    SBTextRemoveAttribute(text, 7, 3, colorID);
+    assert(verifyAttribute(manager, 7, colorID, nullptr));
+    assert(verifyAttribute(manager, 9, colorID, nullptr));
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testOperationsWithNullRegistry() {
+    auto text = SBTextCreateWithRegistry(nullptr);
+    SBTextAppendRandomCodeUnits(text, 10);
+
+    // These should handle null registry gracefully
+    SBTextDeleteCodeUnits(text, 0, 5);
+    SBTextRemoveAttribute(text, 0, 5, 1);
+
+    // Setting attributes with null registry should not crash
+    SBTextSetAttribute(text, 0, 1, 1, "value");
+
+    SBTextRelease(text);
+}
+
+void AttributeManagerTests::testZeroLengthOperations() {
+    auto text = SBTextCreateWithDefaultRegistry();
+    SBTextAppendRandomCodeUnits(text, 5);
+
+    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
+
+    // Zero-length operations should be handled without crashing
+    SBTextSetAttribute(text, 2, 0, colorID, Color::red());
+    SBTextRemoveAttribute(text, 2, 0, colorID);
+
+    SBTextRelease(text);
+}
+
+#ifdef STANDALONE_TESTING
+
+int main(int argc, const char *argv[]) {
+    AttributeManagerTests attributeStorageTests;
+    attributeStorageTests.run();
+
+    return 0;
+}
+
+#endif

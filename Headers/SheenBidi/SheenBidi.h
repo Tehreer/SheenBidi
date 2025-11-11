@@ -19,6 +19,8 @@
 
 #include <SheenBidi/SBAlgorithm.h>
 #include <SheenBidi/SBAllocator.h>
+#include <SheenBidi/SBAttributeInfo.h>
+#include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBCodepoint.h>
@@ -30,6 +32,10 @@
 #include <SheenBidi/SBRun.h>
 #include <SheenBidi/SBScript.h>
 #include <SheenBidi/SBScriptLocator.h>
+#include <SheenBidi/SBText.h>
+#include <SheenBidi/SBTextConfig.h>
+#include <SheenBidi/SBTextIterators.h>
+#include <SheenBidi/SBTextType.h>
 #include <SheenBidi/SBVersion.h>
 
 #endif

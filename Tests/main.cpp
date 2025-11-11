@@ -33,19 +33,25 @@
 #include "AlgorithmTests.h"
 #include "AllocatorTests.h"
 #include "AtomicTests.h"
+#include "AttributeManagerTests.h"
+#include "AttributeRunIteratorTests.h"
 #include "BidiTypeLookupTests.h"
 #include "BracketLookupTests.h"
 #include "BracketQueueTests.h"
 #include "CodepointSequenceTests.h"
 #include "CodepointTests.h"
 #include "GeneralCategoryLookupTests.h"
+#include "LogicalRunIteratorTests.h"
 #include "MirrorLookupTests.h"
 #include "OnceTests.h"
+#include "ParagraphIteratorTests.h"
 #include "RunQueueTests.h"
 #include "ScriptLocatorTests.h"
 #include "ScriptLookupTests.h"
+#include "ScriptRunIteratorTests.h"
 #include "ScriptTests.h"
 #include "ThreadLocalStorageTests.h"
+#include "VisualRunIteratorTests.h"
 
 using namespace std;
 using namespace SheenBidi;
@@ -74,14 +80,20 @@ int main(int argc, const char *argv[]) {
     AlgorithmTests algorithmTests(bidiTest, bidiCharacterTest, bidiMirroring);
     AllocatorTests allocatorTests;
     AtomicTests atomicTests;
+    AttributeManagerTests attributeManagerTests;
+    AttributeRunIteratorTests attributeRunIteratorTests;
     BracketQueueTests bracketQueueTests;
     CodepointTests codepointTests(unicodeData, bidiBrackets);
     CodepointSequenceTests codepointSequenceTests;
+    LogicalRunIteratorTests logicalRunIteratorTests;
     OnceTests onceTests;
+    ParagraphIteratorTests paragraphIteratorTests;
     RunQueueTests runQueueTests;
     ScriptLocatorTests scriptLocatorTests;
+    ScriptRunIteratorTests scriptRunIteratorTests;
     ScriptTests scriptTests;
     ThreadLocalStorageTests threadLocalStorageTests;
+    VisualRunIteratorTests visualRunIteratorTests;
 
     cout << "Testing SheenBidi " << SBVersionGetString() << endl;
     cout << endl;
@@ -94,14 +106,20 @@ int main(int argc, const char *argv[]) {
     algorithmTests.run();
     allocatorTests.run();
     atomicTests.run();
+    attributeManagerTests.run();
+    attributeRunIteratorTests.run();
     bracketQueueTests.run();
     codepointTests.run();
     codepointSequenceTests.run();
+    logicalRunIteratorTests.run();
     onceTests.run();
+    paragraphIteratorTests.run();
     runQueueTests.run();
     scriptLocatorTests.run();
+    scriptRunIteratorTests.run();
     scriptTests.run();
     threadLocalStorageTests.run();
+    visualRunIteratorTests.run();
 
     cout << "Finished." << endl;
 

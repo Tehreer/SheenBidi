@@ -48,6 +48,13 @@ SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chun
     return base;
 }
 
+SB_INTERNAL SBUInteger ObjectGetRetainCount(ObjectRef object)
+{
+    ObjectBaseRef base = (ObjectBaseRef)object;
+
+    return AtomicUIntLoad(&base->retainCount);
+}
+
 SB_INTERNAL ObjectRef ObjectRetain(ObjectRef object)
 {
     ObjectBaseRef base = (ObjectBaseRef)object;

@@ -26,12 +26,15 @@ RELEASE_FLAGS = -DNDEBUG -DSB_CONFIG_UNITY -Os
 DEBUG = Debug
 RELEASE = Release
 
-DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
+DEBUG_SOURCES = $(SOURCE_DIR)/AttributeDictionary.c \
+                $(SOURCE_DIR)/AttributeManager.c \
+                $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/BidiTypeLookup.c \
                 $(SOURCE_DIR)/BracketQueue.c \
                 $(SOURCE_DIR)/GeneralCategoryLookup.c \
                 $(SOURCE_DIR)/IsolatingRun.c \
                 $(SOURCE_DIR)/LevelRun.c \
+                $(SOURCE_DIR)/List.c \
                 $(SOURCE_DIR)/Memory.c \
                 $(SOURCE_DIR)/Object.c \
                 $(SOURCE_DIR)/Once.c \
@@ -39,6 +42,7 @@ DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/RunQueue.c \
                 $(SOURCE_DIR)/SBAlgorithm.c \
                 $(SOURCE_DIR)/SBAllocator.c \
+                $(SOURCE_DIR)/SBAttributeRegistry.c \
                 $(SOURCE_DIR)/SBBase.c \
                 $(SOURCE_DIR)/SBCodepoint.c \
                 $(SOURCE_DIR)/SBCodepointSequence.c \
@@ -47,6 +51,9 @@ DEBUG_SOURCES = $(SOURCE_DIR)/BidiChain.c \
                 $(SOURCE_DIR)/SBMirrorLocator.c \
                 $(SOURCE_DIR)/SBParagraph.c \
                 $(SOURCE_DIR)/SBScriptLocator.c \
+                $(SOURCE_DIR)/SBText.c \
+                $(SOURCE_DIR)/SBTextConfig.c \
+                $(SOURCE_DIR)/SBTextIterators.c \
                 $(SOURCE_DIR)/ScriptLookup.c \
                 $(SOURCE_DIR)/ScriptStack.c \
                 $(SOURCE_DIR)/StatusStack.c
