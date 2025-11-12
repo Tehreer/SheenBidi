@@ -103,8 +103,6 @@ void SBAlgorithmGetParagraphBoundary(SBAlgorithmRef algorithm,
 {
     const SBCodepointSequence *codepointSequence = &algorithm->codepointSequence;
     SBBidiType *bidiTypes = algorithm->fixedTypes;
-    SBUInteger limitIndex;
-    SBUInteger startIndex;
 
     SBUIntegerNormalizeRange(codepointSequence->stringLength, &paragraphOffset, &suggestedLength);
 
