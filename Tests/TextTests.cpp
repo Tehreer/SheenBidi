@@ -107,6 +107,8 @@ static void verifyAttributeRuns(SBTextRef text, SBAttributeScope scope,
     }
 
     assert(runIndex == runs.size());
+
+    SBAttributeRunIteratorRelease(iterator);
 }
 
 void TextTests::run() {
