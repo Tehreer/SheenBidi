@@ -73,17 +73,22 @@ SB_INTERNAL SBBoolean AttributeItemListAdd(AttributeItemListRef itemList,
         if (existingItem->attributeID == newItem->attributeID) {
             const void *previousValue = existingItem->attributeValue;
 
-            /* Retain the new value */
-            existingItem->attributeValue = SBAttributeRegistryRetainAttribute(registry,
-                newItem->attributeID, newItem->attributeValue);
-            /* Release the old value */
-            SBAttributeRegistryReleaseAttribute(registry, existingItem->attributeID, previousValue);
+            if (registry) {
+                /* Retain the new value */
+                existingItem->attributeValue = SBAttributeRegistryRetainAttribute(registry,
+                    newItem->attributeID, newItem->attributeValue);
+                /* Release the old value */
+                SBAttributeRegistryReleaseAttribute(registry,
+                    existingItem->attributeID, previousValue);
+            }
 
             return SBTrue;
         }
     }
 
-    SBAttributeRegistryRetainAttribute(registry, newItem->attributeID, newItem->attributeValue);
+    if (registry) {
+        SBAttributeRegistryRetainAttribute(registry, newItem->attributeID, newItem->attributeValue);
+    }
 
     /* Add as a new item if not found */
     return ListAdd(itemList, newItem);
@@ -195,7 +200,7 @@ SB_INTERNAL SBBoolean AttributeDictionaryFilter(AttributeDictionaryRef dictionar
             }
 
             if (itemMatched) {
-                succeeded = AttributeItemListAdd(resultList, registry, currentItem);
+                succeeded = AttributeItemListAdd(resultList, NULL, currentItem);
             }
 
             /* Early exit on failure or mismatch */

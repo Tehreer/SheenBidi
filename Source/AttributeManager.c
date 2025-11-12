@@ -493,6 +493,8 @@ SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
                 AttributeDictionaryRelease(dictionary);
             }
         }
+
+        ListFinalize(&manager->attributeDicts);
     }
 }
 
@@ -589,7 +591,7 @@ SB_INTERNAL SBBoolean AttributeManagerRemoveRange(AttributeManagerRef manager,
                 /* Try to cache the dictionary */
                 StoreAttributeDictionaryInCache(&manager->_cache, dictionary);
                 /* Release our reference */
-                ObjectRelease(dictionary);
+                AttributeDictionaryRelease(dictionary);
             }
         }
 
@@ -696,7 +698,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
 
     if (initialItem) {
         /* Add the initial item to the output list */
-        runFound = AttributeItemListAdd(outputItems, manager->_registry, initialItem);
+        runFound = AttributeItemListAdd(outputItems, NULL, initialItem);
 
         if (runFound) {
             /* Iterate while the attribute value remains the same */

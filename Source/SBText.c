@@ -166,9 +166,11 @@ SB_INTERNAL SBUInteger SBTextGetCodeUnitParagraphIndex(SBTextRef text, SBUIntege
 {
     TextParagraph *array = text->paragraphs.items;
     SBUInteger count = text->paragraphs.count;
-    void *item;
+    void *item = NULL;
 
-    item = bsearch(&codeUnitIndex, array, count, sizeof(TextParagraph), ParagraphIndexComparison);
+    if (array) {
+        item = bsearch(&codeUnitIndex, array, count, sizeof(TextParagraph), ParagraphIndexComparison);
+    }
 
     if (item) {
         return (SBUInteger)((TextParagraph *)item - array);
