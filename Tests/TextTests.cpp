@@ -37,23 +37,55 @@ extern "C" {
 using namespace std;
 using namespace SheenBidi;
 
+class AttributeRegistryHolder {
+public:
+    explicit AttributeRegistryHolder(SBAttributeRegistryRef registry)
+        : m_ptr(registry) { }
+
+    ~AttributeRegistryHolder() {
+        SBAttributeRegistryRelease(m_ptr);
+    }
+
+    operator SBAttributeRegistryRef() const { return m_ptr; }
+
+private:
+    const SBAttributeRegistryRef m_ptr;
+};
+
+class TextConfigHolder {
+public:
+    explicit TextConfigHolder(SBTextConfigRef config)
+        : m_ptr(config) { }
+
+    ~TextConfigHolder() {
+        SBTextConfigRelease(m_ptr);
+    }
+
+    operator SBTextConfigRef() const { return m_ptr; }
+
+private:
+    const SBTextConfigRef m_ptr;
+};
+
 struct AttributeName {
     static constexpr auto Color = "color";
     static constexpr auto Alignment = "alignment";
 };
 
-static auto SBAttributeRegistryDefault = [] {
+static const auto DefaultAttributeRegistry = [] {
     const vector<SBAttributeInfo> DefaultAttributes = {
         {AttributeName::Color, 1, SBAttributeScopeCharacter, { nullptr }},
         {AttributeName::Alignment, 2, SBAttributeScopeParagraph, { nullptr }}
     };
-    return SBAttributeRegistryCreate(DefaultAttributes.data(), DefaultAttributes.size());
+    auto instance = SBAttributeRegistryCreate(DefaultAttributes.data(), DefaultAttributes.size());
+
+    return AttributeRegistryHolder(instance);
 }();
 
-static auto SBTextConfigDefault = [] {
+static const auto DefaultTextConfig = [] {
     auto config = SBTextConfigCreate();
-    SBTextConfigSetAttributeRegistry(config, SBAttributeRegistryDefault);
-    return config;
+    SBTextConfigSetAttributeRegistry(config, DefaultAttributeRegistry);
+    return TextConfigHolder(config);
 }();
 
 struct AttributeID {
@@ -62,9 +94,9 @@ struct AttributeID {
 };
 
 const SBAttributeID AttributeID::Color = SBAttributeRegistryGetAttributeID(
-    SBAttributeRegistryDefault, AttributeName::Color);
+    DefaultAttributeRegistry, AttributeName::Color);
 const SBAttributeID AttributeID::Alignment = SBAttributeRegistryGetAttributeID(
-    SBAttributeRegistryDefault, AttributeName::Alignment);
+    DefaultAttributeRegistry, AttributeName::Alignment);
 
 static void verifyParagraphRanges(SBTextRef text, const vector<pair<size_t, size_t>> &ranges) {
     for (size_t i = 0; i < text->paragraphs.count; ++i) {
@@ -143,38 +175,38 @@ void TextTests::run() {
 
 void TextTests::testCreateImmutableText() {
     auto content = "Hello World";
-    auto text = SBTextCreate(content, 11, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(content, 11, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     assert(SBTextGetEncoding(text) == SBStringEncodingUTF8);
     assert(SBTextGetLength(text) == 11);
-    assert(SBTextGetAttributeRegistry(text) == SBAttributeRegistryDefault);
+    assert(SBTextGetAttributeRegistry(text) == DefaultAttributeRegistry);
 
     SBTextRelease(text);
 }
 
 void TextTests::testCreateEmptyMutableText() {
-    SBMutableTextRef text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    SBMutableTextRef text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     assert(SBTextGetEncoding(text) == SBStringEncodingUTF8);
     assert(SBTextGetLength(text) == 0);
-    assert(SBTextGetAttributeRegistry(text) == SBAttributeRegistryDefault);
+    assert(SBTextGetAttributeRegistry(text) == DefaultAttributeRegistry);
 
     SBTextRelease(text);
 }
 
 void TextTests::testCreateCopyWithDifferentEncodings() {
     // Test UTF-8
-    auto text8 = SBTextCreate("Test UTF-8", 10, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text8 = SBTextCreate("Test UTF-8", 10, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text8 != nullptr);
 
     // Test UTF-16
-    auto text16 = SBTextCreate(u"Hello", 5, SBStringEncodingUTF16, SBTextConfigDefault);
+    auto text16 = SBTextCreate(u"Hello", 5, SBStringEncodingUTF16, DefaultTextConfig);
     assert(text16 != nullptr);
 
     // Test UTF-32
-    auto text32 = SBTextCreate(U"Hello", 5, SBStringEncodingUTF32, SBTextConfigDefault);
+    auto text32 = SBTextCreate(U"Hello", 5, SBStringEncodingUTF32, DefaultTextConfig);
     assert(text32 != nullptr);
 
     assert(SBTextGetEncoding(text8) == SBStringEncodingUTF8);
@@ -188,7 +220,7 @@ void TextTests::testCreateCopyWithDifferentEncodings() {
 
 void TextTests::testCreateImmutableCopy() {
     auto content = "Original Text";
-    auto original = SBTextCreate(content, 13, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto original = SBTextCreate(content, 13, SBStringEncodingUTF8, DefaultTextConfig);
     assert(original != nullptr);
 
     auto copy = SBTextCreateCopy(original);
@@ -209,7 +241,7 @@ void TextTests::testCreateImmutableCopy() {
 
 void TextTests::testCreateMutableCopy() {
     auto content = "Original Text";
-    SBTextRef original = SBTextCreate(content, 13, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto original = SBTextCreate(content, 13, SBStringEncodingUTF8, DefaultTextConfig);
     assert(original != nullptr);
 
     auto mutableCopy = SBTextCreateMutableCopy(original);
@@ -228,7 +260,7 @@ void TextTests::testCreateMutableCopy() {
 
 void TextTests::testGetCodeUnits() {
     const char *content = "Hello World";
-    auto text = SBTextCreate(content, 11, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(content, 11, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     char buffer[12];
@@ -246,7 +278,7 @@ void TextTests::testGetCodeUnits() {
 }
 
 void TextTests::testAppendCodeUnits() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     auto content1 = "Hello";
@@ -267,7 +299,7 @@ void TextTests::testAppendCodeUnits() {
 }
 
 void TextTests::testInsertCodeUnits() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     auto initial = "Hello";
@@ -294,7 +326,7 @@ void TextTests::testInsertCodeUnits() {
 }
 
 void TextTests::testDeleteCodeUnits() {
-    SBMutableTextRef text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    SBMutableTextRef text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     auto initial = "Hello World";
@@ -321,7 +353,7 @@ void TextTests::testDeleteCodeUnits() {
 }
 
 void TextTests::testReplaceCodeUnits() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     auto initial = "Hello World";
@@ -345,7 +377,7 @@ void TextTests::testReplaceCodeUnits() {
 }
 
 void TextTests::testSetCodeUnits() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     auto initial = "Initial Text";
@@ -367,7 +399,7 @@ void TextTests::testSetCodeUnits() {
 void TextTests::testGetBidiTypes() {
     // Test with mixed-direction text
     auto mixedText = "Hello العالم";
-    auto text = SBTextCreate(mixedText, 18, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(mixedText, 18, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     SBBidiType types[18];
@@ -385,7 +417,7 @@ void TextTests::testGetBidiTypes() {
 
 void TextTests::testGetScripts() {
     auto multiScriptText = "Hello 世界";
-    auto text = SBTextCreate(multiScriptText, 12, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(multiScriptText, 12, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     SBScript scripts[12];
@@ -402,7 +434,7 @@ void TextTests::testGetScripts() {
 
 void TextTests::testGetResolvedLevels() {
     auto rtlText = "مرحبا";
-    auto text = SBTextCreate(rtlText, 10, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(rtlText, 10, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     SBLevel levels[10];
@@ -418,7 +450,7 @@ void TextTests::testGetResolvedLevels() {
 
 void TextTests::testGetCodeUnitParagraphInfo() {
     auto content = "First paragraph.\nSecond paragraph.";
-    auto text = SBTextCreate(content, 34, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(content, 34, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     SBParagraphInfo info;
@@ -440,7 +472,7 @@ void TextTests::testGetCodeUnitParagraphInfo() {
 
 void TextTests::testIterators() {
     auto testText = "Test text for iterators";
-    auto text = SBTextCreate(testText, 23, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(testText, 23, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     // Test paragraph iterator
@@ -467,7 +499,7 @@ void TextTests::testIterators() {
 }
 
 void TextTests::testEditingSession() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     SBTextBeginEditing(text);
@@ -491,21 +523,21 @@ void TextTests::testEditingSession() {
 
 void TextTests::testEdgeCases() {
     // Test empty text
-    auto emptyText = SBTextCreate("", 0, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto emptyText = SBTextCreate("", 0, SBStringEncodingUTF8, DefaultTextConfig);
     assert(emptyText != nullptr);
     assert(SBTextGetLength(emptyText) == 0);
     SBTextRelease(emptyText);
 
     // Test very long text
     string content(1000, 'A');
-    auto longText = SBTextCreate(content.c_str(), 1000, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto longText = SBTextCreate(content.c_str(), 1000, SBStringEncodingUTF8, DefaultTextConfig);
     assert(longText != nullptr);
     assert(SBTextGetLength(longText) == 1000);
     SBTextRelease(longText);
 }
 
 void TextTests::testInvalidOperations() {
-    auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     // Test operations on empty text
@@ -520,7 +552,7 @@ void TextTests::testInvalidOperations() {
 
 void TextTests::testReferenceCounting() {
     auto testText = "Reference counting test";
-    auto text = SBTextCreate(testText, 23, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(testText, 23, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     // Test retain/release
@@ -549,7 +581,7 @@ void TextTests::testDifferentBaseLevels() {
 void TextTests::testComplexBidirectionalText() {
     // Mixed LTR/RTL text
     auto complexText = "Hello (שלום) World";
-    auto text = SBTextCreate(complexText, 22, SBStringEncodingUTF8, SBTextConfigDefault);
+    auto text = SBTextCreate(complexText, 22, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
     // Test all getter functions on complex text
@@ -574,7 +606,7 @@ void TextTests::testComplexBidirectionalText() {
 void TextTests::testParagraphScenarios() {
     // Basic single paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Single paragraph text";
@@ -587,7 +619,7 @@ void TextTests::testParagraphScenarios() {
 
     // Multiple paragraphs with \n separator
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First paragraph\nSecond paragraph\nThird paragraph";
@@ -600,7 +632,7 @@ void TextTests::testParagraphScenarios() {
 
     // Multiple paragraphs with \r\n separator (Windows-style)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First paragraph\r\nSecond paragraph\r\nThird paragraph";
@@ -613,7 +645,7 @@ void TextTests::testParagraphScenarios() {
 
     // Mixed line endings: \n, \r\n, and \r
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Unix line\nWindows line\r\nOld Mac line\rEnd";
@@ -626,7 +658,7 @@ void TextTests::testParagraphScenarios() {
 
     // Empty paragraphs (consecutive line breaks)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\n\nThird\n\n\nSixth";
@@ -639,7 +671,7 @@ void TextTests::testParagraphScenarios() {
 
     // Paragraph starting with line break
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "\nStarts with newline";
@@ -652,7 +684,7 @@ void TextTests::testParagraphScenarios() {
 
     // Paragraph ending with line break
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Ends with newline\n";
@@ -665,7 +697,7 @@ void TextTests::testParagraphScenarios() {
 
     // Only line breaks
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "\n\n\n";
@@ -678,7 +710,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert at start
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Paragraph1\nParagraph2";
@@ -693,7 +725,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert within paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello World";
@@ -708,7 +740,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert new line splits paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "HelloWorld";
@@ -723,7 +755,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert \r\n splits paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "HelloWorld";
@@ -738,7 +770,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert at paragraph boundary
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\nSecond";
@@ -753,7 +785,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove within single paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "HelloWorld";
@@ -768,7 +800,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove paragraph boundary (\n)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Paragraph1\nParagraph2\nParagraph3";
@@ -783,7 +815,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove paragraph boundary (\r\n)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\r\nSecond\r\nThird";
@@ -798,7 +830,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove only part of \r\n (should still split paragraphs)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\r\nSecond";
@@ -813,7 +845,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove spanning multiple paragraphs
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "P1\nP2\nP3\nP4";
@@ -828,7 +860,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove entire paragraph including boundary
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\nSecond\nThird";
@@ -843,7 +875,7 @@ void TextTests::testParagraphScenarios() {
 
     // Remove all text
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Line1\nLine2";
@@ -858,7 +890,7 @@ void TextTests::testParagraphScenarios() {
 
     // Insert into empty text
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         assert(SBTextInsertCodeUnits(text, 0, "New", 3));
@@ -870,7 +902,7 @@ void TextTests::testParagraphScenarios() {
 
     // Replace across boundary
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "ABC\nDEF";
@@ -885,7 +917,7 @@ void TextTests::testParagraphScenarios() {
 
     // Replace paragraph boundary with text (merge paragraphs)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\nSecond";
@@ -900,7 +932,7 @@ void TextTests::testParagraphScenarios() {
 
     // Replace text with paragraph boundary (split paragraph)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello World";
@@ -915,7 +947,7 @@ void TextTests::testParagraphScenarios() {
 
     // Complex replacement spanning multiple paragraphs
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "P1\nP2\nP3\nP4";
@@ -930,7 +962,7 @@ void TextTests::testParagraphScenarios() {
 
     // Append to text with existing paragraphs
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First\nSecond";
@@ -945,7 +977,7 @@ void TextTests::testParagraphScenarios() {
 
     // Append empty string
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Existing";
@@ -960,7 +992,7 @@ void TextTests::testParagraphScenarios() {
 
     // Set code units on existing text (complete replacement)
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Old text\nwith paragraphs";
@@ -976,7 +1008,7 @@ void TextTests::testParagraphScenarios() {
 
     // Unicode paragraph separators
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         // U+2029 is PARAGRAPH SEPARATOR
@@ -990,7 +1022,7 @@ void TextTests::testParagraphScenarios() {
 
     // Mixed Unicode and ASCII paragraph separators
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         // Mix of \n, \r\n, and U+2029
@@ -1004,7 +1036,7 @@ void TextTests::testParagraphScenarios() {
 
     // Very long paragraph
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         string longParagraph(1000, 'A'); // 1000 'A's
@@ -1017,7 +1049,7 @@ void TextTests::testParagraphScenarios() {
 
     // Many small paragraphs
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         string manyParagraphs;
@@ -1034,7 +1066,7 @@ void TextTests::testParagraphScenarios() {
 
     // Editing session with paragraph modifications
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         SBTextBeginEditing(text);
@@ -1055,7 +1087,7 @@ void TextTests::testParagraphScenarios() {
 
     // RTL text paragraphs
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello (مرحبا)\nWorld (عالم)";
@@ -1068,7 +1100,7 @@ void TextTests::testParagraphScenarios() {
 
     // Empty text then add content
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         verifyParagraphRanges(text, {});
@@ -1082,7 +1114,7 @@ void TextTests::testParagraphScenarios() {
 
     // Multiple operations in sequence
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         assert(SBTextAppendCodeUnits(text, "Start", 5));
@@ -1104,7 +1136,7 @@ void TextTests::testParagraphScenarios() {
 void TextTests::testSetAttribute() {
     // Test setting character-scoped attribute
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello World";
@@ -1128,7 +1160,7 @@ void TextTests::testSetAttribute() {
 
     // Test setting paragraph-scoped attribute
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First paragraph.\nSecond paragraph.";
@@ -1152,7 +1184,7 @@ void TextTests::testSetAttribute() {
 
     // Test setting attribute on empty text
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         // Should handle zero-length range gracefully
@@ -1166,7 +1198,7 @@ void TextTests::testSetAttribute() {
 
     // Test setting multiple attributes on the same range
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Test content";
@@ -1191,7 +1223,7 @@ void TextTests::testSetAttribute() {
 
     // Test setting attribute with editing session
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         SBTextBeginEditing(text);
@@ -1216,7 +1248,7 @@ void TextTests::testSetAttribute() {
 void TextTests::testRemoveAttribute() {
     // Test removing character-scoped attribute
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello World";
@@ -1239,7 +1271,7 @@ void TextTests::testRemoveAttribute() {
 
     // Test removing paragraph-scoped attribute
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "First paragraph.\nSecond paragraph.";
@@ -1262,7 +1294,7 @@ void TextTests::testRemoveAttribute() {
 
     // Test removing attribute from partial range
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello World";
@@ -1285,7 +1317,7 @@ void TextTests::testRemoveAttribute() {
 
     // Test removing non-existent attribute
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Test content";
@@ -1301,7 +1333,7 @@ void TextTests::testRemoveAttribute() {
 
     // Test removing attribute from empty text
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         // Should handle zero-length range gracefully
@@ -1314,7 +1346,7 @@ void TextTests::testRemoveAttribute() {
 
     // Test removing attribute with editing session
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Editing session test";
@@ -1340,7 +1372,7 @@ void TextTests::testRemoveAttribute() {
 void TextTests::testAttributeEdgeCases() {
     // Test attribute operations on boundary conditions
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Short";
@@ -1360,7 +1392,7 @@ void TextTests::testAttributeEdgeCases() {
 
     // Test attribute operations after text modifications
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Original text";
@@ -1392,7 +1424,7 @@ void TextTests::testAttributeEdgeCases() {
 
     // Test multiple attribute types on overlapping ranges
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Test content for multiple attributes";
@@ -1424,7 +1456,7 @@ void TextTests::testAttributeEdgeCases() {
 void TextTests::testAttributeComplexScenarios() {
     // Test attributes with complex text modifications
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Start Middle End";
@@ -1476,7 +1508,7 @@ void TextTests::testAttributeComplexScenarios() {
 
     // Test attributes with bidirectional text
     {
-        auto text = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
         auto content = "Hello (العربية) World";
@@ -1496,7 +1528,7 @@ void TextTests::testAttributeComplexScenarios() {
 
     // Test attribute persistence across copy operations
     {
-        auto original = SBTextCreateMutable(SBStringEncodingUTF8, SBTextConfigDefault);
+        auto original = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(original != nullptr);
 
         auto content = "Text with attributes";
