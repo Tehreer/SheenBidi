@@ -74,7 +74,7 @@ static SBMutableTextRef SBTextCreateTest(const string &str, SBLevel baseLevel = 
     SBTextConfigSetAttributeRegistry(config, registry);
     SBTextConfigSetBaseLevel(config, baseLevel);
 
-    auto text = SBTextCreateMutable(SBStringEncodingUTF16, config);
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
     SBTextAppendCodeUnits(text, str.data(), str.length());
 
     SBTextConfigRelease(config);
