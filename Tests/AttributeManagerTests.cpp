@@ -180,19 +180,19 @@ static SBMutableTextRef SBTextCreateWithDefaultRegistry() {
 }
 
 static void SBTextAppendRandomCodeUnits(SBMutableTextRef text, SBUInteger length) {
-    const string &randomString = generateString(length);
-    SBTextAppendCodeUnits(text, randomString.c_str(), length);
+    const auto content = generateString(length);
+    SBTextAppendCodeUnits(text, content.c_str(), length);
 }
 
 static void SBTextInsertRandomCodeUnits(SBMutableTextRef text,
     SBUInteger index, SBUInteger length) {
-    const string &randomString = generateString(length);
-    SBTextInsertCodeUnits(text, index, randomString.c_str(), length);
+    const auto content = generateString(length);
+    SBTextInsertCodeUnits(text, index, content.c_str(), length);
 }
 
 static void SBTextInsertRandomParagraph(SBMutableTextRef text,
     SBUInteger index, SBUInteger length) {
-    const string paragraph = generateString(length - 1) + '\n';
+    const auto paragraph = generateString(length - 1) + '\n';
     SBTextInsertCodeUnits(text, index, paragraph.c_str(), length);
 }
 
