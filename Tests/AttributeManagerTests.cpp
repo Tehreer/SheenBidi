@@ -23,6 +23,7 @@
 #include <SheenBidi/SBBase.h>
 
 extern "C" {
+#include <Source/AttributeDictionary.h>
 #include <Source/AttributeManager.h>
 #include "Source/SBAttributeRegistry.h"
 #include <Source/SBText.h>
@@ -402,25 +403,25 @@ void AttributeManagerTests::testGetRunByIDBasic() {
     // Set attribute on first half
     SBTextSetAttribute(text, 0, 5, colorID, Color::purple());
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
 
     // First run (0-4 with color)
     assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
-        &startIndex, endIndex, colorID, &outputItems));
-    assert(outputItems.count == 1);
+        &startIndex, endIndex, colorID, &output));
+    assert(output._list.count == 1);
     assert(startIndex == 5);
 
     // Second run (5-9 without color)
-    assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
-        &startIndex, endIndex, colorID, &outputItems));
-    assert(outputItems.count == 0);
+    assert(AttributeManagerGetOnwardRunByFilteringID(manager,
+        &startIndex, endIndex, colorID, &output));
+    assert(output._list.count == 0);
     assert(startIndex == 10);
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
@@ -437,20 +438,20 @@ void AttributeManagerTests::testGetRunByFilteredCollection() {
     SBTextSetAttribute(text, 0, 3, fontID, Font::arial());
     SBTextSetAttribute(text, 3, 4, colorID, Color::blue());
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
 
     // Get runs filtered by character scope
     assert(AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, endIndex, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems));
+        &startIndex, endIndex, SBAttributeScopeCharacter, SBAttributeGroupNone, &output));
 
-    assert(outputItems.count == 2); // color and font
+    assert(output._list.count == 2); // color and font
     assert(startIndex == 3);
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
@@ -468,21 +469,21 @@ void AttributeManagerTests::testFilterByAttributeGroup() {
     SBTextSetAttribute(text, 0, 5, fontID, Font::arial());
     SBTextSetAttribute(text, 3, 5, langID, Language::english());
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
 
     // Filter by character group (group 1)
     assert(AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, endIndex, SBAttributeScopeCharacter, 1, &outputItems));
+        &startIndex, endIndex, SBAttributeScopeCharacter, 1, &output));
 
     // Should only get color and font (both group 1), not language (group 2)
     assert(startIndex == 5);
-    assert(outputItems.count == 2);
+    assert(output._list.count == 2);
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
@@ -501,29 +502,29 @@ void AttributeManagerTests::testComplexRunDetectionScenarios() {
     SBTextSetAttribute(text, 10, 5, fontID, Font::arial());    // 10-14: both
     SBTextSetAttribute(text, 15, 5, fontID, Font::times());    // 15-19: font
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
 
     // Test run detection with mixed attributes
     AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &output);
     assert(startIndex == 5); // First run: positions 0-4 (color only)
 
     AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &output);
     assert(startIndex == 10); // Second run: positions 5-9 (font only)
 
     AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &output);
     assert(startIndex == 15); // Third run: positions 10-14 (both color and font)
 
     AttributeManagerGetOnwardRunByFilteringCollection(manager, 
-        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &outputItems);
+        &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &output);
     assert(startIndex == 20); // Fourth run: positions 15-19 (font only)
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
@@ -597,19 +598,19 @@ void AttributeManagerTests::testEmptyRuns() {
     auto manager = &text->attributeManager;
     auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 5;
 
     // Should find a run with no attributes
     assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
-        &startIndex, endIndex, colorID, &outputItems));
-    assert(outputItems.count == 0);
+        &startIndex, endIndex, colorID, &output));
+    assert(output._list.count == 0);
     assert(startIndex == 5);
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
@@ -747,23 +748,23 @@ void AttributeManagerTests::testRunBoundariesWithMixedAttributes() {
     SBTextSetAttribute(text, 10, 5, fontID, Font::arial());
     // 15-30: no attributes
 
-    AttributeItemList outputItems;
-    ListInitialize(&outputItems, sizeof(SBAttributeItem));
+    AttributeDictionary output;
+    AttributeDictionaryInitialize(&output, nullptr);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 30;
 
     // Get runs for the color
     assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
-        &startIndex, endIndex, colorID, &outputItems));
+        &startIndex, endIndex, colorID, &output));
     assert(startIndex == 10); // color ends at 10
 
     // Continue to the next run (no color)
     assert(AttributeManagerGetOnwardRunByFilteringID(manager, 
-        &startIndex, endIndex, colorID, &outputItems));
+        &startIndex, endIndex, colorID, &output));
     assert(startIndex == 30); // no color from 10-30
 
-    ListFinalize(&outputItems);
+    AttributeDictionaryFinalize(&output);
     SBTextRelease(text);
 }
 
