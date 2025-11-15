@@ -59,6 +59,8 @@ typedef struct ObjectBase {
 
 #define ObjectBaseMake() { MemoryMake(), NULL, 0 }
 
+SB_INTERNAL void ObjectBaseInitialize(ObjectBaseRef objectBase);
+
 /**
  * Creates a reference-counted object and allocates memory chunks for it.
  *

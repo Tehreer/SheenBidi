@@ -24,6 +24,13 @@
 #include "SBAssert.h"
 #include "Object.h"
 
+SB_INTERNAL void ObjectBaseInitialize(ObjectBaseRef objectBase)
+{
+    MemoryInitialize(&objectBase->memory);
+    objectBase->finalize = NULL;
+    objectBase->retainCount = 0;
+}
+
 SB_INTERNAL ObjectRef ObjectCreate(const SBUInteger *chunkSizes, SBUInteger chunkCount,
     void **outPointers, FinalizeFunc finalizer)
 {

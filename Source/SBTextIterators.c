@@ -18,11 +18,11 @@
 
 #include <SheenBidi/SBConfig.h>
 
+#include "AttributeDictionary.h"
 #include "AttributeManager.h"
 #include "List.h"
 #include "Object.h"
 #include "SBAssert.h"
-#include "SBAttributeRegistry.h"
 #include "SBBase.h"
 #include "SBLine.h"
 #include "SBParagraph.h"
@@ -599,7 +599,7 @@ static void FinalizeAttributeRunIterator(ObjectRef object)
     SBAttributeRunIteratorRef iterator = object;
 
     SBTextRelease(iterator->text);
-    ListFinalize(&iterator->items);
+    AttributeDictionaryFinalize(&iterator->items);
 }
 
 /**
@@ -626,8 +626,8 @@ static SBBoolean LoadOnwardAttributeRunByFilteringID(SBAttributeRunIteratorRef i
     /* Populate the current run */
     currentRun->index = iterator->currentIndex;
     currentRun->length = index - iterator->currentIndex;
-    currentRun->attributeItems = iterator->items.items;
-    currentRun->attributeCount = iterator->items.count;
+    currentRun->attributeItems = iterator->items._list.items;
+    currentRun->attributeCount = iterator->items._list.count;
 
     iterator->currentIndex = index;
 
@@ -658,8 +658,8 @@ static SBBoolean LoadOnwardAttributeRunByFilteringCollection(SBAttributeRunItera
     /* Populate the current run */
     currentRun->index = iterator->currentIndex;
     currentRun->length = index - iterator->currentIndex;
-    currentRun->attributeItems = iterator->items.items;
-    currentRun->attributeCount = iterator->items.count;
+    currentRun->attributeItems = iterator->items._list.items;
+    currentRun->attributeCount = iterator->items._list.count;
 
     iterator->currentIndex = index;
 
@@ -686,7 +686,7 @@ SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef tex
         iterator->filterGroup = SBAttributeGroupNone;
         iterator->filterScope = SBAttributeScopeCharacter;
 
-        ListInitialize(&iterator->items, sizeof(SBAttributeRun));
+        AttributeDictionaryInitialize(&iterator->items, NULL);
         InitializeAttributeRun(&iterator->currentRun);
     }
 

@@ -22,7 +22,7 @@
 #include <SheenBidi/SBLine.h>
 #include <SheenBidi/SBTextIterators.h>
 
-#include "AttributeManager.h"
+#include "AttributeDictionary.h"
 #include "Object.h"
 #include "SBText.h"
 
@@ -61,7 +61,7 @@ typedef struct _SBScriptRunIterator {
 typedef struct _SBAttributeRunIterator {
     ObjectBase _base;
     SBTextRef text;
-    AttributeItemList items;
+    AttributeDictionary items;
     SBUInteger startIndex;
     SBUInteger endIndex;
     SBUInteger currentIndex;

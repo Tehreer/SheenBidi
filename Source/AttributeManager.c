@@ -339,7 +339,7 @@ static SBBoolean ApplyAttributeItemsOverRange(AttributeManagerRef manager,
             for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
                 const SBAttributeItem *currentItem = &attributeItems[itemIndex];
 
-                succeeded = AttributeItemListAdd(&dictionary->_list, registry, currentItem);
+                succeeded = AttributeDictionaryPut(dictionary, currentItem);
 
                 if (!succeeded) {
                     goto Exit;
@@ -376,7 +376,7 @@ static void RemoveAttributeFromRange(AttributeManagerRef manager,
 
         if (dictionary) {
             /* Remove the attribute ID */
-            AttributeDictionaryRemove(dictionary, manager->_registry, attributeID);
+            AttributeDictionaryRemove(dictionary, attributeID);
 
             /* Cache and clear the dictionary if it becomes empty */
             if (AttributeDictionaryIsEmpty(dictionary)) {
@@ -393,9 +393,8 @@ static void RemoveAttributeFromRange(AttributeManagerRef manager,
 /**
  * Adjusts paragraph-scoped attributes after text has been removed.
  *
- * When text is removed, two previously separate paragraphs may merge. This
- * function ensures that paragraph-scoped attributes are properly propagated
- * across the merged paragraph boundary.
+ * When text is removed, two previously separate paragraphs may merge. This function ensures that
+ * paragraph-scoped attributes are properly propagated across the merged paragraph boundary.
  *
  * @param manager
  *      The attribute manager to adjust.
@@ -424,35 +423,44 @@ static SBBoolean AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager
         if (paragraphsMerged) {
             SBUInteger paragraphStart = precedingParagraph->index;
             SBUInteger paragraphEnd = paragraphStart + precedingParagraph->length;
-            AttributeItemListRef paragraphAttributes;
-            AttributeDictionaryRef sourceDictionary;
+            AttributeDictionaryRef paragraphAttributes;
+            AttributeDictionaryRef sourceDict;
 
-            paragraphAttributes = &manager->_tempList;
+            paragraphAttributes = &manager->_tempDict;
+            AttributeDictionaryClear(paragraphAttributes);
 
             /* Extract paragraph-scoped attributes from before the merge point */
-            sourceDictionary = ListGetVal(&manager->attributeDicts, precedingIndex);
-            succeeded = AttributeDictionaryFilter(sourceDictionary, SBAttributeScopeParagraph,
-                SBAttributeGroupNone, paragraphAttributes);
+            sourceDict = ListGetVal(&manager->attributeDicts, precedingIndex);
 
-            if (succeeded && paragraphAttributes->count > 0) {
+            if (sourceDict) {
+                succeeded = AttributeDictionaryFilter(sourceDict, SBAttributeScopeParagraph,
+                    SBAttributeGroupNone, paragraphAttributes);
+            }
+
+            if (succeeded && !AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the second half of the merged paragraph */
                 succeeded = ApplyAttributeItemsOverRange(manager, registry,
                     mergePointIndex, paragraphEnd - mergePointIndex,
-                    sourceDictionary->_list.items, sourceDictionary->_list.count);
+                    paragraphAttributes->_list.items, paragraphAttributes->_list.count);
             }
 
             if (succeeded) {
                 /* Extract paragraph-scoped attributes from after the merge point */
-                sourceDictionary = ListGetVal(&manager->attributeDicts, mergePointIndex);
-                succeeded = AttributeDictionaryFilter(sourceDictionary, SBAttributeScopeParagraph,
-                    SBAttributeGroupNone, paragraphAttributes);
+                sourceDict = ListGetVal(&manager->attributeDicts, mergePointIndex);
+
+                AttributeDictionaryClear(paragraphAttributes);
+
+                if (sourceDict) {
+                    succeeded = AttributeDictionaryFilter(sourceDict, SBAttributeScopeParagraph,
+                        SBAttributeGroupNone, paragraphAttributes);
+                }
             }
 
-            if (succeeded && paragraphAttributes->count > 0) {
+            if (succeeded && !AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the first half of the merged paragraph */
                 succeeded = ApplyAttributeItemsOverRange(manager, registry,
                     paragraphStart, mergePointIndex - paragraphStart,
-                    sourceDictionary->_list.items, sourceDictionary->_list.count);
+                    paragraphAttributes->_list.items, paragraphAttributes->_list.count);
             }
         }
     }
@@ -467,9 +475,9 @@ SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
     manager->_registry = registry;
 
     if (registry) {
-        /* Initialize cache and storage list only if registry is provided */
+        /* Initialize cache and temp dictionary only if registry is provided */
         InitializeAttributeDictionaryCache(&manager->_cache);
-        ListInitialize(&manager->_tempList, sizeof(AttributeItemList));
+        AttributeDictionaryInitialize(&manager->_tempDict, NULL);
         ListInitialize(&manager->attributeDicts, sizeof(AttributeDictionaryRef));
     }
 }
@@ -480,7 +488,7 @@ SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
         SBUInteger listCount = manager->attributeDicts.count;
         SBUInteger index;
 
-        ListFinalize(&manager->_tempList);
+        AttributeDictionaryFinalize(&manager->_tempDict);
 
         /* Finalize the cache */
         FinalizeAttributeDictionaryCache(&manager->_cache);
@@ -677,14 +685,14 @@ SB_INTERNAL void AttributeManagerRemoveAttribute(AttributeManagerRef manager,
 
 SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManagerRef manager,
     SBUInteger *runStart, SBUInteger rangeEnd,
-    SBAttributeID attributeID, AttributeItemListRef outputItems)
+    SBAttributeID attributeID, AttributeDictionaryRef output)
 {
     SBBoolean runFound = SBTrue;
     AttributeDictionaryRef dictionary;
     const SBAttributeItem *initialItem;
 
-    /* Clear the output items list */
-    ListRemoveAll(outputItems);
+    /* Clear the output dictionary */
+    AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
@@ -694,20 +702,23 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
 
     /* Get the attribute dictionary of the first code unit and search for the attribute */
     dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-    initialItem = AttributeDictionaryFindItem(dictionary, attributeID);
+    initialItem = dictionary ? AttributeDictionaryFindItem(dictionary, attributeID) : NULL;
 
     if (initialItem) {
-        /* Add the initial item to the output list */
-        runFound = AttributeItemListAdd(outputItems, NULL, initialItem);
+        /* Put the initial item to the output dictionary */
+        runFound = AttributeDictionaryPut(output, initialItem);
 
         if (runFound) {
             /* Iterate while the attribute value remains the same */
             while (++(*runStart) < rangeEnd) {
                 SBBoolean valuesMatched = SBFalse;
-                const SBAttributeItem *subsequentItem;
+                const SBAttributeItem *subsequentItem = NULL;
 
                 dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-                subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
+
+                if (dictionary) {
+                    subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
+                }
 
                 if (subsequentItem) {
                     /* Check if the attribute value matches */
@@ -724,10 +735,13 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     } else {
         /* Iterate while the attribute doesn't exist */
         while (++(*runStart) < rangeEnd) {
-            const SBAttributeItem *subsequentItem;
+            const SBAttributeItem *subsequentItem = NULL;
 
             dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-            subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
+
+            if (dictionary) {
+                subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
+            }
 
             /* Stop when the attribute appears */
             if (subsequentItem) {
@@ -742,13 +756,13 @@ Exit:
 
 SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(AttributeManagerRef manager,
     SBUInteger *runStart, SBUInteger rangeEnd,
-    SBAttributeScope filterScope, SBAttributeGroup filterGroup, AttributeItemListRef outputItems)
+    SBAttributeScope filterScope, SBAttributeGroup filterGroup, AttributeDictionaryRef output)
 {
-    SBBoolean runFound;
+    SBBoolean runFound = SBTrue;
     AttributeDictionaryRef dictionary;
 
-    /* Clear the output items list */
-    ListRemoveAll(outputItems);
+    /* Clear the output dictionary */
+    AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
@@ -758,27 +772,32 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
 
     /* Get the attribute dictionary of the first code unit */
     dictionary = ListGetVal(&manager->attributeDicts, *runStart);
+
     /* Get the items from the dictionary respecting the specified filters */
-    runFound = AttributeDictionaryFilter(dictionary, filterScope, filterGroup, outputItems);
+    if (dictionary) {
+        runFound = AttributeDictionaryFilter(dictionary, filterScope, filterGroup, output);
+    }
 
     if (runFound) {
-        if (outputItems->count > 0) {
-            /* Iterate while the filtered attributes remain the same */
-            while (++(*runStart) < rangeEnd) {
-                dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-
-                if (!AttributeDictionaryMatchAll(dictionary, filterScope, filterGroup, outputItems)) {
-                    /* Stop if the attributes change */
-                    break;
-                }
-            }
-        } else {
+        if (AttributeDictionaryIsEmpty(output)) {
             /* Iterate while no matching attributes exist */
             while (++(*runStart) < rangeEnd) {
                 dictionary = ListGetVal(&manager->attributeDicts, *runStart);
 
                 /* Stop when matching attributes appear */
-                if (AttributeDictionaryMatchAny(dictionary, filterScope, filterGroup)) {
+                if (dictionary
+                    && AttributeDictionaryMatchAny(dictionary, filterScope, filterGroup)) {
+                    break;
+                }
+            }
+        } else {
+            /* Iterate while the filtered attributes remain the same */
+            while (++(*runStart) < rangeEnd) {
+                dictionary = ListGetVal(&manager->attributeDicts, *runStart);
+
+                if (!dictionary
+                    || !AttributeDictionaryMatchAll(dictionary, filterScope, filterGroup, output)) {
+                    /* Stop if the attributes change */
                     break;
                 }
             }

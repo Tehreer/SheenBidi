@@ -26,32 +26,37 @@
 #include "List.h"
 #include "Object.h"
 
-typedef LIST(SBAttributeItem) AttributeItemList, *AttributeItemListRef;
-
 typedef struct _AttributeDictionary {
     ObjectBase _base;
     SBAttributeRegistryRef _registry;
-    AttributeItemList _list;
+    LIST(SBAttributeItem) _list;
 } AttributeDictionary, *AttributeDictionaryRef;
 
 /**
- * Adds or replaces an attribute item in an attribute item list.
+ * Initializes an attribute dictionary with the specified registry.
  *
- * This function searches for an existing item with the same attribute ID in the list. If found, it
- * replaces the value (properly releasing the old value and retaining the new one). If not found, it
- * appends the new item to the list after retaining.
+ * Sets up an already-allocated attribute dictionary structure by initializing its base object
+ * and internal list. The dictionary will use the provided registry for managing attribute
+ * lifecycle (retention and release).
  *
- * @param itemList
- *      The attribute item list to modify.
+ * @param dictionary
+ *      The attribute dictionary to initialize.
  * @param registry
- *      The attribute registry for managing attribute values.
- * @param newItem
- *      The attribute item to add or replace.
- * @return
- *      SBTrue on success, SBFalse on failure (e.g., allocation failure).
+ *      The attribute registry that manages attribute retention and release.
  */
-SB_INTERNAL SBBoolean AttributeItemListAdd(AttributeItemListRef itemList,
-    SBAttributeRegistryRef registry, const SBAttributeItem *newItem);
+SB_INTERNAL void AttributeDictionaryInitialize(AttributeDictionaryRef dictionary,
+    SBAttributeRegistryRef registry);
+
+/**
+ * Finalizes an attribute dictionary and releases all resources.
+ *
+ * Releases all retained attribute values through the registry and cleans up the internal list
+ * structure. After finalization, the dictionary should not be used.
+ *
+ * @param dictionary
+ *      The attribute dictionary to finalize.
+ */
+SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary);
 
 /**
  * Creates a new attribute dictionary with the specified registry.
@@ -66,6 +71,18 @@ SB_INTERNAL SBBoolean AttributeItemListAdd(AttributeItemListRef itemList,
  */
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry);
 
+/**
+ * Creates a copy of an attribute dictionary.
+ *
+ * Allocates and initializes a new attribute dictionary as a deep copy of the provided dictionary.
+ * All attribute values are retained through the registry during the copy process.
+ *
+ * @param dictionary
+ *      The attribute dictionary to copy.
+ * @return
+ *      A new attribute dictionary reference containing copies of all attributes, or NULL if
+ *      allocation fails.
+ */
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCopy(AttributeDictionaryRef dictionary);
 
 /**
@@ -79,31 +96,53 @@ SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCopy(AttributeDictionaryRe
 SB_INTERNAL SBBoolean AttributeDictionaryIsEmpty(AttributeDictionaryRef dictionary);
 
 /**
- * Retrieves filtered attribute items from a dictionary based on scope and group.
+ * Adds or updates an attribute item in the dictionary.
+ *
+ * Inserts a new attribute item or replaces an existing one with the same ID. The new attribute
+ * value is retained through the registry, and any previous value is released before replacement.
  *
  * @param dictionary
- *      The attribute dictionary to query. Can be NULL.
+ *      The attribute dictionary to modify.
+ * @param newItem
+ *      Pointer to the attribute item to add or update.
+ * @return
+ *      SBTrue on success, SBFalse if insertion fails due to memory allocation.
+ */
+SB_INTERNAL SBBoolean AttributeDictionaryPut(AttributeDictionaryRef dictionary,
+    const SBAttributeItem *newItem);
+
+/**
+ * Retrieves filtered attribute items from a dictionary based on scope and group.
+ *
+ * Copies all attributes from the dictionary that match the specified scope and group into the
+ * result dictionary. The result dictionary is cleared before filtering begins.
+ *
+ * @param dictionary
+ *      The attribute dictionary to query.
  * @param targetScope
  *      The attribute scope to filter by.
  * @param targetGroup
  *      The attribute group to filter by (or SBAttributeGroupNone for no group filtering).
- * @param resultList
- *      The list where matching items will be added.
+ * @param result
+ *      The dictionary where matching items will be added.
  * @return
- *      SBTrue on success or if all comparisons match, SBFalse on failure or mismatch.
+ *      SBTrue on success, SBFalse on failure during insertion.
  */
 SB_INTERNAL SBBoolean AttributeDictionaryFilter(AttributeDictionaryRef dictionary,
-    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeItemListRef resultList);
+    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeDictionaryRef result);
 
 /**
  * Searches for an attribute item with the specified ID in an attribute dictionary.
  *
+ * Performs a binary search to locate the attribute by ID using the internally maintained sorted
+ * order.
+ *
  * @param dictionary
- *      The attribute dictionary to search. Can be NULL.
+ *      The attribute dictionary to search.
  * @param attributeID
  *      The attribute ID to search for.
  * @return
- *      A pointer to the matching attribute item, or NULL if not found or dictionary is NULL.
+ *      A pointer to the matching attribute item, or NULL if not found.
  */
 SB_INTERNAL const SBAttributeItem *AttributeDictionaryFindItem(
     AttributeDictionaryRef dictionary, SBAttributeID attributeID);
@@ -111,8 +150,10 @@ SB_INTERNAL const SBAttributeItem *AttributeDictionaryFindItem(
 /**
  * Checks if any attribute matching the specified scope and group exists in the dictionary.
  *
+ * Iterates through all attributes in the dictionary and returns true as soon as a match is found.
+ *
  * @param dictionary
- *      The attribute dictionary to check. Can be NULL.
+ *      The attribute dictionary to check.
  * @param targetScope
  *      The attribute scope to filter by.
  * @param targetGroup
@@ -124,48 +165,48 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAny(AttributeDictionaryRef diction
     SBAttributeScope targetScope, SBAttributeGroup targetGroup);
 
 /**
- * Checks if all attributes matching scope and group have equal values between dictionary and list.
+ * Checks if all filtered attributes have equal values between two dictionaries.
  *
- * This function compares attributes in the dictionary against those in the provided item list. It
- * filters both collections by the specified scope and group, then verifies that all filtered
- * attributes exist in both collections with equal values (using the registry's equality function).
+ * Compares attributes in the dictionary against those in the other dictionary. It filters both
+ * collections by the specified scope and group, then verifies that all filtered attributes exist
+ * in both collections with identical IDs and equal values (using the registry's equality function).
+ * Both dictionaries must have matching sets of filtered attributes.
  *
  * @param dictionary
- *      The attribute dictionary to check. Can be NULL (returns `SBTrue`).
+ *      The attribute dictionary to check.
  * @param targetScope
- *      The attribute scope to filter by (character, paragraph, or line).
+ *      The attribute scope to filter by (character or paragraph).
  * @param targetGroup
  *      The attribute group to filter by, or SBAttributeGroupNone to match any group.
- * @param itemList
- *      The list of attribute items to compare against.
+ * @param other
+ *      The other attribute dictionary to compare against.
  * @return
- *      SBTrue if all matching attributes exist in both collections with equal values, SBFalse if
- *      any mismatch is found (missing or unequal attribute)
+ *      SBTrue if all filtered attributes exist in both dictionaries with equal values and neither
+ *      dictionary has extra filtered attributes, SBFalse otherwise.
  */
 SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef dictionary,
-    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeItemListRef itemList);
+    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeDictionaryRef other);
 
 /**
  * Removes an attribute with the specified ID from the dictionary.
  *
- * This function searches for the attribute by ID and removes it from the dictionary. The attribute
- * value is properly released through the registry before removal.
+ * Searches for the attribute by ID and removes it from the dictionary. The attribute value is
+ * properly released through the registry before removal. Does nothing if the attribute is not
+ * found.
  *
  * @param dictionary
  *      The attribute dictionary from which to remove the attribute.
- * @param registry
- *      The registry used to release the attribute value.
  * @param attributeID
  *      The ID of the attribute to remove.
  */
 SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
-    SBAttributeRegistryRef registry, SBAttributeID attributeID);
+    SBAttributeID attributeID);
 
 /**
  * Removes all attributes from the dictionary.
  *
- * This function iterates through all items in the dictionary and releases their values through the
- * registry before clearing the internal list.
+ * Iterates through all items in the dictionary and releases their values through the registry
+ * before clearing the internal list.
  *
  * @param dictionary
  *      The attribute dictionary to clear.
