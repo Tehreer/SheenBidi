@@ -34,32 +34,24 @@
  *
  * The cache stores reusable attribute dictionaries to reduce memory allocations
  * when attributes are frequently added and removed.
- *
- * @param cache
- *      The cache structure to initialize.
  */
 static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
 {
-    /* Initialize the list to hold cached attribute dictionaries */
     ListInitialize(&cache->_attributeDicts, sizeof(AttributeDictionaryRef));
 }
 
 /**
  * Finalizes an attribute dictionary cache and releases all cached dictionaries.
- *
- * @param cache
- *      The cache structure to finalize.
  */
 static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
 {
-    SBUInteger entryCount = cache->_attributeDicts.count;
-    SBUInteger entryIndex;
+    SBUInteger dictCount = cache->_attributeDicts.count;
+    SBUInteger dictIndex;
 
     /* Release all cached attribute dictionaries */
-    for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
-        AttributeDictionaryRef cachedDictionary = ListGetVal(&cache->_attributeDicts, entryIndex);
-
-        AttributeDictionaryRelease(cachedDictionary);
+    for (dictIndex = 0; dictIndex < dictCount; dictIndex++) {
+        AttributeDictionaryRef dictionary = ListGetVal(&cache->_attributeDicts, dictIndex);
+        AttributeDictionaryRelease(dictionary);
     }
 
     /* Finalize the cache list */
@@ -72,47 +64,38 @@ static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
  * @param cache
  *      The cache to retrieve from.
  * @param registry
- *      The attribute registry for creating new dictionaries.
+ *      The attribute registry for creating new dictionaries if needed.
  * @return
  *      An attribute dictionary (cleared and ready for use).
- *
- * @note
- *      The returned dictionary has a reference count of 1.
  */
 static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDictionaryCacheRef cache,
     SBAttributeRegistryRef registry)
 {
     AttributeDictionaryRef dictionary = NULL;
-    SBUInteger entryCount = cache->_attributeDicts.count;
+    SBUInteger dictCount = cache->_attributeDicts.count;
 
-    if (entryCount == 0) {
+    if (dictCount == 0) {
         /* Create a new dictionary if the cache is empty */
         dictionary = AttributeDictionaryCreate(registry);
     } else {
         /* Reuse the last cached dictionary */
-        dictionary = ListGetVal(&cache->_attributeDicts, entryCount - 1);
-        ListRemoveAt(&cache->_attributeDicts, entryCount - 1);
+        dictionary = ListGetVal(&cache->_attributeDicts, dictCount - 1);
+        ListRemoveAt(&cache->_attributeDicts, dictCount - 1);
     }
 
     return dictionary;
 }
 
 /**
- * Caches an attribute dictionary for later reuse if it has exactly one
- * reference.
+ * Caches an attribute dictionary for later reuse if it has no external references.
  *
- * The dictionary is only cached if its retain count is 1, indicating it's not
- * in use elsewhere. This prevents caching dictionaries that are still
- * referenced.
+ * The dictionary is only cached if its retain count is 1, indicating it's not in use elsewhere. The
+ * dictionary is cleared before caching and retained for storage.
  *
  * @param cache
  *      The cache to store the dictionary in.
  * @param dictionary
  *      The attribute dictionary to cache.
- *
- * @note
- *      The dictionary is cleared before caching. If the retain count is not 1,
- *      the dictionary is not cached (it's still in use elsewhere).
  */
 static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
     AttributeDictionaryRef dictionary)
@@ -121,18 +104,71 @@ static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
 
     /* Only cache if this is the last reference */
     if (retainCount == 1) {
-        /* Clear the dictionary for reuse */
         AttributeDictionaryClear(dictionary);
-        /* Retain for the cache */
         AttributeDictionaryRetain(dictionary);
-        /* Add to the cache */
         ListAdd(&cache->_attributeDicts, &dictionary);
+    }
+}
+
+/* =========================================================================
+ * Attribute Entry Implementation
+ * ========================================================================= */
+
+/**
+ * Initializes an attribute entry with the specified index and attributes.
+ */
+static void InitializeAttributeEntry(AttributeEntry *entry,
+    SBUInteger index, AttributeDictionaryRef attributes)
+{
+    entry->index = index;
+    entry->attributes = attributes;
+}
+
+/**
+ * Finalizes an attribute entry and releases its attribute dictionary.
+ */
+static void FinalizeAttributeEntry(AttributeEntry *entry)
+{
+    if (entry->attributes) {
+        AttributeDictionaryRelease(entry->attributes);
     }
 }
 
 /* =========================================================================
  * Attribute Manager Implementation
  * ========================================================================= */
+
+/**
+ * Operation types for attribute modifications.
+ */
+enum {
+    AttributeOperationApply = 1,    /**< Apply/merge new attributes. */
+    AttributeOperationRemove = 2    /**< Remove specific attribute. */
+};
+typedef SBUInt8 AttributeOperationType;
+
+/**
+ * Determines which side of the split receives the modified attributes.
+ */
+enum {
+    SplitUpdateTargetRight = 0,     /**< Right segment gets modified attributes. */
+    SplitUpdateTargetLeft = 1       /**< Left segment gets modified attributes. */
+};
+typedef SBUInt8 SplitUpdateTarget;
+
+/**
+ * Parameters for attribute operations.
+ *
+ * Uses a union to store operation-specific parameters without memory overhead.
+ */
+typedef union _AttributeOperationParams {
+    struct {
+        AttributeDictionaryRef attributes;  /**< Attributes to merge in. */
+    } apply;
+    struct {
+        SBAttributeID attributeID;          /**< Attribute ID to remove. */
+    } remove;
+} AttributeOperationParams;
 
 /**
  * Expands the range start to include the beginning of the first paragraph.
@@ -142,8 +178,7 @@ static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
  * @param[in,out] rangeStart
  *      Pointer to the range start index to modify.
  */
-static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager,
-    SBUInteger *rangeStart)
+static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager, SBUInteger *rangeStart)
 {
     SBTextRef text = manager->parent;
     SBUInteger paragraphIndex;
@@ -164,8 +199,7 @@ static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager,
  * @param[in,out] rangeEnd
  *      Pointer to the range end index to modify.
  */
-static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager,
-    SBUInteger *rangeEnd)
+static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager, SBUInteger *rangeEnd)
 {
     SBTextRef text = manager->parent;
     SBUInteger paragraphIndex;
@@ -179,8 +213,7 @@ static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager,
 }
 
 /**
- * Expands a range to fully include boundary paragraphs if they're partially
- * covered.
+ * Expands both range boundaries to fully include any partially covered paragraphs.
  *
  * @param manager
  *      The attribute manager containing the text.
@@ -197,8 +230,7 @@ static void ExpandRangeToIncludeBoundaryParagraphs(AttributeManagerRef manager,
 }
 
 /**
- * Shrinks the range start to exclude the first paragraph if it's not fully
- * covered.
+ * Shrinks the range start to exclude the first paragraph if it's not fully covered.
  *
  * @param manager
  *      The attribute manager containing the text.
@@ -234,8 +266,7 @@ static void ShrinkRangeToExcludeFirstParagraph(AttributeManagerRef manager,
 }
 
 /**
- * Shrinks the range end to exclude the last paragraph if it's not fully
- * covered.
+ * Shrinks the range end to exclude the last paragraph if it's not fully covered.
  *
  * @param manager
  *      The attribute manager containing the text.
@@ -291,125 +322,288 @@ static void ShrinkRangeToExcludeBoundaryParagraphs(AttributeManagerRef manager,
 }
 
 /**
- * Applies a set of attribute items over a specified range of code units.
+ * Calculates the end index (exclusive) of an attribute entry.
  *
- * For each code unit in the range, this function ensures an attribute dictionary
- * exists and adds/updates all specified attribute items.
+ * For all entries except the last, the end is the start of the next entry.
+ * For the last entry, the end is the total code unit count.
  *
  * @param manager
- *      The attribute manager to modify.
- * @param registry
- *      The attribute registry for managing attributes.
- * @param index
- *      The starting code unit index.
- * @param length
- *      The number of code units in the range.
- * @param attributeItems
- *      Array of attribute items to apply.
- * @param itemCount
- *      Number of items in the attributeItems array.
+ *      The attribute manager.
+ * @param entryIndex
+ *      The index of the entry.
  * @return
- *      SBTrue on success, SBFalse on failure.
+ *      The exclusive end index for this entry.
  */
-static SBBoolean ApplyAttributeItemsOverRange(AttributeManagerRef manager,
-    SBAttributeRegistryRef registry, SBUInteger index, SBUInteger length,
-    const SBAttributeItem *attributeItems, SBUInteger itemCount)
+static SBUInteger GetAttributeEntryEndIndex(AttributeManagerRef manager, SBUInteger entryIndex)
 {
-    SBBoolean succeeded = SBTrue;
-    SBUInteger rangeStart = index;
-    SBUInteger rangeEnd = rangeStart + length;
-    SBUInteger codeUnitIndex;
-
-    /* Iterate through each code unit in the range */
-    for (codeUnitIndex = rangeStart; codeUnitIndex < rangeEnd; codeUnitIndex++) {
-        AttributeDictionaryRef dictionary = ListGetVal(&manager->attributeDicts, codeUnitIndex);
-
-        /* Acquire or retrieve an attribute dictionary if it doesn't exist */
-        if (!dictionary) {
-            dictionary = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
-            ListSetVal(&manager->attributeDicts, codeUnitIndex, dictionary);
-
-            succeeded = (dictionary != NULL);
-        }
-
-        if (succeeded) {
-            SBUInteger itemIndex;
-
-            /* Add all attribute items to the dictionary */
-            for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-                const SBAttributeItem *currentItem = &attributeItems[itemIndex];
-
-                succeeded = AttributeDictionaryPut(dictionary, currentItem);
-
-                if (!succeeded) {
-                    goto Exit;
-                }
-            }
-        }
+    if (entryIndex < manager->_entries.count - 1) {
+        const AttributeEntry *nextEntry = ListGetRef(&manager->_entries, entryIndex + 1);
+        return nextEntry->index;
     }
 
-Exit:
-    return succeeded;
+    return manager->_codeUnitCount;
 }
 
 /**
- * Removes a specific attribute from all code units in a range.
+ * Shifts all entry indices starting from a given position by a delta amount.
  *
+ * @param manager
+ *      The attribute manager.
+ * @param entryIndex
+ *      The starting entry index (this entry and all following are shifted).
+ * @param indexDelta
+ *      The amount to shift (positive for insertion, negative for removal).
+ */
+static void ShiftAttributeEntryRanges(AttributeManagerRef manager,
+    SBUInteger entryIndex, SBInteger indexDelta) {
+    while (entryIndex < manager->_entries.count) {
+        AttributeEntry *currentEntry = ListGetRef(&manager->_entries, entryIndex);
+        currentEntry->index += indexDelta;
+        entryIndex += 1;
+    }
+}
+
+/**
+ * Applies an attribute operation to a dictionary.
+ *
+ * @param attributes
+ *      The attribute dictionary to modify.
+ * @param operation
+ *      Type of operation to perform.
+ * @param params
+ *      Operation-specific parameters.
+ * @param unchanged
+ *      Optional output: set to SBTrue if no changes were made.
+ */
+static void ApplyOperationToAttributes(AttributeDictionaryRef attributes,
+    AttributeOperationType operation, AttributeOperationParams params, SBBoolean *unchanged)
+{
+    switch (operation) {
+    case AttributeOperationApply:
+        AttributeDictionaryMerge(attributes, params.apply.attributes, unchanged);
+        break;
+    case AttributeOperationRemove:
+        AttributeDictionaryRemove(attributes, params.remove.attributeID, unchanged);
+        break;
+    }
+}
+
+/**
+ * Splits an attribute entry at specified index and applies operation to one side.
+ *
+ * @param manager
+ *      The attribute manager containing the entries.
+ * @param entryIndex
+ *      Index of the entry to split.
+ * @param splitIndex
+ *      Code unit index where to split the entry.
+ * @param operation
+ *      Operation to apply after split.
+ * @param params
+ *      Operation parameters.
+ * @param updateTarget
+ *      Which side of split receives the modified attributes.
+ * @return
+ *      SBTrue if split was performed, SBFalse if no split needed.
+ */
+static SBBoolean SplitAttributesEntry(AttributeManagerRef manager,
+    SBUInteger entryIndex, SBUInteger splitIndex, AttributeOperationType operation,
+    AttributeOperationParams params, SplitUpdateTarget updateTarget)
+{
+    AttributeEntry firstEntry;
+    SBUInteger entryEnd;
+
+    firstEntry = ListGetVal(&manager->_entries, entryIndex);
+    entryEnd = GetAttributeEntryEndIndex(manager, entryIndex);
+
+    /* Only split if split index is strictly between entry boundaries */
+    if (splitIndex > firstEntry.index && splitIndex < entryEnd) {
+        SBBoolean unchanged = SBTrue;
+        AttributeDictionaryRef modifiedAttributes;
+
+        /* Create working copy of attributes for modification */
+        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+        AttributeDictionarySet(modifiedAttributes, firstEntry.attributes);
+
+        /* Apply operation to determine if changes would occur */
+        ApplyOperationToAttributes(modifiedAttributes, operation, params, &unchanged);
+
+        if (unchanged) {
+            /* Operation produces no change - no split needed, cache the copy */
+            StoreAttributeDictionaryInCache(&manager->_cache, modifiedAttributes);
+        } else {
+            AttributeEntry newEntry;
+            newEntry.index = splitIndex;
+
+            if (updateTarget == SplitUpdateTargetRight) {
+                /* Right side gets modified attributes, left side keeps original */
+                newEntry.attributes = modifiedAttributes;
+            } else {
+                AttributeEntry *original = ListGetRef(&manager->_entries, entryIndex);
+
+                /* Left side gets modified attributes, right side keeps original */
+                newEntry.attributes = original->attributes;
+                original->attributes = modifiedAttributes;
+            }
+
+            ListInsert(&manager->_entries, entryIndex + 1, &newEntry);
+
+            return SBTrue;
+        }
+    }
+
+    return SBFalse;
+}
+
+/**
+ * Core implementation for applying attribute operations over a code unit range.
+ *
+ * Handles three cases:
+ * 1. Operation covers entire entry - apply directly
+ * 2. Operation is entirely within one entry - split into 3 entries
+ * 3. Operation spans multiple entries - split at boundaries and apply to all
+ * 
  * @param manager
  *      The attribute manager to modify.
  * @param index
- *      The starting code unit index.
+ *      Starting code unit index of operation range.
  * @param length
- *      The number of code units in the range.
- * @param attributeID
- *      The ID of the attribute to remove.
+ *      Number of code units in operation range.
+ * @param operation
+ *      Type of operation to perform.
+ * @param params
+ *      Operation-specific parameters.
+ */
+static void ApplyOperationOverRange(AttributeManagerRef manager,
+    SBUInteger index, SBUInteger length,
+    AttributeOperationType operation, AttributeOperationParams params)
+{
+    SBUInteger rangeStart = index;
+    SBUInteger rangeEnd = index + length;
+    SBUInteger entryIndex;
+    AttributeEntry *entry;
+    SBUInteger entryEnd;
+
+    /* Locate the entry containing the range start */
+    entry = AttributeManagerFindEntry(manager, rangeStart, &entryIndex);
+    entryEnd = GetAttributeEntryEndIndex(manager, entryIndex);
+
+    if (rangeStart == entry->index && rangeEnd == entryEnd) {
+        /* CASE 1: Operation covers entire entry exactly */
+        ApplyOperationToAttributes(entry->attributes, operation, params, NULL);
+    } else if (rangeStart > entry->index && rangeEnd < entryEnd) {
+        /* CASE 2: Operation is entirely within one entry - split into 3 */
+        AttributeDictionaryRef modifiedAttributes;
+        SBBoolean unchanged;
+
+        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+        AttributeDictionarySet(modifiedAttributes, entry->attributes);
+        ApplyOperationToAttributes(modifiedAttributes, operation, params, &unchanged);
+
+        if (unchanged) {
+            /* No changes needed - don't split */
+            StoreAttributeDictionaryInCache(&manager->_cache, modifiedAttributes);
+        } else {
+            AttributeDictionaryRef cloneAttributes;
+
+            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+            AttributeDictionarySet(cloneAttributes, entry->attributes);
+
+            /* Reserve space for 2 new entries */
+            ListReserveRange(&manager->_entries, entryIndex + 1, 2);
+
+            /* Middle entry: gets modified attributes */
+            entry = ListGetRef(&manager->_entries, entryIndex + 1);
+            entry->index = rangeStart;
+            entry->attributes = modifiedAttributes;
+
+            /* Right entry: keeps original attributes */
+            entry = ListGetRef(&manager->_entries, entryIndex + 2);
+            entry->index = rangeEnd;
+            entry->attributes = cloneAttributes;
+        }
+    } else {
+        /* CASE 3: Operation spans multiple entries - handle boundaries and interior */
+        SBUInteger entryProcessed = SBFalse;
+
+        /* Split at range start if needed */
+        if (SplitAttributesEntry(manager, entryIndex, rangeStart,
+                operation, params, SplitUpdateTargetRight)) {
+            entryProcessed = SBTrue;    /* Split already applied operation */
+            entryIndex += 1;            /* Move to new right-side entry */
+        }
+
+        /* Process all entries intersecting with the operation range */
+        while (rangeStart < rangeEnd) {
+            entry = ListGetRef(&manager->_entries, entryIndex);
+            entryEnd = GetAttributeEntryEndIndex(manager, entryIndex);
+
+            /* Split at range end if current entry extends beyond operation range */
+            if (entryEnd > rangeEnd) {
+                /*
+                 * Split at range end - modified attributes go to left side (range interior) so the
+                 * portion inside range gets the operation applied
+                 */
+                SplitAttributesEntry(manager, entryIndex, rangeEnd,
+                    operation, params, SplitUpdateTargetLeft);
+                /* Remaining portion beyond range is unmodified */
+                break;
+            }
+
+            /* Apply operation to current entry if not already processed by split */
+            if (!entryProcessed) {
+                ApplyOperationToAttributes(entry->attributes, operation, params, NULL);
+            }
+
+            /* Advance to next entry */
+            rangeStart = entryEnd;
+            entryIndex += 1;
+            entryProcessed = SBFalse;
+        }
+    }
+}
+
+/**
+ * Applies a set of attributes over a range by merging them into existing attributes.
+ */
+static void ApplyAttributesOverRange(AttributeManagerRef manager,
+    SBUInteger index, SBUInteger length, AttributeDictionaryRef attributes)
+{
+    AttributeOperationParams params;
+    params.apply.attributes = attributes;
+
+    ApplyOperationOverRange(manager, index, length, AttributeOperationApply, params);
+}
+
+/**
+ * Removes a specific attribute from a range of code units.
  */
 static void RemoveAttributeFromRange(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length, SBAttributeID attributeID)
 {
-    SBUInteger rangeEnd = index + length;
-    SBUInteger codeUnitIndex;
+    AttributeOperationParams params;
+    params.remove.attributeID = attributeID;
 
-    /* Remove the attribute from all dictionaries in the specified range */
-    for (codeUnitIndex = index; codeUnitIndex < rangeEnd; codeUnitIndex++) {
-        AttributeDictionaryRef dictionary = ListGetVal(&manager->attributeDicts, codeUnitIndex);
-
-        if (dictionary) {
-            /* Remove the attribute ID */
-            AttributeDictionaryRemove(dictionary, attributeID);
-
-            /* Cache and clear the dictionary if it becomes empty */
-            if (AttributeDictionaryIsEmpty(dictionary)) {
-                StoreAttributeDictionaryInCache(&manager->_cache, dictionary);
-                AttributeDictionaryRelease(dictionary);
-
-                /* Set to NULL to indicate no attributes at this position */
-                ListSetVal(&manager->attributeDicts, codeUnitIndex, NULL);
-            }
-        }
-    }
+    ApplyOperationOverRange(manager, index, length, AttributeOperationRemove, params);
 }
 
 /**
  * Adjusts paragraph-scoped attributes after text has been removed.
  *
- * When text is removed, two previously separate paragraphs may merge. This function ensures that
- * paragraph-scoped attributes are properly propagated across the merged paragraph boundary.
+ * When text is removed, separate paragraphs may merge into one. This function ensures
+ * paragraph-scoped attributes are consistent across the merged boundary by:
+ * - Copying paragraph attributes from before the merge point to the second half
+ * - Copying paragraph attributes from after the merge point to the first half
  *
  * @param manager
  *      The attribute manager to adjust.
  * @param mergePointIndex
  *      The code unit index where the merge occurred.
- * @return
- *      SBTrue on success, SBFalse on failure.
  */
-static SBBoolean AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
+static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
     SBUInteger mergePointIndex)
 {
-    SBBoolean succeeded = SBTrue;
-
-    if (mergePointIndex > 0 && mergePointIndex < manager->attributeDicts.count) {
-        SBAttributeRegistryRef registry = manager->_registry;
+    if (mergePointIndex > 0 && mergePointIndex < manager->_codeUnitCount) {
         SBUInteger precedingIndex = mergePointIndex - 1;
         SBBoolean paragraphsMerged;
         TextParagraphRef precedingParagraph;
@@ -424,48 +618,79 @@ static SBBoolean AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager
             SBUInteger paragraphStart = precedingParagraph->index;
             SBUInteger paragraphEnd = paragraphStart + precedingParagraph->length;
             AttributeDictionaryRef paragraphAttributes;
-            AttributeDictionaryRef sourceDict;
+            AttributeEntry *entry;
 
             paragraphAttributes = &manager->_tempDict;
             AttributeDictionaryClear(paragraphAttributes);
 
             /* Extract paragraph-scoped attributes from before the merge point */
-            sourceDict = ListGetVal(&manager->attributeDicts, precedingIndex);
+            entry = AttributeManagerFindEntry(manager, precedingIndex, NULL);
 
-            if (sourceDict) {
-                succeeded = AttributeDictionaryFilter(sourceDict, SBAttributeScopeParagraph,
-                    SBAttributeGroupNone, paragraphAttributes);
-            }
+            AttributeDictionaryFilter(entry->attributes,
+                SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
 
-            if (succeeded && !AttributeDictionaryIsEmpty(paragraphAttributes)) {
+            if (!AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the second half of the merged paragraph */
-                succeeded = ApplyAttributeItemsOverRange(manager, registry,
-                    mergePointIndex, paragraphEnd - mergePointIndex,
-                    paragraphAttributes->_list.items, paragraphAttributes->_list.count);
+                ApplyAttributesOverRange(manager,
+                    mergePointIndex, paragraphEnd - mergePointIndex, paragraphAttributes);
             }
 
-            if (succeeded) {
-                /* Extract paragraph-scoped attributes from after the merge point */
-                sourceDict = ListGetVal(&manager->attributeDicts, mergePointIndex);
+            /* Extract paragraph-scoped attributes from after the merge point */
+            entry = AttributeManagerFindEntry(manager, mergePointIndex, NULL);
 
-                AttributeDictionaryClear(paragraphAttributes);
+            AttributeDictionaryFilter(entry->attributes,
+                SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
 
-                if (sourceDict) {
-                    succeeded = AttributeDictionaryFilter(sourceDict, SBAttributeScopeParagraph,
-                        SBAttributeGroupNone, paragraphAttributes);
-                }
-            }
-
-            if (succeeded && !AttributeDictionaryIsEmpty(paragraphAttributes)) {
+            if (!AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the first half of the merged paragraph */
-                succeeded = ApplyAttributeItemsOverRange(manager, registry,
-                    paragraphStart, mergePointIndex - paragraphStart,
-                    paragraphAttributes->_list.items, paragraphAttributes->_list.count);
+                ApplyAttributesOverRange(manager,
+                    paragraphStart, mergePointIndex - paragraphStart, paragraphAttributes);
             }
         }
     }
+}
 
-    return succeeded;
+/**
+ * Inserts the first attribute entry at index 0 with an empty attribute dictionary.
+ *
+ * This is called during initialization to create a base entry covering the entire text.
+ */
+static void InsertFirstAttributeEntry(AttributeManagerRef manager)
+{
+    AttributeDictionaryRef attributes;
+    AttributeEntry entry;
+
+    attributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+    InitializeAttributeEntry(&entry, 0, attributes);
+    ListAdd(&manager->_entries, &entry);
+}
+
+/**
+ * Removes and caches a range of attribute entries.
+ *
+ * Attempts to cache each removed entry's dictionary for reuse, then removes all entries in the
+ * specified range from the entries list.
+ *
+ * @param manager
+ *      The attribute manager.
+ * @param index
+ *      Starting index of range to remove.
+ * @param length
+ *      Number of entries to remove.
+ */
+static void RemoveAtributeEntryRange(AttributeManagerRef manager,
+    SBUInteger index, SBUInteger length)
+{
+    SBUInteger rangeEnd = index + length;
+    SBUInteger entryIndex;
+
+    for (entryIndex = index; entryIndex < rangeEnd; entryIndex++) {
+        AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
+
+        StoreAttributeDictionaryInCache(&manager->_cache, entry->attributes);
+    }
+
+    ListRemoveRange(&manager->_entries, index, length);
 }
 
 SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
@@ -473,150 +698,200 @@ SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
 {
     manager->parent = parent;
     manager->_registry = registry;
+    manager->_codeUnitCount = 0;
 
     if (registry) {
-        /* Initialize cache and temp dictionary only if registry is provided */
+        /* Initialize all structures only when a registry is provided */
         InitializeAttributeDictionaryCache(&manager->_cache);
         AttributeDictionaryInitialize(&manager->_tempDict, NULL);
-        ListInitialize(&manager->attributeDicts, sizeof(AttributeDictionaryRef));
+        ListInitialize(&manager->_entries, sizeof(AttributeEntry));
+        InsertFirstAttributeEntry(manager);
     }
 }
 
 SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
 {
     if (manager->_registry) {
-        SBUInteger listCount = manager->attributeDicts.count;
-        SBUInteger index;
+        SBUInteger entryCount = manager->_entries.count;
+        SBUInteger entryIndex;
 
         AttributeDictionaryFinalize(&manager->_tempDict);
-
-        /* Finalize the cache */
         FinalizeAttributeDictionaryCache(&manager->_cache);
 
-        /* Release all attribute dictionaries */
-        for (index = 0; index < listCount; index++) {
-            AttributeDictionaryRef dictionary = ListGetVal(&manager->attributeDicts, index);
-
-            if (dictionary) {
-                AttributeDictionaryRelease(dictionary);
-            }
+        /* Finalize all entries */
+        for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+            AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
+            FinalizeAttributeEntry(entry);
         }
 
-        ListFinalize(&manager->attributeDicts);
+        ListFinalize(&manager->_entries);
     }
 }
 
-SB_INTERNAL SBBoolean AttributeManagerCopyAttributes(AttributeManagerRef manager,
+SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
     const AttributeManager *source)
 {
-    SBBoolean succeeded = SBTrue;
-
     if (manager->_registry) {
-        SBUInteger dictCount = source->attributeDicts.count;
-        SBUInteger dictIndex;
+        SBUInteger entryCount = source->_entries.count;
+        SBUInteger entryIndex;
 
-        /* Reserve space in the attribute dictionary list */
-        succeeded = ListReserveRange(&manager->attributeDicts, 0, dictCount);
+        /* Clear existing entries and cache their dictionaries */
+        RemoveAtributeEntryRange(manager, 0, manager->_entries.count);
+        /* Reserve space for source entries */
+        ListReserveRange(&manager->_entries, 0, entryCount);
 
-        if (succeeded) {
-            /* Initialize the reserved range */
-            for (dictIndex = 0; dictIndex < dictCount; dictIndex++) {
-                AttributeDictionaryRef sourceDict = ListGetVal(&source->attributeDicts, dictIndex);
-                AttributeDictionaryRef newDict = NULL;
+        /* Deep copy each entry and its attributes */
+        for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+            const AttributeEntry *sourceEntry = ListGetRef(&source->_entries, entryIndex);
+            AttributeEntry *newEntry = ListGetRef(&manager->_entries, entryIndex);
 
-                if (sourceDict) {
-                    newDict = AttributeDictionaryCopy(sourceDict);
-                }
+            newEntry->index = sourceEntry->index;
+            newEntry->attributes = AttributeDictionaryCopy(sourceEntry->attributes);
+        }
 
-                ListSetVal(&manager->attributeDicts, dictIndex, newDict);
+        manager->_codeUnitCount = source->_codeUnitCount;
+    }
+}
+
+SB_INTERNAL AttributeEntry *AttributeManagerFindEntry(AttributeManagerRef manager,
+    SBUInteger codeUnitIndex, SBUInteger *entryIndex)
+{
+    AttributeEntry *entries = manager->_entries.items;
+    SBUInteger count = manager->_entries.count;
+    SBUInteger codeUnitCount = manager->_codeUnitCount;
+    SBUInteger low;
+    SBUInteger high;
+
+    SBAssert(entries && count > 0);
+
+    low = 0;
+    high = count - 1;
+
+    while (low <= high) {
+        SBUInteger mid = low + (high - low) / 2;
+        AttributeEntry *entry;
+        SBUInteger runStart;
+        SBUInteger runEnd;
+
+        entry = &entries[mid];
+        runStart = entry->index;
+        runEnd = (mid < count - 1) ? entries[mid + 1].index : codeUnitCount;
+
+        if (codeUnitIndex < runStart) {
+            /* Target is before the current entry */
+            high = mid - 1;
+        } else if (codeUnitIndex >= runEnd) {
+            /* Target is after the current entry */
+            low = mid + 1;
+        } else {
+            /* Target is within the current entry */
+            if (entryIndex) {
+                *entryIndex = mid;
             }
+
+            return entry;
         }
     }
 
-    return succeeded;
+    return NULL;
 }
 
-SB_INTERNAL SBBoolean AttributeManagerReserveRange(AttributeManagerRef manager,
+SB_INTERNAL void AttributeManagerReserveRange(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length)
 {
-    SBBoolean succeeded = SBTrue;
-
-    /* Length MUST be greater than 0 */
     SBAssert(length > 0);
 
     if (manager->_registry) {
-        /* Reserve space in the attribute dictionary list */
-        succeeded = ListReserveRange(&manager->attributeDicts, index, length);
+        SBUInteger codeUnitIndex;
 
-        if (succeeded) {
-            SBUInteger rangeStart = index;
-            SBUInteger rangeEnd = index + length;
-            AttributeDictionaryRef sourceDictionary = NULL;
-            SBUInteger attributesIndex;
+        /* Determine which code unit's attributes to extend */
+        codeUnitIndex = (index == 0 ? 0 : index - 1);
 
-            /* Initialize the reserved range */
-            while (rangeStart < rangeEnd) {
-                ListSetVal(&manager->attributeDicts, rangeStart, NULL);
-                rangeStart += 1;
-            }
+        if (codeUnitIndex < manager->_codeUnitCount) {
+            SBUInteger entryIndex = SBInvalidIndex;
 
-            /* Determine which code unit's attributes to copy */
-            attributesIndex = (index == 0 ? length : index - 1);
+            AttributeManagerFindEntry(manager, codeUnitIndex, &entryIndex);
 
-            if (attributesIndex < manager->attributeDicts.count) {
-                sourceDictionary = ListGetVal(&manager->attributeDicts, attributesIndex);
-            }
-
-            if (sourceDictionary) {
-                /* Apply the attributes of the adjacent code unit over the reserved range */
-                succeeded = ApplyAttributeItemsOverRange(manager, manager->_registry, index, length,
-                    sourceDictionary->_list.items, sourceDictionary->_list.count);
+            if (entryIndex != SBInvalidIndex) {
+                ShiftAttributeEntryRanges(manager, entryIndex + 1, length);
             }
         }
-    }
 
-    return succeeded;
+        manager->_codeUnitCount += length;
+    }
 }
 
-SB_INTERNAL SBBoolean AttributeManagerRemoveRange(AttributeManagerRef manager,
+SB_INTERNAL void AttributeManagerRemoveRange(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length)
 {
-    SBUInteger succeeded = SBTrue;
     SBAttributeRegistryRef registry = manager->_registry;
-
-    SBAssert(length > 0);
+    SBUInteger rangeStart = index;
+    SBUInteger rangeEnd = rangeStart + length;
 
     if (registry) {
-        SBUInteger startIndex = index;
-        SBUInteger endIndex = index + length;
-        SBUInteger attributesIndex;
+        SBUInteger entryCount = manager->_entries.count;
+        SBUInteger entryIndex = 0;
+        AttributeEntry *entry;
+        SBUInteger removalStart;
+        SBUInteger removalCount;
 
-        /* Release and cache all attribute dictionaries in the range */
-        for (attributesIndex = index; attributesIndex < endIndex; attributesIndex++) {
-            AttributeDictionaryRef dictionary = ListGetVal(&manager->attributeDicts, attributesIndex);
+        SBAssert(index < manager->_codeUnitCount && length > 0 && rangeEnd <= manager->_codeUnitCount);
 
-            if (dictionary) {
-                /* Try to cache the dictionary */
-                StoreAttributeDictionaryInCache(&manager->_cache, dictionary);
-                /* Release our reference */
-                AttributeDictionaryRelease(dictionary);
-            }
+        /* Find first entry that might be affected by removal */
+        entry = AttributeManagerFindEntry(manager, index, &entryIndex);
+
+        /* Skip to first entry that's completely within removal range */
+        if (entry->index < rangeStart) {
+            entryIndex += 1;
         }
 
-        /* Remove the range from the attribute list */
-        ListRemoveRange(&manager->attributeDicts, index, length);
+        removalStart = entryIndex;
+        removalCount = 0;
 
-        /* Adjust paragraph attributes if paragraphs merged */
-        succeeded = AdjustParagraphAttributesAfterMerge(manager, startIndex);
+        /* Count and process entries to remove */
+        while (entryIndex < entryCount) {
+            SBUInteger endIndex;
+
+            entry = ListGetRef(&manager->_entries, entryIndex);
+            endIndex = GetAttributeEntryEndIndex(manager, entryIndex);
+
+            if (endIndex <= rangeEnd) {
+                /* Entry is completely within removal range - mark for removal */
+                StoreAttributeDictionaryInCache(&manager->_cache, entry->attributes);
+                FinalizeAttributeEntry(entry);
+
+                removalCount += 1;
+            } else {
+                /* Entry extends beyond removal range - adjust its index */
+                if (entry->index >= rangeEnd) {
+                    entry->index -= length;
+                } else {
+                    entry->index = rangeStart;
+                }
+                /* Shift all subsequent entries */
+                ShiftAttributeEntryRanges(manager, entryIndex + 1, -length);
+                break;
+            }
+
+            entryIndex += 1;
+        }
+
+        /* Remove all marked entries */
+        RemoveAtributeEntryRange(manager, removalStart, removalCount);
+        manager->_codeUnitCount -= length;
+
+        if (manager->_entries.count == 0) {
+            InsertFirstAttributeEntry(manager);
+        }
+
+        /* Adjust paragraph attributes if removal caused paragraph merge */
+        AdjustParagraphAttributesAfterMerge(manager, rangeStart);
     }
-
-    return succeeded;
 }
 
-SB_INTERNAL SBBoolean AttributeManagerSetAttribute(AttributeManagerRef manager,
+SB_INTERNAL void AttributeManagerSetAttribute(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length, SBAttributeID attributeID, const void *attributeValue)
 {
-    SBBoolean succeeded = SBTrue;
     SBAttributeRegistryRef registry = manager->_registry;
 
     SBAssert(length > 0);
@@ -627,8 +902,9 @@ SB_INTERNAL SBBoolean AttributeManagerSetAttribute(AttributeManagerRef manager,
         attributeInfo = SBAttributeRegistryGetInfoReference(registry, attributeID);
 
         if (attributeInfo) {
+            AttributeDictionaryRef attributes = &manager->_tempDict;
             SBAttributeItem attributeItem;
-            
+
             attributeItem.attributeID = attributeID;
             attributeItem.attributeValue = attributeValue;
 
@@ -643,15 +919,14 @@ SB_INTERNAL SBBoolean AttributeManagerSetAttribute(AttributeManagerRef manager,
                 length = endIndex - startIndex;
             }
 
-            /* Apply the attribute over the specified range */
-            succeeded = ApplyAttributeItemsOverRange(manager, registry, index, length,
-                &attributeItem, 1);
-        } else {
-            succeeded = SBFalse;
+            /* Prepare single-item dictionary with the attribute */
+            AttributeDictionaryClear(attributes);
+            AttributeDictionaryPut(attributes, &attributeItem, NULL);
+
+            /* Apply over the (possibly expanded) range */
+            ApplyAttributesOverRange(manager, index, length, attributes);
         }
     }
-
-    return succeeded;
 }
 
 SB_INTERNAL void AttributeManagerRemoveAttribute(AttributeManagerRef manager,
@@ -687,123 +962,129 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     SBUInteger *runStart, SBUInteger rangeEnd,
     SBAttributeID attributeID, AttributeDictionaryRef output)
 {
-    SBBoolean runFound = SBTrue;
-    AttributeDictionaryRef dictionary;
+    SBUInteger entryIndex;
+    const AttributeEntry *entry;
     const SBAttributeItem *initialItem;
 
-    /* Clear the output dictionary */
+    /* Clear output dictionary before populating */
     AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
-        runFound = SBFalse;
-        goto Exit;
+        return SBFalse;
     }
 
-    /* Get the attribute dictionary of the first code unit and search for the attribute */
-    dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-    initialItem = dictionary ? AttributeDictionaryFindItem(dictionary, attributeID) : NULL;
+    /* Get the first entry and look for the attribute in it */
+    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex);
+    initialItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
+
+    *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+    entryIndex += 1;
 
     if (initialItem) {
         /* Put the initial item to the output dictionary */
-        runFound = AttributeDictionaryPut(output, initialItem);
+        AttributeDictionaryPut(output, initialItem, NULL);
 
-        if (runFound) {
-            /* Iterate while the attribute value remains the same */
-            while (++(*runStart) < rangeEnd) {
-                SBBoolean valuesMatched = SBFalse;
-                const SBAttributeItem *subsequentItem = NULL;
+        /* Iterate while the attribute value remains the same */
+        while (*runStart < rangeEnd) {
+            SBBoolean valuesMatched = SBFalse;
+            const SBAttributeItem *subsequentItem;
 
-                dictionary = ListGetVal(&manager->attributeDicts, *runStart);
+            entry = ListGetRef(&manager->_entries, entryIndex);
+            subsequentItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
 
-                if (dictionary) {
-                    subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
-                }
-
-                if (subsequentItem) {
-                    /* Check if the attribute value matches */
-                    valuesMatched = SBAttributeRegistryIsEqualAttribute(dictionary->_registry,
-                        attributeID, initialItem->attributeValue, subsequentItem->attributeValue);
-                }
-
-                /* Stop if the value changes */
-                if (!valuesMatched) {
-                    break;
-                }
+            /* Check if the attribute value matches */
+            if (subsequentItem) {
+                valuesMatched = SBAttributeRegistryIsEqualAttribute(manager->_registry,
+                    attributeID, initialItem->attributeValue, subsequentItem->attributeValue);
             }
+
+            /* Stop if the value changes */
+            if (!valuesMatched) {
+                break;
+            }
+
+            *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+            entryIndex += 1;
         }
     } else {
         /* Iterate while the attribute doesn't exist */
-        while (++(*runStart) < rangeEnd) {
-            const SBAttributeItem *subsequentItem = NULL;
+        while (*runStart < rangeEnd) {
+            const SBAttributeItem *subsequentItem;
 
-            dictionary = ListGetVal(&manager->attributeDicts, *runStart);
-
-            if (dictionary) {
-                subsequentItem = AttributeDictionaryFindItem(dictionary, attributeID);
-            }
+            entry = ListGetRef(&manager->_entries, entryIndex);
+            subsequentItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
 
             /* Stop when the attribute appears */
             if (subsequentItem) {
                 break;
             }
+
+            *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+            entryIndex += 1;
         }
     }
 
-Exit:
-    return runFound;
+    if (*runStart > rangeEnd) {
+        *runStart = rangeEnd;
+    }
+
+    return SBTrue;
 }
 
 SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(AttributeManagerRef manager,
     SBUInteger *runStart, SBUInteger rangeEnd,
     SBAttributeScope filterScope, SBAttributeGroup filterGroup, AttributeDictionaryRef output)
 {
-    SBBoolean runFound = SBTrue;
-    AttributeDictionaryRef dictionary;
+    SBUInteger entryIndex;
+    const AttributeEntry *entry;
 
-    /* Clear the output dictionary */
+    /* Clear the output dictionary before populating */
     AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
-        runFound = SBFalse;
-        goto Exit;
+        return SBFalse;
     }
 
-    /* Get the attribute dictionary of the first code unit */
-    dictionary = ListGetVal(&manager->attributeDicts, *runStart);
+    /* Get the first entry and filter its attributes */
+    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex);
+    AttributeDictionaryFilter(entry->attributes, filterScope, filterGroup, output);
 
-    /* Get the items from the dictionary respecting the specified filters */
-    if (dictionary) {
-        runFound = AttributeDictionaryFilter(dictionary, filterScope, filterGroup, output);
-    }
+    *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+    entryIndex += 1;
 
-    if (runFound) {
-        if (AttributeDictionaryIsEmpty(output)) {
-            /* Iterate while no matching attributes exist */
-            while (++(*runStart) < rangeEnd) {
-                dictionary = ListGetVal(&manager->attributeDicts, *runStart);
+    if (AttributeDictionaryIsEmpty(output)) {
+        /* Iterate while no matching attributes exist */
+        while (*runStart < rangeEnd) {
+            entry = ListGetRef(&manager->_entries, entryIndex);
 
-                /* Stop when matching attributes appear */
-                if (dictionary
-                    && AttributeDictionaryMatchAny(dictionary, filterScope, filterGroup)) {
-                    break;
-                }
+            /* Stop when matching attributes appear */
+            if (AttributeDictionaryMatchAny(entry->attributes, filterScope, filterGroup)) {
+                break;
             }
-        } else {
-            /* Iterate while the filtered attributes remain the same */
-            while (++(*runStart) < rangeEnd) {
-                dictionary = ListGetVal(&manager->attributeDicts, *runStart);
 
-                if (!dictionary
-                    || !AttributeDictionaryMatchAll(dictionary, filterScope, filterGroup, output)) {
-                    /* Stop if the attributes change */
-                    break;
-                }
+            *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+            entryIndex += 1;
+        }
+    } else {
+        /* Iterate while the filtered attributes remain the same */
+        while (*runStart < rangeEnd) {
+            entry = ListGetRef(&manager->_entries, entryIndex);
+
+            /* Stop if filtered attributes change */
+            if (!AttributeDictionaryMatchAll(entry->attributes, filterScope, filterGroup, output)) {
+                break;
             }
+
+            *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
+            entryIndex += 1;
         }
     }
 
-Exit:
-    return runFound;
+    if (*runStart > rangeEnd) {
+        *runStart = rangeEnd;
+    }
+
+    return SBTrue;
 }

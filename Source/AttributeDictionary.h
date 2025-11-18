@@ -35,14 +35,16 @@ typedef struct _AttributeDictionary {
 /**
  * Initializes an attribute dictionary with the specified registry.
  *
- * Sets up an already-allocated attribute dictionary structure by initializing its base object
- * and internal list. The dictionary will use the provided registry for managing attribute
- * lifecycle (retention and release).
+ * Sets up an already-allocated attribute dictionary structure by initializing its base object and
+ * internal list. The dictionary will use the provided registry for managing attribute lifecycle
+ * (retention and release). The internal list is initialized to store attribute items in sorted
+ * order by attribute ID.
  *
  * @param dictionary
  *      The attribute dictionary to initialize.
  * @param registry
- *      The attribute registry that manages attribute retention and release.
+ *      The attribute registry that manages attribute retention and release. Can be NULL, in which
+ *      case no retention or release operations will be performed.
  */
 SB_INTERNAL void AttributeDictionaryInitialize(AttributeDictionaryRef dictionary,
     SBAttributeRegistryRef registry);
@@ -65,17 +67,19 @@ SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary);
  * attribute lifecycle.
  *
  * @param registry
- *      The attribute registry that manages attribute retention and release.
+ *      The attribute registry that manages attribute retention and release. Can be NULL, in which
+ *      case no retention or release operations will be performed.
  * @return
  *      A new attribute dictionary reference, or NULL if allocation fails.
  */
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry);
 
 /**
- * Creates a copy of an attribute dictionary.
+ * Creates a deep copy of an attribute dictionary.
  *
  * Allocates and initializes a new attribute dictionary as a deep copy of the provided dictionary.
- * All attribute values are retained through the registry during the copy process.
+ * All attribute values are retained through the registry during the copy process. The new
+ * dictionary uses the same registry as the source. If allocation fails, returns NULL.
  *
  * @param dictionary
  *      The attribute dictionary to copy.
@@ -96,39 +100,76 @@ SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCopy(AttributeDictionaryRe
 SB_INTERNAL SBBoolean AttributeDictionaryIsEmpty(AttributeDictionaryRef dictionary);
 
 /**
+ * Replaces all attributes in the dictionary with a copy of another dictionary's attributes.
+ *
+ * First clears all existing attributes from the dictionary (releasing their values through the
+ * registry), then reserves space for and copies all attributes from the other dictionary.
+ * All attribute values from the source are retained through the registry.
+ *
+ * @param dictionary
+ *      The attribute dictionary to modify.
+ * @param other
+ *      The source attribute dictionary to copy from.
+ */
+SB_INTERNAL void AttributeDictionarySet(AttributeDictionaryRef dictionary,
+    AttributeDictionaryRef other);
+
+/**
  * Adds or updates an attribute item in the dictionary.
  *
- * Inserts a new attribute item or replaces an existing one with the same ID. The new attribute
- * value is retained through the registry, and any previous value is released before replacement.
+ * Searches for an attribute with the same ID. If found, replaces its value with the new one,
+ * releasing the old value through the registry. If not found, inserts the new item at the
+ * appropriate position to maintain sorted order by attribute ID. The new attribute value is
+ * retained through the registry.
  *
  * @param dictionary
  *      The attribute dictionary to modify.
  * @param newItem
  *      Pointer to the attribute item to add or update.
- * @return
- *      SBTrue on success, SBFalse if insertion fails due to memory allocation.
+ * @param unchanged
+ *      Optional output parameter. Set to SBTrue if the item already existed with the same value,
+ *      SBFalse if item was inserted or value was changed. If NULL, this check is not performed.
  */
-SB_INTERNAL SBBoolean AttributeDictionaryPut(AttributeDictionaryRef dictionary,
-    const SBAttributeItem *newItem);
+SB_INTERNAL void AttributeDictionaryPut(AttributeDictionaryRef dictionary,
+    const SBAttributeItem *newItem, SBBoolean *unchanged);
+
+/**
+ * Merges all attributes from another dictionary into this dictionary.
+ *
+ * Iterates through all attributes in the source dictionary and adds or updates each one using
+ * AttributeDictionaryPut. Sets unchanged to SBTrue only if all items already existed with identical
+ * values; if any item was inserted or had its value changed, unchanged is set to SBFalse.
+ *
+ * @param dictionary
+ *      The attribute dictionary to modify.
+ * @param other
+ *      The source dictionary to merge from.
+ * @param unchanged
+ *      Optional output parameter. Set to SBTrue if all items already existed with the same values,
+ *      SBFalse if any item was inserted or modified. If NULL, this check is not performed.
+ */
+SB_INTERNAL void AttributeDictionaryMerge(AttributeDictionaryRef dictionary,
+    AttributeDictionaryRef other, SBBoolean *unchanged);
 
 /**
  * Retrieves filtered attribute items from a dictionary based on scope and group.
  *
- * Copies all attributes from the dictionary that match the specified scope and group into the
- * result dictionary. The result dictionary is cleared before filtering begins.
+ * Clears the result dictionary, then iterates through all attributes in the source dictionary and
+ * copies those matching the specified scope and group filters into the result dictionary.
+ * Both dictionaries must have the same registry for proper filtering.
  *
  * @param dictionary
  *      The attribute dictionary to query.
  * @param targetScope
- *      The attribute scope to filter by.
+ *      The attribute scope to filter by (e.g., character or paragraph).
  * @param targetGroup
- *      The attribute group to filter by (or SBAttributeGroupNone for no group filtering).
+ *      The attribute group to filter by. If SBAttributeGroupNone is specified, all groups within
+ *      the scope are included.
  * @param result
- *      The dictionary where matching items will be added.
- * @return
- *      SBTrue on success, SBFalse on failure during insertion.
+ *      The dictionary where matching items will be added. Will be empty if no attributes match.
+ *      Always cleared at the start.
  */
-SB_INTERNAL SBBoolean AttributeDictionaryFilter(AttributeDictionaryRef dictionary,
+SB_INTERNAL void AttributeDictionaryFilter(AttributeDictionaryRef dictionary,
     SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeDictionaryRef result);
 
 /**
@@ -150,12 +191,14 @@ SB_INTERNAL const SBAttributeItem *AttributeDictionaryFindItem(
 /**
  * Checks if any attribute matching the specified scope and group exists in the dictionary.
  *
- * Iterates through all attributes in the dictionary and returns true as soon as a match is found.
+ * Iterates through all attributes in the dictionary and returns SBTrue as soon as a match is found
+ * based on scope and group filters. If targetGroup is SBAttributeGroupNone, only the scope is
+ * checked.
  *
  * @param dictionary
  *      The attribute dictionary to check.
  * @param targetScope
- *      The attribute scope to filter by.
+ *      The attribute scope to filter by (e.g., character or paragraph).
  * @param targetGroup
  *      The attribute group to filter by (or SBAttributeGroupNone for no group filtering).
  * @return
@@ -175,9 +218,9 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAny(AttributeDictionaryRef diction
  * @param dictionary
  *      The attribute dictionary to check.
  * @param targetScope
- *      The attribute scope to filter by (character or paragraph).
+ *      The attribute scope to filter by (e.g., character or paragraph).
  * @param targetGroup
- *      The attribute group to filter by, or SBAttributeGroupNone to match any group.
+ *      The attribute group to filter by, or SBAttributeGroupNone to include all groups.
  * @param other
  *      The other attribute dictionary to compare against.
  * @return
@@ -198,9 +241,12 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef diction
  *      The attribute dictionary from which to remove the attribute.
  * @param attributeID
  *      The ID of the attribute to remove.
+ * @param unchanged
+ *      Optional output parameter. Set to SBTrue if the attribute was not found, SBFalse if it was
+ *      removed. If NULL, this check is not performed.
  */
 SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
-    SBAttributeID attributeID);
+    SBAttributeID attributeID, SBBoolean *unchanged);
 
 /**
  * Removes all attributes from the dictionary.

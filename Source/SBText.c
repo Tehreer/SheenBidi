@@ -925,9 +925,7 @@ SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text)
         }
 
         /* Copy attributes */
-        if (succeeded) {
-            succeeded = AttributeManagerCopyAttributes(&copy->attributeManager, &text->attributeManager);
-        }
+        AttributeManagerCopyAttributes(&copy->attributeManager, &text->attributeManager);
 
         /* Cleanup if unsuccessful */
         if (!succeeded) {
@@ -991,9 +989,7 @@ SBBoolean SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
         }
 
         /* Reserve attribute manager space */
-        if (succeeded) {
-            succeeded = AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
-        }
+        AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
 
         /* Update paragraph structures */
         if (succeeded) {
@@ -1030,7 +1026,7 @@ SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInte
         UpdateParagraphsForTextRemoval(text, index, length);
 
         /* Remove from attribute manager */
-        succeeded = AttributeManagerRemoveRange(&text->attributeManager, index, length);
+        AttributeManagerRemoveRange(&text->attributeManager, index, length);
 
         if (succeeded) {
             if (!text->isEditing) {
@@ -1077,8 +1073,8 @@ SBBoolean SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger
     SBAssert(text->isMutable && isRangeValid);
 
     if (length > 0) {
-        return AttributeManagerSetAttribute(
-            &text->attributeManager, index, length, attributeID, attributeValue);
+        AttributeManagerSetAttribute(&text->attributeManager,
+            index, length, attributeID, attributeValue);
     }
 
     return SBTrue;
