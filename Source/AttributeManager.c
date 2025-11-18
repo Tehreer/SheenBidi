@@ -111,30 +111,6 @@ static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
 }
 
 /* =========================================================================
- * Attribute Entry Implementation
- * ========================================================================= */
-
-/**
- * Initializes an attribute entry with the specified index and attributes.
- */
-static void InitializeAttributeEntry(AttributeEntry *entry,
-    SBUInteger index, AttributeDictionaryRef attributes)
-{
-    entry->index = index;
-    entry->attributes = attributes;
-}
-
-/**
- * Finalizes an attribute entry and releases its attribute dictionary.
- */
-static void FinalizeAttributeEntry(AttributeEntry *entry)
-{
-    if (entry->attributes) {
-        AttributeDictionaryRelease(entry->attributes);
-    }
-}
-
-/* =========================================================================
  * Attribute Manager Implementation
  * ========================================================================= */
 
@@ -657,11 +633,11 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
  */
 static void InsertFirstAttributeEntry(AttributeManagerRef manager)
 {
-    AttributeDictionaryRef attributes;
     AttributeEntry entry;
 
-    attributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
-    InitializeAttributeEntry(&entry, 0, attributes);
+    entry.index = 0;
+    entry.attributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+
     ListAdd(&manager->_entries, &entry);
 }
 
@@ -678,7 +654,7 @@ static void InsertFirstAttributeEntry(AttributeManagerRef manager)
  * @param length
  *      Number of entries to remove.
  */
-static void RemoveAtributeEntryRange(AttributeManagerRef manager,
+static void RemoveAttributeEntryRange(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length)
 {
     SBUInteger rangeEnd = index + length;
@@ -688,6 +664,7 @@ static void RemoveAtributeEntryRange(AttributeManagerRef manager,
         AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
 
         StoreAttributeDictionaryInCache(&manager->_cache, entry->attributes);
+        AttributeDictionaryRelease(entry->attributes);
     }
 
     ListRemoveRange(&manager->_entries, index, length);
@@ -721,7 +698,7 @@ SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
         /* Finalize all entries */
         for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
             AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
-            FinalizeAttributeEntry(entry);
+            AttributeDictionaryRelease(entry->attributes);
         }
 
         ListFinalize(&manager->_entries);
@@ -736,7 +713,7 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
         SBUInteger entryIndex;
 
         /* Clear existing entries and cache their dictionaries */
-        RemoveAtributeEntryRange(manager, 0, manager->_entries.count);
+        RemoveAttributeEntryRange(manager, 0, manager->_entries.count);
         /* Reserve space for source entries */
         ListReserveRange(&manager->_entries, 0, entryCount);
 
@@ -744,9 +721,13 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
         for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
             const AttributeEntry *sourceEntry = ListGetRef(&source->_entries, entryIndex);
             AttributeEntry *newEntry = ListGetRef(&manager->_entries, entryIndex);
+            AttributeDictionaryRef cloneAttributes;
+
+            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, manager->_registry);
+            AttributeDictionarySet(cloneAttributes, sourceEntry->attributes);
 
             newEntry->index = sourceEntry->index;
-            newEntry->attributes = AttributeDictionaryCopy(sourceEntry->attributes);
+            newEntry->attributes = cloneAttributes;
         }
 
         manager->_codeUnitCount = source->_codeUnitCount;
@@ -857,9 +838,6 @@ SB_INTERNAL void AttributeManagerRemoveRange(AttributeManagerRef manager,
 
             if (endIndex <= rangeEnd) {
                 /* Entry is completely within removal range - mark for removal */
-                StoreAttributeDictionaryInCache(&manager->_cache, entry->attributes);
-                FinalizeAttributeEntry(entry);
-
                 removalCount += 1;
             } else {
                 /* Entry extends beyond removal range - adjust its index */
@@ -877,7 +855,7 @@ SB_INTERNAL void AttributeManagerRemoveRange(AttributeManagerRef manager,
         }
 
         /* Remove all marked entries */
-        RemoveAtributeEntryRange(manager, removalStart, removalCount);
+        RemoveAttributeEntryRange(manager, removalStart, removalCount);
         manager->_codeUnitCount -= length;
 
         if (manager->_entries.count == 0) {

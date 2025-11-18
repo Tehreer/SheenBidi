@@ -75,21 +75,6 @@ SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary);
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry);
 
 /**
- * Creates a deep copy of an attribute dictionary.
- *
- * Allocates and initializes a new attribute dictionary as a deep copy of the provided dictionary.
- * All attribute values are retained through the registry during the copy process. The new
- * dictionary uses the same registry as the source. If allocation fails, returns NULL.
- *
- * @param dictionary
- *      The attribute dictionary to copy.
- * @return
- *      A new attribute dictionary reference containing copies of all attributes, or NULL if
- *      allocation fails.
- */
-SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCopy(AttributeDictionaryRef dictionary);
-
-/**
  * Checks whether an attribute dictionary is empty.
  *
  * @param dictionary

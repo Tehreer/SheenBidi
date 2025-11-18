@@ -188,31 +188,6 @@ SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistry
     return dictionary;
 }
 
-SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCopy(AttributeDictionaryRef dictionary)
-{
-    AttributeDictionaryRef copy = AttributeDictionaryCreate(dictionary->_registry);
-
-    if (copy) {
-        SBAttributeRegistryRef registry = copy->_registry;
-        SBUInteger itemCount = dictionary->_list.count;
-        SBUInteger itemIndex;
-
-        ListReserveRange(&copy->_list, 0, itemCount);
-
-        /* Copy each attribute item, retaining values through the registry */
-        for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-            const SBAttributeItem *source = ListGetRef(&dictionary->_list, itemIndex);
-            SBAttributeItem *destination = ListGetRef(&copy->_list, itemIndex);
-
-            destination->attributeID = source->attributeID;
-            destination->attributeValue = SBAttributeRegistryRetainAttribute(registry,
-                source->attributeID, source->attributeValue);
-        }
-    }
-
-    return copy;
-}
-
 SB_INTERNAL SBBoolean AttributeDictionaryIsEmpty(AttributeDictionaryRef dictionary)
 {
     return (dictionary->_list.count == 0);
