@@ -40,7 +40,6 @@ private:
     static void testComplexRunDetectionScenarios();
     static void testMultipleAttributesSameRange();
     static void testOverwriteAttributeValue();
-    static void testDictionaryCaching();
     static void testEmptyRuns();
     static void testComplexAttributeOverlapping();
     static void testBoundaryConditions();

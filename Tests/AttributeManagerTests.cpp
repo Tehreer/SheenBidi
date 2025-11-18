@@ -146,10 +146,8 @@ static string generateString(size_t length) {
 static bool verifyAttribute(AttributeManagerRef manager, size_t index,
     SBAttributeID attributeID, const void *expectedValue)
 {
-    auto dictionary = ListGetVal(&manager->attributeDicts, index);
-    if (!dictionary) {
-        return expectedValue == nullptr;
-    }
+    auto entry = AttributeManagerFindEntry(manager, index, nullptr);
+    auto dictionary = entry->attributes;
 
     auto item = AttributeDictionaryFindItem(dictionary, attributeID);
     if (!item) {
@@ -212,7 +210,6 @@ void AttributeManagerTests::run() {
     testComplexRunDetectionScenarios();
     testMultipleAttributesSameRange();
     testOverwriteAttributeValue();
-    testDictionaryCaching();
     testEmptyRuns();
     testComplexAttributeOverlapping();
     testBoundaryConditions();
@@ -241,10 +238,10 @@ void AttributeManagerTests::testInitializeWithValidRegistry() {
     assert(manager->_registry != nullptr);
     assert(manager->_registry == text->attributeRegistry);
     assert(manager->parent == text);
-    assert(manager->attributeDicts.count == 0);
+    assert(manager->_entries.count == 1);
 
     SBTextInsertRandomCodeUnits(text, 0, 5);
-    assert(manager->attributeDicts.count == 5);
+    assert(manager->_entries.count == 1);
 
     // All positions should have NULL dictionaries initially
     for (SBUInteger i = 0; i < 5; i++) {
@@ -348,7 +345,7 @@ void AttributeManagerTests::testRemoveRangeWithAttributes() {
 
     // Remove range
     SBTextDeleteCodeUnits(text, 3, 4);
-    assert(manager->attributeDicts.count == 6);
+    assert(manager->_entries.count == 1);
 
     // Verify remaining positions still have attributes
     for (size_t i = 0; i < 6; i++) {
@@ -382,7 +379,6 @@ void AttributeManagerTests::testParagraphMergingOnRemove() {
     // Remove the newline character that separates paragraphs (position 9)
     // This should merge the two paragraphs
     SBTextDeleteCodeUnits(text, 9, 1);
-    assert(manager->attributeDicts.count == 19);
 
     // Verify attributes of the whole string
     for (size_t i = 0; i < 19; i++) {
@@ -540,10 +536,6 @@ void AttributeManagerTests::testMultipleAttributesSameRange() {
     SBTextSetAttribute(text, 2, 1, colorID, Color::purple());
     SBTextSetAttribute(text, 2, 1, fontID, Font::arial());
 
-    auto dict = ListGetVal(&manager->attributeDicts, 2);
-    assert(dict != nullptr);
-    assert(dict->_list.count == 2);
-
     assert(verifyAttribute(manager, 2, colorID, Color::purple()));
     assert(verifyAttribute(manager, 2, fontID, Font::arial()));
 
@@ -564,29 +556,6 @@ void AttributeManagerTests::testOverwriteAttributeValue() {
     // Overwrite with new value
     SBTextSetAttribute(text, 1, 1, colorID, Color::black());
     assert(verifyAttribute(manager, 1, colorID, Color::black()));
-
-    SBTextRelease(text);
-}
-
-void AttributeManagerTests::testDictionaryCaching() {
-    auto text = SBTextCreateWithDefaultRegistry();
-    SBTextAppendRandomCodeUnits(text, 5);
-
-    auto manager = &text->attributeManager;
-    auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
-
-    // Set attribute
-    SBTextSetAttribute(text, 2, 1, colorID, Color::red());
-    auto originalDict = ListGetVal(&manager->attributeDicts, 2);
-    assert(originalDict != nullptr);
-
-    // Remove attribute (should cache the dictionary)
-    AttributeManagerRemoveAttribute(manager, 2, 1, colorID);
-
-    // Set attribute again (should reuse cached dictionary)
-    SBTextSetAttribute(text, 2, 1, colorID, Color::blue());
-    auto newDict = ListGetVal(&manager->attributeDicts, 2);
-    assert(originalDict == newDict);
 
     SBTextRelease(text);
 }
