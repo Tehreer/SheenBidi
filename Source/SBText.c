@@ -1028,11 +1028,9 @@ SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInte
         /* Remove from attribute manager */
         AttributeManagerRemoveRange(&text->attributeManager, index, length);
 
-        if (succeeded) {
-            if (!text->isEditing) {
-                /* Perform immediate analysis if not in batch editing mode */
-                succeeded = AnalyzeDirtyParagraphs(text);
-            }
+        if (!text->isEditing) {
+            /* Perform immediate analysis if not in batch editing mode */
+            succeeded = AnalyzeDirtyParagraphs(text);
         }
     }
 
@@ -1052,16 +1050,50 @@ SBBoolean SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInt
 {
     SBUInteger rangeEnd = index + length;
     SBBoolean isRangeValid = (rangeEnd <= text->codeUnits.count && index <= rangeEnd);
-    SBBoolean succeeded;
 
     SBAssert(text->isMutable && isRangeValid);
 
-    succeeded = SBTextDeleteCodeUnits(text, index, length);
-    if (succeeded) {
-        succeeded = SBTextInsertCodeUnits(text, index, codeUnitBuffer, codeUnitCount);
+    if (length > 0) {
+        /* Remove code units */
+        ListRemoveRange(&text->codeUnits, index, length);
+
+        /* Remove bidi types */
+        RemoveBidiTypes(text, index, length);
+
+        /* Update paragraph structures */
+        UpdateParagraphsForTextRemoval(text, index, length);
     }
 
-    return succeeded;
+    if (codeUnitCount > 0) {
+        SBUInteger byteCount;
+        void *destination;
+
+        /* Reserve space in code units */
+        ListReserveRange(&text->codeUnits, index, codeUnitCount);
+
+        byteCount = codeUnitCount * text->codeUnits.itemSize;
+        destination = ListGetPtr(&text->codeUnits, index);
+        memcpy(destination, codeUnitBuffer, byteCount);
+
+        /* Insert bidi types */
+        InsertBidiTypes(text, index, codeUnitCount);
+
+        /* Update paragraph structures */
+        UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
+    }
+
+    AttributeManagerReplaceRange(&text->attributeManager, index, length, codeUnitCount);
+
+    if (!text->isEditing) {
+        SBBoolean needsReanalysis = (length > 0 || codeUnitCount > 0);
+
+        if (needsReanalysis) {
+            /* Perform immediate analysis if not in batch editing mode */
+            AnalyzeDirtyParagraphs(text);
+        }
+    }
+
+    return SBTrue;
 }
 
 SBBoolean SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
