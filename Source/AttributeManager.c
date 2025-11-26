@@ -317,7 +317,7 @@ static SBUInteger GetAttributeEntryEndIndex(AttributeManagerRef manager, SBUInte
         return nextEntry->index;
     }
 
-    return manager->_codeUnitCount;
+    return manager->_stringLength;
 }
 
 /**
@@ -461,8 +461,7 @@ static void ApplyOperationOverRange(AttributeManagerRef manager,
     SBUInteger entryEnd;
 
     /* Locate the entry containing the range start */
-    entry = AttributeManagerFindEntry(manager, rangeStart, &entryIndex);
-    entryEnd = GetAttributeEntryEndIndex(manager, entryIndex);
+    entry = AttributeManagerFindEntry(manager, rangeStart, &entryIndex, &entryEnd);
 
     if (rangeStart == entry->index && rangeEnd == entryEnd) {
         /* CASE 1: Operation covers entire entry exactly */
@@ -577,9 +576,12 @@ static void RemoveAttributeFromRange(AttributeManagerRef manager,
  *      The code unit index where the merge occurred.
  */
 static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
-    SBUInteger mergePointIndex)
+    SBUInteger index, SBUInteger newLength)
 {
-    if (mergePointIndex > 0 && mergePointIndex < manager->_codeUnitCount) {
+    SBUInteger rangeEnd = index + newLength;
+    SBUInteger mergePointIndex = rangeEnd;
+
+    if (mergePointIndex > 0 && mergePointIndex < manager->_stringLength) {
         SBUInteger precedingIndex = mergePointIndex - 1;
         SBBoolean paragraphsMerged;
         TextParagraphRef precedingParagraph;
@@ -600,7 +602,7 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
             AttributeDictionaryClear(paragraphAttributes);
 
             /* Extract paragraph-scoped attributes from before the merge point */
-            entry = AttributeManagerFindEntry(manager, precedingIndex, NULL);
+            entry = AttributeManagerFindEntry(manager, precedingIndex, NULL, NULL);
 
             AttributeDictionaryFilter(entry->attributes,
                 SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
@@ -612,7 +614,7 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
             }
 
             /* Extract paragraph-scoped attributes from after the merge point */
-            entry = AttributeManagerFindEntry(manager, mergePointIndex, NULL);
+            entry = AttributeManagerFindEntry(manager, mergePointIndex, NULL, NULL);
 
             AttributeDictionaryFilter(entry->attributes,
                 SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
@@ -675,7 +677,7 @@ SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
 {
     manager->parent = parent;
     manager->_registry = registry;
-    manager->_codeUnitCount = 0;
+    manager->_stringLength = 0;
 
     if (registry) {
         /* Initialize all structures only when a registry is provided */
@@ -730,16 +732,16 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
             newEntry->attributes = cloneAttributes;
         }
 
-        manager->_codeUnitCount = source->_codeUnitCount;
+        manager->_stringLength = source->_stringLength;
     }
 }
 
 SB_INTERNAL AttributeEntry *AttributeManagerFindEntry(AttributeManagerRef manager,
-    SBUInteger codeUnitIndex, SBUInteger *entryIndex)
+    SBUInteger stringIndex, SBUInteger *entryIndex, SBUInteger *entryEnd)
 {
     AttributeEntry *entries = manager->_entries.items;
     SBUInteger count = manager->_entries.count;
-    SBUInteger codeUnitCount = manager->_codeUnitCount;
+    SBUInteger stringLength = manager->_stringLength;
     SBUInteger low;
     SBUInteger high;
 
@@ -756,18 +758,21 @@ SB_INTERNAL AttributeEntry *AttributeManagerFindEntry(AttributeManagerRef manage
 
         entry = &entries[mid];
         runStart = entry->index;
-        runEnd = (mid < count - 1) ? entries[mid + 1].index : codeUnitCount;
+        runEnd = (mid < count - 1) ? entries[mid + 1].index : stringLength;
 
-        if (codeUnitIndex < runStart) {
+        if (stringIndex < runStart) {
             /* Target is before the current entry */
             high = mid - 1;
-        } else if (codeUnitIndex >= runEnd) {
+        } else if (stringIndex >= runEnd) {
             /* Target is after the current entry */
             low = mid + 1;
         } else {
             /* Target is within the current entry */
             if (entryIndex) {
                 *entryIndex = mid;
+            }
+            if (entryEnd) {
+                *entryEnd = runEnd;
             }
 
             return entry;
@@ -777,93 +782,93 @@ SB_INTERNAL AttributeEntry *AttributeManagerFindEntry(AttributeManagerRef manage
     return NULL;
 }
 
-SB_INTERNAL void AttributeManagerReserveRange(AttributeManagerRef manager,
-    SBUInteger index, SBUInteger length)
-{
-    SBAssert(length > 0);
-
-    if (manager->_registry) {
-        SBUInteger codeUnitIndex;
-
-        /* Determine which code unit's attributes to extend */
-        codeUnitIndex = (index == 0 ? 0 : index - 1);
-
-        if (codeUnitIndex < manager->_codeUnitCount) {
-            SBUInteger entryIndex = SBInvalidIndex;
-
-            AttributeManagerFindEntry(manager, codeUnitIndex, &entryIndex);
-
-            if (entryIndex != SBInvalidIndex) {
-                ShiftAttributeEntryRanges(manager, entryIndex + 1, length);
-            }
-        }
-
-        manager->_codeUnitCount += length;
-    }
-}
-
-SB_INTERNAL void AttributeManagerRemoveRange(AttributeManagerRef manager,
-    SBUInteger index, SBUInteger length)
+SB_INTERNAL void AttributeManagerReplaceRange(AttributeManagerRef manager,
+    SBUInteger replaceStart, SBUInteger oldLength, SBUInteger newLength)
 {
     SBAttributeRegistryRef registry = manager->_registry;
-    SBUInteger rangeStart = index;
-    SBUInteger rangeEnd = rangeStart + length;
 
     if (registry) {
-        SBUInteger entryCount = manager->_entries.count;
-        SBUInteger entryIndex = 0;
-        AttributeEntry *entry;
-        SBUInteger removalStart;
-        SBUInteger removalCount;
+        SBUInteger replaceEnd = replaceStart + oldLength;
+        SBInteger lengthDelta = (SBInteger)(newLength - oldLength);
 
-        SBAssert(index < manager->_codeUnitCount && length > 0 && rangeEnd <= manager->_codeUnitCount);
+        if (replaceStart == manager->_stringLength) {
+            /* Appending at end - no entries to adjust */
+            manager->_stringLength += lengthDelta;
+        } else if (manager->_entries.count == 1) {
+            /* Single entry covers all text - simple update */
+            manager->_stringLength += lengthDelta;
+        } else {
+            SBUInteger stringIndex;
+            SBUInteger firstIndex;
+            SBUInteger entryEnd;
+            SBUInteger shiftStart;
 
-        /* Find first entry that might be affected by removal */
-        entry = AttributeManagerFindEntry(manager, index, &entryIndex);
-
-        /* Skip to first entry that's completely within removal range */
-        if (entry->index < rangeStart) {
-            entryIndex += 1;
-        }
-
-        removalStart = entryIndex;
-        removalCount = 0;
-
-        /* Count and process entries to remove */
-        while (entryIndex < entryCount) {
-            SBUInteger endIndex;
-
-            entry = ListGetRef(&manager->_entries, entryIndex);
-            endIndex = GetAttributeEntryEndIndex(manager, entryIndex);
-
-            if (endIndex <= rangeEnd) {
-                /* Entry is completely within removal range - mark for removal */
-                removalCount += 1;
+            /* Select which adjacent code unit's attributes to extend into the range */
+            if (oldLength == 0 && replaceStart > 0) {
+                /* Insertion: use attributes from the code unit before insertion point */
+                stringIndex = replaceStart - 1;
             } else {
-                /* Entry extends beyond removal range - adjust its index */
-                if (entry->index >= rangeEnd) {
-                    entry->index -= length;
-                } else {
-                    entry->index = rangeStart;
-                }
-                /* Shift all subsequent entries */
-                ShiftAttributeEntryRanges(manager, entryIndex + 1, -length);
-                break;
+                /* Replacement: use attributes from the first replaced code unit */
+                stringIndex = replaceStart;
             }
 
-            entryIndex += 1;
+            /* Find the entry containing the reference code unit */
+            AttributeManagerFindEntry(manager, stringIndex, &firstIndex, &entryEnd);
+            shiftStart = firstIndex + 1;
+
+            /* Remove entries that are completely covered by the replacement range */
+            if (entryEnd < replaceEnd) {
+                SBUInteger removalStart = firstIndex + 1; /* Keep first entry */
+                SBUInteger removalCount = 0;
+                SBUInteger scanIndex;
+
+                /* Scan entries to find which ones are completely covered */
+                for (scanIndex = removalStart; scanIndex < manager->_entries.count; scanIndex++) {
+                    entryEnd = GetAttributeEntryEndIndex(manager, scanIndex);
+
+                    if (entryEnd <= replaceEnd) {
+                        /* This entry is completely within replacement range - mark for removal */
+                        removalCount += 1;
+                    } else {
+                        /* Entry extends beyond replacement range - adjust its start position */
+                        AttributeEntry *currentEntry = ListGetRef(&manager->_entries, scanIndex);
+                        currentEntry->index = replaceEnd;
+                        break;
+                    }
+                }
+
+                /* Remove all marked entries */
+                RemoveAttributeEntryRange(manager, removalStart, removalCount);
+            }
+
+            /* Special handling for pure deletions */
+            if (newLength == 0) {
+                AttributeEntry *entry = ListGetRef(&manager->_entries, firstIndex);
+                entryEnd = GetAttributeEntryEndIndex(manager, firstIndex);
+
+                /* Check if the first entry exactly matches the deleted range */
+                if (entry->index == replaceStart && entryEnd == replaceEnd) {
+                    if (firstIndex != 0 || manager->_entries.count > 1) {
+                        /* Safe to delete - not the only entry */
+                        RemoveAttributeEntryRange(manager, firstIndex, 1);
+                        shiftStart -= 1;
+                    } else {
+                        /* This is the only entry - reset it to cover the empty text */
+                        AttributeDictionaryClear(entry->attributes);
+                        entry->index = 0;
+                    }
+                }
+            }
+
+            /* Shift all entries after the modified region */
+            ShiftAttributeEntryRanges(manager, shiftStart, lengthDelta);
+            manager->_stringLength += lengthDelta;
+
+            if (newLength == 0 || oldLength > 0) {
+                /* Deletion or replacement can cause paragraph merges */
+                AdjustParagraphAttributesAfterMerge(manager, replaceStart, newLength);
+            }
         }
-
-        /* Remove all marked entries */
-        RemoveAttributeEntryRange(manager, removalStart, removalCount);
-        manager->_codeUnitCount -= length;
-
-        if (manager->_entries.count == 0) {
-            InsertFirstAttributeEntry(manager);
-        }
-
-        /* Adjust paragraph attributes if removal caused paragraph merge */
-        AdjustParagraphAttributesAfterMerge(manager, rangeStart);
     }
 }
 
@@ -953,10 +958,9 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     }
 
     /* Get the first entry and look for the attribute in it */
-    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex);
+    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex, runStart);
     initialItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
 
-    *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
     entryIndex += 1;
 
     if (initialItem) {
@@ -1026,10 +1030,9 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
     }
 
     /* Get the first entry and filter its attributes */
-    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex);
+    entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex, runStart);
     AttributeDictionaryFilter(entry->attributes, filterScope, filterGroup, output);
 
-    *runStart = GetAttributeEntryEndIndex(manager, entryIndex);
     entryIndex += 1;
 
     if (AttributeDictionaryIsEmpty(output)) {

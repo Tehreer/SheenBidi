@@ -38,7 +38,7 @@ typedef struct _AttributeEntry {
 typedef struct _AttributeManager {
     SBTextRef parent;
     SBAttributeRegistryRef _registry;
-    SBUInteger _codeUnitCount;
+    SBUInteger _stringLength;
     AttributeDictionaryCache _cache;
     AttributeDictionary _tempDict;
     LIST(AttributeEntry) _entries;
@@ -111,7 +111,7 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
  *
  * @param manager
  *      The attribute manager to search.
- * @param codeUnitIndex
+ * @param stringIndex
  *      The code unit index to find.
  * @param[out] entryIndex
  *      Optional pointer to receive the index of the found entry in the entries list.
@@ -121,52 +121,33 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
  *      In practice, should always return a valid entry if the index is within valid bounds.
  */
 SB_INTERNAL AttributeEntry *AttributeManagerFindEntry(AttributeManagerRef manager,
-    SBUInteger codeUnitIndex, SBUInteger *entryIndex);
+    SBUInteger stringIndex, SBUInteger *entryIndex, SBUInteger *entryEnd);
 
 /**
- * Reserves space for a range of code units and propagates adjacent attributes.
- *
- * Called when text is inserted to make space for new code units. Shifts all entries that follow the
- * insertion point by the insertion length, effectively extending the range covered by the entry
- * before the insertion. If inserting at index 0, attributes are inherited from index 0; otherwise,
- * attributes are inherited from index-1. This ensures that inserted text maintains consistent
- * attributes with surrounding context.
+ * Replaces a range of text and adjusts attribute entries accordingly.
  *
  * @param manager
- *      The attribute manager to modify. If manager has no registry, this function returns
- *      immediately without performing any operations.
- * @param index
- *      The code unit index where text is being inserted.
- * @param length
- *      The number of code units to reserve space for. Must be greater than 0.
+ *      The attribute manager to modify
+ * @param replaceStart
+ *      Starting index of the range to replace
+ * @param oldLength
+ *      Number of code units being replaced
+ * @param newLength
+ *      Number of code units in the replacement text
+ *
+ * @note
+ *      - For insertions (oldLength == 0), uses attributes from previous code unit
+ *      - For replacements, uses attributes from first replaced code unit
+ *      - Handles paragraph merging when text is deleted
  */
-SB_INTERNAL void AttributeManagerReserveRange(AttributeManagerRef manager,
-    SBUInteger index, SBUInteger length);
+SB_INTERNAL void AttributeManagerReplaceRange(AttributeManagerRef manager,
+    SBUInteger replaceStart, SBUInteger oldLength, SBUInteger newLength);
 
-/**
- * Removes a range of code units and adjusts paragraph-scoped attributes.
- *
- * Called when text is removed to clean up attribute entries in the deleted range. First locates the
- * first affected entry, then iterates through entries to identify those completely within the
- * removal range, caching their dictionaries for reuse. For entries that partially overlap the
- * range, adjusts their indices and shifts subsequent entries accordingly.
- * After removal, checks if two paragraphs have merged by examining the code units immediately
- * before and after the removal point; if they now belong to the same paragraph, paragraph-scoped
- * attributes are propagated across the merge boundary to ensure consistency. Specifically,
- * paragraph attributes from before the merge point are applied to the second half, and paragraph
- * attributes from after the merge point are applied to the first half.
- *
- * @param manager
- *      The attribute manager to modify. If manager has no registry, this function returns
- *      immediately without performing any operations.
- * @param index
- *      The starting index of the code unit range to remove.
- * @param length
- *      The number of code units to remove. Must be greater than 0 and not extend beyond the current
- *      code unit count.
- */
-SB_INTERNAL void AttributeManagerRemoveRange(AttributeManagerRef manager,
-    SBUInteger index, SBUInteger length);
+#define AttributeManagerReserveRange(manager, index, length) \
+    AttributeManagerReplaceRange(manager, index, 0, length)
+
+#define AttributeManagerRemoveRange(manager, index, length) \
+    AttributeManagerReplaceRange(manager, index, length, 0)
 
 /**
  * Sets an attribute over a range of code units with automatic scope expansion.
