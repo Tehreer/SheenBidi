@@ -28,27 +28,41 @@ public:
 private:
     static void testInitializeWithNullRegistry();
     static void testInitializeWithValidRegistry();
-    static void testAttributePropagation();
+
     static void testSetCharacterAttribute();
     static void testSetParagraphAttributeExtension();
     static void testRemoveAttribute();
-    static void testRemoveRangeWithAttributes();
-    static void testParagraphMergingOnRemove();
-    static void testGetRunByIDBasic();
-    static void testGetRunByFilteredCollection();
-    static void testFilterByAttributeGroup();
-    static void testComplexRunDetectionScenarios();
     static void testMultipleAttributesSameRange();
     static void testOverwriteAttributeValue();
-    static void testEmptyRuns();
     static void testComplexAttributeOverlapping();
     static void testBoundaryConditions();
     static void testLargeTextOperations();
     static void testMultipleParagraphAttributes();
-    static void testRunBoundariesWithMixedAttributes();
     static void testAttributeRemovalEdgeCases();
     static void testOperationsWithNullRegistry();
     static void testZeroLengthOperations();
+
+    static void testReplaceRangePureInsertion();
+    static void testReplaceRangePureDeletion();
+    static void testReplaceRangeBasicReplacement();
+    static void testReplaceRangeAtTextBoundaries();
+    static void testReplaceRangeWithSingleEntry();
+    static void testReplaceRangeSpanningMultipleEntries();
+    static void testReplaceRangeRemovingEntireEntries();
+    static void testReplaceRangeWithParagraphAttributes();
+    static void testReplaceRangeParagraphMerging();
+    static void testReplaceRangeComplexAttributePatterns();
+    static void testReplaceRangeMultipleAttributes();
+    static void testReplaceRangeAttributeInheritance();
+    static void testReplaceRangeEdgeCases();
+    static void testReplaceRangeZeroLengthOperations();
+
+    static void testGetRunByIDBasic();
+    static void testGetRunByFilteredCollection();
+    static void testEmptyRuns();
+    static void testFilterByAttributeGroup();
+    static void testRunBoundariesWithMixedAttributes();
+    static void testComplexRunDetectionScenarios();
 };
 
 }
