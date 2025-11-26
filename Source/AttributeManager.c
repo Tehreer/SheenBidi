@@ -105,7 +105,6 @@ static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
     /* Only cache if this is the last reference */
     if (retainCount == 1) {
         AttributeDictionaryClear(dictionary);
-        AttributeDictionaryRetain(dictionary);
         ListAdd(&cache->_attributeDicts, &dictionary);
     }
 }
@@ -666,7 +665,6 @@ static void RemoveAttributeEntryRange(AttributeManagerRef manager,
         AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
 
         StoreAttributeDictionaryInCache(&manager->_cache, entry->attributes);
-        AttributeDictionaryRelease(entry->attributes);
     }
 
     ListRemoveRange(&manager->_entries, index, length);
