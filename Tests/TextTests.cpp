@@ -259,7 +259,7 @@ void TextTests::testCreateMutableCopy() {
 }
 
 void TextTests::testGetCodeUnits() {
-    const char *content = "Hello World";
+    const auto content = "Hello World";
     auto text = SBTextCreate(content, 11, SBStringEncodingUTF8, DefaultTextConfig);
     assert(text != nullptr);
 
@@ -1497,9 +1497,10 @@ void TextTests::testAttributeComplexScenarios() {
         auto replaceText = "Replacement";
         assert(SBTextReplaceCodeUnits(text, 5, 6, replaceText, 11)); // Replace "Middle"
 
-        // Replacement text should not inherit blue color
+        // Replacement text should inherit blue color
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 1, {{AttributeID::Color, redColor}}},
+            {5, 11, {{AttributeID::Color, blueColor}}},
             {17, 3, {{AttributeID::Color, greenColor}}}
         });
 
