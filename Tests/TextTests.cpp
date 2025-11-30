@@ -251,7 +251,7 @@ void TextTests::testCreateMutableCopy() {
 
     // Test that mutable copy can be modified
     auto appendText = " Appended";
-    assert(SBTextAppendCodeUnits(mutableCopy, appendText, 9));
+    SBTextAppendCodeUnits(mutableCopy, appendText, 9);
     assert(SBTextGetLength(mutableCopy) == 22);
 
     SBTextRelease(original);
@@ -284,10 +284,10 @@ void TextTests::testAppendCodeUnits() {
     auto content1 = "Hello";
     auto content2 = " World";
 
-    assert(SBTextAppendCodeUnits(text, content1, 5));
+    SBTextAppendCodeUnits(text, content1, 5);
     assert(SBTextGetLength(text) == 5);
 
-    assert(SBTextAppendCodeUnits(text, content2, 6));
+    SBTextAppendCodeUnits(text, content2, 6);
     assert(SBTextGetLength(text) == 11);
 
     char buffer[12];
@@ -303,11 +303,11 @@ void TextTests::testInsertCodeUnits() {
     assert(text != nullptr);
 
     auto initial = "Hello";
-    assert(SBTextAppendCodeUnits(text, initial, 5));
+    SBTextAppendCodeUnits(text, initial, 5);
 
     // Insert in middle
     auto insert = " W";
-    assert(SBTextInsertCodeUnits(text, 1, insert, 2));
+    SBTextInsertCodeUnits(text, 1, insert, 2);
 
     char buffer[8];
     SBTextGetCodeUnits(text, 0, 7, buffer);
@@ -316,11 +316,11 @@ void TextTests::testInsertCodeUnits() {
 
     // Insert at beginning
     auto prefix = "Pre";
-    assert(SBTextInsertCodeUnits(text, 0, prefix, 3));
+    SBTextInsertCodeUnits(text, 0, prefix, 3);
 
     // Insert at end
     auto suffix = " suffix";
-    assert(SBTextInsertCodeUnits(text, SBTextGetLength(text), suffix, 7));
+    SBTextInsertCodeUnits(text, SBTextGetLength(text), suffix, 7);
 
     SBTextRelease(text);
 }
@@ -330,10 +330,10 @@ void TextTests::testDeleteCodeUnits() {
     assert(text != nullptr);
 
     auto initial = "Hello World";
-    assert(SBTextAppendCodeUnits(text, initial, 11));
+    SBTextAppendCodeUnits(text, initial, 11);
 
     // Delete from middle
-    assert(SBTextDeleteCodeUnits(text, 5, 6)); // Delete " World"
+    SBTextDeleteCodeUnits(text, 5, 6); // Delete " World"
     assert(SBTextGetLength(text) == 5);
 
     char buffer[6];
@@ -342,11 +342,11 @@ void TextTests::testDeleteCodeUnits() {
     assert(strcmp(buffer, "Hello") == 0);
 
     // Delete from beginning
-    assert(SBTextDeleteCodeUnits(text, 0, 1)); // Delete "H"
+    SBTextDeleteCodeUnits(text, 0, 1); // Delete "H"
     assert(SBTextGetLength(text) == 4);
 
     // Delete from end
-    assert(SBTextDeleteCodeUnits(text, 3, 1)); // Delete "o"
+    SBTextDeleteCodeUnits(text, 3, 1); // Delete "o"
     assert(SBTextGetLength(text) == 3);
 
     SBTextRelease(text);
@@ -357,11 +357,11 @@ void TextTests::testReplaceCodeUnits() {
     assert(text != nullptr);
 
     auto initial = "Hello World";
-    assert(SBTextAppendCodeUnits(text, initial, 11));
+    SBTextAppendCodeUnits(text, initial, 11);
 
     // Replace middle section
     auto replacement = "There";
-    assert(SBTextReplaceCodeUnits(text, 6, 5, replacement, 5));
+    SBTextReplaceCodeUnits(text, 6, 5, replacement, 5);
 
     char buffer[12];
     SBTextGetCodeUnits(text, 0, 11, buffer);
@@ -370,7 +370,7 @@ void TextTests::testReplaceCodeUnits() {
 
     // Replace entire content
     auto newContent = "New Text";
-    assert(SBTextReplaceCodeUnits(text, 0, 11, newContent, 8));
+    SBTextReplaceCodeUnits(text, 0, 11, newContent, 8);
     assert(SBTextGetLength(text) == 8);
 
     SBTextRelease(text);
@@ -381,10 +381,10 @@ void TextTests::testSetCodeUnits() {
     assert(text != nullptr);
 
     auto initial = "Initial Text";
-    assert(SBTextAppendCodeUnits(text, initial, 12));
+    SBTextAppendCodeUnits(text, initial, 12);
 
     auto newText = "New Text";
-    assert(SBTextSetCodeUnits(text, newText, 8));
+    SBTextSetCodeUnits(text, newText, 8);
 
     assert(SBTextGetLength(text) == 8);
 
@@ -509,12 +509,12 @@ void TextTests::testEditingSession() {
     auto text2 = "Second";
     auto text3 = "Third";
 
-    assert(SBTextAppendCodeUnits(text, text1, 5));
-    assert(SBTextAppendCodeUnits(text, text2, 6));
-    assert(SBTextInsertCodeUnits(text, 5, text3, 5));
+    SBTextAppendCodeUnits(text, text1, 5);
+    SBTextAppendCodeUnits(text, text2, 6);
+    SBTextInsertCodeUnits(text, 5, text3, 5);
 
     // End editing - analysis should happen now
-    assert(SBTextEndEditing(text));
+    SBTextEndEditing(text);
 
     assert(SBTextGetLength(text) == 16);
 
@@ -541,11 +541,11 @@ void TextTests::testInvalidOperations() {
     assert(text != nullptr);
 
     // Test operations on empty text
-    assert(SBTextAppendCodeUnits(text, nullptr, 0));
-    assert(SBTextInsertCodeUnits(text, 0, nullptr, 0));
-    assert(SBTextDeleteCodeUnits(text, 0, 0));
-    assert(SBTextSetCodeUnits(text, nullptr, 0));
-    assert(SBTextReplaceCodeUnits(text, 0, 0, nullptr, 0));
+    SBTextAppendCodeUnits(text, nullptr, 0);
+    SBTextInsertCodeUnits(text, 0, nullptr, 0);
+    SBTextDeleteCodeUnits(text, 0, 0);
+    SBTextSetCodeUnits(text, nullptr, 0);
+    SBTextReplaceCodeUnits(text, 0, 0, nullptr, 0);
 
     SBTextRelease(text);
 }
@@ -610,7 +610,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Single paragraph text";
-        assert(SBTextAppendCodeUnits(text, content, 21));
+        SBTextAppendCodeUnits(text, content, 21);
 
         verifyParagraphRanges(text, {{0, 21}});
 
@@ -623,7 +623,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First paragraph\nSecond paragraph\nThird paragraph";
-        assert(SBTextAppendCodeUnits(text, content, 48));
+        SBTextAppendCodeUnits(text, content, 48);
 
         verifyParagraphRanges(text, {{0, 16}, {16, 17}, {33, 15}});
 
@@ -636,7 +636,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First paragraph\r\nSecond paragraph\r\nThird paragraph";
-        assert(SBTextAppendCodeUnits(text, content, 50));
+        SBTextAppendCodeUnits(text, content, 50);
 
         verifyParagraphRanges(text, {{0, 17}, {17, 18}, {35, 15}});
 
@@ -649,7 +649,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Unix line\nWindows line\r\nOld Mac line\rEnd";
-        assert(SBTextAppendCodeUnits(text, content, 40));
+        SBTextAppendCodeUnits(text, content, 40);
 
         verifyParagraphRanges(text, {{0, 10}, {10, 14}, {24, 13}, {37, 3}});
 
@@ -662,7 +662,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\n\nThird\n\n\nSixth";
-        assert(SBTextAppendCodeUnits(text, content, 20));
+        SBTextAppendCodeUnits(text, content, 20);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 1}, {7, 6}, {13, 1}, {14, 1}, {15, 5}});
 
@@ -675,7 +675,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "\nStarts with newline";
-        assert(SBTextAppendCodeUnits(text, content, 20));
+        SBTextAppendCodeUnits(text, content, 20);
 
         verifyParagraphRanges(text, {{0, 1}, {1, 19}});
 
@@ -688,7 +688,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Ends with newline\n";
-        assert(SBTextAppendCodeUnits(text, content, 18));
+        SBTextAppendCodeUnits(text, content, 18);
 
         verifyParagraphRanges(text, {{0, 18}});
 
@@ -701,7 +701,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "\n\n\n";
-        assert(SBTextAppendCodeUnits(text, content, 3));
+        SBTextAppendCodeUnits(text, content, 3);
 
         verifyParagraphRanges(text, {{0, 1}, {1, 1}, {2, 1}});
 
@@ -714,9 +714,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Paragraph1\nParagraph2";
-        assert(SBTextAppendCodeUnits(text, content, 21));
+        SBTextAppendCodeUnits(text, content, 21);
 
-        assert(SBTextInsertCodeUnits(text, 0, "Start ", 6));
+        SBTextInsertCodeUnits(text, 0, "Start ", 6);
 
         verifyParagraphRanges(text, {{0, 17}, {17, 10}});
 
@@ -729,9 +729,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Hello World";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
-        assert(SBTextInsertCodeUnits(text, 5, " My", 3));
+        SBTextInsertCodeUnits(text, 5, " My", 3);
 
         verifyParagraphRanges(text, {{0, 14}});
 
@@ -744,9 +744,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "HelloWorld";
-        assert(SBTextAppendCodeUnits(text, content, 10));
+        SBTextAppendCodeUnits(text, content, 10);
 
-        assert(SBTextInsertCodeUnits(text, 5, "\n", 1));
+        SBTextInsertCodeUnits(text, 5, "\n", 1);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 5}});
 
@@ -759,9 +759,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "HelloWorld";
-        assert(SBTextAppendCodeUnits(text, content, 10));
+        SBTextAppendCodeUnits(text, content, 10);
 
-        assert(SBTextInsertCodeUnits(text, 5, "\r\n", 2));
+        SBTextInsertCodeUnits(text, 5, "\r\n", 2);
 
         verifyParagraphRanges(text, {{0, 7}, {7, 5}});
 
@@ -774,9 +774,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\nSecond";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
-        assert(SBTextInsertCodeUnits(text, 6, "Inserted ", 9));
+        SBTextInsertCodeUnits(text, 6, "Inserted ", 9);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 15}});
 
@@ -789,9 +789,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "HelloWorld";
-        assert(SBTextAppendCodeUnits(text, content, 10));
+        SBTextAppendCodeUnits(text, content, 10);
 
-        assert(SBTextDeleteCodeUnits(text, 2, 3));
+        SBTextDeleteCodeUnits(text, 2, 3);
 
         verifyParagraphRanges(text, {{0, 7}});
 
@@ -804,9 +804,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Paragraph1\nParagraph2\nParagraph3";
-        assert(SBTextAppendCodeUnits(text, content, 32));
+        SBTextAppendCodeUnits(text, content, 32);
 
-        assert(SBTextDeleteCodeUnits(text, 10, 1)); // Remove \n
+        SBTextDeleteCodeUnits(text, 10, 1); // Remove \n
 
         verifyParagraphRanges(text, {{0, 21}, {21, 10}});
 
@@ -819,9 +819,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\r\nSecond\r\nThird";
-        assert(SBTextAppendCodeUnits(text, content, 20));
+        SBTextAppendCodeUnits(text, content, 20);
 
-        assert(SBTextDeleteCodeUnits(text, 5, 2)); // Remove \r\n
+        SBTextDeleteCodeUnits(text, 5, 2); // Remove \r\n
 
         verifyParagraphRanges(text, {{0, 13}, {13, 5}});
 
@@ -834,9 +834,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\r\nSecond";
-        assert(SBTextAppendCodeUnits(text, content, 13));
+        SBTextAppendCodeUnits(text, content, 13);
 
-        assert(SBTextDeleteCodeUnits(text, 5, 1)); // Remove \r only
+        SBTextDeleteCodeUnits(text, 5, 1); // Remove \r only
 
         verifyParagraphRanges(text, {{0, 6}, {6, 6}}); // \n still causes split
 
@@ -849,9 +849,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "P1\nP2\nP3\nP4";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
-        assert(SBTextDeleteCodeUnits(text, 2, 5)); // Remove "\nP2\n"
+        SBTextDeleteCodeUnits(text, 2, 5); // Remove "\nP2\n"
 
         verifyParagraphRanges(text, {{0, 4}, {4, 2}}); // "P1\n" + "P3\nP4"
 
@@ -864,9 +864,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\nSecond\nThird";
-        assert(SBTextAppendCodeUnits(text, content, 18));
+        SBTextAppendCodeUnits(text, content, 18);
 
-        assert(SBTextDeleteCodeUnits(text, 0, 7)); // Remove "First\n"
+        SBTextDeleteCodeUnits(text, 0, 7); // Remove "First\n"
 
         verifyParagraphRanges(text, {{0, 6}, {6, 5}}); // "Second\nThird"
 
@@ -879,9 +879,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Line1\nLine2";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
-        assert(SBTextDeleteCodeUnits(text, 0, 11));
+        SBTextDeleteCodeUnits(text, 0, 11);
 
         verifyParagraphRanges(text, {});
 
@@ -893,7 +893,7 @@ void TextTests::testParagraphScenarios() {
         auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
-        assert(SBTextInsertCodeUnits(text, 0, "New", 3));
+        SBTextInsertCodeUnits(text, 0, "New", 3);
 
         verifyParagraphRanges(text, {{0, 3}});
 
@@ -906,9 +906,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "ABC\nDEF";
-        assert(SBTextAppendCodeUnits(text, content, 7));
+        SBTextAppendCodeUnits(text, content, 7);
 
-        assert(SBTextReplaceCodeUnits(text, 2, 3, "XY", 2)); // Replace "C\nD" with "XY"
+        SBTextReplaceCodeUnits(text, 2, 3, "XY", 2); // Replace "C\nD" with "XY"
 
         verifyParagraphRanges(text, {{0, 6}}); // "ABXYEF" as single paragraph
 
@@ -921,9 +921,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\nSecond";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
-        assert(SBTextReplaceCodeUnits(text, 5, 1, " and ", 5)); // Replace \n with " and "
+        SBTextReplaceCodeUnits(text, 5, 1, " and ", 5); // Replace \n with " and "
 
         verifyParagraphRanges(text, {{0, 16}}); // "First and Second" as single paragraph
 
@@ -936,9 +936,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Hello World";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
-        assert(SBTextReplaceCodeUnits(text, 5, 1, "\n", 1)); // Replace space with \n
+        SBTextReplaceCodeUnits(text, 5, 1, "\n", 1); // Replace space with \n
 
         verifyParagraphRanges(text, {{0, 6}, {6, 5}}); // "Hello\nWorld"
 
@@ -951,9 +951,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "P1\nP2\nP3\nP4";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
-        assert(SBTextReplaceCodeUnits(text, 2, 5, "Middle\r\nText", 12)); // Replace "\nP2\n" with "Middle\r\nText"
+        SBTextReplaceCodeUnits(text, 2, 5, "Middle\r\nText", 12); // Replace "\nP2\n" with "Middle\r\nText"
 
         verifyParagraphRanges(text, {{0, 10}, {10, 6}, {16, 2}}); // "P1Middle\r\nTextP3\nP4"
 
@@ -966,9 +966,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "First\nSecond";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
-        assert(SBTextAppendCodeUnits(text, "\nThird", 6));
+        SBTextAppendCodeUnits(text, "\nThird", 6);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 7}, {13, 5}});
 
@@ -981,9 +981,9 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Existing";
-        assert(SBTextAppendCodeUnits(text, content, 8));
+        SBTextAppendCodeUnits(text, content, 8);
 
-        assert(SBTextAppendCodeUnits(text, "", 0));
+        SBTextAppendCodeUnits(text, "", 0);
 
         verifyParagraphRanges(text, {{0, 8}});
 
@@ -996,10 +996,10 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Old text\nwith paragraphs";
-        assert(SBTextAppendCodeUnits(text, content, 24));
+        SBTextAppendCodeUnits(text, content, 24);
 
         auto newContent = "New single paragraph";
-        assert(SBTextSetCodeUnits(text, newContent, 20));
+        SBTextSetCodeUnits(text, newContent, 20);
 
         verifyParagraphRanges(text, {{0, 20}});
 
@@ -1013,7 +1013,7 @@ void TextTests::testParagraphScenarios() {
 
         // U+2029 is PARAGRAPH SEPARATOR
         auto content = "First\xE2\x80\xA9Second\xE2\x80\xA9Third";
-        assert(SBTextAppendCodeUnits(text, content, 22));
+        SBTextAppendCodeUnits(text, content, 22);
 
         verifyParagraphRanges(text, {{0, 8}, {8, 9}, {17, 5}});
 
@@ -1027,7 +1027,7 @@ void TextTests::testParagraphScenarios() {
 
         // Mix of \n, \r\n, and U+2029
         auto content = "Line1\nLine2\r\nLine3\xE2\x80\xA9Line4";
-        assert(SBTextAppendCodeUnits(text, content, 26));
+        SBTextAppendCodeUnits(text, content, 26);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 7}, {13, 8}, {21, 5}});
 
@@ -1040,7 +1040,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         string longParagraph(1000, 'A'); // 1000 'A's
-        assert(SBTextAppendCodeUnits(text, longParagraph.c_str(), 1000));
+        SBTextAppendCodeUnits(text, longParagraph.c_str(), 1000);
 
         verifyParagraphRanges(text, {{0, 1000}});
 
@@ -1056,7 +1056,7 @@ void TextTests::testParagraphScenarios() {
         for (int i = 0; i < 50; ++i) {
             manyParagraphs += "P" + to_string(i) + "\n";
         }
-        assert(SBTextAppendCodeUnits(text, manyParagraphs.c_str(), manyParagraphs.length()));
+        SBTextAppendCodeUnits(text, manyParagraphs.c_str(), manyParagraphs.length());
 
         // Should have 50 paragraphs
         assert(text->paragraphs.count == 50);
@@ -1072,13 +1072,13 @@ void TextTests::testParagraphScenarios() {
         SBTextBeginEditing(text);
 
         auto content = "Initial\nText";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
-        assert(SBTextInsertCodeUnits(text, 7, "\nInserted", 9)); // After "Initial"
-        assert(SBTextDeleteCodeUnits(text, 0, 8)); // Remove "Initial\n"
-        assert(SBTextReplaceCodeUnits(text, 8, 5, "Modified", 8)); // Replace "Text"
+        SBTextInsertCodeUnits(text, 7, "\nInserted", 9); // After "Initial"
+        SBTextDeleteCodeUnits(text, 0, 8); // Remove "Initial\n"
+        SBTextReplaceCodeUnits(text, 8, 5, "Modified", 8); // Replace "Text"
 
-        assert(SBTextEndEditing(text));
+        SBTextEndEditing(text);
 
         verifyParagraphRanges(text, {{0, 16}}); // "InsertedModified"
 
@@ -1091,7 +1091,7 @@ void TextTests::testParagraphScenarios() {
         assert(text != nullptr);
 
         auto content = "Hello (مرحبا)\nWorld (عالم)";
-        assert(SBTextAppendCodeUnits(text, content, 35));
+        SBTextAppendCodeUnits(text, content, 35);
 
         verifyParagraphRanges(text, {{0, 19}, {19, 16}});
 
@@ -1105,7 +1105,7 @@ void TextTests::testParagraphScenarios() {
 
         verifyParagraphRanges(text, {});
 
-        assert(SBTextAppendCodeUnits(text, "First\nSecond", 12));
+        SBTextAppendCodeUnits(text, "First\nSecond", 12);
 
         verifyParagraphRanges(text, {{0, 6}, {6, 6}});
 
@@ -1117,16 +1117,16 @@ void TextTests::testParagraphScenarios() {
         auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
         assert(text != nullptr);
 
-        assert(SBTextAppendCodeUnits(text, "Start", 5));
+        SBTextAppendCodeUnits(text, "Start", 5);
         verifyParagraphRanges(text, {{0, 5}});
 
-        assert(SBTextInsertCodeUnits(text, 2, "\n", 1));
+        SBTextInsertCodeUnits(text, 2, "\n", 1);
         verifyParagraphRanges(text, {{0, 3}, {3, 3}});
 
-        assert(SBTextAppendCodeUnits(text, "\nEnd", 4));
+        SBTextAppendCodeUnits(text, "\nEnd", 4);
         verifyParagraphRanges(text, {{0, 3}, {3, 4}, {7, 3}});
 
-        assert(SBTextDeleteCodeUnits(text, 3, 2));
+        SBTextDeleteCodeUnits(text, 3, 2);
         verifyParagraphRanges(text, {{0, 3}, {3, 2}, {5, 3}});
 
         SBTextRelease(text);
@@ -1140,15 +1140,15 @@ void TextTests::testSetAttribute() {
         assert(text != nullptr);
 
         auto content = "Hello World";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute on entire text
         auto redColor = "red";
-        assert(SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor));
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
 
         // Set color attribute on partial range
         auto blueColor = "blue";
-        assert(SBTextSetAttribute(text, 0, 5, AttributeID::Color, blueColor));
+        SBTextSetAttribute(text, 0, 5, AttributeID::Color, blueColor);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 5, {{AttributeID::Color, blueColor}}},
@@ -1164,15 +1164,15 @@ void TextTests::testSetAttribute() {
         assert(text != nullptr);
 
         auto content = "First paragraph.\nSecond paragraph.";
-        assert(SBTextAppendCodeUnits(text, content, 34));
+        SBTextAppendCodeUnits(text, content, 34);
 
         // Set alignment attribute on first paragraph
         auto centerAlign = "center";
-        assert(SBTextSetAttribute(text, 0, 17, AttributeID::Alignment, centerAlign));
+        SBTextSetAttribute(text, 0, 17, AttributeID::Alignment, centerAlign);
 
         // Set alignment attribute on second paragraph
         auto rightAlign = "right";
-        assert(SBTextSetAttribute(text, 17, 17, AttributeID::Alignment, rightAlign));
+        SBTextSetAttribute(text, 17, 17, AttributeID::Alignment, rightAlign);
 
         verifyAttributeRuns(text, SBAttributeScopeParagraph, {
             {0, 17, {{AttributeID::Alignment, centerAlign}}},
@@ -1189,7 +1189,7 @@ void TextTests::testSetAttribute() {
 
         // Should handle zero-length range gracefully
         auto value = "test";
-        assert(SBTextSetAttribute(text, 0, 0, AttributeID::Color, value));
+        SBTextSetAttribute(text, 0, 0, AttributeID::Color, value);
 
         verifyAttributeRuns(text, SBAttributeScopeParagraph, {});
 
@@ -1202,14 +1202,14 @@ void TextTests::testSetAttribute() {
         assert(text != nullptr);
 
         auto content = "Test content";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
         // Set multiple attributes on same range
         auto colorValue = "green";
         auto alignValue = "left";
 
-        assert(SBTextSetAttribute(text, 0, 12, AttributeID::Color, colorValue));
-        assert(SBTextSetAttribute(text, 0, 12, AttributeID::Alignment, alignValue));
+        SBTextSetAttribute(text, 0, 12, AttributeID::Color, colorValue);
+        SBTextSetAttribute(text, 0, 12, AttributeID::Alignment, alignValue);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 12, {{AttributeID::Color, colorValue}}}
@@ -1229,13 +1229,13 @@ void TextTests::testSetAttribute() {
         SBTextBeginEditing(text);
 
         auto content = "Editing session test";
-        assert(SBTextAppendCodeUnits(text, content, 20));
+        SBTextAppendCodeUnits(text, content, 20);
 
         // Set attribute during editing session
         auto colorValue = "yellow";
-        assert(SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue));
+        SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue);
 
-        assert(SBTextEndEditing(text));
+        SBTextEndEditing(text);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 20, {{AttributeID::Color, colorValue}}}
@@ -1252,17 +1252,17 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         auto content = "Hello World";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute first
         auto redColor = "red";
-        assert(SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor));
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
 
         // Remove color attribute from entire text
-        assert(SBTextRemoveAttribute(text, 0, 11, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 11, AttributeID::Color);
 
         // Remove again (should be idempotent)
-        assert(SBTextRemoveAttribute(text, 0, 11, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 11, AttributeID::Color);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {});
 
@@ -1275,14 +1275,14 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         auto content = "First paragraph.\nSecond paragraph.";
-        assert(SBTextAppendCodeUnits(text, content, 34));
+        SBTextAppendCodeUnits(text, content, 34);
 
         // Set alignment attribute on both paragraphs
         auto centerAlign = "center";
-        assert(SBTextSetAttribute(text, 0, 34, AttributeID::Alignment, centerAlign));
+        SBTextSetAttribute(text, 0, 34, AttributeID::Alignment, centerAlign);
 
         // Remove alignment from the first paragraph only
-        assert(SBTextRemoveAttribute(text, 0, 17, AttributeID::Alignment));
+        SBTextRemoveAttribute(text, 0, 17, AttributeID::Alignment);
 
         // Alignment should still exist on the second paragraph
         verifyAttributeRuns(text, SBAttributeScopeParagraph, {
@@ -1298,14 +1298,14 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         auto content = "Hello World";
-        assert(SBTextAppendCodeUnits(text, content, 11));
+        SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute on entire text
         auto redColor = "red";
-        assert(SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor));
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
 
         // Remove color from first half only
-        assert(SBTextRemoveAttribute(text, 0, 5, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 5, AttributeID::Color);
 
         // Color should still exist on second half
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1321,10 +1321,10 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         auto content = "Test content";
-        assert(SBTextAppendCodeUnits(text, content, 12));
+        SBTextAppendCodeUnits(text, content, 12);
 
         // Remove attribute that was never set (should succeed)
-        assert(SBTextRemoveAttribute(text, 0, 12, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 12, AttributeID::Color);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {});
 
@@ -1337,7 +1337,7 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         // Should handle zero-length range gracefully
-        assert(SBTextRemoveAttribute(text, 0, 0, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 0, AttributeID::Color);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {});
 
@@ -1350,18 +1350,18 @@ void TextTests::testRemoveAttribute() {
         assert(text != nullptr);
 
         auto content = "Editing session test";
-        assert(SBTextAppendCodeUnits(text, content, 20));
+        SBTextAppendCodeUnits(text, content, 20);
 
         // Set attribute first
         auto colorValue = "yellow";
-        assert(SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue));
+        SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue);
 
         SBTextBeginEditing(text);
 
         // Remove attribute during editing session
-        assert(SBTextRemoveAttribute(text, 0, 20, AttributeID::Color));
+        SBTextRemoveAttribute(text, 0, 20, AttributeID::Color);
 
-        assert(SBTextEndEditing(text));
+        SBTextEndEditing(text);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {});
 
@@ -1376,14 +1376,14 @@ void TextTests::testAttributeEdgeCases() {
         assert(text != nullptr);
 
         auto content = "Short";
-        assert(SBTextAppendCodeUnits(text, content, 5));
+        SBTextAppendCodeUnits(text, content, 5);
 
         // Set attribute at very end
         auto colorValue = "red";
-        assert(SBTextSetAttribute(text, 4, 1, AttributeID::Color, colorValue));
+        SBTextSetAttribute(text, 4, 1, AttributeID::Color, colorValue);
 
         // Remove from single character
-        assert(SBTextRemoveAttribute(text, 4, 1, AttributeID::Color));
+        SBTextRemoveAttribute(text, 4, 1, AttributeID::Color);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {});
 
@@ -1396,15 +1396,15 @@ void TextTests::testAttributeEdgeCases() {
         assert(text != nullptr);
 
         auto content = "Original text";
-        assert(SBTextAppendCodeUnits(text, content, 13));
+        SBTextAppendCodeUnits(text, content, 13);
 
         // Set attribute
         auto colorValue = "blue";
-        assert(SBTextSetAttribute(text, 0, 13, AttributeID::Color, colorValue));
+        SBTextSetAttribute(text, 0, 13, AttributeID::Color, colorValue);
 
         // Insert text in middle
         auto insertText = " modified";
-        assert(SBTextInsertCodeUnits(text, 8, insertText, 9));
+        SBTextInsertCodeUnits(text, 8, insertText, 9);
 
         // Attribute should still be present
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1412,7 +1412,7 @@ void TextTests::testAttributeEdgeCases() {
         });
 
         // Remove part of the text
-        assert(SBTextDeleteCodeUnits(text, 0, 8));
+        SBTextDeleteCodeUnits(text, 0, 8);
 
         // Attribute should still be present on remaining text
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1428,18 +1428,18 @@ void TextTests::testAttributeEdgeCases() {
         assert(text != nullptr);
 
         auto content = "Test content for multiple attributes";
-        assert(SBTextAppendCodeUnits(text, content, 37));
+        SBTextAppendCodeUnits(text, content, 37);
 
         // Set color on the first half
         auto redColor = "red";
-        assert(SBTextSetAttribute(text, 0, 18, AttributeID::Color, redColor));
+        SBTextSetAttribute(text, 0, 18, AttributeID::Color, redColor);
 
         // Set alignment on overlapping range
         auto centerAlign = "center";
-        assert(SBTextSetAttribute(text, 10, 20, AttributeID::Alignment, centerAlign));
+        SBTextSetAttribute(text, 10, 20, AttributeID::Alignment, centerAlign);
 
         // Remove color from the middle section
-        assert(SBTextRemoveAttribute(text, 5, 10, AttributeID::Color));
+        SBTextRemoveAttribute(text, 5, 10, AttributeID::Color);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 5, {{AttributeID::Color, redColor}}},
@@ -1460,20 +1460,20 @@ void TextTests::testAttributeComplexScenarios() {
         assert(text != nullptr);
 
         auto content = "Start Middle End";
-        assert(SBTextAppendCodeUnits(text, content, 16));
+        SBTextAppendCodeUnits(text, content, 16);
 
         // Set attributes on various ranges
         auto redColor = "red";
         auto blueColor = "blue";
         auto greenColor = "green";
 
-        assert(SBTextSetAttribute(text, 0, 5, AttributeID::Color, redColor));    // "Start" - red
-        assert(SBTextSetAttribute(text, 6, 6, AttributeID::Color, blueColor));   // "Middle" - blue
-        assert(SBTextSetAttribute(text, 13, 3, AttributeID::Color, greenColor)); // "End" - green
+        SBTextSetAttribute(text, 0, 5, AttributeID::Color, redColor);    // "Start" - red
+        SBTextSetAttribute(text, 6, 6, AttributeID::Color, blueColor);   // "Middle" - blue
+        SBTextSetAttribute(text, 13, 3, AttributeID::Color, greenColor); // "End" - green
 
         // Insert text that splits an attributed range
         auto insertText = "New";
-        assert(SBTextInsertCodeUnits(text, 6, insertText, 3)); // Insert before "Middle"
+        SBTextInsertCodeUnits(text, 6, insertText, 3); // Insert before "Middle"
 
         // "Middle" should still be blue, but now at different position
         // "New" should have no color attribute
@@ -1484,7 +1484,7 @@ void TextTests::testAttributeComplexScenarios() {
         });
 
         // Delete text that contains attributes
-        assert(SBTextDeleteCodeUnits(text, 0, 4)); // Delete "Star" from "Start"
+        SBTextDeleteCodeUnits(text, 0, 4); // Delete "Star" from "Start"
 
         // Remaining "t" should still be red
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1495,7 +1495,7 @@ void TextTests::testAttributeComplexScenarios() {
 
         // Replace text with attributes
         auto replaceText = "Replacement";
-        assert(SBTextReplaceCodeUnits(text, 5, 6, replaceText, 11)); // Replace "Middle"
+        SBTextReplaceCodeUnits(text, 5, 6, replaceText, 11); // Replace "Middle"
 
         // Replacement text should inherit blue color
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1513,11 +1513,11 @@ void TextTests::testAttributeComplexScenarios() {
         assert(text != nullptr);
 
         auto content = "Hello (العربية) World";
-        assert(SBTextAppendCodeUnits(text, content, 25));
+        SBTextAppendCodeUnits(text, content, 25);
 
         // Set attributes on mixed-direction text
         auto colorValue = "purple";
-        assert(SBTextSetAttribute(text, 7, 8, AttributeID::Color, colorValue)); // Arabic text
+        SBTextSetAttribute(text, 7, 8, AttributeID::Color, colorValue); // Arabic text
 
         // Verify we can iterate attributes on bidirectional text
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1533,14 +1533,14 @@ void TextTests::testAttributeComplexScenarios() {
         assert(original != nullptr);
 
         auto content = "Text with attributes";
-        assert(SBTextAppendCodeUnits(original, content, 20));
+        SBTextAppendCodeUnits(original, content, 20);
 
         // Set attributes
         auto colorValue = "orange";
         auto alignValue = "justify";
 
-        assert(SBTextSetAttribute(original, 0, 20, AttributeID::Color, colorValue));
-        assert(SBTextSetAttribute(original, 0, 20, AttributeID::Alignment, alignValue));
+        SBTextSetAttribute(original, 0, 20, AttributeID::Color, colorValue);
+        SBTextSetAttribute(original, 0, 20, AttributeID::Alignment, alignValue);
 
         // Create immutable copy
         auto immutableCopy = SBTextCreateCopy(original);
