@@ -944,74 +944,58 @@ void SBTextBeginEditing(SBMutableTextRef text)
     text->isEditing = SBTrue;
 }
 
-SBBoolean SBTextEndEditing(SBMutableTextRef text)
+void SBTextEndEditing(SBMutableTextRef text)
 {
-    SBBoolean succeeded;
-
     SBAssert(text->isMutable);
 
-    succeeded = AnalyzeDirtyParagraphs(text);
+    AnalyzeDirtyParagraphs(text);
     text->isEditing = SBFalse;
-
-    return succeeded;
 }
 
-SBBoolean SBTextAppendCodeUnits(SBMutableTextRef text,
+void SBTextAppendCodeUnits(SBMutableTextRef text,
     const void *codeUnitBuffer, SBUInteger codeUnitCount)
 {
     SBAssert(text->isMutable);
 
-    return SBTextInsertCodeUnits(text, text->codeUnits.count, codeUnitBuffer, codeUnitCount);
+    SBTextInsertCodeUnits(text, text->codeUnits.count, codeUnitBuffer, codeUnitCount);
 }
 
-SBBoolean SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
+void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
     const void *codeUnitBuffer, SBUInteger codeUnitCount)
 {
-    SBBoolean succeeded = SBTrue;
-
     SBAssert(text->isMutable && index <= text->codeUnits.count);
 
     if (codeUnitCount > 0) {
-        succeeded = SBFalse;
+        SBUInteger byteCount;
+        void *destination;
 
         /* Reserve space in code units */
-        if (ListReserveRange(&text->codeUnits, index, codeUnitCount)) {
-            SBUInteger byteCount = codeUnitCount * text->codeUnits.itemSize;
-            void *destination = ListGetPtr(&text->codeUnits, index);
+        ListReserveRange(&text->codeUnits, index, codeUnitCount);
 
-            memcpy(destination, codeUnitBuffer, byteCount);
-            succeeded = SBTrue;
-        }
+        byteCount = codeUnitCount * text->codeUnits.itemSize;
+        destination = ListGetPtr(&text->codeUnits, index);
+        memcpy(destination, codeUnitBuffer, byteCount);
 
         /* Insert bidi types */
-        if (succeeded) {
-            succeeded = InsertBidiTypes(text, index, codeUnitCount);
-        }
+        InsertBidiTypes(text, index, codeUnitCount);
 
         /* Reserve attribute manager space */
         AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
 
         /* Update paragraph structures */
-        if (succeeded) {
-            succeeded = UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
-        }
+        UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
 
-        if (succeeded) {
-            /* Perform immediate analysis if not in batch editing mode */
-            if (!text->isEditing) {
-                succeeded = AnalyzeDirtyParagraphs(text);
-            }
+        /* Perform immediate analysis if not in batch editing mode */
+        if (!text->isEditing) {
+            AnalyzeDirtyParagraphs(text);
         }
     }
-
-    return succeeded;
 }
 
-SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length)
+void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length)
 {
     SBUInteger rangeEnd = index + length;
     SBBoolean isRangeValid = (rangeEnd <= text->codeUnits.count && index <= rangeEnd);
-    SBBoolean succeeded = SBTrue;
 
     SBAssert(text->isMutable && isRangeValid);
 
@@ -1030,14 +1014,12 @@ SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInte
 
         if (!text->isEditing) {
             /* Perform immediate analysis if not in batch editing mode */
-            succeeded = AnalyzeDirtyParagraphs(text);
+            AnalyzeDirtyParagraphs(text);
         }
     }
-
-    return succeeded;
 }
 
-SBBoolean SBTextSetCodeUnits(SBMutableTextRef text,
+void SBTextSetCodeUnits(SBMutableTextRef text,
     const void *codeUnitBuffer, SBUInteger codeUnitCount)
 {
     SBAssert(text->isMutable);
@@ -1045,7 +1027,7 @@ SBBoolean SBTextSetCodeUnits(SBMutableTextRef text,
     return SBTextReplaceCodeUnits(text, 0, text->codeUnits.count, codeUnitBuffer, codeUnitCount);
 }
 
-SBBoolean SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     const void *codeUnitBuffer, SBUInteger codeUnitCount)
 {
     SBUInteger rangeEnd = index + length;
@@ -1092,11 +1074,9 @@ SBBoolean SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInt
             AnalyzeDirtyParagraphs(text);
         }
     }
-
-    return SBTrue;
 }
 
-SBBoolean SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+void SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     SBAttributeID attributeID, const void *attributeValue)
 {
     SBUInteger rangeEnd = index + length;
@@ -1108,11 +1088,9 @@ SBBoolean SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger
         AttributeManagerSetAttribute(&text->attributeManager,
             index, length, attributeID, attributeValue);
     }
-
-    return SBTrue;
 }
 
-SBBoolean SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+void SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     SBAttributeID attributeID)
 {
     SBUInteger rangeEnd = index + length;
@@ -1123,6 +1101,4 @@ SBBoolean SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInte
     if (length > 0) {
         AttributeManagerRemoveAttribute(&text->attributeManager, index, length, attributeID);
     }
-
-    return SBTrue;
 }

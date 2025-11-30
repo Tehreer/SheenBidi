@@ -316,10 +316,8 @@ void SBTextBeginEditing(SBMutableTextRef text);
  * 
  * @param text
  *      Mutable text object.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
  */
-SBBoolean SBTextEndEditing(SBMutableTextRef text);
+void SBTextEndEditing(SBMutableTextRef text);
 
 /**
  * Adds new code units to the end of the text object. If the text is not in editing mode, analysis
@@ -331,10 +329,8 @@ SBBoolean SBTextEndEditing(SBMutableTextRef text);
  *      Pointer to code units in the text's encoding.
  * @param codeUnitCount
  *      Number of code units to append.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure (e.g., allocation failure).
  */
-SBBoolean SBTextAppendCodeUnits(SBMutableTextRef text,
+void SBTextAppendCodeUnits(SBMutableTextRef text,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
 
 /**
@@ -350,14 +346,12 @@ SBBoolean SBTextAppendCodeUnits(SBMutableTextRef text,
  *      Pointer to code units in the text's encoding.
  * @param codeUnitCount
  *      Number of code units to insert.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
  *
  * @warning
- *      The index must be within the range [0, current length]. The buffer must contain valid code
- *      units in the text's encoding format.
+ *      The index must be within the range [0, current length].
+ *      The buffer must contain valid code units in the text's encoding format.
  */
-SBBoolean SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
+void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
 
 /**
@@ -370,10 +364,11 @@ SBBoolean SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
  *      Start index of the range to delete (in code units).
  * @param length
  *      Number of code units to delete.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
+ *
+ * @warning
+ *      The deletion range [index, index+length) must be within the current text bounds.
  */
-SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length);
+void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length);
 
 /**
  * Completely replaces the current text content with the new code units. This is equivalent to
@@ -384,21 +379,18 @@ SBBoolean SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInte
  * @param codeUnitBuffer
  *      Pointer to code units in the text's encoding.
  * @param codeUnitCount
- *      Number of code units in @p codeUnitBuffer.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
+ *      Number of code units in codeUnitBuffer.
  *
  * @warning
  *      All existing content and attributes are removed.
  *      The buffer must contain valid code units in the text's encoding format.
  */
-SBBoolean SBTextSetCodeUnits(SBMutableTextRef text,
+void SBTextSetCodeUnits(SBMutableTextRef text,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
 
 /**
- * Replaces a contiguous range of existing code units with new content. This operation is
- * equivalent to deleting the specified range and then inserting the new content at the same
- * position.
+ * Replaces a contiguous range of existing code units with new content. If the text is not in
+ * editing mode, analysis is performed immediately.
  * 
  * @param text
  *      Mutable text object.
@@ -410,37 +402,13 @@ SBBoolean SBTextSetCodeUnits(SBMutableTextRef text,
  *      Pointer to replacement code units in the text's encoding.
  * @param codeUnitCount
  *      Number of replacement code units.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
  *
  * @warning
  *      The replacement range [index, index+length) must be within the current text bounds.
  *      The buffer must contain valid code units in the text's encoding format.
  */
-SBBoolean SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
-
-/**
- * Removes the specified attribute from the given range of code units. If the attribute is not
- * present in the range, this operation has no effect.
- * 
- * @param text
- *      Mutable text object.
- * @param index
- *      Start index of the range (in code units).
- * @param length
- *      Length of the range (in code units).
- * @param attributeID
- *      ID of the attribute to remove.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
- *
- * @warning
- *      The range must be within the current text bounds.
- *      The attribute ID must be registered in the text's attribute registry.
- */
-SBBoolean SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
-    SBAttributeID attributeID);
 
 /**
  * Applies the specified attribute with the given value to the range of code units. If the attribute
@@ -461,13 +429,33 @@ SBBoolean SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInte
  *      `SBTrue` on success, `SBFalse` on failure.
  *
  * @warning
- *      The range must be within the current text bounds. The attribute ID must be registered in the
- *      text's attribute registry.
+ *      The range must be within the current text bounds.
+ *      The attribute ID must be registered in the text's attribute registry.
  *      The attribute value must be compatible with the attribute's value type as defined in the
  *      registry.
  */
-SBBoolean SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+void SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     SBAttributeID attributeID, const void *attributeValue);
+
+/**
+ * Removes the specified attribute from the given range of code units. If the attribute is not
+ * present in the range, this operation has no effect.
+ *
+ * @param text
+ *      Mutable text object.
+ * @param index
+ *      Start index of the range (in code units).
+ * @param length
+ *      Length of the range (in code units).
+ * @param attributeID
+ *      ID of the attribute to remove.
+ *
+ * @warning
+ *      The range must be within the current text bounds.
+ *      The attribute ID must be registered in the text's attribute registry.
+ */
+void SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+    SBAttributeID attributeID);
 
 SB_EXTERN_C_END
 
