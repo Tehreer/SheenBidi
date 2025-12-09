@@ -99,6 +99,8 @@ const SBAttributeID AttributeID::Alignment = SBAttributeRegistryGetAttributeID(
     DefaultAttributeRegistry, AttributeName::Alignment);
 
 static void verifyParagraphRanges(SBTextRef text, const vector<pair<size_t, size_t>> &ranges) {
+    assert(text->paragraphs.count == ranges.size());
+
     for (size_t i = 0; i < text->paragraphs.count; ++i) {
         auto paragraph = ListGetRef(&text->paragraphs, i);
         auto &range = ranges.at(i);
