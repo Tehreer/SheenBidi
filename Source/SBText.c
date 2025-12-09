@@ -452,22 +452,16 @@ static void DetermineChunkBidiTypes(SBMutableTextRef text, SBUInteger index, SBU
     }
 }
 
-static SBBoolean InsertBidiTypes(SBMutableTextRef text, SBUInteger index, SBUInteger length)
+static void ReplaceBidiTypes(SBMutableTextRef text,
+    SBUInteger rangeStart, SBUInteger oldLength, SBUInteger newLength)
 {
-    SBBoolean succeeded = SBFalse;
-
-    if (ListReserveRange(&text->bidiTypes, index, length)) {
-        DetermineChunkBidiTypes(text, index, length);
-        succeeded = SBTrue;
+    if (newLength > oldLength) {
+        ListReserveRange(&text->bidiTypes, rangeStart, newLength - oldLength);
+    } else {
+        ListRemoveRange(&text->bidiTypes, rangeStart, oldLength - newLength);
     }
 
-    return succeeded;
-}
-
-static void RemoveBidiTypes(SBMutableTextRef text, SBUInteger index, SBUInteger length)
-{
-    ListRemoveRange(&text->bidiTypes, index, length);
-    DetermineChunkBidiTypes(text, index, 0);
+    DetermineChunkBidiTypes(text, rangeStart, newLength);
 }
 
 static TextParagraphRef InsertEmptyParagraph(SBMutableTextRef text, SBUInteger listIndex)
@@ -514,204 +508,102 @@ static void ShiftParagraphRanges(SBMutableTextRef text, SBUInteger listIndex, SB
     }
 }
 
-/**
- * Given a paragraph index, re-analyze the combined area formed by
- * firstParagraph .. nextParagraph and decide whether they should be merged, or the next paragraph
- * should be adjusted.
- *
- * This function:
- *  - recomputes the paragraph boundary starting at firstParagraph->index across the bytes up to
- *    (next.index + next.length) exclusive,
- *  - if the recomputed first paragraph covers the whole window, removes the next paragraph;
- *    otherwise updates nextParagraph->index/length accordingly.
- */
-static void MergeParagraphsIfNeeded(SBMutableTextRef text, SBUInteger listIndex)
+static void UpdateParagraphsForTextReplacement(SBMutableTextRef text,
+    SBUInteger replaceStart, SBUInteger oldLength, SBUInteger newLength)
 {
-    if (listIndex < text->paragraphs.count - 1) {
-        TextParagraph *firstParagraph = ListGetRef(&text->paragraphs, listIndex);
-        TextParagraph *nextParagraph  = ListGetRef(&text->paragraphs, listIndex + 1);
-        SBUInteger windowStart;
-        SBUInteger windowEnd;
-        SBCodepointSequence sequence;
-
-        windowStart = firstParagraph->index;
-        windowEnd = nextParagraph->index + nextParagraph->length;
-
-        /* Clamp window to text bounds */
-        if (windowEnd > text->codeUnits.count) {
-            windowEnd = text->codeUnits.count;
-        }
-
-        sequence.stringEncoding = text->encoding;
-        sequence.stringBuffer = SBCodepointGetBufferOffset(
-            text->codeUnits.data, text->encoding, windowStart
-        );
-        sequence.stringLength = windowEnd - windowStart;
-
-        /* Recompute paragraph boundary */
-        SBCodepointSequenceGetParagraphBoundary(
-            &sequence, &text->bidiTypes.items[windowStart],
-            0, sequence.stringLength, &firstParagraph->length, NULL
-        );
-
-        if (firstParagraph->length == sequence.stringLength) {
-            /* Entire span is one paragraph; remove the next one. */
-            RemoveParagraphRange(text, listIndex + 1, 1);
-        } else {
-            /* Otherwise adjust next paragraph's index and length to the tail portion */
-            nextParagraph->index = firstParagraph->index + firstParagraph->length;
-            nextParagraph->length = sequence.stringLength - firstParagraph->length;
-        }
-    }
-}
-
-/**
- * Updates paragraph list for an insertion at `index` of `length` code units.
- *
- * Strategy:
- *  - Find the paragraph containing the insertion index (or choose the last paragraph if not found).
- *  - Shift paragraphs after insertion right by length.
- *  - Re-scan the affected area starting from the paragraph start (so CRLF split is honored).
- *  - Insert new paragraph entries when new boundaries are discovered.
- */
-static SBBoolean UpdateParagraphsForTextInsertion(SBMutableTextRef text, SBUInteger index, SBUInteger length)
-{
-    TextParagraphRef paragraph = NULL;
-    const SBBidiType *bidiTypes;
+    SBUInteger oldEnd = replaceStart + oldLength;
+    SBUInteger newEnd = replaceStart + newLength;
+    SBInteger lengthDelta = (SBInteger)(newLength - oldLength);
+    SBUInteger paragraphIndex;
+    SBUInteger removalEnd;
     SBCodepointSequence sequence;
-    SBUInteger listIndex;
+    TextParagraphRef paragraph;
     SBUInteger scanIndex;
-    SBUInteger remaining;
 
-    /* Locate the paragraph that contains the insertion point */
-    listIndex = SBTextGetCodeUnitParagraphIndex(text, index);
-
-    if (listIndex == SBInvalidIndex) {
-        listIndex = text->paragraphs.count;
-
-        /* Check if we should extend the last paragraph or start a new one */
-        if (text->codeUnits.count > 0) {
-            SBUInteger lastIndex = text->codeUnits.count - 1;
-            SBBidiType bidiType;
-
-            SBCodepointSkipToStart(text->codeUnits.data, text->codeUnits.count,
-                text->encoding, &lastIndex);
-
-            bidiType = ListGetVal(&text->bidiTypes, lastIndex);
-
-            if (bidiType != SBBidiTypeB) {
-                listIndex -= 1;
-            }
-        }
+    /* Find the first affected paragraph */
+    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, replaceStart > 0 ? replaceStart - 1 : 0);
+    if (paragraphIndex == SBInvalidIndex) {
+        paragraphIndex = text->paragraphs.count;
     }
 
-    if (listIndex < text->paragraphs.count) {
-        /* Shift subsequent paragraph ranges to the right by insertion length */
-        ShiftParagraphRanges(text, listIndex + 1, length);
-
-        paragraph = ListGetRef(&text->paragraphs, listIndex);
-        paragraph->length += length;
-
-        /* Re-analyze starting from the start of the paragraph to correctly handle separators */
-        length += index - paragraph->index;
-        index = paragraph->index;
-
-        /* Ensure full paragraph is analyzed */
-        if (length < paragraph->length) {
-            length = paragraph->length;
-        }
+    /* Determine starting point for scanning */
+    if (paragraphIndex < text->paragraphs.count) {
+        paragraph = ListGetRef(&text->paragraphs, paragraphIndex);
+        scanIndex = paragraph->index;
     } else {
-        listIndex = text->paragraphs.count;
+        scanIndex = replaceStart;
     }
 
-    /* Set up code point sequence for analysis */
+    /* Setup for scanning */
     sequence.stringEncoding = text->encoding;
-    sequence.stringBuffer = SBCodepointGetBufferOffset(text->codeUnits.data, text->encoding, index);
-    sequence.stringLength = length;
+    sequence.stringBuffer = text->codeUnits.data;
+    sequence.stringLength = text->codeUnits.count;
 
-    bidiTypes = &text->bidiTypes.items[index];
+    while (scanIndex < sequence.stringLength) {
+        SBUInteger separatorLength;
+        SBUInteger paraLength;
 
-    scanIndex = 0;
-    remaining = sequence.stringLength;
+        SBCodepointSequenceGetParagraphBoundary(&sequence, text->bidiTypes.items,
+            scanIndex, sequence.stringLength - scanIndex, &paraLength, &separatorLength);
 
-    /* Iterate and write paragraph entries */
-    while (remaining > 0) {
-        SBUInteger boundary;
+        /* Get or create paragraph slot */
+        if (paragraphIndex < text->paragraphs.count) {
+            paragraph = ListGetRef(&text->paragraphs, paragraphIndex);
 
-        /* Compute boundary within remaining region */
-        SBCodepointSequenceGetParagraphBoundary(
-            &sequence, bidiTypes, scanIndex, remaining, &boundary, NULL);
+            /* Check if this slot is within reusable range */
+            if (paragraph->index > oldEnd) {
+                /* Slot is after affected region, insert new one */
+                paragraph = InsertEmptyParagraph(text, paragraphIndex);
+            } else {
+                SBUInteger paragraphEnd = paragraph->index + paragraph->length;
 
-        if (!paragraph) {
-            paragraph = InsertEmptyParagraph(text, listIndex);
-        }
-        if (paragraph) {
-            paragraph->index = index + scanIndex;
-            paragraph->length = boundary;
-            paragraph->needsReanalysis = SBTrue;
-            paragraph = NULL;
+                /* Check for splitting */
+                if (paragraphEnd > oldEnd && separatorLength > 0) {
+                    newEnd = paragraphEnd + lengthDelta;
+                }
+            }
         } else {
-            return SBFalse;
+            /* Need new slot */
+            paragraph = InsertEmptyParagraph(text, paragraphIndex);
         }
 
-        /* Advance */
-        scanIndex += boundary;
-        remaining -= boundary;
-        listIndex += 1;  
+        /* Update paragraph */
+        paragraph->index = scanIndex;
+        paragraph->length = paraLength;
+        paragraph->needsReanalysis = SBTrue;
+
+        scanIndex += paraLength;
+        paragraphIndex += 1;
+
+        if (scanIndex > replaceStart && scanIndex >= newEnd) {
+            break;
+        }
     }
 
-    return SBTrue;
-}
-
-static void UpdateParagraphsForTextRemoval(SBMutableTextRef text, SBUInteger index, SBUInteger length)
-{
-    SBUInteger rangeEnd = index + length;
-
-    if (text->codeUnits.count > 0) {
-        /* Locate first and last paragraphs affected. */
-        SBUInteger firstIndex = SBTextGetCodeUnitParagraphIndex(text, index);
-        SBUInteger lastIndex = SBTextGetCodeUnitParagraphIndex(text, rangeEnd - 1);
-
-        if (firstIndex == lastIndex) {
-            TextParagraphRef paragraph = ListGetRef(&text->paragraphs, firstIndex);
-
-            /* Exclude removed range */
-            paragraph->length -= length;
-            paragraph->needsReanalysis = SBTrue;
-        } else {
-            TextParagraphRef firstParagraph = ListGetRef(&text->paragraphs, firstIndex);
-            TextParagraphRef lastParagraph = ListGetRef(&text->paragraphs, lastIndex);
-
-            /* Trim the first paragraph to the portion before the removal start */
-            firstParagraph->length = index - firstParagraph->index;
-            firstParagraph->needsReanalysis = SBTrue;
-
-            /* Adjust the last paragraph */
-            if (rangeEnd < lastParagraph->index + lastParagraph->length) {
-                SBUInteger shift = rangeEnd - lastParagraph->index;
-                lastParagraph->index = index;
-                lastParagraph->length -= shift;
-                lastParagraph->needsReanalysis = SBTrue;
-            }
-
-            /* Remove fully-covered middle paragraphs and update the last index */
-            if (lastIndex > firstIndex + 1) {
-                SBUInteger removeCount = lastIndex - firstIndex - 1;
-                RemoveParagraphRange(text, firstIndex + 1, removeCount);
-                lastIndex -= removeCount;
-            }
+    /* Remove any leftover slots that weren't reused */
+    removalEnd = paragraphIndex;
+    while (removalEnd < text->paragraphs.count) {
+        paragraph = ListGetRef(&text->paragraphs, removalEnd);
+        if (paragraph->index > oldEnd) {
+            break;
         }
 
-        /* Shift all following paragraphs to the left */
-        ShiftParagraphRanges(text, lastIndex + 1, -length);
+        removalEnd += 1;
+    }
 
-        /* Merge if paragraph separator was removed */
-        MergeParagraphsIfNeeded(text, firstIndex);
-    } else {
-        /* Remove all paragraphs */
-        RemoveParagraphRange(text, 0, text->paragraphs.count);
+    RemoveParagraphRange(text, paragraphIndex, removalEnd - paragraphIndex);
+
+    /* Shift paragraphs after the affected region */
+    if (lengthDelta != 0 && paragraphIndex < text->paragraphs.count) {
+        ShiftParagraphRanges(text, paragraphIndex, lengthDelta);
     }
 }
+
+#define UpdateParagraphsForTextInsertion(text, index, length) \
+    UpdateParagraphsForTextReplacement(text, index, 0, length)
+
+#define UpdateParagraphsForTextRemoval(text, index, length) \
+    UpdateParagraphsForTextReplacement(text, index, length, 0)
 
 static SBBoolean GenerateBidiParagraph(SBMutableTextRef text, TextParagraphRef paragraph)
 {
@@ -977,7 +869,7 @@ void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
         memcpy(destination, codeUnitBuffer, byteCount);
 
         /* Insert bidi types */
-        InsertBidiTypes(text, index, codeUnitCount);
+        ReplaceBidiTypes(text, index, 0, codeUnitCount);
 
         /* Reserve attribute manager space */
         AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
@@ -1004,7 +896,7 @@ void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger l
         ListRemoveRange(&text->codeUnits, index, length);
 
         /* Remove bidi types */
-        RemoveBidiTypes(text, index, length);
+        ReplaceBidiTypes(text, index, length, 0);
 
         /* Update paragraph structures */
         UpdateParagraphsForTextRemoval(text, index, length);
@@ -1040,7 +932,7 @@ void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger 
         ListRemoveRange(&text->codeUnits, index, length);
 
         /* Remove bidi types */
-        RemoveBidiTypes(text, index, length);
+        ReplaceBidiTypes(text, index, length, 0);
 
         /* Update paragraph structures */
         UpdateParagraphsForTextRemoval(text, index, length);
@@ -1058,7 +950,7 @@ void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger 
         memcpy(destination, codeUnitBuffer, byteCount);
 
         /* Insert bidi types */
-        InsertBidiTypes(text, index, codeUnitCount);
+        ReplaceBidiTypes(text, index, 0, codeUnitCount);
 
         /* Update paragraph structures */
         UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
