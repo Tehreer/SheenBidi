@@ -31,6 +31,4 @@ typedef struct _SBAlgorithm {
     SBBidiType *fixedTypes;
 } SBAlgorithm;
 
-SB_INTERNAL SBUInteger SBAlgorithmGetSeparatorLength(SBAlgorithmRef algorithm, SBUInteger separatorIndex);
-
 #endif

@@ -20,7 +20,7 @@
 #include <SheenBidi/SBConfig.h>
 
 #include "List.h"
-#include "Object.h"
+#include "SBAllocator.h"
 #include "SBAttributeRegistry.h"
 #include "SBBase.h"
 #include "AttributeDictionary.h"
@@ -112,38 +112,6 @@ static SBBoolean CheckAttributeMatchesFilter(const SBAttributeItem *item,
     return matchesFilter;
 }
 
-/**
- * Initializes the internal data structures of an attribute dictionary.
- *
- * @param dictionary
- *      The attribute dictionary to initialize.
- * @param registry
- *      The attribute registry that manages attribute retention and release.
- */
-static void InitializeAttributeDictionary(AttributeDictionaryRef dictionary,
-    SBAttributeRegistryRef registry)
-{
-    /* Initialize the registry reference */
-    dictionary->_registry = registry;
-    /* Initialize the list to hold attribute items in sorted order */
-    ListInitialize(&dictionary->_list, sizeof(SBAttributeItem));
-}
-
-/**
- * Finalizer callback invoked when an attribute dictionary's reference count reaches zero.
- *
- * This callback is registered with the object management system during creation and is
- * automatically invoked when all references to the dictionary have been released.
- * It delegates to AttributeDictionaryFinalize() to clean up resources.
- * 
- * @param object
- *      The object being finalized (an AttributeDictionaryRef).
- */
-static void FinalizeAttributeDictionary(ObjectRef object)
-{
-    AttributeDictionaryFinalize(object);
-}
-
 static void ReleaseAttributeItemRange(AttributeDictionaryRef dictionary,
     SBUInteger startIndex, SBUInteger endIndex)
 {
@@ -162,8 +130,8 @@ static void ReleaseAttributeItemRange(AttributeDictionaryRef dictionary,
 SB_INTERNAL void AttributeDictionaryInitialize(AttributeDictionaryRef dictionary,
     SBAttributeRegistryRef registry)
 {
-    ObjectBaseInitialize(&dictionary->_base);
-    InitializeAttributeDictionary(dictionary, registry);
+    dictionary->_registry = registry;
+    ListInitialize(&dictionary->_list, sizeof(SBAttributeItem));
 }
 
 SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary)
@@ -174,18 +142,21 @@ SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary)
 
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry)
 {
-    const SBUInteger size = sizeof(AttributeDictionary);
-    void *pointer = NULL;
     AttributeDictionaryRef dictionary;
 
-    /* Create the object with a finalizer callback */
-    dictionary = ObjectCreate(&size, 1, &pointer, FinalizeAttributeDictionary);
+    dictionary = SBAllocatorAllocateBlock(NULL, sizeof(AttributeDictionary));
 
     if (dictionary) {
-        InitializeAttributeDictionary(dictionary, registry);
+        AttributeDictionaryInitialize(dictionary, registry);
     }
 
     return dictionary;
+}
+
+SB_INTERNAL void AttributeDictionaryDestroy(AttributeDictionaryRef dictionary)
+{
+    AttributeDictionaryFinalize(dictionary);
+    SBAllocatorDeallocateBlock(NULL, dictionary);
 }
 
 SB_INTERNAL SBBoolean AttributeDictionaryIsEmpty(AttributeDictionaryRef dictionary)
@@ -451,14 +422,4 @@ SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary)
 {
     ReleaseAttributeItemRange(dictionary, 0, dictionary->_list.count);
     ListRemoveAll(&dictionary->_list);
-}
-
-SB_INTERNAL AttributeDictionaryRef AttributeDictionaryRetain(AttributeDictionaryRef dictionary)
-{
-    return ObjectRetain(dictionary);
-}
-
-SB_INTERNAL void AttributeDictionaryRelease(AttributeDictionaryRef dictionary)
-{
-    ObjectRelease(dictionary);
 }

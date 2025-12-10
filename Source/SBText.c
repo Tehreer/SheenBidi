@@ -38,9 +38,6 @@
 
  /**
  * Initializes a TextParagraph structure with default values.
- * 
- * @param paragraph
- *      Pointer to the paragraph to initialize.
  */
 static void InitializeTextParagraph(TextParagraphRef paragraph)
 {
@@ -54,9 +51,6 @@ static void InitializeTextParagraph(TextParagraphRef paragraph)
 
 /**
  * Releases resources associated with a TextParagraph structure.
- * 
- * @param paragraph
- *      Pointer to the paragraph structure to finalize.
  */
 static void FinalizeTextParagraph(TextParagraphRef paragraph)
 {
@@ -126,9 +120,6 @@ static SBUInteger GetMaxCodeUnitsPerCodepoint(SBTextRef text)
 
 /**
  * Finalizes all paragraphs in the text object by releasing their resources.
- * 
- * @param text
- *      The text object whose paragraphs will be finalized.
  */
 static void FinalizeAllParagraphs(SBTextRef text)
 {
@@ -408,6 +399,18 @@ SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text)
     return SBAttributeRunIteratorCreate(text);
 }
 
+SBVisualRunIteratorRef SBTextCreateVisualRunIterator(SBTextRef text,
+    SBUInteger index, SBUInteger length)
+{
+    SBVisualRunIteratorRef iterator = SBVisualRunIteratorCreate(text);
+
+    if (iterator) {
+        SBVisualRunIteratorReset(iterator, index, length);
+    }
+
+    return iterator;
+}
+
 SBTextRef SBTextRetain(SBTextRef text)
 {
     return ObjectRetain((ObjectRef)text);
@@ -605,7 +608,7 @@ static void UpdateParagraphsForTextReplacement(SBMutableTextRef text,
 #define UpdateParagraphsForTextRemoval(text, index, length) \
     UpdateParagraphsForTextReplacement(text, index, length, 0)
 
-static SBBoolean GenerateBidiParagraph(SBMutableTextRef text, TextParagraphRef paragraph)
+static void GenerateBidiParagraph(SBMutableTextRef text, TextParagraphRef paragraph)
 {
     SBCodepointSequence codepointSequence;
     const SBBidiType *bidiTypes;
@@ -624,15 +627,13 @@ static SBBoolean GenerateBidiParagraph(SBMutableTextRef text, TextParagraphRef p
 
     paragraph->bidiParagraph = SBParagraphCreateWithCodepointSequence(
         &codepointSequence, bidiTypes, paragraph->index, paragraph->length, text->baseLevel);
-
-    return (paragraph->bidiParagraph != NULL);
 }
 
-static SBBoolean PopulateScripts(SBMutableTextRef text, TextParagraphRef paragraph)
+static void PopulateParagraphScripts(SBMutableTextRef text, TextParagraphRef paragraph)
 {
-    SBBoolean succeeded;
     SBScriptLocatorRef scriptLocator;
     SBCodepointSequence codepointSequence;
+    const SBScriptAgent *scriptAgent;
 
     scriptLocator = text->scriptLocator;
 
@@ -641,56 +642,42 @@ static SBBoolean PopulateScripts(SBMutableTextRef text, TextParagraphRef paragra
     codepointSequence.stringLength = paragraph->length;
 
     ListRemoveAll(&paragraph->scripts);
-    succeeded = ListReserveRange(&paragraph->scripts, 0, paragraph->length);
+    ListReserveRange(&paragraph->scripts, 0, paragraph->length);
 
-    if (succeeded) {
-        const SBScriptAgent *scriptAgent = &scriptLocator->agent;
+    scriptAgent = &scriptLocator->agent;
+    SBScriptLocatorLoadCodepoints(scriptLocator, &codepointSequence);
 
-        SBScriptLocatorLoadCodepoints(scriptLocator, &codepointSequence);
+    while (SBScriptLocatorMoveNext(scriptLocator)) {
+        SBUInteger runStart = scriptAgent->offset;
+        SBUInteger runEnd = runStart + scriptAgent->length;
+        SBScript runScript = scriptAgent->script;
 
-        while (SBScriptLocatorMoveNext(scriptLocator)) {
-            SBUInteger runStart = scriptAgent->offset;
-            SBUInteger runEnd = runStart + scriptAgent->length;
-            SBScript runScript = scriptAgent->script;
-
-            while (runStart < runEnd) {
-                ListSetVal(&paragraph->scripts, runStart, runScript);
-                runStart += 1;
-            }
+        while (runStart < runEnd) {
+            ListSetVal(&paragraph->scripts, runStart, runScript);
+            runStart += 1;
         }
     }
-
-    return succeeded;
 }
 
 /**
  * Analyzes all paragraphs marked as needing reanalysis.
  * Generates bidirectional properties and script information.
  */
-static SBBoolean AnalyzeDirtyParagraphs(SBMutableTextRef text)
+static void AnalyzeDirtyParagraphs(SBMutableTextRef text)
 {
-    SBBoolean succeeded = SBTrue;
+    SBUInteger paragraphCount = text->paragraphs.count;
     SBUInteger paragraphIndex;
 
-    for (paragraphIndex = 0; paragraphIndex < text->paragraphs.count; paragraphIndex++) {
+    for (paragraphIndex = 0; paragraphIndex < paragraphCount; paragraphIndex++) {
         TextParagraphRef paragraph = ListGetRef(&text->paragraphs, paragraphIndex);
 
         if (paragraph->needsReanalysis) {
-            succeeded = GenerateBidiParagraph(text, paragraph);
-
-            if (succeeded) {
-                succeeded = PopulateScripts(text, paragraph);
-            }
+            GenerateBidiParagraph(text, paragraph);
+            PopulateParagraphScripts(text, paragraph);
 
             paragraph->needsReanalysis = SBFalse;
         }
-
-        if (!succeeded) {
-            break;
-        }
     }
-
-    return succeeded;
 }
 
 /**
@@ -763,67 +750,51 @@ SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text)
         text->attributeRegistry, text->baseLevel);
 
     if (copy) {
-        SBBoolean succeeded;
+        SBUInteger byteCount;
+        SBUInteger paragraphCount;
+        SBUInteger paragraphIndex;
 
         /* Copy code units */
-        succeeded = ListReserveRange(&copy->codeUnits, 0, text->codeUnits.count);
-        if (succeeded) {
-            SBUInteger byteCount = text->codeUnits.count * text->codeUnits.itemSize;
-            memcpy(copy->codeUnits.data, text->codeUnits.data, byteCount);
-        }
+        ListReserveRange(&copy->codeUnits, 0, text->codeUnits.count);
+        byteCount = text->codeUnits.count * text->codeUnits.itemSize;
+        memcpy(copy->codeUnits.data, text->codeUnits.data, byteCount);
 
         /* Copy bidi types */
-        if (succeeded) {
-            succeeded = ListReserveRange(&copy->bidiTypes, 0, text->bidiTypes.count);
-            if (succeeded) {
-                SBUInteger byteCount = text->bidiTypes.count * sizeof(SBBidiType);
-                memcpy(copy->bidiTypes.items, text->bidiTypes.items, byteCount);
-            }
-        }
+        ListReserveRange(&copy->bidiTypes, 0, text->bidiTypes.count);
+        byteCount = text->bidiTypes.count * sizeof(SBBidiType);
+        memcpy(copy->bidiTypes.items, text->bidiTypes.items, byteCount);
 
         /* Copy paragraphs */
-        if (succeeded) {
-            SBUInteger paragraphCount = text->paragraphs.count;
-            SBUInteger paragraphIndex;
+        paragraphCount = text->paragraphs.count;
+        ListReserveRange(&copy->paragraphs, 0, paragraphCount);
 
-            succeeded = ListReserveRange(&copy->paragraphs, 0, paragraphCount);
+        for (paragraphIndex = 0; paragraphIndex < paragraphCount; paragraphIndex++) {
+            TextParagraphRef source = ListGetRef(&text->paragraphs, paragraphIndex);
+            TextParagraphRef destination = ListGetRef(&copy->paragraphs, paragraphIndex);
 
-            if (succeeded) {
-                for (paragraphIndex = 0; paragraphIndex < paragraphCount; paragraphIndex++) {
-                    TextParagraphRef source = ListGetRef(&text->paragraphs, paragraphIndex);
-                    TextParagraphRef destination = ListGetRef(&copy->paragraphs, paragraphIndex);
+            destination->index = source->index;
+            destination->length = source->length;
+            ListInitialize(&destination->scripts, sizeof(SBScript));
 
-                    destination->index = source->index;
-                    destination->length = source->length;
-                    ListInitialize(&destination->scripts, sizeof(SBScript));
+            if (source->needsReanalysis) {
+                destination->needsReanalysis = SBTrue;
+                destination->bidiParagraph = NULL;
+            } else {
+                SBUInteger scriptCount = source->scripts.count;
 
-                    if (source->needsReanalysis) {
-                        destination->needsReanalysis = SBTrue;
-                        destination->bidiParagraph = NULL;
-                    } else {
-                        SBUInteger scriptCount = source->scripts.count;
-                        SBUInteger byteCount = scriptCount * sizeof(SBScript);
+                destination->needsReanalysis = SBFalse;
+                destination->bidiParagraph = SBParagraphRetain(source->bidiParagraph);
 
-                        destination->needsReanalysis = SBFalse;
-                        destination->bidiParagraph = SBParagraphRetain(source->bidiParagraph);
-
-                        ListReserveRange(&destination->scripts, 0, scriptCount);
-                        memcpy(destination->scripts.items, source->scripts.items, byteCount);
-                    }
-                }
-
-                succeeded = AnalyzeDirtyParagraphs(copy);
+                ListReserveRange(&destination->scripts, 0, scriptCount);
+                byteCount = scriptCount * sizeof(SBScript);
+                memcpy(destination->scripts.items, source->scripts.items, byteCount);
             }
         }
+
+        AnalyzeDirtyParagraphs(copy);
 
         /* Copy attributes */
         AttributeManagerCopyAttributes(&copy->attributeManager, &text->attributeManager);
-
-        /* Cleanup if unsuccessful */
-        if (!succeeded) {
-            SBTextRelease(copy);
-            copy = NULL;
-        }
     }
 
     return copy;
@@ -871,11 +842,11 @@ void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
         /* Insert bidi types */
         ReplaceBidiTypes(text, index, 0, codeUnitCount);
 
-        /* Reserve attribute manager space */
-        AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
-
         /* Update paragraph structures */
         UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
+
+        /* Reserve attribute manager space */
+        AttributeManagerReserveRange(&text->attributeManager, index, codeUnitCount);
 
         /* Perform immediate analysis if not in batch editing mode */
         if (!text->isEditing) {
@@ -916,7 +887,7 @@ void SBTextSetCodeUnits(SBMutableTextRef text,
 {
     SBAssert(text->isMutable);
 
-    return SBTextReplaceCodeUnits(text, 0, text->codeUnits.count, codeUnitBuffer, codeUnitCount);
+    SBTextReplaceCodeUnits(text, 0, text->codeUnits.count, codeUnitBuffer, codeUnitCount);
 }
 
 void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
@@ -927,41 +898,29 @@ void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger 
 
     SBAssert(text->isMutable && isRangeValid);
 
-    if (length > 0) {
-        /* Remove code units */
-        ListRemoveRange(&text->codeUnits, index, length);
+    if (length > 0 || codeUnitCount > 0) {
+        if (codeUnitCount > length) {
+            ListReserveRange(&text->codeUnits, index, codeUnitCount - length);
+        } else {
+            ListRemoveRange(&text->codeUnits, index, length - codeUnitCount);
+        }
+
+        if (codeUnitCount > 0) {
+            SBUInteger byteCount = codeUnitCount * text->codeUnits.itemSize;
+            void *destination = ListGetPtr(&text->codeUnits, index);
+
+            memcpy(destination, codeUnitBuffer, byteCount);
+        }
 
         /* Remove bidi types */
-        ReplaceBidiTypes(text, index, length, 0);
+        ReplaceBidiTypes(text, index, length, codeUnitCount);
 
         /* Update paragraph structures */
-        UpdateParagraphsForTextRemoval(text, index, length);
-    }
+        UpdateParagraphsForTextReplacement(text, index, length, codeUnitCount);
 
-    if (codeUnitCount > 0) {
-        SBUInteger byteCount;
-        void *destination;
+        AttributeManagerReplaceRange(&text->attributeManager, index, length, codeUnitCount);
 
-        /* Reserve space in code units */
-        ListReserveRange(&text->codeUnits, index, codeUnitCount);
-
-        byteCount = codeUnitCount * text->codeUnits.itemSize;
-        destination = ListGetPtr(&text->codeUnits, index);
-        memcpy(destination, codeUnitBuffer, byteCount);
-
-        /* Insert bidi types */
-        ReplaceBidiTypes(text, index, 0, codeUnitCount);
-
-        /* Update paragraph structures */
-        UpdateParagraphsForTextInsertion(text, index, codeUnitCount);
-    }
-
-    AttributeManagerReplaceRange(&text->attributeManager, index, length, codeUnitCount);
-
-    if (!text->isEditing) {
-        SBBoolean needsReanalysis = (length > 0 || codeUnitCount > 0);
-
-        if (needsReanalysis) {
+        if (!text->isEditing) {
             /* Perform immediate analysis if not in batch editing mode */
             AnalyzeDirtyParagraphs(text);
         }

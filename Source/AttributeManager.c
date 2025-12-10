@@ -41,17 +41,17 @@ static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache
 }
 
 /**
- * Finalizes an attribute dictionary cache and releases all cached dictionaries.
+ * Finalizes an attribute dictionary cache and destroys all cached dictionaries.
  */
 static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
 {
     SBUInteger dictCount = cache->_attributeDicts.count;
     SBUInteger dictIndex;
 
-    /* Release all cached attribute dictionaries */
+    /* Destroy all cached attribute dictionaries */
     for (dictIndex = 0; dictIndex < dictCount; dictIndex++) {
         AttributeDictionaryRef dictionary = ListGetVal(&cache->_attributeDicts, dictIndex);
-        AttributeDictionaryRelease(dictionary);
+        AttributeDictionaryDestroy(dictionary);
     }
 
     /* Finalize the cache list */
@@ -87,26 +87,13 @@ static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDicti
 }
 
 /**
- * Caches an attribute dictionary for later reuse if it has no external references.
- *
- * The dictionary is only cached if its retain count is 1, indicating it's not in use elsewhere. The
- * dictionary is cleared before caching and retained for storage.
- *
- * @param cache
- *      The cache to store the dictionary in.
- * @param dictionary
- *      The attribute dictionary to cache.
+ * Caches an attribute dictionary for later reuse. The dictionary is cleared before caching.
  */
 static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
     AttributeDictionaryRef dictionary)
 {
-    SBUInteger retainCount = ObjectGetRetainCount(dictionary);
-
-    /* Only cache if this is the last reference */
-    if (retainCount == 1) {
-        AttributeDictionaryClear(dictionary);
-        ListAdd(&cache->_attributeDicts, &dictionary);
-    }
+    AttributeDictionaryClear(dictionary);
+    ListAdd(&cache->_attributeDicts, &dictionary);
 }
 
 /* =========================================================================
@@ -147,11 +134,6 @@ typedef union _AttributeOperationParams {
 
 /**
  * Expands the range start to include the beginning of the first paragraph.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param[in,out] rangeStart
- *      Pointer to the range start index to modify.
  */
 static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager, SBUInteger *rangeStart)
 {
@@ -168,11 +150,6 @@ static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager, SBUI
 
 /**
  * Expands the range end to include the end of the last paragraph.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param[in,out] rangeEnd
- *      Pointer to the range end index to modify.
  */
 static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager, SBUInteger *rangeEnd)
 {
@@ -189,13 +166,6 @@ static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager, SBUIn
 
 /**
  * Expands both range boundaries to fully include any partially covered paragraphs.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param[in,out] rangeStart
- *      Pointer to the range start index to modify.
- * @param[in,out] rangeEnd
- *      Pointer to the range end index to modify.
  */
 static void ExpandRangeToIncludeBoundaryParagraphs(AttributeManagerRef manager,
     SBUInteger *rangeStart, SBUInteger *rangeEnd)
@@ -206,13 +176,6 @@ static void ExpandRangeToIncludeBoundaryParagraphs(AttributeManagerRef manager,
 
 /**
  * Shrinks the range start to exclude the first paragraph if it's not fully covered.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param[in,out] rangeStart
- *      Pointer to the range start index to modify.
- * @param rangeEnd
- *      The range end index.
  */
 static void ShrinkRangeToExcludeFirstParagraph(AttributeManagerRef manager,
     SBUInteger *rangeStart, SBUInteger rangeEnd)
@@ -242,13 +205,6 @@ static void ShrinkRangeToExcludeFirstParagraph(AttributeManagerRef manager,
 
 /**
  * Shrinks the range end to exclude the last paragraph if it's not fully covered.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param rangeStart
- *      The range start index.
- * @param[in,out] rangeEnd
- *      Pointer to the range end index to modify.
  */
 static void ShrinkRangeToExcludeLastParagraph(AttributeManagerRef manager,
     SBUInteger rangeStart, SBUInteger *rangeEnd)
@@ -278,13 +234,6 @@ static void ShrinkRangeToExcludeLastParagraph(AttributeManagerRef manager,
 
 /**
  * Shrinks a range to exclude boundary paragraphs that are not fully covered.
- *
- * @param manager
- *      The attribute manager containing the text.
- * @param[in,out] rangeStart
- *      Pointer to the range start index to modify.
- * @param[in,out] rangeEnd
- *      Pointer to the range end index to modify.
  */
 static void ShrinkRangeToExcludeBoundaryParagraphs(AttributeManagerRef manager,
     SBUInteger *rangeStart, SBUInteger *rangeEnd)
@@ -301,13 +250,6 @@ static void ShrinkRangeToExcludeBoundaryParagraphs(AttributeManagerRef manager,
  *
  * For all entries except the last, the end is the start of the next entry.
  * For the last entry, the end is the total code unit count.
- *
- * @param manager
- *      The attribute manager.
- * @param entryIndex
- *      The index of the entry.
- * @return
- *      The exclusive end index for this entry.
  */
 static SBUInteger GetAttributeEntryEndIndex(AttributeManagerRef manager, SBUInteger entryIndex)
 {
@@ -321,13 +263,6 @@ static SBUInteger GetAttributeEntryEndIndex(AttributeManagerRef manager, SBUInte
 
 /**
  * Shifts all entry indices starting from a given position by a delta amount.
- *
- * @param manager
- *      The attribute manager.
- * @param entryIndex
- *      The starting entry index (this entry and all following are shifted).
- * @param indexDelta
- *      The amount to shift (positive for insertion, negative for removal).
  */
 static void ShiftAttributeEntryRanges(AttributeManagerRef manager,
     SBUInteger entryIndex, SBInteger indexDelta) {
@@ -568,11 +503,6 @@ static void RemoveAttributeFromRange(AttributeManagerRef manager,
  * paragraph-scoped attributes are consistent across the merged boundary by:
  * - Copying paragraph attributes from before the merge point to the second half
  * - Copying paragraph attributes from after the merge point to the first half
- *
- * @param manager
- *      The attribute manager to adjust.
- * @param mergePointIndex
- *      The code unit index where the merge occurred.
  */
 static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
     SBUInteger index, SBUInteger newLength)
@@ -647,13 +577,6 @@ static void InsertFirstAttributeEntry(AttributeManagerRef manager)
  *
  * Attempts to cache each removed entry's dictionary for reuse, then removes all entries in the
  * specified range from the entries list.
- *
- * @param manager
- *      The attribute manager.
- * @param index
- *      Starting index of range to remove.
- * @param length
- *      Number of entries to remove.
  */
 static void RemoveAttributeEntryRange(AttributeManagerRef manager,
     SBUInteger index, SBUInteger length)
@@ -698,7 +621,7 @@ SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
         /* Finalize all entries */
         for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
             AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
-            AttributeDictionaryRelease(entry->attributes);
+            AttributeDictionaryDestroy(entry->attributes);
         }
 
         ListFinalize(&manager->_entries);

@@ -24,10 +24,8 @@
 #include <SheenBidi/SBText.h>
 
 #include "List.h"
-#include "Object.h"
 
 typedef struct _AttributeDictionary {
-    ObjectBase _base;
     SBAttributeRegistryRef _registry;
     LIST(SBAttributeItem) _list;
 } AttributeDictionary, *AttributeDictionaryRef;
@@ -73,6 +71,14 @@ SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary);
  *      A new attribute dictionary reference, or NULL if allocation fails.
  */
 SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry);
+
+/**
+ * Finalizes and deallocates an attribute dictionary.
+ *
+ * @param dictionary
+ *      The attribute dictionary to release.
+ */
+SB_INTERNAL void AttributeDictionaryDestroy(AttributeDictionaryRef dictionary);
 
 /**
  * Checks whether an attribute dictionary is empty.
@@ -243,26 +249,5 @@ SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
  *      The attribute dictionary to clear.
  */
 SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary);
-
-/**
- * Increments the reference count of an attribute dictionary.
- *
- * @param dictionary
- *      The attribute dictionary to retain.
- * @return
- *      The same attribute dictionary passed in.
- */
-SB_INTERNAL AttributeDictionaryRef AttributeDictionaryRetain(AttributeDictionaryRef dictionary);
-
-/**
- * Decrements the reference count of an attribute dictionary.
- *
- * @param dictionary
- *      The attribute dictionary to release.
- *
- * @note
- *      When the reference count reaches zero, the dictionary is finalized and deallocated.
- */
-SB_INTERNAL void AttributeDictionaryRelease(AttributeDictionaryRef dictionary);
 
 #endif
