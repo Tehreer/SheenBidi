@@ -599,7 +599,7 @@ static void FinalizeAttributeRunIterator(ObjectRef object)
     SBAttributeRunIteratorRef iterator = object;
 
     SBTextRelease(iterator->text);
-    AttributeDictionaryFinalize(&iterator->items);
+    AttributeDictionaryFinalize(&iterator->items, NULL);
 }
 
 /**
@@ -686,7 +686,7 @@ SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef tex
         iterator->filterGroup = SBAttributeGroupNone;
         iterator->filterScope = SBAttributeScopeCharacter;
 
-        AttributeDictionaryInitialize(&iterator->items, NULL);
+        AttributeDictionaryInitialize(&iterator->items);
         InitializeAttributeRun(&iterator->currentRun);
     }
 
