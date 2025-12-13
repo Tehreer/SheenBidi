@@ -916,7 +916,7 @@ void AttributeManagerTests::testGetRunByIDBasic() {
     SBTextSetAttribute(text, 0, 5, colorID, Color::purple());
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
@@ -933,7 +933,7 @@ void AttributeManagerTests::testGetRunByIDBasic() {
     assert(output._list.count == 0);
     assert(startIndex == 10);
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
@@ -951,7 +951,7 @@ void AttributeManagerTests::testGetRunByFilteredCollection() {
     SBTextSetAttribute(text, 3, 4, colorID, Color::blue());
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
@@ -963,7 +963,7 @@ void AttributeManagerTests::testGetRunByFilteredCollection() {
     assert(output._list.count == 2); // color and font
     assert(startIndex == 3);
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
@@ -975,7 +975,7 @@ void AttributeManagerTests::testEmptyRuns() {
     auto colorID = SBAttributeRegistryGetAttributeID(text->attributeRegistry, Attribute::Color);
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 5;
@@ -986,7 +986,7 @@ void AttributeManagerTests::testEmptyRuns() {
     assert(output._list.count == 0);
     assert(startIndex == 5);
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
@@ -1005,7 +1005,7 @@ void AttributeManagerTests::testFilterByAttributeGroup() {
     SBTextSetAttribute(text, 3, 5, langID, Language::english());
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 10;
@@ -1018,7 +1018,7 @@ void AttributeManagerTests::testFilterByAttributeGroup() {
     assert(startIndex == 5);
     assert(output._list.count == 2);
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
@@ -1038,7 +1038,7 @@ void AttributeManagerTests::testRunBoundariesWithMixedAttributes() {
     // 15-30: no attributes
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
     SBUInteger endIndex = 30;
@@ -1053,7 +1053,7 @@ void AttributeManagerTests::testRunBoundariesWithMixedAttributes() {
         &startIndex, endIndex, colorID, &output));
     assert(startIndex == 30); // no color from 10-30
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
@@ -1073,7 +1073,7 @@ void AttributeManagerTests::testComplexRunDetectionScenarios() {
     SBTextSetAttribute(text, 15, 5, fontID, Font::times());    // 15-19: font
 
     AttributeDictionary output;
-    AttributeDictionaryInitialize(&output, nullptr);
+    AttributeDictionaryInitialize(&output);
 
     SBUInteger startIndex = 0;
 
@@ -1094,7 +1094,7 @@ void AttributeManagerTests::testComplexRunDetectionScenarios() {
         &startIndex, 20, SBAttributeScopeCharacter, SBAttributeGroupNone, &output);
     assert(startIndex == 20); // Fourth run: positions 15-19 (font only)
 
-    AttributeDictionaryFinalize(&output);
+    AttributeDictionaryFinalize(&output, nullptr);
     SBTextRelease(text);
 }
 
