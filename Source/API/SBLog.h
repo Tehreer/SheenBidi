@@ -17,13 +17,12 @@
 #ifndef _SB_INTERNAL_LOG_H
 #define _SB_INTERNAL_LOG_H
 
-#include <SheenBidi/SBConfig.h>
+#include <API/SBBase.h>
 
 #ifdef SB_CONFIG_LOG
 
 #include <stdio.h>
 
-#include <API/SBBase.h>
 #include <API/SBCodepointSequence.h>
 #include <UBA/IsolatingRun.h>
 

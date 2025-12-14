@@ -17,8 +17,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <Core/AtomicPointer.h>
 #include <Core/Object.h>

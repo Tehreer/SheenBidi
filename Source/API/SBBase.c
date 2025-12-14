@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBVersion.h>
 
 #include "SBBase.h"

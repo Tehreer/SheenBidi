@@ -19,7 +19,8 @@
 
 #include <SheenBidi/SBCodepoint.h>
 #include <SheenBidi/SBCodepointSequence.h>
-#include <SheenBidi/SBConfig.h>
+
+#include <API/SBBase.h>
 
 SB_INTERNAL const void *SBCodepointGetBufferOffset(const void *buffer,
     SBStringEncoding encoding, SBUInteger index);

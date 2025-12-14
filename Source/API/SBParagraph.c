@@ -17,8 +17,6 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAlgorithm.h>
 #include <API/SBAllocator.h>
 #include <API/SBAssert.h>
@@ -28,7 +26,6 @@
 #include <API/SBLog.h>
 #include <Core/Memory.h>
 #include <Core/Object.h>
-#include <Data/BidiTypeLookup.h>
 #include <UBA/BidiChain.h>
 #include <UBA/IsolatingRun.h>
 #include <UBA/LevelRun.h>

@@ -17,13 +17,12 @@
 #ifndef _SB_INTERNAL_LINE_H
 #define _SB_INTERNAL_LINE_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepointSequence.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBLine.h>
 #include <SheenBidi/SBParagraph.h>
 #include <SheenBidi/SBRun.h>
 
+#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBLine {

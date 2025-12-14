@@ -16,15 +16,11 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
-#include <API/SBCodepoint.h>
 #include <API/SBCodepointSequence.h>
 #include <API/SBLog.h>
 #include <API/SBParagraph.h>
 #include <Core/Object.h>
-#include <Data/BidiTypeLookup.h>
 
 #include "SBAlgorithm.h"
 

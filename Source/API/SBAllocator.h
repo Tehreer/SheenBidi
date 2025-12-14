@@ -18,8 +18,8 @@
 #define _SB_INTERNAL_ALLOCATOR_H
 
 #include <SheenBidi/SBAllocator.h>
-#include <SheenBidi/SBConfig.h>
 
+#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBAllocator {

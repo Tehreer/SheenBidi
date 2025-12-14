@@ -17,11 +17,10 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_REGISTRY_H
 #define _SB_INTERNAL_ATTRIBUTE_REGISTRY_H
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBAttributeRegistry.h>
 
+#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBAttributeRegistry {

@@ -16,9 +16,6 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBAttributeInfo.h>
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAllocator.h>
 #include <API/SBAttributeRegistry.h>
 #include <API/SBBase.h>

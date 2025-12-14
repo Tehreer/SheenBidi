@@ -16,9 +16,6 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBConfig.h>
-#include <SheenBidi/SBRun.h>
-
 #include <API/SBAlgorithm.h>
 #include <API/SBAllocator.h>
 #include <API/SBAssert.h>

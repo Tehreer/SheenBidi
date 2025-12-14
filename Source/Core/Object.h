@@ -19,9 +19,7 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
-
+#include <API/SBBase.h>
 #include <Core/AtomicUInt.h>
 #include <Core/Memory.h>
 

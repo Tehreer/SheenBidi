@@ -6,10 +6,8 @@
 #ifndef _SB_INTERNAL_PAIRING_LOOKUP_H
 #define _SB_INTERNAL_PAIRING_LOOKUP_H
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBCodepoint.h>
-#include <SheenBidi/SBConfig.h>
-
+#include <API/SBBase.h>
+#include <API/SBCodepoint.h>
 #include <UBA/BracketType.h>
 
 SB_INTERNAL SBCodepoint LookupMirror(SBCodepoint codepoint);

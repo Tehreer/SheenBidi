@@ -17,8 +17,6 @@
 #ifndef _SB_INTERNAL_LIST_H
 #define _SB_INTERNAL_LIST_H
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAssert.h>
 #include <API/SBBase.h>
 

@@ -17,10 +17,9 @@
 #ifndef _SB_INTERNAL_BRACKET_QUEUE_H
 #define _SB_INTERNAL_BRACKET_QUEUE_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepoint.h>
-#include <SheenBidi/SBConfig.h>
 
+#include <API/SBBase.h>
 #include <Core/Memory.h>
 #include <UBA/BidiChain.h>
 

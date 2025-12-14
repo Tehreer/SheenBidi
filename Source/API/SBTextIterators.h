@@ -17,11 +17,10 @@
 #ifndef _SB_INTERNAL_TEXT_ITERATORS_H
 #define _SB_INTERNAL_TEXT_ITERATORS_H
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBLine.h>
 #include <SheenBidi/SBTextIterators.h>
 
+#include <API/SBBase.h>
 #include <API/SBText.h>
 #include <Core/Object.h>
 #include <Text/AttributeDictionary.h>

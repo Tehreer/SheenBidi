@@ -16,8 +16,6 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAssert.h>
 #include <UBA/BidiChain.h>
 #include <UBA/RunExtrema.h>

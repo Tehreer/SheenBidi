@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBConfig.h>
+#include <API/SBBase.h>
 
 #ifdef SB_CONFIG_LOG
 
-#include <API/SBBase.h>
 #include <API/SBCodepoint.h>
 #include <API/SBCodepointSequence.h>
 #include <UBA/BidiChain.h>

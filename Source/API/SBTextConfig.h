@@ -18,9 +18,9 @@
 #define _SB_INTERNAL_TEXT_CONFIG_H
 
 #include <SheenBidi/SBAttributeRegistry.h>
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBTextConfig.h>
 
+#include <API/SBBase.h>
 #include <Core/Memory.h>
 #include <Core/Object.h>
 

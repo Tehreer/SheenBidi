@@ -18,10 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SheenBidi/SBAttributeInfo.h>
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
+#include <Core/Object.h>
 
 #include "SBAttributeRegistry.h"
 

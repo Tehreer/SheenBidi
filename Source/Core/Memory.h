@@ -19,8 +19,7 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
+#include <API/SBBase.h>
 
 /**
  * Represents a single dynamically allocated memory block.

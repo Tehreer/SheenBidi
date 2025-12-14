@@ -16,13 +16,10 @@
 
 #include <stddef.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAttributeRegistry.h>
 #include <API/SBBase.h>
 #include <API/SBText.h>
 #include <Core/List.h>
-#include <Core/Object.h>
 
 #include "AttributeManager.h"
 

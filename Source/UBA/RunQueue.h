@@ -17,8 +17,6 @@
 #ifndef _SB_INTERNAL_RUN_QUEUE_H
 #define _SB_INTERNAL_RUN_QUEUE_H
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <Core/Memory.h>
 #include <UBA/LevelRun.h>

@@ -17,10 +17,10 @@
 #ifndef _SB_INTERNAL_MIRROR_LOCATOR_H
 #define _SB_INTERNAL_MIRROR_LOCATOR_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBLine.h>
 #include <SheenBidi/SBMirrorLocator.h>
 
+#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBMirrorLocator {

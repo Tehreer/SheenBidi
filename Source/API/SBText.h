@@ -18,14 +18,12 @@
 #define _SB_INTERNAL_TEXT_H
 
 #include <SheenBidi/SBAttributeRegistry.h>
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBParagraph.h>
-#include <SheenBidi/SBScript.h>
 #include <SheenBidi/SBScriptLocator.h>
 #include <SheenBidi/SBText.h>
 
+#include <API/SBBase.h>
 #include <Core/List.h>
 #include <Core/Object.h>
 #include <Text/AttributeManager.h>

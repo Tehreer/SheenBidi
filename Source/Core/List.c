@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBAllocator.h>
 #include <API/SBAssert.h>
 #include <API/SBBase.h>

@@ -17,8 +17,6 @@
 #ifndef _SB_INTERNAL_BIDI_CHAIN_H
 #define _SB_INTERNAL_BIDI_CHAIN_H
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 
 typedef SBUInt32 BidiLink;

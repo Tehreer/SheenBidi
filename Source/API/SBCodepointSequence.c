@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <API/SBCodepoint.h>
 #include <Data/BidiTypeLookup.h>

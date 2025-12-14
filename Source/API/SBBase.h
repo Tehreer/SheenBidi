@@ -20,7 +20,14 @@
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>
 #include <SheenBidi/SBConfig.h>
+#include <SheenBidi/SBGeneralCategory.h>
 #include <SheenBidi/SBScript.h>
+
+#ifdef SB_CONFIG_UNITY
+#define SB_INTERNAL static
+#else
+#define SB_INTERNAL
+#endif
 
 /* ---------- Compiler Version Detection ---------- */
 

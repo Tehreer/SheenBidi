@@ -17,8 +17,6 @@
 #ifndef _SB_INTERNAL_ISOLATING_RUN_H
 #define _SB_INTERNAL_ISOLATING_RUN_H
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <API/SBCodepointSequence.h>
 #include <Core/Memory.h>

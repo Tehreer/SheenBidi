@@ -19,10 +19,9 @@
 
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBAttributeRegistry.h>
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBText.h>
 
+#include <API/SBBase.h>
 #include <Core/List.h>
 #include <Text/AttributeDictionary.h>
 

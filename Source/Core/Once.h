@@ -17,9 +17,7 @@
 #ifndef _SB_INTERNAL_ONCE_H
 #define _SB_INTERNAL_ONCE_H
 
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
-
+#include <API/SBBase.h>
 #include <Core/AtomicFlag.h>
 #include <Core/ThreadFence.h>
 

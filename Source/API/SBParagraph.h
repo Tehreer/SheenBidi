@@ -18,10 +18,9 @@
 #define _SB_INTERNAL_PARAGRAPH_H
 
 #include <SheenBidi/SBAlgorithm.h>
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBConfig.h>
 #include <SheenBidi/SBParagraph.h>
 
+#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBParagraph {

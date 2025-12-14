@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <Core/ThreadFence.h>
 

@@ -17,8 +17,6 @@
 #ifndef _SB_INTERNAL_LEVEL_RUN_H
 #define _SB_INTERNAL_LEVEL_RUN_H
 
-#include <SheenBidi/SBConfig.h>
-
 #include <API/SBBase.h>
 #include <UBA/BidiChain.h>
 #include <UBA/RunExtrema.h>

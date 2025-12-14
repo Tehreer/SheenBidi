@@ -45,10 +45,4 @@
 #define SB_CONFIG_SCRATCH_POOL_SIZE 3
 #endif
 
-#ifdef SB_CONFIG_UNITY
-#define SB_INTERNAL static
-#else
-#define SB_INTERNAL
-#endif
-
 #endif
