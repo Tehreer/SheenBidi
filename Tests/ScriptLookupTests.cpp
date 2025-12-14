@@ -24,7 +24,7 @@
 #include <SheenBidi/SBScript.h>
 
 extern "C" {
-#include <Source/ScriptLookup.h>
+#include <Data/ScriptLookup.h>
 }
 
 #include <Parser/PropertyValueAliases.h>

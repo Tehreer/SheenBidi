@@ -94,13 +94,13 @@ set(SHEENBIDI_HEADERS
   Headers/SheenBidi/SBTextType.h
   Headers/SheenBidi/SBVersion.h
 )
-file(GLOB INTERNAL_HEADERS "Source/*.h")
+file(GLOB_RECURSE INTERNAL_HEADERS "Source/*.h")
 
 if(SB_CONFIG_UNITY)
   add_definitions(-DSB_CONFIG_UNITY)
   set(SHEENBIDI_SOURCES Source/SheenBidi.c)
 else()
-  file(GLOB SHEENBIDI_SOURCES Source/*.c)
+  file(GLOB_RECURSE SHEENBIDI_SOURCES Source/*.c)
 endif()
 
 add_library(SheenBidi
@@ -153,8 +153,8 @@ if(BUILD_GENERATOR)
   add_executable(Generator ${GENERATOR_FILES})
   target_include_directories(Generator
     PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}/Headers
+      ${CMAKE_CURRENT_SOURCE_DIR}/Source
       ${CMAKE_CURRENT_SOURCE_DIR}/Tools
   )
   target_link_libraries(Generator PRIVATE Parser)
@@ -296,8 +296,8 @@ if(BUILD_TESTS)
     )
     target_include_directories(${TEST_NAME}
       PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source
         ${CMAKE_CURRENT_SOURCE_DIR}/Tools
     )
     target_compile_definitions(${TEST_NAME} PRIVATE STANDALONE_TESTING)

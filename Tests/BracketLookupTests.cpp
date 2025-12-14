@@ -23,8 +23,8 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/BracketType.h>
-#include <Source/PairingLookup.h>
+#include <Data/PairingLookup.h>
+#include <UBA/BracketType.h>
 }
 
 #include <Parser/BidiBrackets.h>

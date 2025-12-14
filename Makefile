@@ -16,47 +16,51 @@ ifndef CXX
 	CXX = g++
 endif
 
-AR = ar
+AR      = ar
 ARFLAGS = -r
-CFLAGS = -ansi -pedantic -Wall -I$(HEADERS_DIR)
+RM      = rm -rf
+
+CFLAGS   = -ansi -pedantic -Wall -I$(HEADERS_DIR) -I$(SOURCE_DIR)
 CXXFLAGS = -std=c++14 -g -Wall
-DEBUG_FLAGS = -DDEBUG -g -O0
+
+DEBUG_FLAGS   = -DDEBUG -g -O0
 RELEASE_FLAGS = -DNDEBUG -DSB_CONFIG_UNITY -Os
 
-DEBUG = Debug
+DEBUG   = Debug
 RELEASE = Release
 
-DEBUG_SOURCES = $(SOURCE_DIR)/AttributeDictionary.c \
-                $(SOURCE_DIR)/AttributeManager.c \
-                $(SOURCE_DIR)/BidiChain.c \
-                $(SOURCE_DIR)/BidiTypeLookup.c \
-                $(SOURCE_DIR)/BracketQueue.c \
-                $(SOURCE_DIR)/GeneralCategoryLookup.c \
-                $(SOURCE_DIR)/IsolatingRun.c \
-                $(SOURCE_DIR)/LevelRun.c \
-                $(SOURCE_DIR)/List.c \
-                $(SOURCE_DIR)/Memory.c \
-                $(SOURCE_DIR)/Object.c \
-                $(SOURCE_DIR)/Once.c \
-                $(SOURCE_DIR)/PairingLookup.c \
-                $(SOURCE_DIR)/RunQueue.c \
-                $(SOURCE_DIR)/SBAlgorithm.c \
-                $(SOURCE_DIR)/SBAllocator.c \
-                $(SOURCE_DIR)/SBAttributeRegistry.c \
-                $(SOURCE_DIR)/SBBase.c \
-                $(SOURCE_DIR)/SBCodepoint.c \
-                $(SOURCE_DIR)/SBCodepointSequence.c \
-                $(SOURCE_DIR)/SBLine.c \
-                $(SOURCE_DIR)/SBLog.c \
-                $(SOURCE_DIR)/SBMirrorLocator.c \
-                $(SOURCE_DIR)/SBParagraph.c \
-                $(SOURCE_DIR)/SBScriptLocator.c \
-                $(SOURCE_DIR)/SBText.c \
-                $(SOURCE_DIR)/SBTextConfig.c \
-                $(SOURCE_DIR)/SBTextIterators.c \
-                $(SOURCE_DIR)/ScriptLookup.c \
-                $(SOURCE_DIR)/ScriptStack.c \
-                $(SOURCE_DIR)/StatusStack.c
+DEBUG_SOURCES = \
+    $(SOURCE_DIR)/API/SBAlgorithm.c \
+    $(SOURCE_DIR)/API/SBAllocator.c \
+    $(SOURCE_DIR)/API/SBAttributeRegistry.c \
+    $(SOURCE_DIR)/API/SBBase.c \
+    $(SOURCE_DIR)/API/SBCodepoint.c \
+    $(SOURCE_DIR)/API/SBCodepointSequence.c \
+    $(SOURCE_DIR)/API/SBLine.c \
+    $(SOURCE_DIR)/API/SBLog.c \
+    $(SOURCE_DIR)/API/SBMirrorLocator.c \
+    $(SOURCE_DIR)/API/SBParagraph.c \
+    $(SOURCE_DIR)/API/SBScriptLocator.c \
+    $(SOURCE_DIR)/API/SBText.c \
+    $(SOURCE_DIR)/API/SBTextConfig.c \
+    $(SOURCE_DIR)/API/SBTextIterators.c \
+    $(SOURCE_DIR)/Core/List.c \
+    $(SOURCE_DIR)/Core/Memory.c \
+    $(SOURCE_DIR)/Core/Object.c \
+    $(SOURCE_DIR)/Core/Once.c \
+    $(SOURCE_DIR)/Data/BidiTypeLookup.c \
+    $(SOURCE_DIR)/Data/GeneralCategoryLookup.c \
+    $(SOURCE_DIR)/Data/PairingLookup.c \
+    $(SOURCE_DIR)/Data/ScriptLookup.c \
+    $(SOURCE_DIR)/Script/ScriptStack.c \
+    $(SOURCE_DIR)/Text/AttributeDictionary.c \
+    $(SOURCE_DIR)/Text/AttributeManager.c \
+    $(SOURCE_DIR)/UBA/BidiChain.c \
+    $(SOURCE_DIR)/UBA/BracketQueue.c \
+    $(SOURCE_DIR)/UBA/IsolatingRun.c \
+    $(SOURCE_DIR)/UBA/LevelRun.c \
+    $(SOURCE_DIR)/UBA/RunQueue.c \
+    $(SOURCE_DIR)/UBA/StatusStack.c
 RELEASE_SOURCES = $(SOURCE_DIR)/SheenBidi.c
 
 DEBUG_OBJECTS   = $(DEBUG_SOURCES:$(SOURCE_DIR)/%.c=$(DEBUG)/%.o)
@@ -68,23 +72,14 @@ TESTS_TARGET   = $(DEBUG)/$(EXEC_TESTS)
 RELEASE_TARGET = $(RELEASE)/lib$(LIB_SHEENBIDI).a
 
 all:     release
-release: $(RELEASE) $(RELEASE_TARGET)
-debug:   $(DEBUG) $(DEBUG_TARGET)
+release: $(RELEASE_TARGET)
+debug:   $(DEBUG_TARGET)
 
 check: tests
 	./Debug/Tests Tools/Unicode
 
-clean: parser_clean tests_clean
-	$(RM) $(DEBUG)/*.o
-	$(RM) $(DEBUG_TARGET)
-	$(RM) $(RELEASE)/*.o
-	$(RM) $(RELEASE_TARGET)
-
-$(DEBUG):
-	mkdir $(DEBUG)
-
-$(RELEASE):
-	mkdir $(RELEASE)
+clean:
+	$(RM) $(DEBUG) $(RELEASE)
 
 $(DEBUG_TARGET): $(DEBUG_OBJECTS)
 	$(AR) $(ARFLAGS) $(DEBUG_TARGET) $(DEBUG_OBJECTS)
@@ -93,9 +88,11 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(AR) $(ARFLAGS) $(RELEASE_TARGET) $(RELEASE_OBJECTS)
 
 $(DEBUG)/%.o: $(SOURCE_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(EXTRA_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 $(RELEASE)/%.o: $(SOURCE_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(EXTRA_FLAGS) $(RELEASE_FLAGS) -c $< -o $@
 
 .PHONY: all check clean compiler debug parser release tests

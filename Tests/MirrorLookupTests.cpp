@@ -23,7 +23,7 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/PairingLookup.h>
+#include <Data/PairingLookup.h>
 }
 
 #include <Parser/BidiMirroring.h>

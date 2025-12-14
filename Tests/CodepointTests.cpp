@@ -23,7 +23,7 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/SBCodepoint.h>
+#include <API/SBCodepoint.h>
 }
 
 #include "Utilities/Unicode.h"

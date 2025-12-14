@@ -23,10 +23,10 @@
 #include <SheenBidi/SBBase.h>
 
 extern "C" {
-#include <Source/AttributeDictionary.h>
-#include <Source/AttributeManager.h>
-#include "Source/SBAttributeRegistry.h"
-#include <Source/SBText.h>
+#include <API/SBAttributeRegistry.h>
+#include <API/SBText.h>
+#include <Text/AttributeDictionary.h>
+#include <Text/AttributeManager.h>
 }
 
 #include "AttributeManagerTests.h"

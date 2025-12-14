@@ -22,11 +22,11 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/BidiChain.h>
-#include <Source/LevelRun.h>
-#include <Source/Memory.h>
-#include <Source/RunQueue.h>
-#include <Source/SBBase.h>
+#include <API/SBBase.h>
+#include <Core/Memory.h>
+#include <UBA/BidiChain.h>
+#include <UBA/LevelRun.h>
+#include <UBA/RunQueue.h>
 }
 
 #include "RunQueueTests.h"

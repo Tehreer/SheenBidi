@@ -23,9 +23,9 @@
 #include <SheenBidi/SBTextConfig.h>
 
 extern "C" {
-#include <Source/SBBase.h>
-#include <Source/SBParagraph.h>
-#include <Source/SBTextIterators.h>
+#include <API/SBBase.h>
+#include <API/SBParagraph.h>
+#include <API/SBTextIterators.h>
 }
 
 #include "LogicalRunIteratorTests.h"

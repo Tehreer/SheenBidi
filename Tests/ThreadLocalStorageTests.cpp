@@ -25,7 +25,7 @@
 #include <vector>
 
 extern "C" {
-#include <Source/ThreadLocalStorage.h>
+#include <Core/ThreadLocalStorage.h>
 }
 
 #include "ThreadLocalStorageTests.h"

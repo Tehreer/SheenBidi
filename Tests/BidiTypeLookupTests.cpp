@@ -25,7 +25,7 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/BidiTypeLookup.h>
+#include <Data/BidiTypeLookup.h>
 }
 
 #include <Parser/DerivedBidiClass.h>

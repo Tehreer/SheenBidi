@@ -26,7 +26,3 @@ $(PARSER_TARGET): $(PARSER_OBJS)
 	$(AR) $(ARFLAGS) $(PARSER_TARGET) $(PARSER_OBJS)
 
 parser: $(PARSER) $(PARSER_TARGET)
-
-parser_clean:
-	$(RM) $(PARSER)/*.o
-	$(RM) $(PARSER_TARGET)

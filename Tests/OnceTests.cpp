@@ -23,7 +23,7 @@
 #include <vector>
 
 extern "C" {
-#include <Source/Once.h>
+#include <Core/Once.h>
 }
 
 #include "OnceTests.h"

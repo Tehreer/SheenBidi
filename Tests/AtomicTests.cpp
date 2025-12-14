@@ -23,10 +23,10 @@
 #include <SheenBidi/SBBase.h>
 
 extern "C" {
-#include <Source/AtomicFlag.h>
-#include <Source/AtomicPointer.h>
-#include <Source/AtomicUInt.h>
-#include <Source/ThreadFence.h>
+#include <Core/AtomicFlag.h>
+#include <Core/AtomicPointer.h>
+#include <Core/AtomicUInt.h>
+#include <Core/ThreadFence.h>
 }
 
 #include "AtomicTests.h"

@@ -28,8 +28,8 @@
 #include <SheenBidi/SBTextConfig.h>
 
 extern "C" {
-#include <Source/List.h>
-#include <Source/SBText.h>
+#include <API/SBText.h>
+#include <Core/List.h>
 }
 
 #include "TextTests.h"

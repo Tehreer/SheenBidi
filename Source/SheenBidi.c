@@ -19,36 +19,41 @@
 
 #ifdef SB_CONFIG_UNITY
 
-#include "AttributeDictionary.c"
-#include "AttributeManager.c"
-#include "BidiChain.c"
-#include "BidiTypeLookup.c"
-#include "BracketQueue.c"
-#include "GeneralCategoryLookup.c"
-#include "IsolatingRun.c"
-#include "LevelRun.c"
-#include "List.c"
-#include "Memory.c"
-#include "Object.c"
-#include "Once.c"
-#include "PairingLookup.c"
-#include "RunQueue.c"
-#include "SBAlgorithm.c"
-#include "SBAllocator.c"
-#include "SBAttributeRegistry.c"
-#include "SBBase.c"
-#include "SBCodepoint.c"
-#include "SBCodepointSequence.c"
-#include "SBLine.c"
-#include "SBLog.c"
-#include "SBMirrorLocator.c"
-#include "SBParagraph.c"
-#include "SBScriptLocator.c"
-#include "SBText.c"
-#include "SBTextConfig.c"
-#include "SBTextIterators.c"
-#include "ScriptLookup.c"
-#include "ScriptStack.c"
-#include "StatusStack.c"
+#include <API/SBAlgorithm.c>
+#include <API/SBAllocator.c>
+#include <API/SBAttributeRegistry.c>
+#include <API/SBBase.c>
+#include <API/SBCodepoint.c>
+#include <API/SBCodepointSequence.c>
+#include <API/SBLine.c>
+#include <API/SBLog.c>
+#include <API/SBMirrorLocator.c>
+#include <API/SBParagraph.c>
+#include <API/SBScriptLocator.c>
+#include <API/SBText.c>
+#include <API/SBTextConfig.c>
+#include <API/SBTextIterators.c>
+
+#include <Core/List.c>
+#include <Core/Memory.c>
+#include <Core/Object.c>
+#include <Core/Once.c>
+
+#include <Data/BidiTypeLookup.c>
+#include <Data/GeneralCategoryLookup.c>
+#include <Data/PairingLookup.c>
+#include <Data/ScriptLookup.c>
+
+#include <Script/ScriptStack.c>
+
+#include <Text/AttributeDictionary.c>
+#include <Text/AttributeManager.c>
+
+#include <UBA/BidiChain.c>
+#include <UBA/BracketQueue.c>
+#include <UBA/IsolatingRun.c>
+#include <UBA/LevelRun.c>
+#include <UBA/RunQueue.c>
+#include <UBA/StatusStack.c>
 
 #endif

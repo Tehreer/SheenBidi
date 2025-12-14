@@ -27,10 +27,10 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/BidiChain.h>
-#include <Source/Memory.h>
-#include <Source/BracketQueue.h>
-#include <Source/PairingLookup.h>
+#include <Core/Memory.h>
+#include <Data/PairingLookup.h>
+#include <UBA/BidiChain.h>
+#include <UBA/BracketQueue.h>
 }
 
 #include "BracketQueueTests.h"

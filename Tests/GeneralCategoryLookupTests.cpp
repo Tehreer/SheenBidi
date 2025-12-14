@@ -24,7 +24,7 @@
 #include <SheenBidi/SBGeneralCategory.h>
 
 extern "C" {
-#include <Source/GeneralCategoryLookup.h>
+#include <Data/GeneralCategoryLookup.h>
 }
 
 #include <Parser/DerivedGeneralCategory.h>

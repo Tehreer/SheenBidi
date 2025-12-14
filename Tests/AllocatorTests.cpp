@@ -30,7 +30,7 @@
 #include <SheenBidi/SBConfig.h>
 
 extern "C" {
-#include <Source/SBAllocator.h>
+#include <API/SBAllocator.h>
 }
 
 #include "AllocatorTests.h"
