@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,14 +103,6 @@ static SBBoolean EnsureItemCapacity(ListRef list, SBUInteger capacity)
     return isEnsured;
 }
 
-SB_PRIVATE void *GetItemPointer(ListRef list, SBUInteger index)
-{
-    /* The index must fall within allocated capacity. */
-    SBAssert(index < list->capacity);
-
-    return list->data + (index * list->itemSize);
-}
-
 static void MoveItemRange(ListRef list, SBUInteger srcIndex,
     SBUInteger dstIndex, SBUInteger itemCount)
 {
@@ -118,8 +110,8 @@ static void MoveItemRange(ListRef list, SBUInteger srcIndex,
     SBAssert((srcIndex + itemCount) <= list->capacity && (dstIndex + itemCount) <= list->capacity);
 
     if (itemCount) {
-        memmove(GetItemPointer(list, dstIndex),
-            GetItemPointer(list, srcIndex), list->itemSize * itemCount);
+        memmove(list->data + (dstIndex * list->itemSize),
+            list->data + (srcIndex * list->itemSize), list->itemSize * itemCount);
     }
 }
 

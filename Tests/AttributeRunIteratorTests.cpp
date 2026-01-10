@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <SheenBidi/SBAttributeInfo.h>
+#include <SheenBidi/SBAttributeList.h>
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBText.h>
 #include <SheenBidi/SBTextConfig.h>
@@ -35,40 +36,47 @@ extern "C" {
 using namespace std;
 using namespace SheenBidi;
 
-using Number = uint32_t;
-static const Number Numbers[] = { 0, 1, 2 };
+using AttributeValue = uint32_t;
 
-constexpr auto Zero = &Numbers[0];
-constexpr auto One = &Numbers[1];
-constexpr auto Two = &Numbers[2];
-
-class Typeface {
-public:
-    static constexpr auto Serif = Zero;
-    static constexpr auto SansSerif = One;
-    static constexpr auto Monospace = Two;
+struct Typeface {
+    static const AttributeValue Serif, SansSerif, Monospace;
 };
 
-class Alignment {
-public:
-    static constexpr auto Leading = Zero;
-    static constexpr auto Center = One;
-    static constexpr auto Trailing = Two;
+const AttributeValue Typeface::Serif = 1;
+const AttributeValue Typeface::SansSerif = 2;
+const AttributeValue Typeface::Monospace = 3;
+
+struct Alignment {
+    static const AttributeValue Leading, Center, Trailing;
 };
 
-class Attribute {
-public:
+const AttributeValue Alignment::Leading = 1;
+const AttributeValue Alignment::Center = 2;
+const AttributeValue Alignment::Trailing = 3;
+
+struct AttributeName {
     static constexpr auto Typeface = "typeface";
     static constexpr auto Alignment = "alignment";
 };
 
+struct AttributeItem {
+    SBAttributeID attributeID;
+    AttributeValue attributeValue;
+
+    bool operator==(const AttributeItem &other) const {
+        return attributeID == other.attributeID
+            && attributeValue == other.attributeValue;
+    }
+};
+
 static const vector<SBAttributeInfo> TestAttributes = {
-    {Attribute::Typeface, 1, SBAttributeScopeCharacter, { nullptr }},
-    {Attribute::Alignment, 2, SBAttributeScopeParagraph, { nullptr }}
+    {AttributeName::Typeface, 1, SBAttributeScopeCharacter},
+    {AttributeName::Alignment, 2, SBAttributeScopeParagraph}
 };
 
 static SBMutableTextRef SBTextCreateTest(const string &str, SBLevel baseLevel = SBLevelDefaultLTR) {
-    auto registry = SBAttributeRegistryCreate(TestAttributes.data(), TestAttributes.size());
+    auto registry = SBAttributeRegistryCreate(TestAttributes.data(), TestAttributes.size(),
+        sizeof(AttributeValue), nullptr);
 
     auto config = SBTextConfigCreate();
     SBTextConfigSetAttributeRegistry(config, registry);
@@ -81,6 +89,28 @@ static SBMutableTextRef SBTextCreateTest(const string &str, SBLevel baseLevel = 
     SBAttributeRegistryRelease(registry);
 
     return text;
+}
+
+static bool verifyAttributes(SBAttributeListRef attributes, const vector<AttributeItem> &items) {
+    if (attributes == nullptr) {
+        return false;
+    }
+
+    auto count = SBAttributeListGetCount(attributes);
+    if (count != items.size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < items.size(); ++i) {
+        auto attribute = reinterpret_cast<const AttributeItem *>(SBAttributeListGetItem(attributes, i));
+        auto item = items[i];
+
+        if (!(*attribute == item)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void AttributeRunIteratorTests::run() {
@@ -106,8 +136,7 @@ void AttributeRunIteratorTests::testInitialization() {
         assert(run != nullptr);
         assert(run->index == SBInvalidIndex);
         assert(run->length == 0);
-        assert(run->attributeItems == nullptr);
-        assert(run->attributeCount == 0);
+        assert(run->attributes == nullptr);
 
         assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -125,8 +154,7 @@ void AttributeRunIteratorTests::testInitialization() {
         assert(run != nullptr);
         assert(run->index == SBInvalidIndex);
         assert(run->length == 0);
-        assert(run->attributeItems == nullptr);
-        assert(run->attributeCount == 0);
+        assert(run->attributes == nullptr);
 
         SBAttributeRunIteratorRelease(iterator);
         SBTextRelease(text);
@@ -135,7 +163,7 @@ void AttributeRunIteratorTests::testInitialization() {
     // Test 3: Create iterator with invalid attribute type
     {
         auto text = SBTextCreateTest("ABC");
-        SBTextSetAttribute(text, 0, 3, 100, Two);
+        SBTextSetAttribute(text, 0, 3, 100, &Typeface::Monospace);
 
         auto iterator = SBAttributeRunIteratorCreate(text);
         assert(iterator != nullptr);
@@ -144,8 +172,7 @@ void AttributeRunIteratorTests::testInitialization() {
         assert(run != nullptr);
         assert(run->index == SBInvalidIndex);
         assert(run->length == 0);
-        assert(run->attributeItems == nullptr);
-        assert(run->attributeCount == 0);
+        assert(run->attributes == nullptr);
 
         SBAttributeRunIteratorRelease(iterator);
         SBTextRelease(text);
@@ -157,20 +184,18 @@ void AttributeRunIteratorTests::testBasicIteration() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Set a single attribute for the entire text
-    auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Alignment);
-    SBTextSetAttribute(text, 2, 1, attributeID, Alignment::Center);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Alignment);
+    SBTextSetAttribute(text, 2, 1, typeface, &Alignment::Center);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);
 
-    SBAttributeRunIteratorSetupAttributeID(iterator, attributeID);
+    SBAttributeRunIteratorSetupAttributeID(iterator, typeface);
 
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 5);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Alignment::Center);
+    assert(verifyAttributes(run->attributes, {{typeface, Alignment::Center}}));
 
     assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -183,10 +208,10 @@ void AttributeRunIteratorTests::testAttributeBoundaries() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Set different attributes for different ranges
-    auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-    SBTextSetAttribute(text, 0, 2, attributeID, Typeface::Serif);
-    SBTextSetAttribute(text, 2, 2, attributeID, Typeface::SansSerif);
-    SBTextSetAttribute(text, 4, 2, attributeID, Typeface::Monospace);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+    SBTextSetAttribute(text, 0, 2, typeface, &Typeface::Serif);
+    SBTextSetAttribute(text, 2, 2, typeface, &Typeface::SansSerif);
+    SBTextSetAttribute(text, 4, 2, typeface, &Typeface::Monospace);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);
@@ -195,25 +220,19 @@ void AttributeRunIteratorTests::testAttributeBoundaries() {
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 2);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::Serif);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::Serif}}));
 
     // Second run
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 2);
     assert(run->length == 2);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::SansSerif);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::SansSerif}}));
 
     // Third run
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 4);
     assert(run->length == 2);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::Monospace);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::Monospace}}));
 
     assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -226,33 +245,28 @@ void AttributeRunIteratorTests::testMultipleAttributes() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Set attributes of different types
-    auto typefaceID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-    auto alignmentID = SBAttributeRegistryGetAttributeID(registry, Attribute::Alignment);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+    auto alignment = SBAttributeRegistryGetAttributeID(registry, AttributeName::Alignment);
 
-    SBTextSetAttribute(text, 0, 4, typefaceID, Typeface::SansSerif);
-    SBTextSetAttribute(text, 0, 1, alignmentID, Alignment::Leading);
+    SBTextSetAttribute(text, 0, 4, typeface, &Typeface::SansSerif);
+    SBTextSetAttribute(text, 0, 1, alignment, &Alignment::Leading);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);
 
-    SBAttributeRunIteratorSetupAttributeID(iterator, typefaceID);
+    SBAttributeRunIteratorSetupAttributeID(iterator, typeface);
 
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 4);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == typefaceID);
-    assert(run->attributeItems->attributeValue == Typeface::SansSerif);
-    assert(!SBAttributeRunIteratorMoveNext(iterator));
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::SansSerif}}));
 
-    SBAttributeRunIteratorSetupAttributeID(iterator, alignmentID);
+    SBAttributeRunIteratorSetupAttributeID(iterator, alignment);
 
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 4);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == alignmentID);
-    assert(run->attributeItems->attributeValue == Alignment::Leading);
+    assert(verifyAttributes(run->attributes, {{alignment, Alignment::Leading}}));
     assert(!SBAttributeRunIteratorMoveNext(iterator));
 
     SBAttributeRunIteratorRelease(iterator);
@@ -264,9 +278,9 @@ void AttributeRunIteratorTests::testOverlappingRuns() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Create overlapping runs
-    auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-    SBTextSetAttribute(text, 0, 3, attributeID, Typeface::SansSerif);
-    SBTextSetAttribute(text, 2, 3, attributeID, Typeface::Monospace);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+    SBTextSetAttribute(text, 0, 3, typeface, &Typeface::SansSerif);
+    SBTextSetAttribute(text, 2, 3, typeface, &Typeface::Monospace);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);
@@ -275,16 +289,12 @@ void AttributeRunIteratorTests::testOverlappingRuns() {
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 2);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::SansSerif);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::SansSerif}}));
 
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 2);
     assert(run->length == 3);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::Monospace);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::Monospace}}));
 
     assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -297,9 +307,9 @@ void AttributeRunIteratorTests::testAttributeMerging() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Set same attribute value in adjacent ranges
-    auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-    SBTextSetAttribute(text, 0, 2, attributeID, Typeface::SansSerif);
-    SBTextSetAttribute(text, 2, 3, attributeID, Typeface::SansSerif);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+    SBTextSetAttribute(text, 0, 2, typeface, &Typeface::SansSerif);
+    SBTextSetAttribute(text, 2, 3, typeface, &Typeface::SansSerif);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);
@@ -308,9 +318,7 @@ void AttributeRunIteratorTests::testAttributeMerging() {
     assert(SBAttributeRunIteratorMoveNext(iterator));
     assert(run->index == 0);
     assert(run->length == 5);
-    assert(run->attributeCount == 1);
-    assert(run->attributeItems->attributeID == attributeID);
-    assert(run->attributeItems->attributeValue == Typeface::SansSerif);
+    assert(verifyAttributes(run->attributes, {{typeface, Typeface::SansSerif}}));
 
     SBAttributeRunIteratorRelease(iterator);
     SBTextRelease(text);
@@ -336,8 +344,8 @@ void AttributeRunIteratorTests::testEdgeCases() {
         auto registry = SBTextGetAttributeRegistry(text);
 
         // Set same attribute value in adjacent ranges
-        auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-        SBTextSetAttribute(text, 0, 1, attributeID, Typeface::Monospace);
+        auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+        SBTextSetAttribute(text, 0, 1, typeface, &Typeface::Monospace);
 
         auto iterator = SBAttributeRunIteratorCreate(text);
         auto run = SBAttributeRunIteratorGetCurrent(iterator);
@@ -345,9 +353,7 @@ void AttributeRunIteratorTests::testEdgeCases() {
         assert(SBAttributeRunIteratorMoveNext(iterator));
         assert(run->index == 0);
         assert(run->length == 1);
-        assert(run->attributeCount == 1);
-        assert(run->attributeItems->attributeID == attributeID);
-        assert(run->attributeItems->attributeValue == Typeface::Monospace);
+        assert(verifyAttributes(run->attributes, {{typeface, Typeface::Monospace}}));
 
         assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -364,8 +370,7 @@ void AttributeRunIteratorTests::testEdgeCases() {
         assert(!SBAttributeRunIteratorMoveNext(iterator));
         assert(run->index == SBInvalidIndex);
         assert(run->length == 0);
-        assert(run->attributeItems == nullptr);
-        assert(run->attributeCount == 0);
+        assert(run->attributes == nullptr);
 
         SBAttributeRunIteratorRelease(iterator);
         SBTextRelease(text);
@@ -376,8 +381,8 @@ void AttributeRunIteratorTests::testEdgeCases() {
         auto text = SBTextCreateTest("ABC");
         auto registry = SBTextGetAttributeRegistry(text);
 
-        auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-        SBTextSetAttribute(text, 1, 1, attributeID, Typeface::Serif);
+        auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+        SBTextSetAttribute(text, 1, 1, typeface, &Typeface::Serif);
 
         auto iterator = SBAttributeRunIteratorCreate(text);
         auto run = SBAttributeRunIteratorGetCurrent(iterator);
@@ -385,9 +390,7 @@ void AttributeRunIteratorTests::testEdgeCases() {
         assert(SBAttributeRunIteratorMoveNext(iterator));
         assert(run->index == 1);
         assert(run->length == 1);
-        assert(run->attributeCount == 1);
-        assert(run->attributeItems->attributeID == attributeID);
-        assert(run->attributeItems->attributeValue == Typeface::Serif);
+        assert(verifyAttributes(run->attributes, {{typeface, Typeface::Serif}}));
 
         assert(!SBAttributeRunIteratorMoveNext(iterator));
 
@@ -401,10 +404,10 @@ void AttributeRunIteratorTests::testComplexScenarios() {
     auto registry = SBTextGetAttributeRegistry(text);
 
     // Overlapping and adjacent runs
-    auto attributeID = SBAttributeRegistryGetAttributeID(registry, Attribute::Typeface);
-    SBTextSetAttribute(text, 0, 3, attributeID, Typeface::Serif);
-    SBTextSetAttribute(text, 2, 3, attributeID, Typeface::SansSerif);
-    SBTextSetAttribute(text, 4, 4, attributeID, Typeface::Monospace);
+    auto typeface = SBAttributeRegistryGetAttributeID(registry, AttributeName::Typeface);
+    SBTextSetAttribute(text, 0, 3, typeface, &Typeface::Serif);
+    SBTextSetAttribute(text, 2, 3, typeface, &Typeface::SansSerif);
+    SBTextSetAttribute(text, 4, 4, typeface, &Typeface::Monospace);
 
     auto iterator = SBAttributeRunIteratorCreate(text);
     auto run = SBAttributeRunIteratorGetCurrent(iterator);

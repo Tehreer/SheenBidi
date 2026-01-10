@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 
 typedef struct _AttributeDictionaryCache {
     LIST(AttributeDictionaryRef) _attributeDicts;
+    SBUInt8 _valueSize;
 } AttributeDictionaryCache, *AttributeDictionaryCacheRef;
 
 typedef struct _AttributeEntry {

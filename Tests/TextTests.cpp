@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include <SheenBidi/SBAttributeList.h>
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBText.h>
@@ -72,12 +73,34 @@ struct AttributeName {
     static constexpr auto Alignment = "alignment";
 };
 
+struct AttributeID {
+    static const SBAttributeID Color;
+    static const SBAttributeID Alignment;
+};
+
+struct AttributeValue {
+    const char *str;
+
+    AttributeValue() : str(nullptr) { }
+    explicit AttributeValue(const char *str) : str(str) { }
+};
+
+bool operator==(const AttributeValue &lhs, const AttributeValue &rhs) {
+    return lhs.str == rhs.str;
+}
+
+struct AttributeItem {
+    SBAttributeID attributeID;
+    AttributeValue attributeValue;
+};
+
 static const auto DefaultAttributeRegistry = [] {
     const vector<SBAttributeInfo> DefaultAttributes = {
-        {AttributeName::Color, 1, SBAttributeScopeCharacter, { nullptr }},
-        {AttributeName::Alignment, 2, SBAttributeScopeParagraph, { nullptr }}
+        {AttributeName::Color, 1, SBAttributeScopeCharacter},
+        {AttributeName::Alignment, 2, SBAttributeScopeParagraph}
     };
-    auto instance = SBAttributeRegistryCreate(DefaultAttributes.data(), DefaultAttributes.size());
+    auto instance = SBAttributeRegistryCreate(DefaultAttributes.data(), DefaultAttributes.size(),
+        sizeof(AttributeValue), nullptr);
 
     return AttributeRegistryHolder(instance);
 }();
@@ -87,11 +110,6 @@ static const auto DefaultTextConfig = [] {
     SBTextConfigSetAttributeRegistry(config, DefaultAttributeRegistry);
     return TextConfigHolder(config);
 }();
-
-struct AttributeID {
-    static const SBAttributeID Color;
-    static const SBAttributeID Alignment;
-};
 
 const SBAttributeID AttributeID::Color = SBAttributeRegistryGetAttributeID(
     DefaultAttributeRegistry, AttributeName::Color);
@@ -113,7 +131,7 @@ static void verifyParagraphRanges(SBTextRef text, const vector<pair<size_t, size
 struct AttributeRun {
     SBUInteger index;
     SBUInteger length;
-    map<SBAttributeID, const void *> attributes;
+    map<SBAttributeID, AttributeValue> attributes;
 };
 
 static void verifyAttributeRuns(SBTextRef text, SBAttributeScope scope,
@@ -127,9 +145,12 @@ static void verifyAttributeRuns(SBTextRef text, SBAttributeScope scope,
     while (SBAttributeRunIteratorMoveNext(iterator)) {
         auto &run = runs.at(runIndex);
 
-        map<SBAttributeID, const void *> attributes;
-        for (SBUInteger attrIndex = 0; attrIndex < current->attributeCount; attrIndex++) {
-            auto item = &current->attributeItems[attrIndex];
+        map<SBAttributeID, AttributeValue> attributes;
+        auto itemCount = SBAttributeListGetCount(current->attributes);
+
+        for (SBUInteger attrIndex = 0; attrIndex < itemCount; attrIndex++) {
+            auto item = reinterpret_cast<const AttributeItem *>(
+                SBAttributeListGetItem(current->attributes, attrIndex));
             attributes[item->attributeID] = item->attributeValue;
         }
 
@@ -1145,12 +1166,12 @@ void TextTests::testSetAttribute() {
         SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute on entire text
-        auto redColor = "red";
-        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
+        AttributeValue redColor("red");
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, &redColor);
 
         // Set color attribute on partial range
-        auto blueColor = "blue";
-        SBTextSetAttribute(text, 0, 5, AttributeID::Color, blueColor);
+        AttributeValue blueColor("blue");
+        SBTextSetAttribute(text, 0, 5, AttributeID::Color, &blueColor);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 5, {{AttributeID::Color, blueColor}}},
@@ -1169,12 +1190,12 @@ void TextTests::testSetAttribute() {
         SBTextAppendCodeUnits(text, content, 34);
 
         // Set alignment attribute on first paragraph
-        auto centerAlign = "center";
-        SBTextSetAttribute(text, 0, 17, AttributeID::Alignment, centerAlign);
+        AttributeValue centerAlign("center");
+        SBTextSetAttribute(text, 0, 17, AttributeID::Alignment, &centerAlign);
 
         // Set alignment attribute on second paragraph
-        auto rightAlign = "right";
-        SBTextSetAttribute(text, 17, 17, AttributeID::Alignment, rightAlign);
+        AttributeValue rightAlign("right");
+        SBTextSetAttribute(text, 17, 17, AttributeID::Alignment, &rightAlign);
 
         verifyAttributeRuns(text, SBAttributeScopeParagraph, {
             {0, 17, {{AttributeID::Alignment, centerAlign}}},
@@ -1190,8 +1211,8 @@ void TextTests::testSetAttribute() {
         assert(text != nullptr);
 
         // Should handle zero-length range gracefully
-        auto value = "test";
-        SBTextSetAttribute(text, 0, 0, AttributeID::Color, value);
+        AttributeValue colorValue("test");
+        SBTextSetAttribute(text, 0, 0, AttributeID::Color, &colorValue);
 
         verifyAttributeRuns(text, SBAttributeScopeParagraph, {});
 
@@ -1206,12 +1227,12 @@ void TextTests::testSetAttribute() {
         auto content = "Test content";
         SBTextAppendCodeUnits(text, content, 12);
 
-        // Set multiple attributes on same range
-        auto colorValue = "green";
-        auto alignValue = "left";
+        AttributeValue colorValue("green");
+        AttributeValue alignValue("left");
 
-        SBTextSetAttribute(text, 0, 12, AttributeID::Color, colorValue);
-        SBTextSetAttribute(text, 0, 12, AttributeID::Alignment, alignValue);
+        // Set multiple attributes on same range
+        SBTextSetAttribute(text, 0, 12, AttributeID::Color, &colorValue);
+        SBTextSetAttribute(text, 0, 12, AttributeID::Alignment, &alignValue);
 
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
             {0, 12, {{AttributeID::Color, colorValue}}}
@@ -1234,8 +1255,8 @@ void TextTests::testSetAttribute() {
         SBTextAppendCodeUnits(text, content, 20);
 
         // Set attribute during editing session
-        auto colorValue = "yellow";
-        SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue);
+        AttributeValue colorValue("yellow");
+        SBTextSetAttribute(text, 0, 20, AttributeID::Color, &colorValue);
 
         SBTextEndEditing(text);
 
@@ -1257,8 +1278,8 @@ void TextTests::testRemoveAttribute() {
         SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute first
-        auto redColor = "red";
-        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
+        AttributeValue redColor("red");
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, &redColor);
 
         // Remove color attribute from entire text
         SBTextRemoveAttribute(text, 0, 11, AttributeID::Color);
@@ -1280,8 +1301,8 @@ void TextTests::testRemoveAttribute() {
         SBTextAppendCodeUnits(text, content, 34);
 
         // Set alignment attribute on both paragraphs
-        auto centerAlign = "center";
-        SBTextSetAttribute(text, 0, 34, AttributeID::Alignment, centerAlign);
+        AttributeValue centerAlign("center");
+        SBTextSetAttribute(text, 0, 34, AttributeID::Alignment, &centerAlign);
 
         // Remove alignment from the first paragraph only
         SBTextRemoveAttribute(text, 0, 17, AttributeID::Alignment);
@@ -1303,8 +1324,8 @@ void TextTests::testRemoveAttribute() {
         SBTextAppendCodeUnits(text, content, 11);
 
         // Set color attribute on entire text
-        auto redColor = "red";
-        SBTextSetAttribute(text, 0, 11, AttributeID::Color, redColor);
+        AttributeValue redColor("red");
+        SBTextSetAttribute(text, 0, 11, AttributeID::Color, &redColor);
 
         // Remove color from first half only
         SBTextRemoveAttribute(text, 0, 5, AttributeID::Color);
@@ -1355,8 +1376,8 @@ void TextTests::testRemoveAttribute() {
         SBTextAppendCodeUnits(text, content, 20);
 
         // Set attribute first
-        auto colorValue = "yellow";
-        SBTextSetAttribute(text, 0, 20, AttributeID::Color, colorValue);
+        AttributeValue colorValue("yellow");
+        SBTextSetAttribute(text, 0, 20, AttributeID::Color, &colorValue);
 
         SBTextBeginEditing(text);
 
@@ -1381,8 +1402,8 @@ void TextTests::testAttributeEdgeCases() {
         SBTextAppendCodeUnits(text, content, 5);
 
         // Set attribute at very end
-        auto colorValue = "red";
-        SBTextSetAttribute(text, 4, 1, AttributeID::Color, colorValue);
+        AttributeValue colorValue("red");
+        SBTextSetAttribute(text, 4, 1, AttributeID::Color, &colorValue);
 
         // Remove from single character
         SBTextRemoveAttribute(text, 4, 1, AttributeID::Color);
@@ -1401,8 +1422,8 @@ void TextTests::testAttributeEdgeCases() {
         SBTextAppendCodeUnits(text, content, 13);
 
         // Set attribute
-        auto colorValue = "blue";
-        SBTextSetAttribute(text, 0, 13, AttributeID::Color, colorValue);
+        AttributeValue colorValue("blue");
+        SBTextSetAttribute(text, 0, 13, AttributeID::Color, &colorValue);
 
         // Insert text in middle
         auto insertText = " modified";
@@ -1433,12 +1454,12 @@ void TextTests::testAttributeEdgeCases() {
         SBTextAppendCodeUnits(text, content, 37);
 
         // Set color on the first half
-        auto redColor = "red";
-        SBTextSetAttribute(text, 0, 18, AttributeID::Color, redColor);
+        AttributeValue redColor("red");
+        SBTextSetAttribute(text, 0, 18, AttributeID::Color, &redColor);
 
         // Set alignment on overlapping range
-        auto centerAlign = "center";
-        SBTextSetAttribute(text, 10, 20, AttributeID::Alignment, centerAlign);
+        AttributeValue centerAlign("center");
+        SBTextSetAttribute(text, 10, 20, AttributeID::Alignment, &centerAlign);
 
         // Remove color from the middle section
         SBTextRemoveAttribute(text, 5, 10, AttributeID::Color);
@@ -1465,13 +1486,13 @@ void TextTests::testAttributeComplexScenarios() {
         SBTextAppendCodeUnits(text, content, 16);
 
         // Set attributes on various ranges
-        auto redColor = "red";
-        auto blueColor = "blue";
-        auto greenColor = "green";
+        AttributeValue redColor("red");
+        AttributeValue blueColor("blue");
+        AttributeValue greenColor("green");
 
-        SBTextSetAttribute(text, 0, 5, AttributeID::Color, redColor);    // "Start" - red
-        SBTextSetAttribute(text, 6, 6, AttributeID::Color, blueColor);   // "Middle" - blue
-        SBTextSetAttribute(text, 13, 3, AttributeID::Color, greenColor); // "End" - green
+        SBTextSetAttribute(text, 0, 5, AttributeID::Color, &redColor);    // "Start" - red
+        SBTextSetAttribute(text, 6, 6, AttributeID::Color, &blueColor);   // "Middle" - blue
+        SBTextSetAttribute(text, 13, 3, AttributeID::Color, &greenColor); // "End" - green
 
         // Insert text that splits an attributed range
         auto insertText = "New";
@@ -1518,8 +1539,8 @@ void TextTests::testAttributeComplexScenarios() {
         SBTextAppendCodeUnits(text, content, 25);
 
         // Set attributes on mixed-direction text
-        auto colorValue = "purple";
-        SBTextSetAttribute(text, 7, 8, AttributeID::Color, colorValue); // Arabic text
+        AttributeValue colorValue("purple");
+        SBTextSetAttribute(text, 7, 8, AttributeID::Color, &colorValue); // Arabic text
 
         // Verify we can iterate attributes on bidirectional text
         verifyAttributeRuns(text, SBAttributeScopeCharacter, {
@@ -1538,11 +1559,11 @@ void TextTests::testAttributeComplexScenarios() {
         SBTextAppendCodeUnits(original, content, 20);
 
         // Set attributes
-        auto colorValue = "orange";
-        auto alignValue = "justify";
+        AttributeValue colorValue("orange");
+        AttributeValue alignValue("justify");
 
-        SBTextSetAttribute(original, 0, 20, AttributeID::Color, colorValue);
-        SBTextSetAttribute(original, 0, 20, AttributeID::Alignment, alignValue);
+        SBTextSetAttribute(original, 0, 20, AttributeID::Color, &colorValue);
+        SBTextSetAttribute(original, 0, 20, AttributeID::Alignment, &alignValue);
 
         // Create immutable copy
         auto immutableCopy = SBTextCreateCopy(original);

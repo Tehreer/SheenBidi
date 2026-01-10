@@ -32,6 +32,7 @@ RELEASE = Release
 DEBUG_SOURCES = \
     $(SOURCE_DIR)/API/SBAlgorithm.c \
     $(SOURCE_DIR)/API/SBAllocator.c \
+    $(SOURCE_DIR)/API/SBAttributeList.c \
     $(SOURCE_DIR)/API/SBAttributeRegistry.c \
     $(SOURCE_DIR)/API/SBBase.c \
     $(SOURCE_DIR)/API/SBCodepoint.c \

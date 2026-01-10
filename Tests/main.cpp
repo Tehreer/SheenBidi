@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2015-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@
 #include "ScriptLookupTests.h"
 #include "ScriptRunIteratorTests.h"
 #include "ScriptTests.h"
+#include "TextTests.h"
 #include "ThreadLocalStorageTests.h"
 #include "VisualRunIteratorTests.h"
 
@@ -92,6 +93,7 @@ int main(int argc, const char *argv[]) {
     ScriptLocatorTests scriptLocatorTests;
     ScriptRunIteratorTests scriptRunIteratorTests;
     ScriptTests scriptTests;
+    TextTests textTests;
     ThreadLocalStorageTests threadLocalStorageTests;
     VisualRunIteratorTests visualRunIteratorTests;
 
@@ -118,6 +120,7 @@ int main(int argc, const char *argv[]) {
     scriptLocatorTests.run();
     scriptRunIteratorTests.run();
     scriptTests.run();
+    textTests.run();
     threadLocalStorageTests.run();
     visualRunIteratorTests.run();
 

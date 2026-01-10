@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,6 @@ SB_PRIVATE void InitializeList(ListRef list, SBUInteger itemSize);
 SB_PRIVATE void FinalizeItemsBuffer(ListRef list);
 SB_PRIVATE void ExtractItemsBuffer(ListRef list, void **outArray, SBUInteger *outCount);
 
-SB_PRIVATE void *GetItemPointer(ListRef list, SBUInteger index);
-
 SB_PRIVATE SBBoolean SetItemCapacity(ListRef list, SBUInteger capacity);
 SB_PRIVATE SBBoolean ReserveItemRange(ListRef list, SBUInteger index, SBUInteger count);
 SB_PRIVATE SBBoolean InsertItemAtIndex(ListRef list, SBUInteger index, const void *itemPtr);
@@ -61,22 +59,29 @@ SB_PRIVATE void SortItemRange(ListRef list, SBUInteger index, SBUInteger count, 
     SBAssert(index_ < (list_)->count)                   \
 )
 
+#define GetItemPointer(list_, index_)                   \
+(                                                       \
+    CheckItemIndex(list_, index_),                      \
+    (void *)((list_)->data                              \
+                + ((index_) * (list_)->itemSize))       \
+)
+
 #define GetItemReference(list_, index_)                 \
 (                                                       \
     CheckItemIndex(list_, index_),                      \
     &(list_)->items[index_]                             \
 )
 
-#define GetItemAtIndex(list_, index_)                   \
+#define GetItemValue(list_, index_)                     \
 (                                                       \
     CheckItemIndex(list_, index_),                      \
     (list_)->items[index_]                              \
 )
 
-#define SetItemAtIndex(list_, index_, item_)            \
+#define SetItemValue(list_, index_, value_)             \
 do {                                                    \
     CheckItemIndex(list_, index_),                      \
-    (list_)->items[index_] = item_;                     \
+    (list_)->items[index_] = value_;                    \
 } while (0)
 
 #define InsertItemAtEnd(list_, item_)                   \
@@ -97,8 +102,8 @@ do {                                                    \
 
 #define ListGetPtr(list, index)                     GetItemPointer((ListRef)(list), index)
 #define ListGetRef(list, index)                     GetItemReference(list, index)
-#define ListGetVal(list, index)                     GetItemAtIndex(list, index)
-#define ListSetVal(list, index, item)               SetItemAtIndex(list, index, item)
+#define ListGetVal(list, index)                     GetItemValue(list, index)
+#define ListSetVal(list, index, item)               SetItemValue(list, index, item)
 
 #define ListAdd(list, item)                         InsertItemAtEnd((ListRef)(list), item)
 #define ListInsert(list, index, item)               InsertItemAtIndex((ListRef)(list), index, item)

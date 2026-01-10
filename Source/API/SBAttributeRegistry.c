@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <API/SBAttributeInfo.h>
 #include <API/SBBase.h>
 #include <Core/Object.h>
 
@@ -87,7 +88,7 @@ static SBAttributeRegistry *AllocateAttributeRegistry(
 
 static SBAttributeInfo *GetAttributeInfoForID(SBAttributeRegistryRef registry, SBAttributeID id)
 {
-    SBUInteger index = id - 1;
+    SBUInteger index = SBAttributeIDGetIndex(id);
 
     if (index < registry->count) {
         return &registry->attributeInfos[index];
@@ -97,49 +98,37 @@ static SBAttributeInfo *GetAttributeInfoForID(SBAttributeRegistryRef registry, S
 }
 
 SB_INTERNAL const void *SBAttributeRegistryRetainAttribute(SBAttributeRegistryRef registry,
-    SBAttributeID attributeID, const void *attributeValue)
+    const void *attributeValue)
 {
-    SBAttributeInfo *attributeInfo = GetAttributeInfoForID(registry, attributeID);
+    SBAttributeValueRetainCallback retain = registry->_valueCallbacks.retain;
 
-    if (attributeInfo) {
-        SBAttributeRetainFunc retain = attributeInfo->callbacks.retain;
-
-        if (retain) {
-            return retain(attributeValue);
-        }
+    if (retain) {
+        return retain(attributeValue);
     }
 
     return attributeValue;
 }
 
 SB_INTERNAL void SBAttributeRegistryReleaseAttribute(SBAttributeRegistryRef registry,
-    SBAttributeID attributeID, const void *attributeValue)
+    const void *attributeValue)
 {
-    SBAttributeInfo *attributeInfo = GetAttributeInfoForID(registry, attributeID);
+    SBAttributeValueReleaseCallback release = registry->_valueCallbacks.release;
 
-    if (attributeInfo) {
-        SBAttributeReleaseFunc release = attributeInfo->callbacks.release;
-
-        if (release) {
-            release(attributeValue);
-        }
+    if (release) {
+        release(attributeValue);
     }
 }
 
 SB_INTERNAL SBBoolean SBAttributeRegistryIsEqualAttribute(SBAttributeRegistryRef registry,
     SBAttributeID attributeID, const void *first, const void *second)
 {
-    SBAttributeInfo *attributeInfo = GetAttributeInfoForID(registry, attributeID);
+    SBAttributeValueEqualCallback equal = registry->_valueCallbacks.equal;
 
-    if (attributeInfo) {
-        SBAttributeEqualFunc equal = attributeInfo->callbacks.equal;
-
-        if (equal) {
-            return equal(first, second);
-        }
+    if (equal) {
+        return equal(first, second);
     }
 
-    return first == second;
+    return SBAttributeItemIsEqualValue(attributeID, first, second);
 }
 
 SB_INTERNAL const SBAttributeInfo *SBAttributeRegistryGetInfoReference(
@@ -148,8 +137,8 @@ SB_INTERNAL const SBAttributeInfo *SBAttributeRegistryGetInfoReference(
     return GetAttributeInfoForID(registry, attributeID);
 }
 
-SBAttributeRegistryRef SBAttributeRegistryCreate(
-    const SBAttributeInfo *attributeInfos, SBUInteger count)
+SBAttributeRegistryRef SBAttributeRegistryCreate(const SBAttributeInfo *attributeInfos,
+    SBUInteger count, SBUInt8 valueSize, const SBAttributeValueCallbacks *valueCallbacks)
 {
     SBUInteger namesLength = CountCombinedNamesLength(attributeInfos, count);
     char *namesPointer;
@@ -165,13 +154,21 @@ SBAttributeRegistryRef SBAttributeRegistryCreate(
             destination[index].name = namesPointer;
             destination[index].group = attributeInfos[index].group;
             destination[index].scope = attributeInfos[index].scope;
-            destination[index].callbacks = attributeInfos[index].callbacks;
 
             strcpy(namesPointer, attributeInfos[index].name);
             namesPointer += strlen(attributeInfos[index].name) + 1;
         }
 
         attributeRegistry->count = count;
+        attributeRegistry->valueSize = valueSize;
+
+        if (valueCallbacks) {
+            attributeRegistry->_valueCallbacks = *valueCallbacks;
+        } else {
+            attributeRegistry->_valueCallbacks.equal = NULL;
+            attributeRegistry->_valueCallbacks.release = NULL;
+            attributeRegistry->_valueCallbacks.retain = NULL;
+        }
 
         qsort(attributeRegistry->attributeInfos, count, sizeof(SBAttributeInfo), AttributeInfoComparison);
     }
@@ -180,12 +177,14 @@ SBAttributeRegistryRef SBAttributeRegistryCreate(
 }
 
 SBBoolean SBAttributeRegistryGetAttributeInfo(SBAttributeRegistryRef registry,
-    SBAttributeID id, SBAttributeInfo *attributeInfo)
+    SBAttributeID attributeID, SBAttributeInfo *attributeInfo)
 {
     SBBoolean idExists = SBFalse;
 
-    if (id > 0) {
-        *attributeInfo = registry->attributeInfos[id - 1];
+    if (SBAttributeIDIsValid(attributeID)) {
+        SBUInteger index = SBAttributeIDGetIndex(attributeID);
+
+        *attributeInfo = registry->attributeInfos[index];
         idExists = SBTrue;
     }
 
@@ -199,7 +198,10 @@ SBAttributeID SBAttributeRegistryGetAttributeID(
         sizeof(SBAttributeInfo), AttributeNameComparison);
 
     if (attributeInfo) {
-        return (attributeInfo - registry->attributeInfos) + 1;
+        SBUInteger index = attributeInfo - registry->attributeInfos;
+        SBUInt8 size = registry->valueSize;
+
+        return SBAttributeIDMake(index, size);
     }
 
     return SBAttributeIDNone;

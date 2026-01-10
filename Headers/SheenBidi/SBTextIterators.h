@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define _SB_PUBLIC_TEXT_ITERATORS_H
 
 #include <SheenBidi/SBBase.h>
+#include <SheenBidi/SBAttributeList.h>
 #include <SheenBidi/SBTextType.h>
 
 SB_EXTERN_C_BEGIN
@@ -359,19 +360,13 @@ void SBScriptRunIteratorRelease(SBScriptRunIteratorRef iterator);
  */
 typedef struct _SBAttributeRunIterator *SBAttributeRunIteratorRef;
 
-typedef struct _SBAttributeItem {
-    SBAttributeID attributeID;  /**< Attribute ID. */
-    const void *attributeValue; /**< Borrowed value pointer associated with ID. */
-} SBAttributeItem;
-
  /**
  * A run representing a list of attribute items over a range.
  */
 typedef struct _SBAttributeRun {
-    SBUInteger index;                /**< Start index of the run in code units. */
-    SBUInteger length;               /**< Length of the run in code units. */
-    SBAttributeItem *attributeItems; /**< Attribute items present on the run. */
-    SBUInteger attributeCount;       /**< Number of attributes present on the run. */
+    SBUInteger index;              /**< Start index of the run in code units. */
+    SBUInteger length;             /**< Length of the run in code units. */
+    SBAttributeListRef attributes; /**< Attributes present on the run. */
 } SBAttributeRun;
 
 /**

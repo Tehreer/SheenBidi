@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,15 @@ typedef struct _SBAttributeRegistry {
     ObjectBase _base;
     SBAttributeInfo *attributeInfos;
     SBUInteger count;
+    SBUInt8 valueSize;
+    SBAttributeValueCallbacks _valueCallbacks;
 } SBAttributeRegistry;
 
 SB_INTERNAL const void *SBAttributeRegistryRetainAttribute(SBAttributeRegistryRef registry,
-    SBAttributeID attributeID, const void *attributeValue);
+    const void *attributeValue);
 
 SB_INTERNAL void SBAttributeRegistryReleaseAttribute(SBAttributeRegistryRef registry,
-    SBAttributeID attributeID, const void *attributeValue);
+    const void *attributeValue);
 
 SB_INTERNAL SBBoolean SBAttributeRegistryIsEqualAttribute(SBAttributeRegistryRef registry,
     SBAttributeID attributeID, const void *first, const void *second);

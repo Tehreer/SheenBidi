@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,39 +35,44 @@ typedef const struct _SBAttributeRegistry *SBAttributeRegistryRef;
  *      the caller retains ownership.
  * @param count
  *      Number of entries in the `attributeInfos` array.
+ * @param valueSize
+ *      The size in bytes of the value field for each attribute.
+ * @param valueCallbacks
+ *      Optional pointer to an `SBAttributeValueCallbacks` structure defining custom value lifecycle
+ *      and comparison behavior.
  * @return
  *      A reference to the attribute registry instance, or `NULL` on failure.
  */
-SB_PUBLIC SBAttributeRegistryRef SBAttributeRegistryCreate(
-    const SBAttributeInfo *attributeInfos, SBUInteger count);
+SB_PUBLIC SBAttributeRegistryRef SBAttributeRegistryCreate(const SBAttributeInfo *attributeInfos,
+    SBUInteger count, SBUInt8 valueSize, const SBAttributeValueCallbacks *valueCallbacks);
 
 /**
  * Copies the info for a given attribute ID into the `attributeInfo` parameter.
  * 
  * @param registry
- *      The registry object.
- * @param id
+ *      The attribute registry object.
+ * @param attributeID
  *      Attribute ID to query.
  * @param attributeInfo
  *      Output pointer to receive a copy of the attribute info; must not be `NULL`.
  * @return
- *      `SBTrue` if the attribute ID exists, `SBFlase` otherwise.
+ *      `SBTrue` if the attribute ID exists in the registry, `SBFalse` otherwise.
  */
 SB_PUBLIC SBBoolean SBAttributeRegistryGetAttributeInfo(SBAttributeRegistryRef registry,
-    SBAttributeID id, SBAttributeInfo *attributeInfo);
+    SBAttributeID attributeID, SBAttributeInfo *attributeInfo);
 
 /**
  * Looks up an attribute ID by name.
  * 
  * @param registry
- *      The registry object.
+ *      The attribute registry object.
  * @param name
- *      `NULL` terminated unique name of the attribute.
+ *      Null-terminated unique name of the attribute to find.
  * @return
  *      The attribute ID for `name`, or `SBAttributeIDNone` if not found.
  */
-SB_PUBLIC SBAttributeID SBAttributeRegistryGetAttributeID(
-    SBAttributeRegistryRef registry, const char *name);
+SB_PUBLIC SBAttributeID SBAttributeRegistryGetAttributeID(SBAttributeRegistryRef registry,
+    const char *name);
 
 /**
  * Increments the reference count of an attribute registry object.

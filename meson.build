@@ -29,6 +29,7 @@ sheenbidi_headers = files(
   'Headers/SheenBidi/SBAlgorithm.h',
   'Headers/SheenBidi/SBAllocator.h',
   'Headers/SheenBidi/SBAttributeInfo.h',
+  'Headers/SheenBidi/SBAttributeList.h',
   'Headers/SheenBidi/SBAttributeRegistry.h',
   'Headers/SheenBidi/SBBase.h',
   'Headers/SheenBidi/SBBidiType.h',
@@ -44,6 +45,7 @@ sheenbidi_headers = files(
   'Headers/SheenBidi/SBText.h',
   'Headers/SheenBidi/SBTextConfig.h',
   'Headers/SheenBidi/SBTextIterators.h',
+  'Headers/SheenBidi/SBTextType.h',
   'Headers/SheenBidi/SBVersion.h',
   'Headers/SheenBidi/SheenBidi.h'
 )
@@ -51,6 +53,8 @@ internal_headers = files(
   'Source/API/SBAlgorithm.h',
   'Source/API/SBAllocator.h',
   'Source/API/SBAssert.h',
+  'Source/API/SBAttributeInfo.h',
+  'Source/API/SBAttributeList.h',
   'Source/API/SBAttributeRegistry.h',
   'Source/API/SBBase.h',
   'Source/API/SBCodepoint.h',
@@ -97,6 +101,7 @@ else
   sheenbidi_sources = files(
     'Source/API/SBAlgorithm.c',
     'Source/API/SBAllocator.c',
+    'Source/API/SBAttributeList.c',
     'Source/API/SBAttributeRegistry.c',
     'Source/API/SBBase.c',
     'Source/API/SBCodepoint.c',

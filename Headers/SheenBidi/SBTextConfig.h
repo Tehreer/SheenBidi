@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,22 +47,6 @@ SB_PUBLIC SBTextConfigRef SBTextConfigCreate(void);
  */
 SB_PUBLIC void SBTextConfigSetAttributeRegistry(SBTextConfigRef config,
     SBAttributeRegistryRef attributeRegistry);
-
-/**
- * Sets default attributes applied to the entire text at creation time.
- * 
- * @param config
- *      The text config object.
- * @param attributeIDs
- *      Array of attribute IDs.
- * @param attributeValues
- *      Parallel array of values.
- * @param attributeCount
- *      Number of entries in `attributeIDs` and `attributeValues`.
- */
-SB_PUBLIC void SBTextConfigSetDefaultAttributes(SBTextConfigRef config,
-    const SBAttributeID *attributeIDs, const void * const *attributeValues,
-    SBUInteger attributeCount);
 
 /**
  * Sets the base paragraph level policy for newly created texts.

@@ -76,6 +76,7 @@ set(SHEENBIDI_HEADERS
   Headers/SheenBidi/SBAlgorithm.h
   Headers/SheenBidi/SBAllocator.h
   Headers/SheenBidi/SBAttributeInfo.h
+  Headers/SheenBidi/SBAttributeList.h
   Headers/SheenBidi/SBAttributeRegistry.h
   Headers/SheenBidi/SBBase.h
   Headers/SheenBidi/SBBidiType.h

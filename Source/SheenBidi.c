@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 
 #include <API/SBAlgorithm.c>
 #include <API/SBAllocator.c>
+#include <API/SBAttributeList.c>
 #include <API/SBAttributeRegistry.c>
 #include <API/SBBase.c>
 #include <API/SBCodepoint.c>

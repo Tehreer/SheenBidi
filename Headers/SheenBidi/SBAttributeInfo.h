@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,59 +52,61 @@ enum {
 typedef SBUInt8 SBAttributeScope;
 
 /**
- * Function to compare two attribute values for equality.
- * 
+ * Callback function to compare two attribute values for equality.
+ *
  * @param first
- *      First attribute value pointer (as previously provided by client).
+ *      First attribute value pointer.
  * @param second
  *      Second attribute value pointer.
  * @return
  *      `SBTrue` if equal, `SBFalse` otherwise.
  */
-typedef SBBoolean (*SBAttributeEqualFunc)(const void *first, const void *second);
+typedef SBBoolean (*SBAttributeValueEqualCallback)(const void *first, const void *second);
 
 /**
- * Function to retain an attribute value at assignment time.
- * 
+ * Callback function to retain an attribute value.
+ *
  * @param value
- *      Attribute value provided by client.
+ *      Pointer of attribute value to retain.
  * @return
- *      Retained value to store internally.
+ *      Pointer of retained attribute value.
  */
-typedef const void *(*SBAttributeRetainFunc)(const void *value);
+typedef const void *(*SBAttributeValueRetainCallback)(const void *value);
 
 /**
- * Function to release an attribute value upon removal.
- * 
+ * Callback function to release an attribute value.
+ *
  * @param value
- *      Attribute value previously retained.
+ *      Pointer of attribute value to release.
  */
-typedef void (*SBAttributeReleaseFunc)(const void *value);
+typedef void (*SBAttributeValueReleaseCallback)(const void *value);
 
 /**
- * Lifecycle and equality callbacks for a particular attribute ID.
+ * Lifecycle and equality callbacks for attribute value management.
  */
-typedef struct _SBAttributeCallbacks {
+typedef struct _SBAttributeValueCallbacks {
     /**
-     * Equality function (optional). If `NULL`, pointer-equality is used.
+     * Equality function (optional). If `NULL`, bitwise equality (memcmp) is used to compare
+     * attribute values.
      */
-    SBAttributeEqualFunc equal;
+    SBAttributeValueEqualCallback equal;
     /**
-     * Retain function (optional). If `NULL`, value stored as-is.
+     * Value retention function (optional). If `NULL`, values are stored as-is without modification.
      */
-    SBAttributeRetainFunc retain;
+    SBAttributeValueRetainCallback retain;
     /**
-     * Release function (optional). If `NULL`, nothing is done on removal.
+     * Value release function (optional). If `NULL`, no cleanup is performed when values are
+     * removed.
      */
-    SBAttributeReleaseFunc release;
-} SBAttributeCallbacks;
+    SBAttributeValueReleaseCallback release;
+} SBAttributeValueCallbacks;
 
 /**
  * Public description of a registered attribute.
  */
 typedef struct _SBAttributeInfo {
     /**
-     * `NULL` terminated unique attribute name.
+     * Null-terminated unique attribute name.
      */
     const char *name;
     /**
@@ -112,14 +114,18 @@ typedef struct _SBAttributeInfo {
      */
     SBAttributeGroup group;
     /**
-     * Application scope (character/paragraph/line).
+     * Application scope (character/paragraph).
      */
     SBAttributeScope scope;
-    /**
-     * Lifecycle and equality handling for attribute values.
-     */
-    SBAttributeCallbacks callbacks;
 } SBAttributeInfo;
+
+/**
+ * A stored attribute item with its ID and associated value.
+ */
+typedef struct _SBAttributeItem {
+    SBAttributeID attributeID;  /**< Attribute ID. */
+    /* Additional value field follows immediately after attributeID in memory */
+} SBAttributeItem;
 
 SB_EXTERN_C_END
 

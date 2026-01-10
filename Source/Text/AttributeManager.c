@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <API/SBBase.h>
 #include <API/SBText.h>
 #include <Core/List.h>
+#include <Text/AttributeDictionary.h>
 
 #include "AttributeManager.h"
 
@@ -33,9 +34,10 @@
  * The cache stores reusable attribute dictionaries to reduce memory allocations
  * when attributes are frequently added and removed.
  */
-static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
+static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache, SBUInt8 valueSize)
 {
     ListInitialize(&cache->_attributeDicts, sizeof(AttributeDictionaryRef));
+    cache->_valueSize = valueSize;
 }
 
 /**
@@ -67,7 +69,7 @@ static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDicti
 
     if (dictCount == 0) {
         /* Create a new dictionary if the cache is empty */
-        dictionary = AttributeDictionaryCreate();
+        dictionary = AttributeDictionaryCreate(cache->_valueSize);
     } else {
         /* Reuse the last cached dictionary */
         dictionary = ListGetVal(&cache->_attributeDicts, dictCount - 1);
@@ -427,7 +429,7 @@ static void ApplyOperationOverRange(AttributeManagerRef manager,
         }
     } else {
         /* CASE 3: Operation spans multiple entries - handle boundaries and interior */
-        SBUInteger entryProcessed = SBFalse;
+        SBBoolean entryProcessed = SBFalse;
 
         /* Split at range start if needed */
         if (SplitAttributesEntry(manager, entryIndex, rangeStart,
@@ -596,8 +598,8 @@ SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
 
     if (registry) {
         /* Initialize all structures only when a registry is provided */
-        InitializeAttributeDictionaryCache(&manager->_cache);
-        AttributeDictionaryInitialize(&manager->_tempDict);
+        InitializeAttributeDictionaryCache(&manager->_cache, registry->valueSize);
+        AttributeDictionaryInitialize(&manager->_tempDict, registry->valueSize);
         ListInitialize(&manager->_entries, sizeof(AttributeEntry));
         InsertFirstAttributeEntry(manager);
     }
@@ -805,10 +807,6 @@ SB_INTERNAL void AttributeManagerSetAttribute(AttributeManagerRef manager,
 
         if (attributeInfo) {
             AttributeDictionaryRef attributes = &manager->_tempDict;
-            SBAttributeItem attributeItem;
-
-            attributeItem.attributeID = attributeID;
-            attributeItem.attributeValue = attributeValue;
 
             /* Expand the range for paragraph-scoped attributes */
             if (attributeInfo->scope == SBAttributeScopeParagraph) {
@@ -823,7 +821,7 @@ SB_INTERNAL void AttributeManagerSetAttribute(AttributeManagerRef manager,
 
             /* Prepare single-item dictionary with the attribute */
             AttributeDictionaryClear(attributes, NULL);
-            AttributeDictionaryPut(attributes, &attributeItem, NULL, NULL);
+            AttributeDictionaryPut(attributes, attributeID, attributeValue, NULL, NULL);
 
             /* Apply over the (possibly expanded) range */
             ApplyAttributesOverRange(manager, index, length, attributes);
@@ -867,7 +865,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     SBAttributeRegistryRef registry = manager->_registry;
     SBUInteger entryIndex;
     const AttributeEntry *entry;
-    const SBAttributeItem *initialItem;
+    const void *initialValue;
 
     /* Clear output dictionary before populating */
     AttributeDictionaryClear(output, NULL);
@@ -879,26 +877,26 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
 
     /* Get the first entry and look for the attribute in it */
     entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex, runStart);
-    initialItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
+    initialValue = AttributeDictionaryFindValue(entry->attributes, attributeID);
 
     entryIndex += 1;
 
-    if (initialItem) {
+    if (initialValue) {
         /* Put the initial item to the output dictionary */
-        AttributeDictionaryPut(output, initialItem, NULL, NULL);
+        AttributeDictionaryPut(output, attributeID, initialValue, NULL, NULL);
 
         /* Iterate while the attribute value remains the same */
         while (*runStart < rangeEnd) {
             SBBoolean valuesMatched = SBFalse;
-            const SBAttributeItem *subsequentItem;
+            const void *subsequentValue;
 
             entry = ListGetRef(&manager->_entries, entryIndex);
-            subsequentItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
+            subsequentValue = AttributeDictionaryFindValue(entry->attributes, attributeID);
 
             /* Check if the attribute value matches */
-            if (subsequentItem) {
+            if (subsequentValue) {
                 valuesMatched = SBAttributeRegistryIsEqualAttribute(registry,
-                    attributeID, initialItem->attributeValue, subsequentItem->attributeValue);
+                    attributeID, initialValue, subsequentValue);
             }
 
             /* Stop if the value changes */
@@ -912,10 +910,10 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     } else {
         /* Iterate while the attribute doesn't exist */
         while (*runStart < rangeEnd) {
-            const SBAttributeItem *subsequentItem;
+            const void *subsequentItem;
 
             entry = ListGetRef(&manager->_entries, entryIndex);
-            subsequentItem = AttributeDictionaryFindItem(entry->attributes, attributeID);
+            subsequentItem = AttributeDictionaryFindValue(entry->attributes, attributeID);
 
             /* Stop when the attribute appears */
             if (subsequentItem) {

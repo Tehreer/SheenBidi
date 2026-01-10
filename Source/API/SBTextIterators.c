@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 #include <stddef.h>
 
 #include <API/SBAssert.h>
+#include <API/SBAttributeList.h>
+#include <API/SBAttributeRegistry.h>
 #include <API/SBBase.h>
 #include <API/SBLine.h>
 #include <API/SBParagraph.h>
@@ -582,8 +584,7 @@ static void InitializeAttributeRun(SBAttributeRun *run)
 {
     run->index = SBInvalidIndex;
     run->length = 0;
-    run->attributeItems = NULL;
-    run->attributeCount = 0;
+    run->attributes = NULL;
 }
 
 /**
@@ -625,8 +626,7 @@ static SBBoolean LoadOnwardAttributeRunByFilteringID(SBAttributeRunIteratorRef i
     /* Populate the current run */
     currentRun->index = iterator->currentIndex;
     currentRun->length = index - iterator->currentIndex;
-    currentRun->attributeItems = iterator->items._list.items;
-    currentRun->attributeCount = iterator->items._list.count;
+    currentRun->attributes = &iterator->items._list;
 
     iterator->currentIndex = index;
 
@@ -657,8 +657,7 @@ static SBBoolean LoadOnwardAttributeRunByFilteringCollection(SBAttributeRunItera
     /* Populate the current run */
     currentRun->index = iterator->currentIndex;
     currentRun->length = index - iterator->currentIndex;
-    currentRun->attributeItems = iterator->items._list.items;
-    currentRun->attributeCount = iterator->items._list.count;
+    currentRun->attributes = &iterator->items._list;
 
     iterator->currentIndex = index;
 
@@ -685,7 +684,7 @@ SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef tex
         iterator->filterGroup = SBAttributeGroupNone;
         iterator->filterScope = SBAttributeScopeCharacter;
 
-        AttributeDictionaryInitialize(&iterator->items);
+        AttributeDictionaryInitialize(&iterator->items, text->attributeRegistry->valueSize);
         InitializeAttributeRun(&iterator->currentRun);
     }
 
@@ -749,7 +748,7 @@ SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator)
         }
 
         /* Skip the empty run */
-        if (hasRun && iterator->currentRun.attributeCount == 0) {
+        if (hasRun && SBAttributeListSize(iterator->currentRun.attributes) == 0) {
             hasRun = SBFalse;
             continue;
         }

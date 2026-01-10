@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,11 @@
 #include <SheenBidi/SBTextConfig.h>
 
 #include <API/SBBase.h>
-#include <Core/Memory.h>
 #include <Core/Object.h>
-
-typedef struct _AttributeArray {
-    Memory _memory;
-    const SBAttributeID *attributeIDs;
-    const void * const *attributeValues;
-    SBUInteger attributeCount;
-} AttributeArray, *AttributeArrayRef;
 
 typedef struct _SBTextConfig {
     ObjectBase _base;
     SBAttributeRegistryRef attributeRegistry;
-    AttributeArray attributeArray;
     SBLevel baseLevel;
 } SBTextConfig;
 
