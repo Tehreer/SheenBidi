@@ -78,16 +78,7 @@ struct AttributeID {
     static const SBAttributeID Alignment;
 };
 
-struct AttributeValue {
-    const char *str;
-
-    AttributeValue() : str(nullptr) { }
-    explicit AttributeValue(const char *str) : str(str) { }
-};
-
-bool operator==(const AttributeValue &lhs, const AttributeValue &rhs) {
-    return lhs.str == rhs.str;
-}
+using AttributeValue = const char *;
 
 struct AttributeItem {
     SBAttributeID attributeID;
