@@ -334,7 +334,6 @@ include(GNUInstallDirs)
 install(
   TARGETS SheenBidi
   EXPORT SheenBidiTargets
-  CONFIGURATIONS Release
   PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SheenBidi"
 )
 
