@@ -35,6 +35,7 @@ jobs:
         run: |
           cmake -S . -B Release `
             -A ${{ matrix.platform }} `
+            -DSB_CONFIG_EXPERIMENTAL_TEXT_API=ON `
             -DSB_CONFIG_UNITY=ON `
             -DCMAKE_C_STANDARD=90 `
             -DCMAKE_C_EXTENSIONS=OFF `
@@ -45,6 +46,7 @@ jobs:
         run: |
           cmake -S. -B Debug `
             -A ${{ matrix.platform }} `
+            -DSB_CONFIG_EXPERIMENTAL_TEXT_API=ON `
             -DSB_CONFIG_UNITY=OFF `
             -DENABLE_ASAN=ON `
             -DENABLE_UBSAN=ON `
@@ -88,6 +90,7 @@ jobs:
         run: |
           meson setup Release `
             --buildtype release `
+            "-Dtext_api=enabled" `
             "-Dunity_mode=enabled" `
             "-Dc_std=c89"
           meson compile -C Release
@@ -97,6 +100,7 @@ jobs:
           meson setup Debug `
             --buildtype debugoptimized `
             "-Ddefault_library=static" `
+            "-Dtext_api=enabled" `
             "-Dunity_mode=disabled" `
             "-Db_sanitize=address" `
             "-Db_lundef=false" `
