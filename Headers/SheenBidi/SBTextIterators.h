@@ -17,9 +17,11 @@
 #ifndef _SB_PUBLIC_TEXT_ITERATORS_H
 #define _SB_PUBLIC_TEXT_ITERATORS_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBAttributeList.h>
+#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBTextType.h>
+
+#if SB_TEXT_API_SUPPORTED
 
 SB_EXTERN_C_BEGIN
 
@@ -56,7 +58,7 @@ typedef struct _SBParagraphInfo {
  * @return
  *      Text associated with the iterator (borrowed).
  */
-SBTextRef SBParagraphIteratorGetText(SBParagraphIteratorRef iterator);
+SB_PUBLIC SBTextRef SBParagraphIteratorGetText(SBParagraphIteratorRef iterator);
 
 /**
  * Resets iteration to the specified code-unit range.
@@ -71,7 +73,8 @@ SBTextRef SBParagraphIteratorGetText(SBParagraphIteratorRef iterator);
  * @param length
  *      Length of the iteration window (in code units).
  */
-void SBParagraphIteratorReset(SBParagraphIteratorRef iterator, SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBParagraphIteratorReset(SBParagraphIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Returns a pointer to the current paragraph information owned by the iterator.
@@ -88,7 +91,7 @@ void SBParagraphIteratorReset(SBParagraphIteratorRef iterator, SBUInteger index,
  *      The client should never modify the returned structure. The client can call this function
  *      once and keep the reference, reading from it after each MoveNext call.
  */
-const SBParagraphInfo *SBParagraphIteratorGetCurrent(SBParagraphIteratorRef iterator);
+SB_PUBLIC const SBParagraphInfo *SBParagraphIteratorGetCurrent(SBParagraphIteratorRef iterator);
 
 /**
  * Advances to the next paragraph intersecting the window.
@@ -105,7 +108,7 @@ const SBParagraphInfo *SBParagraphIteratorGetCurrent(SBParagraphIteratorRef iter
  *      The parent text must not be modified during iteration. If modification occurs, reset the
  *      iterator before continuing.
  */
-SBBoolean SBParagraphIteratorMoveNext(SBParagraphIteratorRef iterator);
+SB_PUBLIC SBBoolean SBParagraphIteratorMoveNext(SBParagraphIteratorRef iterator);
 
 /**
  * Increases the reference count of the iterator. Each call to retain must be balanced with a call
@@ -116,7 +119,7 @@ SBBoolean SBParagraphIteratorMoveNext(SBParagraphIteratorRef iterator);
  * @return
  *      The same iterator object after retention.
  */
-SBParagraphIteratorRef SBParagraphIteratorRetain(SBParagraphIteratorRef iterator);
+SB_PUBLIC SBParagraphIteratorRef SBParagraphIteratorRetain(SBParagraphIteratorRef iterator);
 
 /**
  * Decreases the reference count of the iterator. When the reference count reaches zero, the
@@ -125,7 +128,7 @@ SBParagraphIteratorRef SBParagraphIteratorRetain(SBParagraphIteratorRef iterator
  * @param iterator
  *      The iterator to release.
  */
-void SBParagraphIteratorRelease(SBParagraphIteratorRef iterator);
+SB_PUBLIC void SBParagraphIteratorRelease(SBParagraphIteratorRef iterator);
 
 /* ----------------------------------
  * Logical Run Iterator
@@ -162,7 +165,7 @@ typedef struct _SBLogicalRun {
  * @return
  *      Text associated with the iterator (borrowed).
  */
-SBTextRef SBLogicalRunIteratorGetText(SBLogicalRunIteratorRef iterator);
+SB_PUBLIC SBTextRef SBLogicalRunIteratorGetText(SBLogicalRunIteratorRef iterator);
 
 /**
  * Resets iteration to the specified code-unit range.
@@ -177,8 +180,8 @@ SBTextRef SBLogicalRunIteratorGetText(SBLogicalRunIteratorRef iterator);
  * @param length
  *      Length of the iteration window (in code units).
  */
-void SBLogicalRunIteratorReset(SBLogicalRunIteratorRef iterator,
-    SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBLogicalRunIteratorReset(SBLogicalRunIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Returns a pointer to the current logical run information owned by the iterator.
@@ -195,7 +198,7 @@ void SBLogicalRunIteratorReset(SBLogicalRunIteratorRef iterator,
  *      The client should never modify the returned structure. The client can call this function
  *      once and keep the reference, reading from it after each MoveNext call.
  */
-const SBLogicalRun *SBLogicalRunIteratorGetCurrent(SBLogicalRunIteratorRef iterator);
+SB_PUBLIC const SBLogicalRun *SBLogicalRunIteratorGetCurrent(SBLogicalRunIteratorRef iterator);
 
 /**
  * Advances to the next logical run.
@@ -212,7 +215,7 @@ const SBLogicalRun *SBLogicalRunIteratorGetCurrent(SBLogicalRunIteratorRef itera
  *      The parent text must not be modified during iteration. If modification occurs, reset the
  *      iterator before continuing.
  */
-SBBoolean SBLogicalRunIteratorMoveNext(SBLogicalRunIteratorRef iterator);
+SB_PUBLIC SBBoolean SBLogicalRunIteratorMoveNext(SBLogicalRunIteratorRef iterator);
 
 /**
  * Increases the reference count of the iterator. Each call to retain must be balanced with a call
@@ -223,7 +226,7 @@ SBBoolean SBLogicalRunIteratorMoveNext(SBLogicalRunIteratorRef iterator);
  * @return
  *      The same iterator object after retention.
  */
-SBLogicalRunIteratorRef SBLogicalRunIteratorRetain(SBLogicalRunIteratorRef iterator);
+SB_PUBLIC SBLogicalRunIteratorRef SBLogicalRunIteratorRetain(SBLogicalRunIteratorRef iterator);
 
 /**
  * Decreases the reference count of the iterator. When the reference count reaches zero, the
@@ -232,7 +235,7 @@ SBLogicalRunIteratorRef SBLogicalRunIteratorRetain(SBLogicalRunIteratorRef itera
  * @param iterator
  *      The logical run iterator to release.
  */
-void SBLogicalRunIteratorRelease(SBLogicalRunIteratorRef iterator);
+SB_PUBLIC void SBLogicalRunIteratorRelease(SBLogicalRunIteratorRef iterator);
 
 /* ----------------------------------
  * Script Run Iterator
@@ -269,7 +272,7 @@ typedef struct _SBScriptRun {
  * @return
  *      Text associated with the iterator (borrowed).
  */
-SBTextRef SBScriptRunIteratorGetText(SBScriptRunIteratorRef iterator);
+SB_PUBLIC SBTextRef SBScriptRunIteratorGetText(SBScriptRunIteratorRef iterator);
 
 /**
  * Resets iteration to the specified code-unit range.
@@ -284,7 +287,8 @@ SBTextRef SBScriptRunIteratorGetText(SBScriptRunIteratorRef iterator);
  * @param length
  *      Length of the iteration window (in code units).
  */
-void SBScriptRunIteratorReset(SBScriptRunIteratorRef iterator, SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBScriptRunIteratorReset(SBScriptRunIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Returns a pointer to the current script run information owned by the iterator. The pointer
@@ -302,7 +306,7 @@ void SBScriptRunIteratorReset(SBScriptRunIteratorRef iterator, SBUInteger index,
  *      The client should never modify the returned structure. The client can call this function
  *      once and keep the reference, reading from it after each MoveNext call.
  */
-const SBScriptRun *SBScriptRunIteratorGetCurrent(SBScriptRunIteratorRef iterator);
+SB_PUBLIC const SBScriptRun *SBScriptRunIteratorGetCurrent(SBScriptRunIteratorRef iterator);
 
 /**
  * Advances to the next script run.
@@ -319,7 +323,7 @@ const SBScriptRun *SBScriptRunIteratorGetCurrent(SBScriptRunIteratorRef iterator
  *      The parent text must not be modified during iteration. If modification occurs, reset the
  *      iterator before continuing.
  */
-SBBoolean SBScriptRunIteratorMoveNext(SBScriptRunIteratorRef iterator);
+SB_PUBLIC SBBoolean SBScriptRunIteratorMoveNext(SBScriptRunIteratorRef iterator);
 
 /**
  * Increases the reference count of the iterator. Each call to retain must be balanced with a call
@@ -330,7 +334,7 @@ SBBoolean SBScriptRunIteratorMoveNext(SBScriptRunIteratorRef iterator);
  * @return
  *      The same iterator object after retention.
  */
-SBScriptRunIteratorRef SBScriptRunIteratorRetain(SBScriptRunIteratorRef iterator);
+SB_PUBLIC SBScriptRunIteratorRef SBScriptRunIteratorRetain(SBScriptRunIteratorRef iterator);
 
 /**
  * Decreases the reference count of the iterator. When the reference count reaches zero, the
@@ -339,7 +343,7 @@ SBScriptRunIteratorRef SBScriptRunIteratorRetain(SBScriptRunIteratorRef iterator
  * @param iterator
  *      The iterator to release.
  */
-void SBScriptRunIteratorRelease(SBScriptRunIteratorRef iterator);
+SB_PUBLIC void SBScriptRunIteratorRelease(SBScriptRunIteratorRef iterator);
 
 /* ----------------------------------
  * Attribute Run Iterator
@@ -377,7 +381,7 @@ typedef struct _SBAttributeRun {
  * @return
  *      Text associated with the iterator (borrowed).
  */
-SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iterator);
 
 /**
  * Configures the iterator to only return runs that contain the specified attribute ID. Empty runs
@@ -389,7 +393,7 @@ SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iterator);
  * @param attributeID
  *      The attribute ID by which to filter the runs.
  */
-void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef iterator,
+SB_PUBLIC void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef iterator,
     SBAttributeID attributeID);
 
 /**
@@ -404,7 +408,7 @@ void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef iterator,
  * @param attributeScope
  *      The attribute scope by which to filter the runs.
  */
-void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef iterator,
+SB_PUBLIC void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef iterator,
     SBAttributeGroup attributeGroup, SBAttributeScope attributeScope);
 
 /**
@@ -420,8 +424,8 @@ void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef it
  * @param length
  *      Length of the iteration window (in code units).
  */
-void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator,
-    SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Returns a pointer to the current attribute run information owned by the iterator. The pointer
@@ -437,10 +441,10 @@ void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator,
  *      the content of the structure is updated with each call to MoveNext.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call. The attributeItems
- *      array within the structure is also owned by the iterator and should not be modified.
+ *      once and keep the reference, reading from it after each MoveNext call. The `attributes` list
+ *      within the structure is also owned by the iterator and should not be modified.
  */
-const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef iterator);
 
 /**
  * Advances to the next attribute run.
@@ -458,7 +462,7 @@ const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef
  *      The parent text must not be modified during iteration. If modification occurs, reset the
  *      iterator before continuing.
  */
-SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator);
 
 /**
  * Increases the reference count of the iterator. Each call to retain must be balanced with a call
@@ -469,7 +473,7 @@ SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator);
  * @return
  *      The same iterator object after retention.
  */
-SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunIteratorRef iterator);
 
 /**
  * Decreases the reference count of the iterator. When the reference count reaches zero, the
@@ -478,7 +482,7 @@ SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunIteratorRef
  * @param iterator
  *      The iterator to release.
  */
-void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator);
 
 /* ----------------------------------
  * Visual Run Iterator
@@ -515,7 +519,7 @@ typedef struct _SBVisualRun {
  * @return
  *      Text associated with the iterator (borrowed).
  */
-SBTextRef SBVisualRunIteratorGetText(SBVisualRunIteratorRef iterator);
+SB_PUBLIC SBTextRef SBVisualRunIteratorGetText(SBVisualRunIteratorRef iterator);
 
 /**
  * Resets iteration to the specified code-unit range.
@@ -530,7 +534,8 @@ SBTextRef SBVisualRunIteratorGetText(SBVisualRunIteratorRef iterator);
  * @param length
  *      Length of the iteration window (in code units).
  */
-void SBVisualRunIteratorReset(SBVisualRunIteratorRef iterator, SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBVisualRunIteratorReset(SBVisualRunIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Returns a pointer to the current visual run information owned by the iterator. The pointer
@@ -548,7 +553,7 @@ void SBVisualRunIteratorReset(SBVisualRunIteratorRef iterator, SBUInteger index,
  *      The client should never modify the returned structure. The client can call this function
  *      once and keep the reference, reading from it after each MoveNext call.
  */
-const SBVisualRun *SBVisualRunIteratorGetCurrent(SBVisualRunIteratorRef iterator);
+SB_PUBLIC const SBVisualRun *SBVisualRunIteratorGetCurrent(SBVisualRunIteratorRef iterator);
 
 /**
  * Advances to the next visual run.
@@ -565,7 +570,7 @@ const SBVisualRun *SBVisualRunIteratorGetCurrent(SBVisualRunIteratorRef iterator
  *      The parent text must not be modified during iteration. If modification occurs, reset the
  *      iterator before continuing.
  */
-SBBoolean SBVisualRunIteratorMoveNext(SBVisualRunIteratorRef iterator);
+SB_PUBLIC SBBoolean SBVisualRunIteratorMoveNext(SBVisualRunIteratorRef iterator);
 
 /**
  * Increases the reference count of the iterator. Each call to retain must be balanced with a call
@@ -576,7 +581,7 @@ SBBoolean SBVisualRunIteratorMoveNext(SBVisualRunIteratorRef iterator);
  * @return
  *      The same iterator object after retention.
  */
-SBVisualRunIteratorRef SBVisualRunIteratorRetain(SBVisualRunIteratorRef iterator);
+SB_PUBLIC SBVisualRunIteratorRef SBVisualRunIteratorRetain(SBVisualRunIteratorRef iterator);
 
 /**
  * Decreases the reference count of the iterator. When the reference count reaches zero, the
@@ -585,8 +590,10 @@ SBVisualRunIteratorRef SBVisualRunIteratorRetain(SBVisualRunIteratorRef iterator
  * @param iterator
  *      The iterator to release.
  */
-void SBVisualRunIteratorRelease(SBVisualRunIteratorRef iterator);
+SB_PUBLIC void SBVisualRunIteratorRelease(SBVisualRunIteratorRef iterator);
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

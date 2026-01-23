@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 #include <SheenBidi/SBTextIterators.h>
 #include <SheenBidi/SBTextType.h>
 
+#if SB_TEXT_API_SUPPORTED
+
 SB_EXTERN_C_BEGIN
 
 /**
@@ -43,7 +45,7 @@ SB_EXTERN_C_BEGIN
  * @return
  *      A reference to a text object if the call was successful, `NULL` otherwise.
  */
-SBTextRef SBTextCreate(const void *string, SBUInteger length, SBStringEncoding encoding,
+SB_PUBLIC SBTextRef SBTextCreate(const void *string, SBUInteger length, SBStringEncoding encoding,
     SBTextConfigRef config);
 
 /**
@@ -57,7 +59,7 @@ SBTextRef SBTextCreate(const void *string, SBUInteger length, SBStringEncoding e
  * @return
  *      New immutable copy, or `NULL` on failure.
  */
-SBTextRef SBTextCreateCopy(SBTextRef text);
+SB_PUBLIC SBTextRef SBTextCreateCopy(SBTextRef text);
 
 /**
  * Creates a new mutable text object that is an exact copy of the source text.
@@ -69,7 +71,7 @@ SBTextRef SBTextCreateCopy(SBTextRef text);
  * @return
  *      New mutable text object with the same content and properties as the source.
  */
-SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text);
+SB_PUBLIC SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text);
 
 /**
  * Returns the encoding specified at text object creation.
@@ -81,7 +83,7 @@ SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text);
  * @return
  *      String encoding used by this text object.
  */
-SBStringEncoding SBTextGetEncoding(SBTextRef text);
+SB_PUBLIC SBStringEncoding SBTextGetEncoding(SBTextRef text);
 
 /**
  * Returns a borrowed reference to the attribute registry associated with the text object.
@@ -93,7 +95,7 @@ SBStringEncoding SBTextGetEncoding(SBTextRef text);
  * @return
  *      Attribute registry (borrowed; do not release).
  */
-SBAttributeRegistryRef SBTextGetAttributeRegistry(SBTextRef text);
+SB_PUBLIC SBAttributeRegistryRef SBTextGetAttributeRegistry(SBTextRef text);
 
 /**
  * Returns the number of code units in the text object.
@@ -103,7 +105,7 @@ SBAttributeRegistryRef SBTextGetAttributeRegistry(SBTextRef text);
  * @return
  *      Number of code units in the text.
  */
-SBUInteger SBTextGetLength(SBTextRef text);
+SB_PUBLIC SBUInteger SBTextGetLength(SBTextRef text);
 
 /**
  * Copies code units from the text into a caller-provided buffer.
@@ -123,7 +125,8 @@ SBUInteger SBTextGetLength(SBTextRef text);
  * @warning
  *      Behavior is undefined if buffer is too small or range is invalid.
  */
-void SBTextGetCodeUnits(SBTextRef text, SBUInteger index, SBUInteger length, void *buffer);
+SB_PUBLIC void SBTextGetCodeUnits(SBTextRef text, SBUInteger index, SBUInteger length,
+    void *buffer);
 
 /**
  * Copies bidirectional types for a code-unit range.
@@ -141,7 +144,8 @@ void SBTextGetCodeUnits(SBTextRef text, SBUInteger index, SBUInteger length, voi
  *      Behavior is undefined if buffer is too small, range is invalid, or text is currently being
  *      edited.
  */
-void SBTextGetBidiTypes(SBTextRef text, SBUInteger index, SBUInteger length, SBBidiType *buffer);
+SB_PUBLIC void SBTextGetBidiTypes(SBTextRef text, SBUInteger index, SBUInteger length,
+    SBBidiType *buffer);
 
 /**
  * Copies script identifications for a code-unit range.
@@ -159,7 +163,8 @@ void SBTextGetBidiTypes(SBTextRef text, SBUInteger index, SBUInteger length, SBB
  *      Behavior is undefined if buffer is too small, range is invalid, or text is currently being
  *      edited.
  */
-void SBTextGetScripts(SBTextRef text, SBUInteger index, SBUInteger length, SBScript *buffer);
+SB_PUBLIC void SBTextGetScripts(SBTextRef text, SBUInteger index, SBUInteger length,
+    SBScript *buffer);
 
 /**
  * Copies resolved bidirectional levels for a code-unit range.
@@ -177,7 +182,8 @@ void SBTextGetScripts(SBTextRef text, SBUInteger index, SBUInteger length, SBScr
  *      Behavior is undefined if buffer is too small, range is invalid, or text is currently being
  *      edited.
  */
-void SBTextGetResolvedLevels(SBTextRef text, SBUInteger index, SBUInteger length, SBLevel *buffer);
+SB_PUBLIC void SBTextGetResolvedLevels(SBTextRef text, SBUInteger index, SBUInteger length,
+    SBLevel *buffer);
 
 /**
  * Retrieves information for the paragraph containing a specific code unit.
@@ -192,7 +198,7 @@ void SBTextGetResolvedLevels(SBTextRef text, SBUInteger index, SBUInteger length
  * @warning
  *      Index must be valid and text must not be undergoing editing.
  */
-void SBTextGetCodeUnitParagraphInfo(SBTextRef text, SBUInteger index,
+SB_PUBLIC void SBTextGetCodeUnitParagraphInfo(SBTextRef text, SBUInteger index,
     SBParagraphInfo *paragraphInfo);
 
 /**
@@ -205,7 +211,7 @@ void SBTextGetCodeUnitParagraphInfo(SBTextRef text, SBUInteger index,
  * @return
  *      Paragraph iterator on success, `NULL` on failure.
  */
-SBParagraphIteratorRef SBTextCreateParagraphIterator(SBTextRef text);
+SB_PUBLIC SBParagraphIteratorRef SBTextCreateParagraphIterator(SBTextRef text);
 
 /**
  * Creates a new logical run iterator that can traverse all bidirectional level runs in logical
@@ -218,7 +224,7 @@ SBParagraphIteratorRef SBTextCreateParagraphIterator(SBTextRef text);
  * @return
  *      Logical run iterator on success, `NULL` on failure.
  */
-SBLogicalRunIteratorRef SBTextCreateLogicalRunIterator(SBTextRef text);
+SB_PUBLIC SBLogicalRunIteratorRef SBTextCreateLogicalRunIterator(SBTextRef text);
 
 /**
  * Creates a new script run iterator that can traverse all script runs in the text.
@@ -230,7 +236,7 @@ SBLogicalRunIteratorRef SBTextCreateLogicalRunIterator(SBTextRef text);
  * @return
  *      Script run iterator on success, `NULL` on failure.
  */
-SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text);
+SB_PUBLIC SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text);
 
 /**
  * Creates a new attribute run iterator that can traverse all attribute runs in the text.
@@ -243,7 +249,7 @@ SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text);
  * @return
  *      Attribute iterator on success, `NULL` on failure.
  */
-SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text);
+SB_PUBLIC SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text);
 
 /**
  * Creates a new visual run iterator that can traverse bidirectional runs in visual order for a
@@ -260,7 +266,8 @@ SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text);
  * @return
  *      Visual run iterator on success, `NULL` on failure.
  */
-SBVisualRunIteratorRef SBTextCreateVisualRunIterator(SBTextRef text, SBUInteger index, SBUInteger length);
+SB_PUBLIC SBVisualRunIteratorRef SBTextCreateVisualRunIterator(SBTextRef text, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Increments the reference count of a text object.
@@ -270,7 +277,7 @@ SBVisualRunIteratorRef SBTextCreateVisualRunIterator(SBTextRef text, SBUInteger 
  * @return
  *      The same text object passed in as the parameter.
  */
-SBTextRef SBTextRetain(SBTextRef text);
+SB_PUBLIC SBTextRef SBTextRetain(SBTextRef text);
 
 /**
  * Decrements the reference count of a text object. The object will be deallocated when its
@@ -279,7 +286,7 @@ SBTextRef SBTextRetain(SBTextRef text);
  * @param text
  *      The text object whose reference count will be decremented.
  */
-void SBTextRelease(SBTextRef text);
+SB_PUBLIC void SBTextRelease(SBTextRef text);
 
 
 /* ----------------------------------
@@ -297,7 +304,7 @@ void SBTextRelease(SBTextRef text);
  * @return
  *      A reference to a mutable text object if the call was successful, `NULL` otherwise.
  */
-SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBTextConfigRef config);
+SB_PUBLIC SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBTextConfigRef config);
 
 /**
  * Signals the start of a batch of editing operations. While in editing mode, text analysis
@@ -307,7 +314,7 @@ SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBTextConfigRef 
  * @param text
  *      Mutable text object.
  */
-void SBTextBeginEditing(SBMutableTextRef text);
+SB_PUBLIC void SBTextBeginEditing(SBMutableTextRef text);
 
 /**
  * Signals the end of a batch editing session and triggers text analysis for all modified
@@ -317,7 +324,7 @@ void SBTextBeginEditing(SBMutableTextRef text);
  * @param text
  *      Mutable text object.
  */
-void SBTextEndEditing(SBMutableTextRef text);
+SB_PUBLIC void SBTextEndEditing(SBMutableTextRef text);
 
 /**
  * Adds new code units to the end of the text object. If the text is not in editing mode, analysis
@@ -330,8 +337,8 @@ void SBTextEndEditing(SBMutableTextRef text);
  * @param codeUnitCount
  *      Number of code units to append.
  */
-void SBTextAppendCodeUnits(SBMutableTextRef text,
-    const void *codeUnitBuffer, SBUInteger codeUnitCount);
+SB_PUBLIC void SBTextAppendCodeUnits(SBMutableTextRef text, const void *codeUnitBuffer,
+    SBUInteger codeUnitCount);
 
 /**
  * Inserts new code units at the specified position in the text. Existing content at and after the
@@ -351,7 +358,7 @@ void SBTextAppendCodeUnits(SBMutableTextRef text,
  *      The index must be within the range [0, current length].
  *      The buffer must contain valid code units in the text's encoding format.
  */
-void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
+SB_PUBLIC void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
 
 /**
@@ -368,7 +375,7 @@ void SBTextInsertCodeUnits(SBMutableTextRef text, SBUInteger index,
  * @warning
  *      The deletion range [index, index+length) must be within the current text bounds.
  */
-void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length);
+SB_PUBLIC void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length);
 
 /**
  * Completely replaces the current text content with the new code units. This is equivalent to
@@ -385,8 +392,8 @@ void SBTextDeleteCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger l
  *      All existing content and attributes are removed.
  *      The buffer must contain valid code units in the text's encoding format.
  */
-void SBTextSetCodeUnits(SBMutableTextRef text,
-    const void *codeUnitBuffer, SBUInteger codeUnitCount);
+SB_PUBLIC void SBTextSetCodeUnits(SBMutableTextRef text, const void *codeUnitBuffer,
+    SBUInteger codeUnitCount);
 
 /**
  * Replaces a contiguous range of existing code units with new content. If the text is not in
@@ -407,7 +414,7 @@ void SBTextSetCodeUnits(SBMutableTextRef text,
  *      The replacement range [index, index+length) must be within the current text bounds.
  *      The buffer must contain valid code units in the text's encoding format.
  */
-void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+SB_PUBLIC void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     const void *codeUnitBuffer, SBUInteger codeUnitCount);
 
 /**
@@ -434,7 +441,7 @@ void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, SBUInteger 
  *      The attribute value must be compatible with the attribute's value type as defined in the
  *      registry.
  */
-void SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+SB_PUBLIC void SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     SBAttributeID attributeID, const void *attributeValue);
 
 /**
@@ -454,9 +461,11 @@ void SBTextSetAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger leng
  *      The range must be within the current text bounds.
  *      The attribute ID must be registered in the text's attribute registry.
  */
-void SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
+SB_PUBLIC void SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger length,
     SBAttributeID attributeID);
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

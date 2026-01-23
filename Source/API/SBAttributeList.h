@@ -17,9 +17,11 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_LIST_H
 #define _SB_INTERNAL_ATTRIBUTE_LIST_H
 
-#include <SheenBidi/SBAttributeList.h>
-
 #include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
+#include <SheenBidi/SBAttributeList.h>
 #include <Core/List.h>
 
 typedef struct _SBAttributeList {
@@ -67,5 +69,7 @@ SB_INTERNAL void SBAttributeListInitialize(SBAttributeListRef list, SBUInteger v
  */
 SB_INTERNAL SBUInteger SBAttributeListBinarySearchIndex(SBAttributeListRef list,
     SBAttributeID attributeID, SBBoolean *itemFound);
+
+#endif
 
 #endif

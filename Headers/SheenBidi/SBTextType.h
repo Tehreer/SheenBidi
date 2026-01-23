@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 
 #include <SheenBidi/SBBase.h>
 
+#if SB_TEXT_API_SUPPORTED
+
 SB_EXTERN_C_BEGIN
 
 /**
@@ -32,5 +34,7 @@ typedef const struct _SBText *SBTextRef;
 typedef struct _SBText *SBMutableTextRef;
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

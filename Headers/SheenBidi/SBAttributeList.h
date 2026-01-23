@@ -20,6 +20,8 @@
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBBase.h>
 
+#if SB_TEXT_API_SUPPORTED
+
 SB_EXTERN_C_BEGIN
 
 /**
@@ -38,7 +40,7 @@ typedef const struct _SBAttributeList *SBAttributeListRef;
  * @return
  *      A pointer to the attribute item at the specified index.
  */
-const SBAttributeItem *SBAttributeListGetItem(SBAttributeListRef list, SBUInteger index);
+SB_PUBLIC const SBAttributeItem *SBAttributeListGetItem(SBAttributeListRef list, SBUInteger index);
 
 /**
  * Returns the number of attributes in the list.
@@ -48,8 +50,10 @@ const SBAttributeItem *SBAttributeListGetItem(SBAttributeListRef list, SBUIntege
  * @return
  *      The total count of attributes currently stored in the list.
  */
-SBUInteger SBAttributeListGetCount(SBAttributeListRef list);
+SB_PUBLIC SBUInteger SBAttributeListGetCount(SBAttributeListRef list);
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

@@ -15,6 +15,7 @@ project(SheenBidi
 # Options
 # ------------------------------------------------------------------------------
 
+option(SB_CONFIG_EXPERIMENTAL_TEXT_API "Builds the optional text editing and analysis API" OFF)
 option(SB_CONFIG_UNITY "Build with a single unity source file" ON)
 option(BUILD_GENERATOR "Build the Unicode data generator tool" OFF)
 option(ENABLE_COVERAGE "Enable code coverage instrumentation (only enabled with BUILD_TESTING)" OFF)
@@ -28,6 +29,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
+
+if(SB_CONFIG_EXPERIMENTAL_TEXT_API)
+  set(BUILD_TEXT_API ON)
+else()
+  set(BUILD_TEXT_API OFF)
+endif()
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   set(BUILDING_DLL ON)
@@ -104,16 +111,28 @@ else()
   file(GLOB_RECURSE SHEENBIDI_SOURCES Source/*.c)
 endif()
 
+set(SHEENBIDI_PRIVATE_DEFINITIONS)
+set(SHEENBIDI_INTERFACE_DEFINITIONS)
+set(SHEENBIDI_PKGCONFIG_CFLAGS "")
+
+if(BUILD_TEXT_API)
+  list(APPEND SHEENBIDI_PRIVATE_DEFINITIONS "SB_CONFIG_EXPERIMENTAL_TEXT_API")
+  list(APPEND SHEENBIDI_INTERFACE_DEFINITIONS "SB_CONFIG_EXPERIMENTAL_TEXT_API")
+  set(SHEENBIDI_PKGCONFIG_CFLAGS "${SHEENBIDI_PKGCONFIG_CFLAGS} -DSB_CONFIG_EXPERIMENTAL_TEXT_API")
+endif()
+if(BUILDING_DLL)
+  list(APPEND SHEENBIDI_PRIVATE_DEFINITIONS "SB_CONFIG_DLL_EXPORT")
+  list(APPEND SHEENBIDI_INTERFACE_DEFINITIONS "SB_CONFIG_DLL_IMPORT")
+  set(SHEENBIDI_PKGCONFIG_CFLAGS "${SHEENBIDI_PKGCONFIG_CFLAGS} -DSB_CONFIG_DLL_IMPORT")
+endif()
+
 add_library(SheenBidi
   ${SHEENBIDI_HEADERS}
   ${INTERNAL_HEADERS}
   ${SHEENBIDI_SOURCES}
 )
-if(BUILDING_DLL)
-  target_compile_definitions(SheenBidi PRIVATE SB_CONFIG_DLL_EXPORT)
-  target_compile_definitions(SheenBidi INTERFACE SB_CONFIG_DLL_IMPORT)
-  set(SHEENBIDI_PKGCONFIG_CFLAGS "${SHEENBIDI_PKGCONFIG_CFLAGS} -DSB_CONFIG_DLL_IMPORT")
-endif()
+target_compile_definitions(SheenBidi PRIVATE ${SHEENBIDI_PRIVATE_DEFINITIONS})
+target_compile_definitions(SheenBidi INTERFACE ${SHEENBIDI_INTERFACE_DEFINITIONS})
 target_include_directories(SheenBidi
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Headers>
@@ -176,27 +195,33 @@ if(BUILD_TESTS)
     AlgorithmTests
     AllocatorTests
     AtomicTests
-    AttributeManagerTests
-    AttributeRunIteratorTests
     BidiTypeLookupTests
     BracketLookupTests
     BracketQueueTests
     CodepointSequenceTests
     CodepointTests
     GeneralCategoryLookupTests
-    LogicalRunIteratorTests
     MirrorLookupTests
     OnceTests
-    ParagraphIteratorTests
     RunQueueTests
     ScriptLocatorTests
     ScriptLookupTests
-    ScriptRunIteratorTests
     ScriptTests
-    TextTests
     ThreadLocalStorageTests
-    VisualRunIteratorTests
   )
+
+  if(BUILD_TEXT_API)
+    list(APPEND TEST_TARGETS
+      AttributeManagerTests
+      AttributeRunIteratorTests
+      LogicalRunIteratorTests
+      ParagraphIteratorTests
+      ScriptRunIteratorTests
+      TextTests
+      VisualRunIteratorTests
+    )
+  endif()
+
   set(AlgorithmTests
     Tests/AlgorithmTests.h
     Tests/AlgorithmTests.cpp

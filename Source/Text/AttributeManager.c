@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 
 #include <API/SBAttributeRegistry.h>
-#include <API/SBBase.h>
 #include <API/SBText.h>
 #include <Core/List.h>
 #include <Text/AttributeDictionary.h>
@@ -988,3 +991,5 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
 
     return SBTrue;
 }
+
+#endif

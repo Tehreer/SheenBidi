@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 
 #include <API/SBAssert.h>
 #include <API/SBAttributeList.h>
 #include <API/SBAttributeRegistry.h>
-#include <API/SBBase.h>
 #include <API/SBLine.h>
 #include <API/SBParagraph.h>
 #include <API/SBText.h>
@@ -921,3 +924,5 @@ void SBVisualRunIteratorRelease(SBVisualRunIteratorRef iterator)
 {
     ObjectRelease(iterator);
 }
+
+#endif

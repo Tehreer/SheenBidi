@@ -17,10 +17,13 @@
 #ifndef _SB_INTERNAL_TEXT_CONFIG_H
 #define _SB_INTERNAL_TEXT_CONFIG_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBTextConfig.h>
 
-#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBTextConfig {
@@ -28,5 +31,7 @@ typedef struct _SBTextConfig {
     SBAttributeRegistryRef attributeRegistry;
     SBLevel baseLevel;
 } SBTextConfig;
+
+#endif
 
 #endif

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <API/SBAttributeInfo.h>
-#include <API/SBBase.h>
 #include <Core/Object.h>
 
 #include "SBAttributeRegistry.h"
@@ -216,3 +219,5 @@ void SBAttributeRegistryRelease(SBAttributeRegistryRef registry)
 {
     ObjectRelease((ObjectRef)registry);
 }
+
+#endif

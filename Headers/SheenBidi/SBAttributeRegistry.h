@@ -17,8 +17,10 @@
 #ifndef _SB_PUBLIC_ATTRIBUTE_REGISTRY_H
 #define _SB_PUBLIC_ATTRIBUTE_REGISTRY_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBAttributeInfo.h>
+#include <SheenBidi/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
 
 SB_EXTERN_C_BEGIN
 
@@ -94,5 +96,7 @@ SB_PUBLIC SBAttributeRegistryRef SBAttributeRegistryRetain(SBAttributeRegistryRe
 SB_PUBLIC void SBAttributeRegistryRelease(SBAttributeRegistryRef registry);
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

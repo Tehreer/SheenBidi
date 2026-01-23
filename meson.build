@@ -10,6 +10,7 @@ project('SheenBidi', ['c', 'cpp'],
   ]
 )
 
+build_text_api = get_option('text_api').enabled()
 unity_mode = get_option('unity_mode').enabled()
 build_generator = get_option('generator').enabled()
 
@@ -134,10 +135,22 @@ else
   )
 endif
 
+sheenbidi_c_args = []
+sheenbidi_dep_args = []
+
+if dll_mode
+  sheenbidi_c_args += '-DSB_CONFIG_DLL_EXPORT'
+  sheenbidi_dep_args += '-DSB_CONFIG_DLL_IMPORT'
+endif
+if build_text_api
+  sheenbidi_c_args += '-DSB_CONFIG_EXPERIMENTAL_TEXT_API'
+  sheenbidi_dep_args += '-DSB_CONFIG_EXPERIMENTAL_TEXT_API'
+endif
+
 sheenbidi = library(
   'SheenBidi',
   sources: [sheenbidi_headers, internal_headers, sheenbidi_sources],
-  c_args: dll_mode ? ['-DSB_CONFIG_DLL_EXPORT'] : [],
+  c_args: sheenbidi_c_args,
   include_directories: ['Headers', 'Source'],
   version: project_version,
   soversion: soversion,
@@ -147,7 +160,7 @@ sheenbidi = library(
 sheenbidi_dep = declare_dependency(
   include_directories: 'Headers',
   link_with: sheenbidi,
-  compile_args: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
+  compile_args: sheenbidi_dep_args
 )
 
 # ------------------------------------------------------------------------------
@@ -258,14 +271,6 @@ if build_tests
       'Tests/AtomicTests.h',
       'Tests/AtomicTests.cpp'
     ],
-    'AttributeManagerTests': [
-      'Tests/AttributeManagerTests.h',
-      'Tests/AttributeManagerTests.cpp'
-    ],
-    'AttributeRunIteratorTests': [
-      'Tests/AttributeRunIteratorTests.h',
-      'Tests/AttributeRunIteratorTests.cpp'
-    ],
     'BidiTypeLookupTests': [
       'Tests/BidiTypeLookupTests.h',
       'Tests/BidiTypeLookupTests.cpp'
@@ -290,10 +295,6 @@ if build_tests
       'Tests/GeneralCategoryLookupTests.h',
       'Tests/GeneralCategoryLookupTests.cpp'
     ],
-    'LogicalRunIteratorTests': [
-      'Tests/LogicalRunIteratorTests.h',
-      'Tests/LogicalRunIteratorTests.cpp'
-    ],
     'MirrorLookupTests': [
       'Tests/MirrorLookupTests.h',
       'Tests/MirrorLookupTests.cpp'
@@ -301,10 +302,6 @@ if build_tests
     'OnceTests': [
       'Tests/OnceTests.h',
       'Tests/OnceTests.cpp'
-    ],
-    'ParagraphIteratorTests': [
-      'Tests/ParagraphIteratorTests.h',
-      'Tests/ParagraphIteratorTests.cpp'
     ],
     'RunQueueTests': [
       'Tests/RunQueueTests.h',
@@ -318,27 +315,48 @@ if build_tests
       'Tests/ScriptLookupTests.h',
       'Tests/ScriptLookupTests.cpp'
     ],
-    'ScriptRunIteratorTests': [
-      'Tests/ScriptRunIteratorTests.h',
-      'Tests/ScriptRunIteratorTests.cpp'
-    ],
     'ScriptTests': [
       'Tests/ScriptTests.h',
       'Tests/ScriptTests.cpp'
     ],
-    'TextTests': [
-      'Tests/TextTests.h',
-      'Tests/TextTests.cpp'
-    ],
     'ThreadLocalStorageTests': [
       'Tests/ThreadLocalStorageTests.h',
       'Tests/ThreadLocalStorageTests.cpp'
-    ],
-    'VisualRunIteratorTests': [
-      'Tests/VisualRunIteratorTests.h',
-      'Tests/VisualRunIteratorTests.cpp'
     ]
   }
+
+  if build_text_api
+    test_targets += {
+      'AttributeManagerTests': [
+        'Tests/AttributeManagerTests.h',
+        'Tests/AttributeManagerTests.cpp'
+      ],
+      'AttributeRunIteratorTests': [
+        'Tests/AttributeRunIteratorTests.h',
+        'Tests/AttributeRunIteratorTests.cpp'
+      ],
+      'LogicalRunIteratorTests': [
+        'Tests/LogicalRunIteratorTests.h',
+        'Tests/LogicalRunIteratorTests.cpp'
+      ],
+      'ParagraphIteratorTests': [
+        'Tests/ParagraphIteratorTests.h',
+        'Tests/ParagraphIteratorTests.cpp'
+      ],
+      'ScriptRunIteratorTests': [
+        'Tests/ScriptRunIteratorTests.h',
+        'Tests/ScriptRunIteratorTests.cpp'
+      ],
+      'TextTests': [
+        'Tests/TextTests.h',
+        'Tests/TextTests.cpp'
+      ],
+      'VisualRunIteratorTests': [
+        'Tests/VisualRunIteratorTests.h',
+        'Tests/VisualRunIteratorTests.cpp'
+      ]
+    }
+  endif
 
   foreach test_name, test_files : test_targets
     test_exe = executable(
@@ -375,5 +393,5 @@ pkg.generate(
   url: 'https://github.com/Tehreer/SheenBidi',
   version: project_version,
   libraries: sheenbidi,
-  extra_cflags: dll_mode ? ['-DSB_CONFIG_DLL_IMPORT'] : []
+  extra_cflags: sheenbidi_dep_args
 )

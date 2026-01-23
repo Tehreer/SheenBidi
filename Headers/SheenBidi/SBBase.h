@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,12 @@
 
 #ifndef SB_PUBLIC
 #define SB_PUBLIC
+#endif
+
+#if defined(SB_CONFIG_EXPERIMENTAL_TEXT_API)
+#define SB_TEXT_API_SUPPORTED 1
+#else
+#define SB_TEXT_API_SUPPORTED 0
 #endif
 
 #if defined(__cplusplus) && __cplusplus >= 201402L

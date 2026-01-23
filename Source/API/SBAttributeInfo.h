@@ -17,10 +17,12 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_INFO_H
 #define _SB_INTERNAL_ATTRIBUTE_INFO_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <string.h>
 #include <SheenBidi/SBAttributeInfo.h>
-
-#include <API/SBBase.h>
 
 #define SBAttributeIDMake(index, size)                  \
     ((((SBUInt32)((index) + 1)) << 8) | ((SBUInt32)(size) & 0xFF))
@@ -48,5 +50,7 @@ do {                                                    \
 
 #define SBAttributeItemIsEqualValue(id, first, second)  \
     (memcmp(first, second, SBAttributeIDGetSize(id)) == 0)
+
+#endif
 
 #endif

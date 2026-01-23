@@ -17,10 +17,12 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_DICTIONARY_H
 #define _SB_INTERNAL_ATTRIBUTE_DICTIONARY_H
 
-#include <SheenBidi/SBAttributeRegistry.h>
-
-#include <API/SBAttributeList.h>
 #include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
+#include <SheenBidi/SBAttributeRegistry.h>
+#include <API/SBAttributeList.h>
 
 typedef struct _AttributeDictionary {
     SBAttributeList _list;
@@ -231,5 +233,7 @@ SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
  */
 SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary,
     SBAttributeRegistryRef registry);
+
+#endif
 
 #endif

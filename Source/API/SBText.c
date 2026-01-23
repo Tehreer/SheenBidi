@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <API/SBAssert.h>
 #include <API/SBAttributeRegistry.h>
-#include <API/SBBase.h>
 #include <API/SBCodepoint.h>
 #include <API/SBCodepointSequence.h>
 #include <API/SBParagraph.h>
@@ -954,3 +957,5 @@ void SBTextRemoveAttribute(SBMutableTextRef text, SBUInteger index, SBUInteger l
         AttributeManagerRemoveAttribute(&text->attributeManager, index, length, attributeID);
     }
 }
+
+#endif

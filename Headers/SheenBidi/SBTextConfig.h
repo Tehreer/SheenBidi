@@ -17,8 +17,10 @@
 #ifndef _SB_PUBLIC_TEXT_CONFIG_H
 #define _SB_PUBLIC_TEXT_CONFIG_H
 
-#include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBAttributeRegistry.h>
+#include <SheenBidi/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
 
 SB_EXTERN_C_BEGIN
 
@@ -63,5 +65,7 @@ SB_PUBLIC SBTextConfigRef SBTextConfigRetain(SBTextConfigRef config);
 SB_PUBLIC void SBTextConfigRelease(SBTextConfigRef config);
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

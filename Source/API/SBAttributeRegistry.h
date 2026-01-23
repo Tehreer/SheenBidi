@@ -17,10 +17,13 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_REGISTRY_H
 #define _SB_INTERNAL_ATTRIBUTE_REGISTRY_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBAttributeRegistry.h>
 
-#include <API/SBBase.h>
 #include <Core/Object.h>
 
 typedef struct _SBAttributeRegistry {
@@ -42,5 +45,7 @@ SB_INTERNAL SBBoolean SBAttributeRegistryIsEqualAttribute(SBAttributeRegistryRef
 
 SB_INTERNAL const SBAttributeInfo *SBAttributeRegistryGetInfoReference(
     SBAttributeRegistryRef registry, SBAttributeID attributeID);
+
+#endif
 
 #endif

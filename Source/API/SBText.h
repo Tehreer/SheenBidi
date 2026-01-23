@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@
 #ifndef _SB_INTERNAL_TEXT_H
 #define _SB_INTERNAL_TEXT_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBParagraph.h>
 #include <SheenBidi/SBScriptLocator.h>
 #include <SheenBidi/SBText.h>
 
-#include <API/SBBase.h>
 #include <Core/List.h>
 #include <Core/Object.h>
 #include <Text/AttributeManager.h>
@@ -95,5 +98,7 @@ SB_INTERNAL SBUInteger SBTextGetCodeUnitParagraphIndex(SBTextRef text, SBUIntege
 SB_INTERNAL void SBTextGetBoundaryParagraphs(SBTextRef text,
     SBUInteger rangeStart, SBUInteger rangeEnd,
     TextParagraphRef *firstParagraph, TextParagraphRef *lastParagraph);
+
+#endif
 
 #endif

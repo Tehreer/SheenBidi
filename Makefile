@@ -20,7 +20,7 @@ AR      = ar
 ARFLAGS = -r
 RM      = rm -rf
 
-CFLAGS   = -ansi -pedantic -Wall -I$(HEADERS_DIR) -I$(SOURCE_DIR)
+CFLAGS   = -ansi -pedantic -Wall -I$(HEADERS_DIR) -I$(SOURCE_DIR) -DSB_CONFIG_EXPERIMENTAL_TEXT_API
 CXXFLAGS = -std=c++14 -g -Wall
 
 DEBUG_FLAGS   = -DDEBUG -g -O0

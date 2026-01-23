@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#include <API/SBAttributeInfo.h>
 #include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
+#include <API/SBAttributeInfo.h>
 #include <Core/List.h>
 
 #include "SBAttributeList.h"
@@ -73,3 +76,5 @@ SBUInteger SBAttributeListGetCount(SBAttributeListRef list)
 {
     return list->_list.count;
 }
+
+#endif

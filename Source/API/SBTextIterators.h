@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@
 #ifndef _SB_INTERNAL_TEXT_ITERATORS_H
 #define _SB_INTERNAL_TEXT_ITERATORS_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <SheenBidi/SBLine.h>
 #include <SheenBidi/SBTextIterators.h>
 
-#include <API/SBBase.h>
 #include <API/SBText.h>
 #include <Core/Object.h>
 #include <Text/AttributeDictionary.h>
@@ -136,5 +139,7 @@ SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef tex
  *      A new visual run iterator object, or NULL if creation fails.
  */
 SB_INTERNAL SBVisualRunIteratorRef SBVisualRunIteratorCreate(SBTextRef text);
+
+#endif
 
 #endif

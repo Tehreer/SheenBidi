@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 
 #include <API/SBAllocator.h>
 #include <API/SBAttributeInfo.h>
 #include <API/SBAttributeList.h>
 #include <API/SBAttributeRegistry.h>
-#include <API/SBBase.h>
 
 #include "AttributeDictionary.h"
 
@@ -388,3 +391,5 @@ SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary,
     ReleaseAllAttributeItems(dictionary, registry);
     SBAttributeListRemoveAll(&dictionary->_list);
 }
+
+#endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@
  * When defined, all scratch memory operations will return NULL/do nothing.
  */
 /* #define SB_CONFIG_DISABLE_SCRATCH_MEMORY */
+
+/**
+ * Enables the optional text editing and analysis API, including support for inserting, removing,
+ * and modifying code units, applying attributes, and querying logical, script, attribute, and
+ * visual runs. These features perform incremental paragraph analysis internally.
+ *
+ * The API is considered experimental and may change based on production feedback.
+ */
+/* #define SB_CONFIG_EXPERIMENTAL_TEXT_API */
 
 /**
  * Define the size of each scratch buffer in bytes.

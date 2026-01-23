@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <stddef.h>
 
 #include <API/SBAttributeRegistry.h>
-#include <API/SBBase.h>
 #include <Core/Object.h>
 
 #include "SBTextConfig.h"
@@ -74,3 +77,5 @@ void SBTextConfigRelease(SBTextConfigRef config)
 {
     ObjectRelease((ObjectRef)config);
 }
+
+#endif

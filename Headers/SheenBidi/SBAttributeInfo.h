@@ -19,6 +19,8 @@
 
 #include <SheenBidi/SBBase.h>
 
+#if SB_TEXT_API_SUPPORTED
+
 SB_EXTERN_C_BEGIN
 
 enum {
@@ -128,5 +130,7 @@ typedef struct _SBAttributeItem {
 } SBAttributeItem;
 
 SB_EXTERN_C_END
+
+#endif
 
 #endif

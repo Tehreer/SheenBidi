@@ -17,11 +17,14 @@
 #ifndef _SB_INTERNAL_ATTRIBUTE_MANAGER_H
 #define _SB_INTERNAL_ATTRIBUTE_MANAGER_H
 
+#include <API/SBBase.h>
+
+#if SB_TEXT_API_SUPPORTED
+
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBText.h>
 
-#include <API/SBBase.h>
 #include <Core/List.h>
 #include <Text/AttributeDictionary.h>
 
@@ -269,5 +272,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
 SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(AttributeManagerRef manager,
     SBUInteger *runStart, SBUInteger rangeEnd,
     SBAttributeScope filterScope, SBAttributeGroup filterGroup, AttributeDictionaryRef output);
+
+#endif
 
 #endif
