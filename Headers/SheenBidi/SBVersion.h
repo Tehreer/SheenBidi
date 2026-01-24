@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@
 
 SB_EXTERN_C_BEGIN
 
-#define SHEENBIDI_VERSION_MAJOR     2
-#define SHEENBIDI_VERSION_MINOR     9
+#define SHEENBIDI_VERSION_MAJOR     3
+#define SHEENBIDI_VERSION_MINOR     0
 #define SHEENBIDI_VERSION_PATCH     0
-#define SHEENBIDI_VERSION_STRING    "2.9.0"
+#define SHEENBIDI_VERSION_STRING    "3.0.0"
 
 /**
  * Returns the version string of the SheenBidi library.
@@ -32,7 +32,7 @@ SB_EXTERN_C_BEGIN
  * This function returns a constant null-terminated string representing the version of the linked
  * SheenBidi library, in the format "MAJOR.MINOR.PATCH".
  *
- * @return A string representing the version (e.g. "2.9.0").
+ * @return A string representing the version (e.g. "3.0.0").
  */
 SB_PUBLIC const char *SBVersionGetString(void);
 
