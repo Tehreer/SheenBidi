@@ -10,12 +10,28 @@
 SheenBidi is a lightweight, fast and stable implementation of the [Unicode Bidirectional Algorithm (UBA)](https://unicode.org/reports/tr9/).
 
 It is being used by multiple open source and commercial projects in different domains such as:
-- **Games:** [SuperTuxKart](https://github.com/supertuxkart/stk-code), [VVVVVV](https://github.com/TerryCavanagh/VVVVVV), [DevilutionX](https://github.com/diasurgical/DevilutionX), [Watch Dogs: Legion](https://www.mobygames.com/game/152206/watch-dogs-legion/), [Monaco 2](https://www.mobygames.com/game/240348/monaco-2/)
-- **Audio:** [JUCE](https://github.com/juce-framework/JUCE), [Tracktion Engine](https://github.com/Tracktion/tracktion_engine), [d&b En-Space](https://www.dbaudio.com/global/en/solutions/enabling-technologies/sound-design/en-space/)
-- **Mapping:** [VTS Browser](https://github.com/melowntech/vts-browser-cpp)
-- **Animation:** [Rive Runtime](https://github.com/rive-app/rive-runtime)
-- **Text Processing:** [Raqm](https://github.com/HOST-Oman/libraqm), [Rich Text](https://github.com/forenoonwatch/rich-text), [Tehreer Android](https://github.com/Tehreer/Tehreer-Android), [Tehreer Cocoa](https://github.com/Tehreer/Tehreer-Cocoa)
-- **Web:** [Dropflow](https://github.com/chearon/dropflow), [Itemizer](https://github.com/chearon/itemizer)
+- **Game Engine:**
+  [Defold](https://github.com/defold/defold)
+- **Games:**
+  [Watch Dogs: Legion](https://www.mobygames.com/game/152206/watch-dogs-legion/),
+  [SuperTuxKart](https://github.com/supertuxkart/stk-code),
+  [VVVVVV](https://github.com/TerryCavanagh/VVVVVV),
+  [DevilutionX](https://github.com/diasurgical/DevilutionX),
+  [Monaco 2](https://www.mobygames.com/game/240348/monaco-2/)
+- **Multimedia:**
+  [SFML](https://github.com/SFML/SFML),
+  [JUCE](https://github.com/juce-framework/JUCE),
+  [Tracktion Engine](https://github.com/Tracktion/tracktion_engine),
+  [Rive Runtime](https://github.com/rive-app/rive-runtime)
+- **Text:**
+  [Raqm](https://github.com/HOST-Oman/libraqm),
+  [Tehreer Android](https://github.com/Tehreer/Tehreer-Android),
+  [Tehreer Cocoa](https://github.com/Tehreer/Tehreer-Cocoa)
+- **Mapping:**
+  [VTS Browser](https://github.com/melowntech/vts-browser-cpp)
+- **Web:**
+  [Dropflow](https://github.com/chearon/dropflow),
+  [Itemizer](https://github.com/chearon/itemizer)
 
 *If you use SheenBidi in your project, I’d love to hear about it!*
 
@@ -53,16 +69,10 @@ Identifies mirrored characters in a line as determined by rule [L4](https://www.
 Assists in text shaping by locating script runs as specified in [UAX #24](https://www.unicode.org/reports/tr24/).
 
 ## Dependency
-SheenBidi relies solely on standard C library headers: `stddef.h`, `stdint.h`, and `stdlib.h`.
-
-## Configuration
-Configuration options are available in `Headers/SBConfig.h`:
-
-- `SB_CONFIG_LOG`: Logs activities performed during the bidirectional algorithm application.
-- `SB_CONFIG_UNITY`: Builds the library as a single module, allowing the compiler to inline functions.
+SheenBidi relies solely on standard C library headers: `stddef.h`, `stdint.h`, `stdlib.h`, and `string.h`.
 
 ## Compiling
-SheenBidi can be compiled with any C compiler. The recommended approach is to add all files to an IDE and build. If `SB_CONFIG_UNITY` is enabled, only `Source/SheenBidi.c` should be compiled.
+SheenBidi can be compiled with any C compiler.
 
 ### CMake
 To build and install SheenBidi using CMake:
@@ -158,7 +168,7 @@ If SheenBidi plays a role in your project, you’re welcome to [star the reposit
 
 ## License
 ```
-Copyright (C) 2014-2025 Muhammad Tayyab Akram
+Copyright (C) 2014-2026 Muhammad Tayyab Akram
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
