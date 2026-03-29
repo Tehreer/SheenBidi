@@ -27,7 +27,7 @@
 #define SB_EXTERN_C_END
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32)
 
 #if defined(SB_CONFIG_DLL_EXPORT)
 #define SB_PUBLIC __declspec(dllexport)
@@ -35,6 +35,8 @@
 #define SB_PUBLIC __declspec(dllimport)
 #endif
 
+#elif defined(__GNUC__)
+#define SB_PUBLIC __attribute__((visibility("default")))
 #endif
 
 #ifndef SB_PUBLIC
