@@ -17,25 +17,25 @@
 #ifndef _SHEENBIDI_H
 #define _SHEENBIDI_H
 
-#include <SheenBidi/SBAlgorithm.h>
-#include <SheenBidi/SBAllocator.h>
-#include <SheenBidi/SBAttributeInfo.h>
-#include <SheenBidi/SBAttributeRegistry.h>
-#include <SheenBidi/SBBase.h>
-#include <SheenBidi/SBBidiType.h>
-#include <SheenBidi/SBCodepoint.h>
-#include <SheenBidi/SBCodepointSequence.h>
-#include <SheenBidi/SBGeneralCategory.h>
-#include <SheenBidi/SBLine.h>
-#include <SheenBidi/SBMirrorLocator.h>
-#include <SheenBidi/SBParagraph.h>
-#include <SheenBidi/SBRun.h>
-#include <SheenBidi/SBScript.h>
-#include <SheenBidi/SBScriptLocator.h>
-#include <SheenBidi/SBText.h>
-#include <SheenBidi/SBTextConfig.h>
-#include <SheenBidi/SBTextIterators.h>
-#include <SheenBidi/SBTextType.h>
-#include <SheenBidi/SBVersion.h>
+#include <SheenBidi/SBAlgorithm.h>         // IWYU pragma: export
+#include <SheenBidi/SBAllocator.h>         // IWYU pragma: export
+#include <SheenBidi/SBAttributeInfo.h>     // IWYU pragma: export
+#include <SheenBidi/SBAttributeRegistry.h> // IWYU pragma: export
+#include <SheenBidi/SBBase.h>              // IWYU pragma: export
+#include <SheenBidi/SBBidiType.h>          // IWYU pragma: export
+#include <SheenBidi/SBCodepoint.h>         // IWYU pragma: export
+#include <SheenBidi/SBCodepointSequence.h> // IWYU pragma: export
+#include <SheenBidi/SBGeneralCategory.h>   // IWYU pragma: export
+#include <SheenBidi/SBLine.h>              // IWYU pragma: export
+#include <SheenBidi/SBMirrorLocator.h>     // IWYU pragma: export
+#include <SheenBidi/SBParagraph.h>         // IWYU pragma: export
+#include <SheenBidi/SBRun.h>               // IWYU pragma: export
+#include <SheenBidi/SBScript.h>            // IWYU pragma: export
+#include <SheenBidi/SBScriptLocator.h>     // IWYU pragma: export
+#include <SheenBidi/SBText.h>              // IWYU pragma: export
+#include <SheenBidi/SBTextConfig.h>        // IWYU pragma: export
+#include <SheenBidi/SBTextIterators.h>     // IWYU pragma: export
+#include <SheenBidi/SBTextType.h>          // IWYU pragma: export
+#include <SheenBidi/SBVersion.h>           // IWYU pragma: export
 
 #endif
