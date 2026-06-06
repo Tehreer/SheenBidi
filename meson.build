@@ -75,7 +75,6 @@ internal_headers = files(
   'Source/Core/Memory.h',
   'Source/Core/Object.h',
   'Source/Core/Once.h',
-  'Source/Core/ThreadFence.h',
   'Source/Core/ThreadLocalStorage.h',
   'Source/Data/BidiTypeLookup.h',
   'Source/Data/GeneralCategoryLookup.h',

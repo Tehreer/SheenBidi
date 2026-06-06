@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ extern "C" {
 #include <Core/AtomicFlag.h>
 #include <Core/AtomicPointer.h>
 #include <Core/AtomicUInt.h>
-#include <Core/ThreadFence.h>
 }
 
 #include "AtomicTests.h"
@@ -48,7 +47,6 @@ void AtomicTests::run() {
     testAtomicPointerLoadStore();
     testAtomicPointerCompareAndSet();
     testAtomicPointerThreadSafety();
-    testThreadFence();
 }
 
 void AtomicTests::testAtomicFlagTestAndSet() {
@@ -223,34 +221,6 @@ void AtomicTests::testAtomicPointerThreadSafety() {
 
     assert(counter == NumThreads * Iterations);
     assert(AtomicPointerLoad(&pointer) == nullptr);
-}
-
-void AtomicTests::testThreadFence() {
-    size_t x = 0, y = 0;
-    size_t r1 = 0, r2 = 0;
-
-    for (size_t i = 0; i < Iterations; ++i) {
-        x = 0; y = 0;
-        r1 = 0; r2 = 0;
-
-        thread t1([&]() {
-            x = 1;
-            ThreadFence();  // Ensure store to x completes before load from y
-            r1 = y;
-        });
-
-        thread t2([&]() {
-            y = 1;
-            ThreadFence();  // Ensure store to y completes before load from x
-            r2 = x;
-        });
-
-        t1.join();
-        t2.join();
-
-        // This shouldn't be possible due to fences
-        assert((r1 == 0 && r2 == 0) == false);
-    }
 }
 
 #ifdef STANDALONE_TESTING

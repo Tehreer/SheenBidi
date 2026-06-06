@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ public:
 private:
     void testBasicFunctionality();
     void testThreadSafety();
-    void testNestedOnce();
     void testMultipleOnceObjects();
     void testNestedOnceCalls();
 };

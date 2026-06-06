@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,10 @@ constexpr size_t NumThreads = 16;
 constexpr size_t Iterations = 10000;
 
 void OnceTests::run() {
-    void testBasicFunctionality();
-    void testThreadSafety();
-    void testNestedOnce();
-    void testMultipleOnceObjects();
-    void testNestedOnceCalls();
+    testBasicFunctionality();
+    testThreadSafety();
+    testMultipleOnceObjects();
+    testNestedOnceCalls();
 }
 
 void OnceTests::testBasicFunctionality() {
@@ -141,7 +140,7 @@ void OnceTests::testNestedOnceCalls() {
     auto outerFunc = [](void *info) {
         auto data = static_cast<Data *>(info);
         data->outerCounter += 1;
-        OnceTryExecute(&data->innerOnce, innerFunc, &data);
+        OnceTryExecute(&data->innerOnce, innerFunc, data);
     };
 
     // Execute outer once which executes inner once

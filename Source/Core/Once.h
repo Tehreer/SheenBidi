@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,23 @@
 #define _SB_INTERNAL_ONCE_H
 
 #include <API/SBBase.h>
-#include <Core/AtomicFlag.h>
-#include <Core/ThreadFence.h>
+#include <Core/AtomicUInt.h>
 
-#if defined(HAS_ATOMIC_FLAG_SUPPORT) && defined(HAS_THREAD_FENCE_SUPPORT)
+#if defined(HAS_ATOMIC_UINT_SUPPORT)
 #define HAS_ONCE_SUPPORT
 #endif
 
+enum {
+    OnceStateIdle    = 0,
+    OnceStateRunning = 1,
+    OnceStateDone    = 2
+};
+
 typedef struct _Once {
-    SBBoolean executed;
-    AtomicFlag flag;
+    AtomicUInt state;
 } Once, *OnceRef;
 
-#define OnceMake() { SBFalse, AtomicFlagMake() }
+#define OnceMake() { OnceStateIdle }
 
 SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void *info), void *info);
 
