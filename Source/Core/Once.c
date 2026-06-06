@@ -20,18 +20,19 @@
 
 SB_INTERNAL SBBoolean OnceTryExecute(OnceRef once, void(*func)(void *info), void *info)
 {
-    SBBoolean result = SBFalse;
+    SBBoolean result = SBTrue;
     SBUInteger state;
 
     state = AtomicUIntLoad(&once->state);
 
-    if (state == OnceStateIdle) {
+    if (state != OnceStateDone) {
         SBUInteger expected = OnceStateIdle;
 
         if (AtomicUIntCompareAndSet(&once->state, &expected, OnceStateRunning)) {
             func(info);
             AtomicUIntStore(&once->state, OnceStateDone);
-            result = SBTrue;
+        } else {
+            result = SBFalse;
         }
     }
 
