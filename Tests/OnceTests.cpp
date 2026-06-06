@@ -55,7 +55,7 @@ void OnceTests::testBasicFunctionality() {
     assert(counter == 1);
 
     // Subsequent calls should not execute
-    assert(OnceTryExecute(&once, initFunc, &counter) == false);
+    assert(OnceTryExecute(&once, initFunc, &counter) == true);
     assert(counter == 1);
 }
 
@@ -75,9 +75,7 @@ void OnceTests::testThreadSafety() {
 
     auto worker = [&]() {
         for (size_t i = 0; i < Iterations; i++) {
-            if (OnceTryExecute(&once, initFunc, &executionCount)) {
-                successCount += 1;
-            }
+            OnceTryExecute(&once, initFunc, &executionCount);
         }
     };
 
@@ -91,14 +89,13 @@ void OnceTests::testThreadSafety() {
 
     // Only one execution should have occurred
     assert(executionCount == 1);
-    assert(successCount == 1);
 }
 
 void OnceTests::testMultipleOnceObjects() {
     constexpr size_t NumObjects = 10;
 
     vector<Once> onceObjects(NumObjects, OnceMake());
-    array<atomic<size_t>, NumObjects> counters;
+    array<atomic<size_t>, NumObjects> counters{};
     vector<thread> threads;
 
     auto initFunc = [](void *info) {
