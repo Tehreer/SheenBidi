@@ -43,15 +43,16 @@ typedef struct _BidiTypesBuffer {
 SB_INTERNAL void BidiTypesBufferInitialize(BidiTypesBufferRef bidiTypesBuffer);
 
 /**
- * Initializes a bidi-types buffer as a deep copy of another buffer's bidi types.
+ * Replaces an already-initialized bidi-types buffer's content with a deep copy of another
+ * buffer's bidi types. The buffer must already be initialized (via `BidiTypesBufferInitialize()`).
  *
  * @param bidiTypesBuffer
- *      The bidi-types buffer to initialize.
+ *      The bidi-types buffer to copy into.
  * @param source
  *      The source buffer to copy bidi types from.
  */
-SB_INTERNAL void BidiTypesBufferInitializeCopy(BidiTypesBufferRef bidiTypesBuffer,
-    BidiTypesBufferRef source);
+SB_INTERNAL void BidiTypesBufferCopyBidiTypes(BidiTypesBufferRef bidiTypesBuffer,
+    const BidiTypesBuffer *source);
 
 /**
  * Finalizes a bidi-types buffer and releases its storage.

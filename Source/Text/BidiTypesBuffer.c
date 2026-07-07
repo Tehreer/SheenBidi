@@ -66,17 +66,19 @@ SB_INTERNAL void BidiTypesBufferInitialize(BidiTypesBufferRef bidiTypesBuffer)
     ListInitialize(&bidiTypesBuffer->bidiTypes, sizeof(SBBidiType));
 }
 
-SB_INTERNAL void BidiTypesBufferInitializeCopy(BidiTypesBufferRef bidiTypesBuffer,
-    BidiTypesBufferRef source)
+SB_INTERNAL void BidiTypesBufferCopyBidiTypes(BidiTypesBufferRef bidiTypesBuffer,
+    const BidiTypesBuffer *source)
 {
-    SBUInteger byteCount;
+    ListRemoveAll(&bidiTypesBuffer->bidiTypes);
 
-    BidiTypesBufferInitialize(bidiTypesBuffer);
+    if (source->bidiTypes.count > 0) {
+        SBUInteger byteCount;
 
-    ListReserveRange(&bidiTypesBuffer->bidiTypes, 0, source->bidiTypes.count);
+        ListReserveRange(&bidiTypesBuffer->bidiTypes, 0, source->bidiTypes.count);
 
-    byteCount = source->bidiTypes.count * sizeof(SBBidiType);
-    memcpy(bidiTypesBuffer->bidiTypes.items, source->bidiTypes.items, byteCount);
+        byteCount = source->bidiTypes.count * sizeof(SBBidiType);
+        memcpy(bidiTypesBuffer->bidiTypes.items, source->bidiTypes.items, byteCount);
+    }
 }
 
 SB_INTERNAL void BidiTypesBufferFinalize(BidiTypesBufferRef bidiTypesBuffer)

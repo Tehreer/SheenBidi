@@ -226,9 +226,9 @@ SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text)
         text->attributeRegistry, text->analysis.baseLevel);
 
     if (copy) {
-        TextBufferInitializeCopy(&copy->buffer, (TextBufferRef)&text->buffer);
-        BidiTypesBufferInitializeCopy(&copy->bidiTypes, (BidiTypesBufferRef)&text->bidiTypes);
-        TextAnalysisInitializeCopy(&copy->analysis, (TextAnalysisRef)&text->analysis);
+        TextBufferCopyCodeUnits(&copy->buffer, &text->buffer);
+        BidiTypesBufferCopyBidiTypes(&copy->bidiTypes, &text->bidiTypes);
+        TextAnalysisCopyParagraphs(&copy->analysis, &text->analysis);
         TextAnalysisFlush(&copy->analysis, &copy->buffer, &copy->bidiTypes);
 
         /* Copy attributes */

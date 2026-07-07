@@ -47,14 +47,16 @@ typedef struct _TextBuffer {
 SB_INTERNAL void TextBufferInitialize(TextBufferRef buffer, SBStringEncoding encoding);
 
 /**
- * Initializes a text buffer as a deep copy of another buffer's code units.
+ * Replaces an already-initialized text buffer's code units with a deep copy of another buffer's
+ * code units. The buffer must already be initialized (via `TextBufferInitialize()`) with the same
+ * encoding as `source`.
  *
  * @param buffer
- *      The text buffer to initialize.
+ *      The text buffer to copy into.
  * @param source
  *      The source buffer to copy code units from.
  */
-SB_INTERNAL void TextBufferInitializeCopy(TextBufferRef buffer, TextBufferRef source);
+SB_INTERNAL void TextBufferCopyCodeUnits(TextBufferRef buffer, const TextBuffer *source);
 
 /**
  * Finalizes a text buffer and releases its code-unit storage.

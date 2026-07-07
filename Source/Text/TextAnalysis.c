@@ -441,14 +441,14 @@ SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBLevel baseLe
     ListInitialize(&analysis->paragraphs, sizeof(TextParagraph));
 }
 
-SB_INTERNAL void TextAnalysisInitializeCopy(TextAnalysisRef analysis, TextAnalysisRef source)
+SB_INTERNAL void TextAnalysisCopyParagraphs(TextAnalysisRef analysis, const TextAnalysis *source)
 {
     SBUInteger paragraphCount;
     SBUInteger paragraphIndex;
 
-    TextAnalysisInitialize(analysis, source->baseLevel);
+    /* Clear any existing paragraphs, releasing their owned resources first */
+    RemoveParagraphRange(analysis, 0, analysis->paragraphs.count);
 
-    /* Copy paragraphs */
     paragraphCount = source->paragraphs.count;
     ListReserveRange(&analysis->paragraphs, 0, paragraphCount);
 

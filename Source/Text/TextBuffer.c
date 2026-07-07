@@ -53,16 +53,18 @@ SB_INTERNAL void TextBufferInitialize(TextBufferRef buffer, SBStringEncoding enc
     ListInitialize(&buffer->codeUnits, GetCodeUnitSize(encoding));
 }
 
-SB_INTERNAL void TextBufferInitializeCopy(TextBufferRef buffer, TextBufferRef source)
+SB_INTERNAL void TextBufferCopyCodeUnits(TextBufferRef buffer, const TextBuffer *source)
 {
-    SBUInteger byteCount;
+    ListRemoveAll(&buffer->codeUnits);
 
-    TextBufferInitialize(buffer, source->encoding);
+    if (source->codeUnits.count > 0) {
+        SBUInteger byteCount;
 
-    ListReserveRange(&buffer->codeUnits, 0, source->codeUnits.count);
+        ListReserveRange(&buffer->codeUnits, 0, source->codeUnits.count);
 
-    byteCount = source->codeUnits.count * source->codeUnits.itemSize;
-    memcpy(buffer->codeUnits.data, source->codeUnits.data, byteCount);
+        byteCount = source->codeUnits.count * source->codeUnits.itemSize;
+        memcpy(buffer->codeUnits.data, source->codeUnits.data, byteCount);
+    }
 }
 
 SB_INTERNAL void TextBufferFinalize(TextBufferRef buffer)

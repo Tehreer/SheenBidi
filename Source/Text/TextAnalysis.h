@@ -62,7 +62,9 @@ typedef struct _TextAnalysis {
 SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBLevel baseLevel);
 
 /**
- * Initializes a text analysis as a deep copy of another analysis's paragraphs.
+ * Replaces an already-initialized text analysis's paragraphs with a deep copy of another
+ * analysis's paragraphs. The analysis must already be initialized (via `TextAnalysisInitialize()`)
+ * with the same base level as `source`.
  *
  * Paragraphs that were already up to date in the source are retained as-is (their cached bidi
  * paragraphs are shared with source via retain — this is safe since nothing reads position- or
@@ -72,11 +74,11 @@ SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBLevel baseLe
  * regenerates them.
  *
  * @param analysis
- *      The text analysis to initialize.
+ *      The text analysis to copy into.
  * @param source
  *      The source analysis to copy from.
  */
-SB_INTERNAL void TextAnalysisInitializeCopy(TextAnalysisRef analysis, TextAnalysisRef source);
+SB_INTERNAL void TextAnalysisCopyParagraphs(TextAnalysisRef analysis, const TextAnalysis *source);
 
 /**
  * Finalizes a text analysis and releases all resources owned by its paragraphs.
