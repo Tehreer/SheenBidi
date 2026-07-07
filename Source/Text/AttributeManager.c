@@ -21,9 +21,9 @@
 #include <stddef.h>
 
 #include <API/SBAttributeRegistry.h>
-#include <API/SBText.h>
 #include <Core/List.h>
 #include <Text/AttributeDictionary.h>
+#include <Text/TextAnalysis.h>
 
 #include "AttributeManager.h"
 
@@ -133,12 +133,12 @@ typedef union _AttributeOperationParams {
  */
 static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager, SBUInteger *rangeStart)
 {
-    SBTextRef text = manager->parent;
+    TextAnalysisRef analysis = manager->analysis;
     SBUInteger paragraphIndex;
     TextParagraphRef paragraph;
 
-    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, *rangeStart);
-    paragraph = ListGetRef(&text->paragraphs, paragraphIndex);
+    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, *rangeStart);
+    paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
 
     /* Expand to paragraph start */
     *rangeStart = paragraph->index;
@@ -149,12 +149,12 @@ static void ExpandRangeToIncludeFirstParagraph(AttributeManagerRef manager, SBUI
  */
 static void ExpandRangeToIncludeLastParagraph(AttributeManagerRef manager, SBUInteger *rangeEnd)
 {
-    SBTextRef text = manager->parent;
+    TextAnalysisRef analysis = manager->analysis;
     SBUInteger paragraphIndex;
     TextParagraphRef paragraph;
 
-    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, *rangeEnd - 1);
-    paragraph = ListGetRef(&text->paragraphs, paragraphIndex);
+    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, *rangeEnd - 1);
+    paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
 
     /* Expand to paragraph end */
     *rangeEnd = paragraph->index + paragraph->length;
@@ -176,14 +176,14 @@ static void ExpandRangeToIncludeBoundaryParagraphs(AttributeManagerRef manager,
 static void ShrinkRangeToExcludeFirstParagraph(AttributeManagerRef manager,
     SBUInteger *rangeStart, SBUInteger rangeEnd)
 {
-    SBTextRef text = manager->parent;
+    TextAnalysisRef analysis = manager->analysis;
     SBUInteger paragraphIndex;
     TextParagraphRef textParagraph;
     SBUInteger paragraphStart;
     SBUInteger paragraphEnd;
 
-    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, *rangeStart);
-    textParagraph = ListGetRef(&text->paragraphs, paragraphIndex);
+    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, *rangeStart);
+    textParagraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
 
     paragraphStart = textParagraph->index;
     paragraphEnd = paragraphStart + textParagraph->length;
@@ -205,14 +205,14 @@ static void ShrinkRangeToExcludeFirstParagraph(AttributeManagerRef manager,
 static void ShrinkRangeToExcludeLastParagraph(AttributeManagerRef manager,
     SBUInteger rangeStart, SBUInteger *rangeEnd)
 {
-    SBTextRef text = manager->parent;
+    TextAnalysisRef analysis = manager->analysis;
     SBUInteger paragraphIndex;
     TextParagraphRef textParagraph;
     SBUInteger paragraphStart;
     SBUInteger paragraphEnd;
 
-    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, *rangeEnd - 1);
-    textParagraph = ListGetRef(&text->paragraphs, paragraphIndex);
+    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, *rangeEnd - 1);
+    textParagraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
 
     paragraphStart = textParagraph->index;
     paragraphEnd = paragraphStart + textParagraph->length;
@@ -515,8 +515,8 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
         TextParagraphRef precedingParagraph;
         TextParagraphRef followingParagraph;
 
-        SBTextGetBoundaryParagraphs(manager->parent, precedingIndex, mergePointIndex,
-            &precedingParagraph, &followingParagraph);
+        TextAnalysisGetBoundaryParagraphs(manager->analysis, manager->_stringLength,
+            precedingIndex, mergePointIndex, &precedingParagraph, &followingParagraph);
         paragraphsMerged = (precedingParagraph && followingParagraph
             && precedingParagraph == followingParagraph);
 
@@ -593,9 +593,9 @@ static void RemoveAttributeEntryRange(AttributeManagerRef manager,
 }
 
 SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
-    SBTextRef parent, SBAttributeRegistryRef registry)
+    TextAnalysisRef analysis, SBAttributeRegistryRef registry)
 {
-    manager->parent = parent;
+    manager->analysis = analysis;
     manager->_registry = registry;
     manager->_stringLength = 0;
 

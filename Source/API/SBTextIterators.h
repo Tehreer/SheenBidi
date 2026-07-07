@@ -27,6 +27,7 @@
 #include <API/SBText.h>
 #include <Core/Object.h>
 #include <Text/AttributeDictionary.h>
+#include <Text/TextAnalysis.h>
 
 typedef struct _TextIterator {
     SBTextRef text;

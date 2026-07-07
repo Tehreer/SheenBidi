@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,8 +53,9 @@ void SBMirrorLocatorLoadLine(SBMirrorLocatorRef locator, SBLineRef line, const v
         locator->_line = NULL;
     }
 
-    if (line && stringBuffer == line->codepointSequence.stringBuffer) {
+    if (line) {
         locator->_line = SBLineRetain(line);
+        locator->_stringBuffer = stringBuffer;
     }
 
     SBMirrorLocatorReset(locator);
@@ -70,7 +71,12 @@ SBBoolean SBMirrorLocatorMoveNext(SBMirrorLocatorRef locator)
     SBLineRef line = locator->_line;
 
     if (line) {
-        const SBCodepointSequence *sequence = &line->codepointSequence;
+        SBCodepointSequence localSequence;
+        const SBCodepointSequence *sequence = &localSequence;
+
+        localSequence.stringEncoding = line->stringEncoding;
+        localSequence.stringBuffer = locator->_stringBuffer;
+        localSequence.stringLength = line->offset + line->length;
 
         do {
             const SBRun *run = &line->fixedRuns[locator->_runIndex];

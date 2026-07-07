@@ -56,6 +56,9 @@ DEBUG_SOURCES = \
     $(SOURCE_DIR)/Script/ScriptStack.c \
     $(SOURCE_DIR)/Text/AttributeDictionary.c \
     $(SOURCE_DIR)/Text/AttributeManager.c \
+    $(SOURCE_DIR)/Text/BidiTypesBuffer.c \
+    $(SOURCE_DIR)/Text/TextAnalysis.c \
+    $(SOURCE_DIR)/Text/TextBuffer.c \
     $(SOURCE_DIR)/UBA/BidiChain.c \
     $(SOURCE_DIR)/UBA/BracketQueue.c \
     $(SOURCE_DIR)/UBA/IsolatingRun.c \

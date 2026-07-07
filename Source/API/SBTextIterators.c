@@ -30,6 +30,7 @@
 #include <Core/Object.h>
 #include <Text/AttributeDictionary.h>
 #include <Text/AttributeManager.h>
+#include <Text/BidiTypesBuffer.h>
 
 #include "SBTextIterators.h"
 
@@ -68,7 +69,7 @@ static void InitializeTextIterator(TextIteratorRef iterator, SBTextRef text,
     iterator->text = SBTextRetain(text);
     iterator->visualDirectionMode = visualDirectionMode;
 
-    ResetTextIterator(iterator, 0, text->codeUnits.count);
+    ResetTextIterator(iterator, 0, text->buffer.codeUnits.count);
 }
 
 /**
@@ -108,7 +109,7 @@ static void ResetTextIterator(TextIteratorRef iterator, SBUInteger index, SBUInt
     SBBoolean forwardMode;
     SBUInteger paragraphIndex;
 
-    SBUIntegerNormalizeRange(text->codeUnits.count, &index, &length);
+    SBUIntegerNormalizeRange(text->buffer.codeUnits.count, &index, &length);
 
     /* Setup iterator boundary */
     startIndex = index;
@@ -118,19 +119,19 @@ static void ResetTextIterator(TextIteratorRef iterator, SBUInteger index, SBUInt
 
     if (length > 0) {
         /* Find out the index of the first paragraph */
-        paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, index);
+        paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex((TextAnalysisRef)&text->analysis, index);
 
         if (iterator->visualDirectionMode) {
-            TextParagraphRef textParagraph = ListGetRef(&text->paragraphs, paragraphIndex);
+            TextParagraphRef textParagraph = ListGetRef(&text->analysis.paragraphs, paragraphIndex);
             SBParagraphRef bidiParagraph = textParagraph->bidiParagraph;
 
             forwardMode = (bidiParagraph->baseLevel & 1) == 0;
 
             if (!forwardMode) {
-                SBUInteger paragraphEnd = bidiParagraph->offset + bidiParagraph->length;
+                SBUInteger paragraphEnd = textParagraph->index + textParagraph->length;
 
                 if (paragraphEnd < endIndex) {
-                    paragraphIndex = SBTextGetCodeUnitParagraphIndex(text, endIndex - 1);
+                    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex((TextAnalysisRef)&text->analysis, endIndex - 1);
                 }
             }
         }
@@ -156,7 +157,7 @@ static SBBoolean AdvanceTextIterator(TextIteratorRef iterator)
 
     if (remainingLength > 0) {
         /* Get the current paragraph and its boundaries */
-        TextParagraphRef textParagraph = ListGetRef(&text->paragraphs, iterator->paragraphIndex);
+        TextParagraphRef textParagraph = ListGetRef(&text->analysis.paragraphs, iterator->paragraphIndex);
         SBUInteger paragraphStart = textParagraph->index;
         SBUInteger paragraphEnd = paragraphStart + textParagraph->length;
 
@@ -392,7 +393,7 @@ SBBoolean SBLogicalRunIteratorMoveNext(SBLogicalRunIteratorRef iterator)
 
         /* Get bidirectional information for the paragraph */
         bidiParagraph = textParagraph->bidiParagraph;
-        embeddingLevels = &bidiParagraph->fixedLevels[parent->paragraphStart - bidiParagraph->offset];
+        embeddingLevels = &bidiParagraph->fixedLevels[parent->paragraphStart - textParagraph->index];
         currentLevel = embeddingLevels[iterator->levelIndex];
 
         /* Find the end of the current level run */
@@ -681,7 +682,7 @@ SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef tex
     if (iterator) {
         iterator->text = SBTextRetain(text);
         iterator->startIndex = 0;
-        iterator->endIndex = text->codeUnits.count;
+        iterator->endIndex = text->buffer.codeUnits.count;
         iterator->currentIndex = SBInvalidIndex;
         iterator->filterAttributeID = SBAttributeIDNone;
         iterator->filterGroup = SBAttributeGroupNone;
@@ -874,8 +875,13 @@ SBBoolean SBVisualRunIteratorMoveNext(SBVisualRunIteratorRef iterator)
             paragraphStart = parentIterator->paragraphStart;
             paragraphLength = parentIterator->paragraphEnd - paragraphStart;
 
-            /* Create a new bidirectional line from the paragraph */
-            bidiLine = SBParagraphCreateLine(bidiParagraph, paragraphStart, paragraphLength);
+            /* Create a new bidirectional line from the paragraph, sourcing bidi types fresh from
+               the text's current buffer rather than trusting the paragraph's own cached offset */
+            bidiLine = SBLineCreate(
+                BidiTypesBufferGetPtr((BidiTypesBufferRef)&parentIterator->text->bidiTypes, paragraphStart),
+                &bidiParagraph->fixedLevels[paragraphStart - textParagraph->index],
+                bidiParagraph->baseLevel, bidiParagraph->stringEncoding,
+                paragraphStart, paragraphLength);
 
             /* Initialize line processing */
             iterator->bidiLine = bidiLine;

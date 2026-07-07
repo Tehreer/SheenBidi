@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -605,7 +605,7 @@ static SBBoolean ResolveParagraph(SBMutableParagraphRef paragraph, MemoryRef mem
             SB_LOG_STATEMENT("Levels", 1, SB_LOG_LEVELS_ARRAY(paragraph->fixedLevels, length));
             SB_LOG_BLOCK_CLOSER();
 
-            paragraph->codepointSequence = *codepointSequence;
+            paragraph->stringEncoding = codepointSequence->stringEncoding;
             paragraph->refTypes = bidiTypes;
             paragraph->offset = offset;
             paragraph->length = length;
@@ -721,7 +721,10 @@ SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset,
     SBUInteger lineLimit = lineOffset + lineLength;
 
     if (lineOffset < lineLimit && lineOffset >= paragraphOffset && lineLimit <= paragraphLimit) {
-        return SBLineCreate(paragraph, lineOffset, lineLength);
+        SBUInteger innerOffset = lineOffset - paragraphOffset;
+
+        return SBLineCreate(paragraph->refTypes + innerOffset, paragraph->fixedLevels + innerOffset,
+            paragraph->baseLevel, paragraph->stringEncoding, lineOffset, lineLength);
     }
 
     return NULL;

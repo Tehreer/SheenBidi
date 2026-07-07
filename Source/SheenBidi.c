@@ -49,6 +49,9 @@
 
 #include <Text/AttributeDictionary.c>
 #include <Text/AttributeManager.c>
+#include <Text/BidiTypesBuffer.c>
+#include <Text/TextAnalysis.c>
+#include <Text/TextBuffer.c>
 
 #include <UBA/BidiChain.c>
 #include <UBA/BracketQueue.c>

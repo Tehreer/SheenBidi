@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 #include <stddef.h>
 
-#include <API/SBAlgorithm.h>
 #include <API/SBAllocator.h>
 #include <API/SBAssert.h>
 #include <API/SBBase.h>
-#include <API/SBParagraph.h>
 #include <Core/Memory.h>
 #include <Core/Object.h>
 
@@ -252,31 +250,26 @@ static void ReorderRuns(SBRun *runs, SBUInteger runCount, SBLevel maxLevel)
     }
 }
 
-SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
-    SBUInteger lineOffset, SBUInteger lineLength)
+SB_INTERNAL SBLineRef SBLineCreate(const SBBidiType *bidiTypes, const SBLevel *bidiLevels,
+    SBLevel baseLevel, SBStringEncoding encoding, SBUInteger lineOffset, SBUInteger lineLength)
 {
-    SBUInteger innerOffset = lineOffset - paragraph->offset;
-    const SBBidiType *refTypes = paragraph->refTypes + innerOffset;
-    const SBLevel *refLevels = paragraph->fixedLevels + innerOffset;
     SBMutableLineRef line = NULL;
     Memory memory;
     LineContext context;
 
     /* Line range MUST be valid. */
-    SBAssert(lineOffset < (lineOffset + lineLength)
-             && lineOffset >= paragraph->offset
-             && (lineOffset + lineLength) <= (paragraph->offset + paragraph->length));
+    SBAssert(lineOffset < (lineOffset + lineLength));
 
     MemoryInitialize(&memory);
 
-    if (InitializeLineContext(&context, &memory, refTypes, refLevels, lineLength, paragraph->baseLevel)) {
+    if (InitializeLineContext(&context, &memory, bidiTypes, bidiLevels, lineLength, baseLevel)) {
         line = AllocateLine(context.runCount);
 
         if (line) {
             line->runCount = InitializeRuns(line->fixedRuns, context.fixedLevels, lineLength, lineOffset);
             ReorderRuns(line->fixedRuns, line->runCount, context.maxLevel);
 
-            line->codepointSequence = paragraph->codepointSequence;
+            line->stringEncoding = encoding;
             line->offset = lineOffset;
             line->length = lineLength;
         }

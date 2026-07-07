@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 
 #include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBLine.h>
-#include <SheenBidi/SBParagraph.h>
 #include <SheenBidi/SBRun.h>
 
 #include <API/SBBase.h>
@@ -27,14 +26,14 @@
 
 typedef struct _SBLine {
     ObjectBase _base;
-    SBCodepointSequence codepointSequence;
+    SBStringEncoding stringEncoding;
     SBRun *fixedRuns;
     SBUInteger runCount;
     SBUInteger offset;
     SBUInteger length;
 } SBLine;
 
-SB_INTERNAL SBLineRef SBLineCreate(SBParagraphRef paragraph,
-    SBUInteger lineOffset, SBUInteger lineLength);
+SB_INTERNAL SBLineRef SBLineCreate(const SBBidiType *bidiTypes, const SBLevel *bidiLevels,
+    SBLevel baseLevel, SBStringEncoding encoding, SBUInteger lineOffset, SBUInteger lineLength);
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define _SB_INTERNAL_PARAGRAPH_H
 
 #include <SheenBidi/SBAlgorithm.h>
+#include <SheenBidi/SBCodepointSequence.h>
 #include <SheenBidi/SBParagraph.h>
 
 #include <API/SBBase.h>
@@ -26,7 +27,7 @@
 typedef struct _SBParagraph {
     ObjectBase _base;
     SBAlgorithmRef _algorithm;
-    SBCodepointSequence codepointSequence;
+    SBStringEncoding stringEncoding;
     const SBBidiType *refTypes;
     SBLevel *fixedLevels;
     SBUInteger offset;

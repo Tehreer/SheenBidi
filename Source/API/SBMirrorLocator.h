@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 typedef struct _SBMirrorLocator {
     ObjectBase _base;
     SBLineRef _line;
+    const void *_stringBuffer;
     SBUInteger _runIndex;
     SBUInteger _stringIndex;
     SBMirrorAgent agent;

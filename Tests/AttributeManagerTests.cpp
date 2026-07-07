@@ -338,7 +338,7 @@ void AttributeManagerTests::testInitializeWithNullRegistry() {
     auto manager = &text->attributeManager;
 
     assert(manager->_registry == nullptr);
-    assert(manager->parent == text);
+    assert(manager->analysis == &text->analysis);
 
     SBTextRelease(text);
 }
@@ -349,7 +349,7 @@ void AttributeManagerTests::testInitializeWithValidRegistry() {
 
     assert(manager->_registry != nullptr);
     assert(manager->_registry == text->attributeRegistry);
-    assert(manager->parent == text);
+    assert(manager->analysis == &text->analysis);
     assert(manager->_entries.count == 1);
 
     SBTextAppendRandomCodeUnits(text, 5);

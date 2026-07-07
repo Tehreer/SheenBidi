@@ -108,10 +108,10 @@ const SBAttributeID AttributeID::Alignment = SBAttributeRegistryGetAttributeID(
     DefaultAttributeRegistry, AttributeName::Alignment);
 
 static void verifyParagraphRanges(SBTextRef text, const vector<pair<size_t, size_t>> &ranges) {
-    assert(text->paragraphs.count == ranges.size());
+    assert(text->analysis.paragraphs.count == ranges.size());
 
-    for (size_t i = 0; i < text->paragraphs.count; ++i) {
-        auto paragraph = ListGetRef(&text->paragraphs, i);
+    for (size_t i = 0; i < text->analysis.paragraphs.count; ++i) {
+        auto paragraph = ListGetRef(&text->analysis.paragraphs, i);
         auto &range = ranges.at(i);
 
         assert(paragraph->index == range.first);
@@ -1073,7 +1073,7 @@ void TextTests::testParagraphScenarios() {
         SBTextAppendCodeUnits(text, manyParagraphs.c_str(), manyParagraphs.length());
 
         // Should have 50 paragraphs
-        assert(text->paragraphs.count == 50);
+        assert(text->analysis.paragraphs.count == 50);
 
         SBTextRelease(text);
     }
