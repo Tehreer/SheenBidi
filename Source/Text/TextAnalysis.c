@@ -194,92 +194,122 @@ static void ShiftParagraphRanges(TextAnalysisRef analysis, SBUInteger listIndex,
  * Replacement / Flush
  * ========================================================================= */
 
+/*
+ * Re-segments the paragraph list after a code-unit replacement.
+ *
+ * Strategy: identify the contiguous block of existing paragraphs whose boundaries the edit can
+ * affect, discard exactly that block, re-scan the corresponding span of the (already updated) buffer
+ * to regenerate fresh paragraphs, and shift the untouched survivors that follow.
+ *
+ * Correctness hinges on choosing the affected block precisely:
+ *
+ *   - First affected paragraph: the one containing `replaceStart - 1` (or the list head). Probing the
+ *     code unit *before* the edit captures the case where the edit deletes a paragraph separator and
+ *     merges the edited paragraph with its predecessor.
+ *
+ *   - First surviving paragraph: the first existing paragraph that starts strictly after `oldEnd`. Its
+ *     leading separator sits at or beyond `oldEnd`, i.e. outside the replaced range `[replaceStart,
+ *     oldEnd)`, so that separator (and hence the survivor's content and internal boundaries) is
+ *     unaffected and only needs its start index shifted by `lengthDelta`. Because that separator still
+ *     exists in the new buffer, the re-scan of the affected span naturally terminates exactly at the
+ *     survivor's shifted start, keeping the two regions perfectly aligned.
+ */
 static void UpdateParagraphsForTextReplacement(TextAnalysisRef analysis, TextBufferRef buffer,
     BidiTypesBufferRef bidiTypesBuffer, SBUInteger replaceStart, SBUInteger oldLength, SBUInteger newLength)
 {
     SBUInteger oldEnd = replaceStart + oldLength;
-    SBUInteger newEnd = replaceStart + newLength;
     SBInteger lengthDelta = (SBInteger)(newLength - oldLength);
-    SBUInteger paragraphIndex;
-    SBUInteger removalEnd;
+    SBUInteger paragraphCount = analysis->paragraphs.count;
+    SBUInteger firstIndex;
+    SBUInteger survivorIndex;
+    SBUInteger rescanStart;
+    SBUInteger listIndex;
+    SBUInteger scanIndex;
     SBCodepointSequence sequence;
     TextParagraphRef paragraph;
-    SBUInteger scanIndex;
 
-    /* Find the first affected paragraph */
-    paragraphIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, replaceStart > 0 ? replaceStart - 1 : 0);
-    if (paragraphIndex == SBInvalidIndex) {
-        paragraphIndex = analysis->paragraphs.count;
+    /* Locate the first affected paragraph (see the note above for why replaceStart - 1 is probed). */
+    firstIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, replaceStart > 0 ? replaceStart - 1 : 0);
+    if (firstIndex == SBInvalidIndex) {
+        firstIndex = paragraphCount;
     }
 
-    /* Determine starting point for scanning */
-    if (paragraphIndex < analysis->paragraphs.count) {
-        paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
-        scanIndex = paragraph->index;
+    if (firstIndex < paragraphCount) {
+        paragraph = ListGetRef(&analysis->paragraphs, firstIndex);
+        rescanStart = paragraph->index;
     } else {
-        scanIndex = replaceStart;
+        rescanStart = replaceStart;
     }
 
-    /* Setup for scanning */
+    /* Discard the paragraphs that start within the replaced range; they must be regenerated. Any
+     * paragraph starting after the range is a potential survivor and is handled by the re-scan below. */
+    for (survivorIndex = firstIndex; survivorIndex < paragraphCount; survivorIndex++) {
+        paragraph = ListGetRef(&analysis->paragraphs, survivorIndex);
+        if (paragraph->index > oldEnd) {
+            break;
+        }
+    }
+    RemoveParagraphRange(analysis, firstIndex, survivorIndex - firstIndex);
+
     TextBufferGetCodepointSequence(buffer, &sequence);
+
+    /*
+     * Re-scan the affected span, regenerating paragraphs. A surviving paragraph after the edited
+     * region can be reused only when a freshly-computed boundary lands exactly on its (shifted) start;
+     * this is always the case for well-formed text. If a regenerated paragraph instead overruns a
+     * survivor's start - which can happen when an edit alters how later code units decode (e.g. a
+     * malformed multi-byte sequence) so that a previous boundary no longer exists - that survivor is
+     * absorbed and removed. Re-scanning therefore continues until it re-aligns with a survivor or
+     * reaches the end of the text, guaranteeing a gap-free, overlap-free segmentation in all cases.
+     */
+    listIndex = firstIndex;
+    scanIndex = rescanStart;
 
     while (scanIndex < sequence.stringLength) {
         SBUInteger separatorLength;
         SBUInteger paraLength;
 
+        /* Re-align with, or absorb, the next survivor. */
+        if (listIndex < analysis->paragraphs.count) {
+            TextParagraphRef survivor = ListGetRef(&analysis->paragraphs, listIndex);
+            SBUInteger survivorStart = (SBUInteger)(survivor->index + lengthDelta);
+
+            if (scanIndex == survivorStart) {
+                break;
+            }
+            if (survivorStart < scanIndex) {
+                RemoveParagraphRange(analysis, listIndex, 1);
+                continue;
+            }
+        }
+
         SBCodepointSequenceGetParagraphBoundary(&sequence, BidiTypesBufferGetPtr(bidiTypesBuffer, 0),
             scanIndex, sequence.stringLength - scanIndex, &paraLength, &separatorLength);
 
-        /* Get or create paragraph slot */
-        if (paragraphIndex < analysis->paragraphs.count) {
-            paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
-
-            /* Check if this slot is within reusable range */
-            if (paragraph->index > oldEnd) {
-                /* Slot is after affected region, insert new one */
-                paragraph = InsertEmptyParagraph(analysis, paragraphIndex);
-            } else {
-                SBUInteger paragraphEnd = paragraph->index + paragraph->length;
-
-                /* Check for splitting */
-                if (paragraphEnd > oldEnd && separatorLength > 0) {
-                    newEnd = paragraphEnd + lengthDelta;
-                }
-            }
-        } else {
-            /* Need new slot */
-            paragraph = InsertEmptyParagraph(analysis, paragraphIndex);
-        }
-
-        /* Update paragraph */
+        paragraph = InsertEmptyParagraph(analysis, listIndex);
         paragraph->index = scanIndex;
         paragraph->length = paraLength;
         paragraph->needsReanalysis = SBTrue;
 
         scanIndex += paraLength;
-        paragraphIndex += 1;
-
-        if (scanIndex > replaceStart && scanIndex >= newEnd) {
-            break;
-        }
+        listIndex += 1;
     }
 
-    /* Remove any leftover slots that weren't reused */
-    removalEnd = paragraphIndex;
-    while (removalEnd < analysis->paragraphs.count) {
-        paragraph = ListGetRef(&analysis->paragraphs, removalEnd);
-        if (paragraph->index > oldEnd) {
+    /* Absorb any survivors overrun by the final regenerated paragraph (e.g. when the re-scan ran to
+     * the end of the text without re-aligning on a survivor boundary). */
+    while (listIndex < analysis->paragraphs.count) {
+        TextParagraphRef survivor = ListGetRef(&analysis->paragraphs, listIndex);
+        SBUInteger survivorStart = (SBUInteger)(survivor->index + lengthDelta);
+
+        if (survivorStart >= scanIndex) {
             break;
         }
-
-        removalEnd += 1;
+        RemoveParagraphRange(analysis, listIndex, 1);
     }
 
-    RemoveParagraphRange(analysis, paragraphIndex, removalEnd - paragraphIndex);
-
-    /* Shift paragraphs after the affected region */
-    if (lengthDelta != 0 && paragraphIndex < analysis->paragraphs.count) {
-        ShiftParagraphRanges(analysis, paragraphIndex, lengthDelta);
+    /* Shift the untouched survivors that follow the regenerated region. */
+    if (lengthDelta != 0) {
+        ShiftParagraphRanges(analysis, listIndex, lengthDelta);
     }
 }
 
