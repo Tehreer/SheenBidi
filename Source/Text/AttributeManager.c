@@ -828,6 +828,10 @@ SB_INTERNAL void AttributeManagerSetAttribute(AttributeManagerRef manager,
 
             /* Apply over the (possibly expanded) range */
             ApplyAttributesOverRange(manager, index, length, attributes);
+
+            /* Attribute changes affect itemization/shaping without touching paragraph
+             * boundaries, so invalidate the affected paragraphs' cached userInfo directly. */
+            TextAnalysisInvalidateParagraphUserInfo(manager->analysis, index, length);
         }
     }
 }
@@ -857,6 +861,10 @@ SB_INTERNAL void AttributeManagerRemoveAttribute(AttributeManagerRef manager,
 
         if (length > 0) {
             RemoveAttributeFromRange(manager, index, length, attributeID);
+
+            /* Attribute changes affect itemization/shaping without touching paragraph
+             * boundaries, so invalidate the affected paragraphs' cached userInfo directly. */
+            TextAnalysisInvalidateParagraphUserInfo(manager->analysis, index, length);
         }
     }
 }
