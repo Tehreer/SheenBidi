@@ -30,6 +30,9 @@ typedef struct _SBTextConfig {
     ObjectBase _base;
     SBAttributeRegistryRef attributeRegistry;
     SBLevel baseLevel;
+    SBParagraphUserInfoCallbacks userInfoCallbacks;
+    SBParagraphUserInfoProviderCallback userInfoProvider;
+    void *userInfoProviderContext;
 } SBTextConfig;
 
 #endif

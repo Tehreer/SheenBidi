@@ -107,6 +107,32 @@ const SBAttributeID AttributeID::Color = SBAttributeRegistryGetAttributeID(
 const SBAttributeID AttributeID::Alignment = SBAttributeRegistryGetAttributeID(
     DefaultAttributeRegistry, AttributeName::Alignment);
 
+/* ==========================================================================
+ * Paragraph userInfo test double
+ *
+ * A minimal refcounted value with a unique tag, used to verify: the provider is consulted exactly
+ * for invalidated paragraphs, distinct paragraphs get distinct values, untouched paragraphs keep
+ * their identity, and retain/release balance exactly (no leak, no double release). Each test below
+ * owns its own local ProviderState and its own local retain/release/provider lambdas rather than
+ * sharing any file-scope mutable state; `UserInfoValue::state` is a back-reference so the release
+ * lambda (which, unlike the provider, has no context parameter) can still find that test's local
+ * counters.
+ * ========================================================================== */
+
+struct ProviderState;
+
+struct UserInfoValue {
+    int refcount;
+    int tag;
+    ProviderState *state;
+};
+
+struct ProviderState {
+    int tagCounter = 0;
+    int liveCount = 0;
+    int callCount = 0;
+};
+
 static void verifyParagraphRanges(SBTextRef text, const vector<pair<size_t, size_t>> &ranges) {
     assert(text->analysis.paragraphs.count == ranges.size());
 
@@ -185,6 +211,10 @@ void TextTests::run() {
     testRemoveAttribute();
     testAttributeEdgeCases();
     testAttributeComplexScenarios();
+    testParagraphUserInfoProvider();
+    testParagraphUserInfoInvalidation();
+    testParagraphUserInfoCopySharing();
+    testParagraphUserInfoLifecycle();
 }
 
 void TextTests::testCreateImmutableText() {
@@ -1585,6 +1615,316 @@ void TextTests::testAttributeComplexScenarios() {
         SBTextRelease(immutableCopy);
         SBTextRelease(mutableCopy);
     }
+}
+
+void TextTests::testParagraphUserInfoProvider() {
+    // A provider registered on the config auto-populates every paragraph created from scratch,
+    // giving distinct paragraphs distinct values.
+    ProviderState state;
+
+    auto retain = [](const void *value) -> const void * {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount++;
+        return value;
+    };
+    auto release = [](const void *value) {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        assert(v->refcount > 0);
+        v->refcount--;
+        if (v->refcount == 0) {
+            v->state->liveCount--;
+            delete v;
+        }
+    };
+    auto provider = [](SBTextRef, SBUInteger, SBUInteger, void *context) -> const void * {
+        auto state = static_cast<ProviderState *>(context);
+        state->callCount++;
+        state->liveCount++;
+        return new UserInfoValue{ 0, ++state->tagCounter, state };
+    };
+
+    auto config = SBTextConfigCreate();
+    SBParagraphUserInfoCallbacks callbacks = { retain, release };
+    SBTextConfigSetParagraphUserInfoCallbacks(config, &callbacks);
+    SBTextConfigSetParagraphUserInfoProvider(config, provider, &state);
+
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+    assert(text != nullptr);
+
+    auto content = "First paragraph.\nSecond paragraph.";
+    SBTextAppendCodeUnits(text, content, 34);
+
+    SBParagraphInfo firstInfo;
+    SBTextGetCodeUnitParagraphInfo(text, 0, &firstInfo);
+    assert(firstInfo.userInfo != nullptr);
+
+    SBParagraphInfo secondInfo;
+    SBTextGetCodeUnitParagraphInfo(text, 17, &secondInfo);
+    assert(secondInfo.userInfo != nullptr);
+
+    assert(firstInfo.userInfo != secondInfo.userInfo);
+    assert(static_cast<const UserInfoValue *>(firstInfo.userInfo)->tag
+        != static_cast<const UserInfoValue *>(secondInfo.userInfo)->tag);
+
+    // Also surfaced through the paragraph iterator, not just SBTextGetCodeUnitParagraphInfo.
+    auto iterator = SBTextCreateParagraphIterator(text);
+    auto current = SBParagraphIteratorGetCurrent(iterator);
+
+    assert(SBParagraphIteratorMoveNext(iterator));
+    assert(current->userInfo == firstInfo.userInfo);
+
+    assert(SBParagraphIteratorMoveNext(iterator));
+    assert(current->userInfo == secondInfo.userInfo);
+
+    SBParagraphIteratorRelease(iterator);
+
+    // A provider that returns NULL leaves the paragraph's userInfo unset, without crashing later
+    // queries.
+    auto optOutConfig = SBTextConfigCreate();
+    SBTextConfigSetParagraphUserInfoProvider(optOutConfig, [](SBTextRef, SBUInteger, SBUInteger,
+        void *) -> const void * { return nullptr; }, nullptr);
+
+    auto optOutText = SBTextCreateMutable(SBStringEncodingUTF8, optOutConfig);
+    SBTextAppendCodeUnits(optOutText, content, 34);
+
+    SBParagraphInfo optOutInfo;
+    SBTextGetCodeUnitParagraphInfo(optOutText, 0, &optOutInfo);
+    assert(optOutInfo.userInfo == nullptr);
+
+    SBTextRelease(optOutText);
+    SBTextConfigRelease(optOutConfig);
+
+    SBTextRelease(text);
+    SBTextConfigRelease(config);
+}
+
+void TextTests::testParagraphUserInfoInvalidation() {
+    ProviderState state;
+
+    auto retain = [](const void *value) -> const void * {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount++;
+        return value;
+    };
+    auto release = [](const void *value) {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        assert(v->refcount > 0);
+        v->refcount--;
+        if (v->refcount == 0) {
+            v->state->liveCount--;
+            delete v;
+        }
+    };
+    auto provider = [](SBTextRef, SBUInteger, SBUInteger, void *context) -> const void * {
+        auto state = static_cast<ProviderState *>(context);
+        state->callCount++;
+        state->liveCount++;
+        return new UserInfoValue{ 0, ++state->tagCounter, state };
+    };
+
+    auto config = SBTextConfigCreate();
+    SBParagraphUserInfoCallbacks callbacks = { retain, release };
+    SBTextConfigSetParagraphUserInfoCallbacks(config, &callbacks);
+    SBTextConfigSetParagraphUserInfoProvider(config, provider, &state);
+    SBTextConfigSetAttributeRegistry(config, DefaultAttributeRegistry);
+
+    // Editing inside one paragraph regenerates only that paragraph; an untouched paragraph keeps
+    // its userInfo identity.
+    {
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+        assert(text != nullptr);
+
+        auto content = "First\nSecond";
+        SBTextAppendCodeUnits(text, content, 12);
+
+        SBParagraphInfo info;
+        SBTextGetCodeUnitParagraphInfo(text, 0, &info);
+        auto firstBefore = info.userInfo;
+
+        SBTextGetCodeUnitParagraphInfo(text, 6, &info);
+        auto secondBefore = info.userInfo;
+        assert(firstBefore != nullptr && secondBefore != nullptr);
+
+        // Captured before the edit releases secondBefore: comparing the freed pointer's address
+        // afterward would be unreliable, since the allocator may hand the same address straight
+        // back out to the freshly-provided replacement value.
+        auto secondBeforeTag = static_cast<const UserInfoValue *>(secondBefore)->tag;
+
+        SBTextInsertCodeUnits(text, 9, "XYZ", 3); // edit lands inside "Second", not at its boundary
+
+        SBTextGetCodeUnitParagraphInfo(text, 0, &info);
+        assert(info.userInfo == firstBefore); // untouched paragraph: same value, not re-provided
+
+        SBTextGetCodeUnitParagraphInfo(text, 6, &info);
+        assert(info.userInfo != nullptr);
+        assert(static_cast<const UserInfoValue *>(info.userInfo)->tag != secondBeforeTag); // regenerated
+
+        SBTextRelease(text);
+    }
+
+    // A paragraph-scoped attribute change invalidates only the paragraph(s) it touches, without
+    // any text re-segmentation.
+    {
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+        assert(text != nullptr);
+
+        auto content = "First paragraph.\nSecond paragraph.";
+        SBTextAppendCodeUnits(text, content, 34);
+
+        SBParagraphInfo info;
+        SBTextGetCodeUnitParagraphInfo(text, 0, &info);
+        auto firstBefore = info.userInfo;
+
+        SBTextGetCodeUnitParagraphInfo(text, 17, &info);
+        auto secondBefore = info.userInfo;
+
+        // Captured before the attribute change releases firstBefore (see the identical note in the
+        // previous block: the freed address may be handed straight back to the replacement value).
+        auto firstBeforeTag = static_cast<const UserInfoValue *>(firstBefore)->tag;
+
+        AttributeValue centerAlign("center");
+        SBTextSetAttribute(text, 0, 17, AttributeID::Alignment, &centerAlign); // first paragraph only
+
+        SBTextGetCodeUnitParagraphInfo(text, 0, &info);
+        assert(info.userInfo != nullptr);
+        assert(static_cast<const UserInfoValue *>(info.userInfo)->tag != firstBeforeTag); // re-provided
+
+        SBTextGetCodeUnitParagraphInfo(text, 17, &info);
+        assert(info.userInfo == secondBefore); // untouched, unaffected by the attribute change
+
+        SBTextRelease(text);
+    }
+
+    // Batched edits defer re-segmentation, but the provider must still see every paragraph
+    // provided exactly once by the time SBTextEndEditing() returns.
+    {
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+        assert(text != nullptr);
+
+        SBTextBeginEditing(text);
+        SBTextAppendCodeUnits(text, "First", 5);
+        SBTextAppendCodeUnits(text, "\nSecond", 7);
+        SBTextEndEditing(text);
+
+        SBParagraphInfo info;
+        SBTextGetCodeUnitParagraphInfo(text, 0, &info);
+        assert(info.userInfo != nullptr);
+
+        SBTextGetCodeUnitParagraphInfo(text, 6, &info);
+        assert(info.userInfo != nullptr);
+
+        SBTextRelease(text);
+    }
+
+    SBTextConfigRelease(config);
+}
+
+void TextTests::testParagraphUserInfoCopySharing() {
+    ProviderState state;
+
+    auto retain = [](const void *value) -> const void * {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount++;
+        return value;
+    };
+    auto release = [](const void *value) {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        assert(v->refcount > 0);
+        v->refcount--;
+        if (v->refcount == 0) {
+            v->state->liveCount--;
+            delete v;
+        }
+    };
+    auto provider = [](SBTextRef, SBUInteger, SBUInteger, void *context) -> const void * {
+        auto state = static_cast<ProviderState *>(context);
+        state->callCount++;
+        state->liveCount++;
+        return new UserInfoValue{ 0, ++state->tagCounter, state };
+    };
+
+    auto config = SBTextConfigCreate();
+    SBParagraphUserInfoCallbacks callbacks = { retain, release };
+    SBTextConfigSetParagraphUserInfoCallbacks(config, &callbacks);
+    SBTextConfigSetParagraphUserInfoProvider(config, provider, &state);
+
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+    assert(text != nullptr);
+
+    auto content = "First paragraph.\nSecond paragraph.";
+    SBTextAppendCodeUnits(text, content, 34);
+
+    SBParagraphInfo sourceInfo;
+    SBTextGetCodeUnitParagraphInfo(text, 0, &sourceInfo);
+    assert(sourceInfo.userInfo != nullptr);
+    auto sourceValue = static_cast<const UserInfoValue *>(sourceInfo.userInfo);
+    assert(sourceValue->refcount == 1);
+
+    auto callCountBeforeCopy = state.callCount;
+    auto copy = SBTextCreateMutableCopy(text);
+    assert(copy != nullptr);
+
+    // Up-to-date paragraphs are shared (retained), not re-provided.
+    assert(state.callCount == callCountBeforeCopy);
+
+    SBParagraphInfo copyInfo;
+    SBTextGetCodeUnitParagraphInfo(copy, 0, &copyInfo);
+    assert(copyInfo.userInfo == sourceInfo.userInfo);
+    assert(sourceValue->refcount == 2);
+
+    SBTextRelease(copy);
+    assert(sourceValue->refcount == 1); // back down: only the source's reference remains
+
+    SBTextRelease(text);
+    SBTextConfigRelease(config);
+}
+
+void TextTests::testParagraphUserInfoLifecycle() {
+    ProviderState state;
+
+    auto retain = [](const void *value) -> const void * {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount++;
+        return value;
+    };
+    auto release = [](const void *value) {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        assert(v->refcount > 0);
+        v->refcount--;
+        if (v->refcount == 0) {
+            v->state->liveCount--;
+            delete v;
+        }
+    };
+    auto provider = [](SBTextRef, SBUInteger, SBUInteger, void *context) -> const void * {
+        auto state = static_cast<ProviderState *>(context);
+        state->callCount++;
+        state->liveCount++;
+        return new UserInfoValue{ 0, ++state->tagCounter, state };
+    };
+
+    auto config = SBTextConfigCreate();
+    SBParagraphUserInfoCallbacks callbacks = { retain, release };
+    SBTextConfigSetParagraphUserInfoCallbacks(config, &callbacks);
+    SBTextConfigSetParagraphUserInfoProvider(config, provider, &state);
+
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+    assert(text != nullptr);
+
+    auto content = "P1\nP2\nP3\nP4";
+    SBTextAppendCodeUnits(text, content, 11);
+
+    assert(state.liveCount == 4); // one value per paragraph
+
+    // Deleting a paragraph (merging two into one) releases the discarded paragraphs' userInfo.
+    SBTextDeleteCodeUnits(text, 2, 5); // remove "\nP2\n", merging "P1" and "P3" into one paragraph
+    assert(state.liveCount == 2); // "P1\nP3" (regenerated) + "P4" (untouched)
+
+    // Releasing the text releases every remaining paragraph's userInfo exactly once.
+    SBTextRelease(text);
+    assert(state.liveCount == 0);
+
+    SBTextConfigRelease(config);
 }
 
 #ifdef STANDALONE_TESTING

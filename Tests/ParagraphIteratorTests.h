@@ -32,6 +32,7 @@ private:
     static void testRetainRelease();
     static void testEdgeCases();
     static void testResetBehavior();
+    static void testUserInfo();
 };
 
 }

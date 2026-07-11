@@ -24,7 +24,9 @@
 #include <SheenBidi/SBParagraph.h>
 #include <SheenBidi/SBScript.h>
 #include <SheenBidi/SBScriptLocator.h>
+#include <SheenBidi/SBTextConfig.h>
 #include <SheenBidi/SBTextIterators.h>
+#include <SheenBidi/SBTextType.h>
 
 #include <Core/List.h>
 #include <Text/BidiTypesBuffer.h>
@@ -35,6 +37,7 @@ typedef struct _TextParagraph {
     SBUInteger length;
     SBBoolean needsReanalysis;
     SBParagraphRef bidiParagraph;
+    const void *userInfo;
     LIST(SBScript) scripts;
 } TextParagraph, *TextParagraphRef;
 
@@ -46,9 +49,13 @@ typedef struct _TextParagraph {
  * levels/scripts; `TextAnalysisFlush()` later reprocesses all paragraphs still marked as such.
  */
 typedef struct _TextAnalysis {
+    SBTextRef ownerText;
     SBLevel baseLevel;
     SBScriptLocatorRef scriptLocator;
     LIST(TextParagraph) paragraphs;
+    SBParagraphUserInfoCallbacks userInfoCallbacks;
+    SBParagraphUserInfoProviderCallback userInfoProvider;
+    void *userInfoProviderContext;
 } TextAnalysis, *TextAnalysisRef;
 
 /**
@@ -58,8 +65,18 @@ typedef struct _TextAnalysis {
  *      The text analysis to initialize.
  * @param baseLevel
  *      Base bidirectional level used for paragraphs derived by this analysis.
+ * @param userInfoCallbacks
+ *      Lifecycle callbacks used to retain/release a paragraph's userInfo value; copied by value.
+ *      Can be `NULL`, in which case userInfo values are stored as-is with no lifecycle management.
+ * @param userInfoProvider
+ *      Callback used to (re)populate a paragraph's userInfo whenever it's invalidated (can be
+ *      `NULL`). Fixed for the lifetime of the analysis; there is no way to change it afterward.
+ * @param userInfoProviderContext
+ *      Opaque pointer passed back to `userInfoProvider` unchanged.
  */
-SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBLevel baseLevel);
+SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBTextRef ownerText,
+    SBLevel baseLevel, const SBParagraphUserInfoCallbacks *userInfoCallbacks,
+    SBParagraphUserInfoProviderCallback userInfoProvider, void *userInfoProviderContext);
 
 /**
  * Replaces an already-initialized text analysis's paragraphs with a deep copy of another
@@ -164,6 +181,21 @@ SB_INTERNAL void TextAnalysisGetResolvedLevels(TextAnalysisRef analysis, SBUInte
  */
 SB_INTERNAL void TextAnalysisGetCodeUnitParagraphInfo(TextAnalysisRef analysis, SBUInteger index,
     SBParagraphInfo *paragraphInfo);
+
+/**
+ * Releases and clears the userInfo of every paragraph intersecting the given code-unit range, then
+ * gives the registered provider callback (if any) a chance to supply a replacement for each one.
+ * Used when an attribute change invalidates paragraphs without re-segmenting them.
+ *
+ * @param analysis
+ *      The text analysis to update.
+ * @param index
+ *      Start index of the affected range (in code units).
+ * @param length
+ *      Length of the affected range (in code units).
+ */
+SB_INTERNAL void TextAnalysisInvalidateParagraphUserInfo(TextAnalysisRef analysis, SBUInteger index,
+    SBUInteger length);
 
 /**
  * Notifies the analysis that a range of code units in `buffer` was replaced, re-deriving paragraph

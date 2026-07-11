@@ -210,6 +210,7 @@ static void InitializeParagraphInfo(SBParagraphInfo *info)
     info->index = SBInvalidIndex;
     info->length = 0;
     info->baseLevel = 0;
+    info->userInfo = NULL;
 }
 
 /**
@@ -271,6 +272,7 @@ SBBoolean SBParagraphIteratorMoveNext(SBParagraphIteratorRef iterator)
         currentInfo->index = parent->paragraphStart;
         currentInfo->length = parent->paragraphEnd - parent->paragraphStart;
         currentInfo->baseLevel = textParagraph->bidiParagraph->baseLevel;
+        currentInfo->userInfo = textParagraph->userInfo;
 
         return SBTrue;
     }

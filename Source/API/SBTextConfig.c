@@ -45,6 +45,10 @@ SBTextConfigRef SBTextConfigCreate(void)
     if (config) {
         config->attributeRegistry = NULL;
         config->baseLevel = SBLevelDefaultLTR;
+        config->userInfoCallbacks.retain = NULL;
+        config->userInfoCallbacks.release = NULL;
+        config->userInfoProvider = NULL;
+        config->userInfoProviderContext = NULL;
     }
 
     return config;
@@ -66,6 +70,24 @@ void SBTextConfigSetAttributeRegistry(SBTextConfigRef config,
 void SBTextConfigSetBaseLevel(SBTextConfigRef config, SBLevel baseLevel)
 {
     config->baseLevel = baseLevel;
+}
+
+void SBTextConfigSetParagraphUserInfoCallbacks(SBTextConfigRef config,
+    const SBParagraphUserInfoCallbacks *callbacks)
+{
+    if (callbacks) {
+        config->userInfoCallbacks = *callbacks;
+    } else {
+        config->userInfoCallbacks.retain = NULL;
+        config->userInfoCallbacks.release = NULL;
+    }
+}
+
+void SBTextConfigSetParagraphUserInfoProvider(SBTextConfigRef config,
+    SBParagraphUserInfoProviderCallback provider, void *context)
+{
+    config->userInfoProvider = provider;
+    config->userInfoProviderContext = context;
 }
 
 SBTextConfigRef SBTextConfigRetain(SBTextConfigRef config)

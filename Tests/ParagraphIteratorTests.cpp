@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <string>
+#include <vector>
 
 #include <SheenBidi/SBText.h>
 #include <SheenBidi/SBTextConfig.h>
@@ -42,6 +43,15 @@ static SBTextRef SBTextCreateTest(const string &str, SBLevel baseLevel = 0) {
     return text;
 }
 
+/* ==========================================================================
+ * Paragraph userInfo test double
+ * ========================================================================== */
+
+struct UserInfoValue {
+    int refcount;
+    int tag;
+};
+
 void ParagraphIteratorTests::run() {
     testInitialization();
     testBasicIteration();
@@ -51,6 +61,7 @@ void ParagraphIteratorTests::run() {
     testRetainRelease();
     testEdgeCases();
     testResetBehavior();
+    testUserInfo();
 }
 
 void ParagraphIteratorTests::testInitialization() {
@@ -65,7 +76,8 @@ void ParagraphIteratorTests::testInitialization() {
     assert(info->index == SBInvalidIndex);
     assert(info->length == 0);
     assert(info->baseLevel == 0);
-    
+    assert(info->userInfo == nullptr);
+
     SBParagraphIteratorRelease(iterator);
     SBTextRelease(text);
 }
@@ -191,6 +203,61 @@ void ParagraphIteratorTests::testResetBehavior() {
     
     SBParagraphIteratorRelease(iterator);
     SBTextRelease(text);
+}
+
+void ParagraphIteratorTests::testUserInfo() {
+    int tagCounter = 0;
+
+    auto retain = [](const void *value) -> const void * {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount++;
+        return value;
+    };
+    auto release = [](const void *value) {
+        auto v = const_cast<UserInfoValue *>(static_cast<const UserInfoValue *>(value));
+        v->refcount--;
+        if (v->refcount == 0) {
+            delete v;
+        }
+    };
+    auto provider = [](SBTextRef, SBUInteger, SBUInteger, void *context) -> const void * {
+        auto tagCounter = static_cast<int *>(context);
+        return new UserInfoValue{ 0, ++(*tagCounter) };
+    };
+
+    auto config = SBTextConfigCreate();
+    SBParagraphUserInfoCallbacks callbacks = { retain, release };
+    SBTextConfigSetParagraphUserInfoCallbacks(config, &callbacks);
+    SBTextConfigSetParagraphUserInfoProvider(config, provider, &tagCounter);
+
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, config);
+    string content = "First\nSecond\nThird";
+    SBTextAppendCodeUnits(text, content.c_str(), content.length());
+
+    auto iterator = SBParagraphIteratorCreate(text);
+    auto info = SBParagraphIteratorGetCurrent(iterator);
+
+    // Every paragraph is auto-provided with a distinct value while iterating.
+    vector<const void *> seen;
+    while (SBParagraphIteratorMoveNext(iterator)) {
+        assert(info->userInfo != nullptr);
+        seen.push_back(info->userInfo);
+    }
+    assert(seen.size() == 3);
+    assert(seen[0] != seen[1]);
+    assert(seen[1] != seen[2]);
+    assert(seen[0] != seen[2]);
+
+    // Resetting to a narrower window still surfaces the same, already-provided value rather than a
+    // freshly re-provided one.
+    SBParagraphIteratorReset(iterator, 0, 5); // just "First"
+    assert(SBParagraphIteratorMoveNext(iterator));
+    assert(info->userInfo == seen[0]);
+    assert(!SBParagraphIteratorMoveNext(iterator));
+
+    SBParagraphIteratorRelease(iterator);
+    SBTextRelease(text);
+    SBTextConfigRelease(config);
 }
 
 #ifdef STANDALONE_TESTING

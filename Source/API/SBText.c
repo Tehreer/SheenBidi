@@ -182,7 +182,9 @@ static void FinalizeMutableText(ObjectRef object)
 }
 
 SB_INTERNAL SBMutableTextRef SBTextCreateMutableWithParameters(SBStringEncoding encoding,
-    SBAttributeRegistryRef attributeRegistry, SBLevel baseLevel)
+    SBAttributeRegistryRef attributeRegistry, SBLevel baseLevel,
+    const SBParagraphUserInfoCallbacks *userInfoCallbacks,
+    SBParagraphUserInfoProviderCallback userInfoProvider, void *userInfoProviderContext)
 {
     const SBUInteger size = sizeof(SBText);
     void *pointer = NULL;
@@ -201,7 +203,8 @@ SB_INTERNAL SBMutableTextRef SBTextCreateMutableWithParameters(SBStringEncoding 
 
         TextBufferInitialize(&text->buffer, encoding);
         BidiTypesBufferInitialize(&text->bidiTypes);
-        TextAnalysisInitialize(&text->analysis, baseLevel);
+        TextAnalysisInitialize(&text->analysis, text, baseLevel, userInfoCallbacks,
+            userInfoProvider, userInfoProviderContext);
         AttributeManagerInitialize(&text->attributeManager, &text->analysis, attributeRegistry);
     }
 
@@ -211,7 +214,8 @@ SB_INTERNAL SBMutableTextRef SBTextCreateMutableWithParameters(SBStringEncoding 
 SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBTextConfigRef config)
 {
     SBMutableTextRef text = SBTextCreateMutableWithParameters(encoding,
-        config->attributeRegistry, config->baseLevel);
+        config->attributeRegistry, config->baseLevel, &config->userInfoCallbacks,
+        config->userInfoProvider, config->userInfoProviderContext);
 
     if (text) {
         /* TODO: Apply default attributes */
@@ -223,7 +227,8 @@ SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBTextConfigRef 
 SBMutableTextRef SBTextCreateMutableCopy(SBTextRef text)
 {
     SBMutableTextRef copy = SBTextCreateMutableWithParameters(text->buffer.encoding,
-        text->attributeRegistry, text->analysis.baseLevel);
+        text->attributeRegistry, text->analysis.baseLevel, &text->analysis.userInfoCallbacks,
+        text->analysis.userInfoProvider, text->analysis.userInfoProviderContext);
 
     if (copy) {
         TextBufferCopyCodeUnits(&copy->buffer, &text->buffer);

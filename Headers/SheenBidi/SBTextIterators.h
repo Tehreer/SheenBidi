@@ -45,9 +45,10 @@ typedef struct _SBParagraphIterator *SBParagraphIteratorRef;
  * Metadata describing a paragraph.
  */
 typedef struct _SBParagraphInfo {
-    SBUInteger index;  /**< Start index of the paragraph in code units. */
-    SBUInteger length; /**< Length of the paragraph in code units. */
-    SBLevel baseLevel; /**< Base level of the paragraph. */
+    SBUInteger index;     /**< Start index of the paragraph in code units. */
+    SBUInteger length;    /**< Length of the paragraph in code units. */
+    SBLevel baseLevel;    /**< Base level of the paragraph. */
+    const void *userInfo; /**< Opaque per-paragraph pointer; `NULL` if unset or invalidated. */
 } SBParagraphInfo;
 
 /**

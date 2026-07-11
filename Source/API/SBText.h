@@ -55,11 +55,21 @@ typedef struct _SBText {
  *      Attribute registry (can be `NULL`).
  * @param baseLevel
  *      Base bidirectional level.
+ * @param userInfoCallbacks
+ *      Lifecycle callbacks used to retain/release a paragraph's userInfo value; copied by value.
+ *      Can be `NULL`, in which case userInfo values are stored as-is with no lifecycle management.
+ * @param userInfoProvider
+ *      Callback used to (re)populate a paragraph's userInfo whenever it's invalidated (can be
+ *      `NULL`).
+ * @param userInfoProviderContext
+ *      Opaque pointer passed back to `userInfoProvider` unchanged.
  * @return
  *      New mutable text object, or `NULL` on failure.
  */
 SB_INTERNAL SBMutableTextRef SBTextCreateMutableWithParameters(SBStringEncoding encoding,
-    SBAttributeRegistryRef attributeRegistry, SBLevel baseLevel);
+    SBAttributeRegistryRef attributeRegistry, SBLevel baseLevel,
+    const SBParagraphUserInfoCallbacks *userInfoCallbacks,
+    SBParagraphUserInfoProviderCallback userInfoProvider, void *userInfoProviderContext);
 
 #endif
 

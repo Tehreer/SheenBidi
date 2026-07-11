@@ -56,11 +56,12 @@ static void InitializeTextParagraph(TextParagraphRef paragraph)
     paragraph->length = 0;
     paragraph->needsReanalysis = SBTrue;
     paragraph->bidiParagraph = NULL;
+    paragraph->userInfo = NULL;
 
     ListInitialize(&paragraph->scripts, sizeof(SBScript));
 }
 
-static void FinalizeTextParagraph(TextParagraphRef paragraph)
+static void FinalizeTextParagraph(TextAnalysisRef analysis, TextParagraphRef paragraph)
 {
     SBParagraphRef bidiParagraph = paragraph->bidiParagraph;
 
@@ -68,7 +69,34 @@ static void FinalizeTextParagraph(TextParagraphRef paragraph)
         SBParagraphRelease(bidiParagraph);
     }
 
+    if (paragraph->userInfo) {
+        if (analysis->userInfoCallbacks.release) {
+            analysis->userInfoCallbacks.release(paragraph->userInfo);
+        }
+        paragraph->userInfo = NULL;
+    }
+
     ListFinalize(&paragraph->scripts);
+}
+
+/**
+ * Invokes the registered provider callback for a paragraph whose userInfo is NULL, storing
+ * (and retaining) whatever it returns. No-op if the paragraph already has a userInfo, or if no
+ * provider is registered.
+ */
+static void ProvideParagraphUserInfoIfNeeded(TextAnalysisRef analysis, TextParagraphRef paragraph)
+{
+    if (!paragraph->userInfo && analysis->userInfoProvider) {
+        const void *provided = analysis->userInfoProvider(analysis->ownerText,
+            paragraph->index, paragraph->length, analysis->userInfoProviderContext);
+
+        if (provided) {
+            if (analysis->userInfoCallbacks.retain) {
+                provided = analysis->userInfoCallbacks.retain(provided);
+            }
+            paragraph->userInfo = provided;
+        }
+    }
 }
 
 /**
@@ -172,7 +200,7 @@ static void RemoveParagraphRange(TextAnalysisRef analysis, SBUInteger index, SBU
     /* Finalize each paragraph's resources */
     for (paragraphIndex = index; paragraphIndex < endIndex; paragraphIndex++) {
         TextParagraphRef paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
-        FinalizeTextParagraph(paragraph);
+        FinalizeTextParagraph(analysis, paragraph);
     }
 
     ListRemoveRange(&analysis->paragraphs, index, length);
@@ -383,6 +411,8 @@ SB_INTERNAL void TextAnalysisFlush(TextAnalysisRef analysis, TextBufferRef buffe
             PopulateParagraphScripts(analysis, buffer, paragraph);
 
             paragraph->needsReanalysis = SBFalse;
+
+            ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
         }
     }
 }
@@ -457,16 +487,58 @@ SB_INTERNAL void TextAnalysisGetCodeUnitParagraphInfo(TextAnalysisRef analysis, 
     paragraphInfo->index = textParagraph->index;
     paragraphInfo->length = textParagraph->length;
     paragraphInfo->baseLevel = bidiParagraph->baseLevel;
+    paragraphInfo->userInfo = textParagraph->userInfo;
+}
+
+SB_INTERNAL void TextAnalysisInvalidateParagraphUserInfo(TextAnalysisRef analysis, SBUInteger index,
+    SBUInteger length)
+{
+    SBUInteger firstIndex;
+    SBUInteger lastIndex;
+    SBUInteger paragraphIndex;
+
+    if (length == 0) {
+        return;
+    }
+
+    firstIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, index);
+    lastIndex = TextAnalysisGetCodeUnitParagraphIndex(analysis, index + length - 1);
+
+    for (paragraphIndex = firstIndex; paragraphIndex <= lastIndex; paragraphIndex++) {
+        TextParagraphRef paragraph = ListGetRef(&analysis->paragraphs, paragraphIndex);
+
+        if (paragraph->userInfo) {
+            if (analysis->userInfoCallbacks.release) {
+                analysis->userInfoCallbacks.release(paragraph->userInfo);
+            }
+            paragraph->userInfo = NULL;
+        }
+
+        ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
+    }
 }
 
 /* =========================================================================
  * Lifecycle
  * ========================================================================= */
 
-SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBLevel baseLevel)
+SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBTextRef ownerText,
+    SBLevel baseLevel, const SBParagraphUserInfoCallbacks *userInfoCallbacks,
+    SBParagraphUserInfoProviderCallback userInfoProvider, void *userInfoProviderContext)
 {
+    analysis->ownerText = ownerText;
     analysis->baseLevel = baseLevel;
     analysis->scriptLocator = SBScriptLocatorCreate();
+
+    if (userInfoCallbacks) {
+        analysis->userInfoCallbacks = *userInfoCallbacks;
+    } else {
+        analysis->userInfoCallbacks.retain = NULL;
+        analysis->userInfoCallbacks.release = NULL;
+    }
+
+    analysis->userInfoProvider = userInfoProvider;
+    analysis->userInfoProviderContext = userInfoProviderContext;
 
     ListInitialize(&analysis->paragraphs, sizeof(TextParagraph));
 }
@@ -493,12 +565,18 @@ SB_INTERNAL void TextAnalysisCopyParagraphs(TextAnalysisRef analysis, const Text
         if (sourceParagraph->needsReanalysis) {
             destParagraph->needsReanalysis = SBTrue;
             destParagraph->bidiParagraph = NULL;
+            destParagraph->userInfo = NULL;
         } else {
             SBUInteger scriptCount = sourceParagraph->scripts.count;
             SBUInteger byteCount;
 
             destParagraph->needsReanalysis = SBFalse;
             destParagraph->bidiParagraph = SBParagraphRetain(sourceParagraph->bidiParagraph);
+
+            destParagraph->userInfo = sourceParagraph->userInfo;
+            if (destParagraph->userInfo && analysis->userInfoCallbacks.retain) {
+                destParagraph->userInfo = analysis->userInfoCallbacks.retain(destParagraph->userInfo);
+            }
 
             ListReserveRange(&destParagraph->scripts, 0, scriptCount);
             byteCount = scriptCount * sizeof(SBScript);
@@ -512,7 +590,7 @@ SB_INTERNAL void TextAnalysisFinalize(TextAnalysisRef analysis)
     SBUInteger paragraphIndex;
 
     for (paragraphIndex = 0; paragraphIndex < analysis->paragraphs.count; paragraphIndex++) {
-        FinalizeTextParagraph(ListGetRef(&analysis->paragraphs, paragraphIndex));
+        FinalizeTextParagraph(analysis, ListGetRef(&analysis->paragraphs, paragraphIndex));
     }
 
     ListFinalize(&analysis->paragraphs);
