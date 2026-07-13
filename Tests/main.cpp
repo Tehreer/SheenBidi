@@ -52,6 +52,7 @@
 #include "ScriptTests.h"
 #include "TextTests.h"
 #include "ThreadLocalStorageTests.h"
+#include "UniformRunIteratorTests.h"
 #include "VisualRunIteratorTests.h"
 
 using namespace std;
@@ -95,6 +96,7 @@ int main(int argc, const char *argv[]) {
     ScriptTests scriptTests;
     TextTests textTests;
     ThreadLocalStorageTests threadLocalStorageTests;
+    UniformRunIteratorTests uniformRunIteratorTests;
     VisualRunIteratorTests visualRunIteratorTests;
 
     cout << "Testing SheenBidi " << SBVersionGetString() << endl;
@@ -122,6 +124,7 @@ int main(int argc, const char *argv[]) {
     scriptTests.run();
     textTests.run();
     threadLocalStorageTests.run();
+    uniformRunIteratorTests.run();
     visualRunIteratorTests.run();
 
     cout << "Finished." << endl;

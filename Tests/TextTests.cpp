@@ -539,6 +539,11 @@ void TextTests::testIterators() {
     assert(attributeRunIterator != nullptr);
     SBAttributeRunIteratorRelease(attributeRunIterator);
 
+    // Test uniform run iterator
+    auto uniformRunIterator = SBTextCreateUniformRunIterator(text);
+    assert(uniformRunIterator != nullptr);
+    SBUniformRunIteratorRelease(uniformRunIterator);
+
     SBTextRelease(text);
 }
 

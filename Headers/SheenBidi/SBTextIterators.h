@@ -486,6 +486,155 @@ SB_PUBLIC SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunI
 SB_PUBLIC void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator);
 
 /* ----------------------------------
+ * Uniform Run Iterator
+ * ---------------------------------- */
+
+/**
+ * Opaque reference to a uniform run iterator.
+ *
+ * Iterates over runs of text that are simultaneously uniform in bidirectional embedding level,
+ * Unicode script, and a caller-specified attribute filter (by attribute ID or group/scope, as with
+ * `SBAttributeRunIterator`). Each run is the intersection of the corresponding logical run, script
+ * run, and attribute run, making it the finest-grained unit that can be safely processed as one
+ * piece (for example, handed to a text shaping engine) without crossing a level, script, or
+ * filtered-attribute boundary. The iterator retains its parent `SBText` and must be released when no
+ * longer needed.
+ *
+ * @warning
+ *      The parent text must not be modified during iteration. If the text is modified, the iterator
+ *      behavior becomes undefined and should be reset before further use. Multiple instances of
+ *      this iterator type can be used concurrently on the same text as long as the text is not
+ *      being modified.
+ */
+typedef struct _SBUniformRunIterator *SBUniformRunIteratorRef;
+
+/**
+ * A run of text uniform in bidirectional embedding level, script, and the configured attribute
+ * filter.
+ */
+typedef struct _SBUniformRun {
+    SBUInteger index;              /**< Start index of the run in code units. */
+    SBUInteger length;             /**< Length of the run in code units. */
+    SBLevel level;                 /**< Resolved bidi level of the run. */
+    SBScript script;               /**< Script property value for the run. */
+    SBAttributeListRef attributes; /**< Attributes matching the configured filter; empty if none. */
+} SBUniformRun;
+
+/**
+ * Returns the parent text retained by the iterator.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @return
+ *      Text associated with the iterator (borrowed).
+ */
+SB_PUBLIC SBTextRef SBUniformRunIteratorGetText(SBUniformRunIteratorRef iterator);
+
+/**
+ * Configures the iterator to consider only the specified attribute ID when determining the
+ * attribute-uniformity boundary of each run. Equivalent in meaning to
+ * SBAttributeRunIteratorSetupAttributeID(), except runs are never skipped here: a run with no
+ * matching attribute is still returned (with an empty attribute list) as long as its level and
+ * script remain uniform.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @param attributeID
+ *      The attribute ID by which to filter the runs.
+ */
+SB_PUBLIC void SBUniformRunIteratorSetupAttributeID(SBUniformRunIteratorRef iterator,
+    SBAttributeID attributeID);
+
+/**
+ * Configures the iterator to consider attributes matching the specified group and scope when
+ * determining the attribute-uniformity boundary of each run. Equivalent in meaning to
+ * SBAttributeRunIteratorSetupAttributeCollection(), except runs are never skipped here: a run with
+ * no matching attributes is still returned (with an empty attribute list) as long as its level and
+ * script remain uniform.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @param attributeGroup
+ *      The attribute group by which to filter the runs.
+ * @param attributeScope
+ *      The attribute scope by which to filter the runs.
+ */
+SB_PUBLIC void SBUniformRunIteratorSetupAttributeCollection(SBUniformRunIteratorRef iterator,
+    SBAttributeGroup attributeGroup, SBAttributeScope attributeScope);
+
+/**
+ * Resets iteration to the specified code-unit range.
+ *
+ * The range is automatically normalized to fit within the text bounds. If the specified range
+ * extends beyond the text length, it is clamped to the valid range.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @param index
+ *      Start index of the iteration window (in code units).
+ * @param length
+ *      Length of the iteration window (in code units).
+ */
+SB_PUBLIC void SBUniformRunIteratorReset(SBUniformRunIteratorRef iterator, SBUInteger index,
+    SBUInteger length);
+
+/**
+ * Returns a pointer to the current uniform run information owned by the iterator. The pointer
+ * remains valid until the next call to MoveNext or Reset.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @return
+ *      Pointer to `SBUniformRun` owned by the iterator.
+ *
+ * @note
+ *      This function always returns the same pointer address for a given iterator instance. Only
+ *      the content of the structure is updated with each call to MoveNext.
+ * @warning
+ *      The client should never modify the returned structure. The client can call this function
+ *      once and keep the reference, reading from it after each MoveNext call. The `attributes` list
+ *      within the structure is also owned by the iterator and should not be modified.
+ */
+SB_PUBLIC const SBUniformRun *SBUniformRunIteratorGetCurrent(SBUniformRunIteratorRef iterator);
+
+/**
+ * Advances to the next uniform run.
+ *
+ * When the end of the iteration range is reached, subsequent calls return `SBFalse` and the current
+ * element becomes invalid.
+ *
+ * @param iterator
+ *      Uniform run iterator.
+ * @return
+ *      `SBTrue` if advanced to a valid element; `SBFalse` if end reached.
+ *
+ * @warning
+ *      The parent text must not be modified during iteration. If modification occurs, reset the
+ *      iterator before continuing.
+ */
+SB_PUBLIC SBBoolean SBUniformRunIteratorMoveNext(SBUniformRunIteratorRef iterator);
+
+/**
+ * Increases the reference count of the iterator. Each call to retain must be balanced with a call
+ * to release.
+ *
+ * @param iterator
+ *      The uniform run iterator to retain.
+ * @return
+ *      The same iterator object after retention.
+ */
+SB_PUBLIC SBUniformRunIteratorRef SBUniformRunIteratorRetain(SBUniformRunIteratorRef iterator);
+
+/**
+ * Decreases the reference count of the iterator. When the reference count reaches zero, the
+ * iterator frees its internal storage and releases the retained text.
+ *
+ * @param iterator
+ *      The iterator to release.
+ */
+SB_PUBLIC void SBUniformRunIteratorRelease(SBUniformRunIteratorRef iterator);
+
+/* ----------------------------------
  * Visual Run Iterator
  * ---------------------------------- */
 

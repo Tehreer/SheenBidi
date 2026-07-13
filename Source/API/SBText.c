@@ -141,6 +141,11 @@ SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text)
     return SBAttributeRunIteratorCreate(text);
 }
 
+SBUniformRunIteratorRef SBTextCreateUniformRunIterator(SBTextRef text)
+{
+    return SBUniformRunIteratorCreate(text);
+}
+
 SBVisualRunIteratorRef SBTextCreateVisualRunIterator(SBTextRef text,
     SBUInteger index, SBUInteger length)
 {

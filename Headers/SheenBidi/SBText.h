@@ -252,6 +252,23 @@ SB_PUBLIC SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text);
 SB_PUBLIC SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text);
 
 /**
+ * Creates a new uniform run iterator that can traverse runs of text that are simultaneously uniform
+ * in bidirectional embedding level, script, and a caller-specified attribute filter.
+ *
+ * Each run is the intersection of the corresponding logical run, script run, and attribute run,
+ * making it the finest-grained unit that can be safely processed as one piece (for example, handed
+ * to a text shaping engine). Initially, the iterator has no attribute filter applied (matching all
+ * character-scoped attributes as a single collection); use the Setup functions to filter by
+ * attribute ID or group/scope.
+ *
+ * @param text
+ *      Text object.
+ * @return
+ *      Uniform run iterator on success, `NULL` on failure.
+ */
+SB_PUBLIC SBUniformRunIteratorRef SBTextCreateUniformRunIterator(SBTextRef text);
+
+/**
  * Creates a new visual run iterator that can traverse bidirectional runs in visual order for a
  * specific line range.
  *

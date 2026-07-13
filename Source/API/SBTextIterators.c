@@ -780,6 +780,214 @@ void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator)
 }
 
 /* ==========================================================================
+ * Uniform Run Iterator Implementation
+ * ========================================================================== */
+
+/**
+ * Initializes a uniform run structure.
+ *
+ * Sets default values for a uniform run's properties including its position, length, level, script,
+ * and attribute list.
+ *
+ * @param run
+ *      Pointer to the uniform run structure to initialize.
+ */
+static void InitializeUniformRun(SBUniformRun *run)
+{
+    run->index = SBInvalidIndex;
+    run->length = 0;
+    run->level = 0;
+    run->script = SBScriptNil;
+    run->attributes = NULL;
+}
+
+/**
+ * Cleans up resources associated with a uniform run iterator, including its attribute item list and
+ * parent text iterator.
+ *
+ * @param object
+ *      The uniform run iterator to finalize.
+ */
+static void FinalizeUniformRunIterator(ObjectRef object)
+{
+    SBUniformRunIteratorRef iterator = object;
+
+    AttributeDictionaryFinalize(&iterator->items, NULL);
+    FinalizeTextIterator(&iterator->parent);
+}
+
+SB_INTERNAL SBUniformRunIteratorRef SBUniformRunIteratorCreate(SBTextRef text)
+{
+    const SBUInteger size = sizeof(SBUniformRunIterator);
+    void *pointer = NULL;
+    SBUniformRunIteratorRef iterator;
+
+    /* Text MUST be available. */
+    SBAssert(text != NULL);
+
+    iterator = ObjectCreate(&size, 1, &pointer, FinalizeUniformRunIterator);
+
+    if (iterator) {
+        InitializeTextIterator(&iterator->parent, text, SBFalse);
+        InitializeUniformRun(&iterator->currentRun);
+
+        iterator->rangeIndex = 0;
+        iterator->rangeLength = text->buffer.codeUnits.count;
+        iterator->boundaryIndex = SBInvalidIndex;
+        iterator->filterAttributeID = SBAttributeIDNone;
+        iterator->filterGroup = SBAttributeGroupNone;
+        iterator->filterScope = SBAttributeScopeCharacter;
+
+        AttributeDictionaryInitialize(&iterator->items, text->attributeRegistry->valueSize);
+    }
+
+    return iterator;
+}
+
+SBTextRef SBUniformRunIteratorGetText(SBUniformRunIteratorRef iterator)
+{
+    return iterator->parent.text;
+}
+
+void SBUniformRunIteratorSetupAttributeID(SBUniformRunIteratorRef iterator, SBAttributeID attributeID)
+{
+    iterator->filterAttributeID = attributeID;
+    iterator->filterGroup = SBAttributeGroupNone;
+
+    SBUniformRunIteratorReset(iterator, iterator->rangeIndex, iterator->rangeLength);
+}
+
+void SBUniformRunIteratorSetupAttributeCollection(SBUniformRunIteratorRef iterator,
+    SBAttributeGroup group, SBAttributeScope scope)
+{
+    iterator->filterAttributeID = SBAttributeIDNone;
+    iterator->filterGroup = group;
+    iterator->filterScope = scope;
+
+    SBUniformRunIteratorReset(iterator, iterator->rangeIndex, iterator->rangeLength);
+}
+
+void SBUniformRunIteratorReset(SBUniformRunIteratorRef iterator, SBUInteger index, SBUInteger length)
+{
+    iterator->rangeIndex = index;
+    iterator->rangeLength = length;
+
+    ResetTextIterator(&iterator->parent, index, length);
+    InitializeUniformRun(&iterator->currentRun);
+
+    iterator->boundaryIndex = SBInvalidIndex;
+}
+
+const SBUniformRun *SBUniformRunIteratorGetCurrent(SBUniformRunIteratorRef iterator)
+{
+    return &iterator->currentRun;
+}
+
+SBBoolean SBUniformRunIteratorMoveNext(SBUniformRunIteratorRef iterator)
+{
+    /* Get parent iterator and current paragraph */
+    TextIteratorRef parent = &iterator->parent;
+    TextParagraphRef textParagraph = parent->currentParagraph;
+
+    /* Check if we need to load a new paragraph */
+    if (iterator->boundaryIndex == SBInvalidIndex) {
+        SBUniformRun *currentRun = &iterator->currentRun;
+        SBUInteger runStart = parent->startIndex;
+
+        /* Attempt to load the next paragraph */
+        if (AdvanceTextIterator(parent)) {
+            textParagraph = parent->currentParagraph;
+            iterator->boundaryIndex = 0;
+            currentRun->index = runStart;
+            currentRun->length = 0;
+        } else {
+            /* No more paragraphs available */
+            textParagraph = NULL;
+            InitializeUniformRun(currentRun);
+        }
+    }
+
+    if (textParagraph) {
+        SBTextRef text = parent->text;
+        AttributeManagerRef manager = (AttributeManagerRef)&text->attributeManager;
+        SBUniformRun *currentRun = &iterator->currentRun;
+        SBUInteger paragraphOffset = parent->paragraphStart - textParagraph->index;
+        SBUInteger paragraphLength = parent->paragraphEnd - parent->paragraphStart;
+        const SBLevel *embeddingLevels;
+        const SBScript *scriptArray;
+        SBUInteger runStart = iterator->boundaryIndex;
+        SBLevel currentLevel;
+        SBScript currentScript;
+        SBUInteger levelEnd = runStart;
+        SBUInteger scriptEnd = runStart;
+        SBUInteger attributeEnd = parent->paragraphStart + runStart;
+        SBUInteger mergedEnd;
+
+        /* Get bidirectional and script information for the paragraph */
+        embeddingLevels = &textParagraph->bidiParagraph->fixedLevels[paragraphOffset];
+        scriptArray = &textParagraph->scripts.items[paragraphOffset];
+        currentLevel = embeddingLevels[runStart];
+        currentScript = scriptArray[runStart];
+
+        /* Find the end of the current level run */
+        while (++levelEnd < paragraphLength && embeddingLevels[levelEnd] == currentLevel) {
+        }
+
+        /* Find the end of the current script run */
+        while (++scriptEnd < paragraphLength && scriptArray[scriptEnd] == currentScript) {
+        }
+
+        /* Find the end of the current attribute run, clamped to the paragraph boundary */
+        if (iterator->filterAttributeID != SBAttributeIDNone) {
+            AttributeManagerGetOnwardRunByFilteringID(manager, &attributeEnd, parent->paragraphEnd,
+                iterator->filterAttributeID, &iterator->items);
+        } else {
+            AttributeManagerGetOnwardRunByFilteringCollection(manager, &attributeEnd, parent->paragraphEnd,
+                iterator->filterScope, iterator->filterGroup, &iterator->items);
+        }
+
+        /* Take the nearest of the level, script, and attribute boundaries */
+        mergedEnd = levelEnd;
+        if (scriptEnd < mergedEnd) {
+            mergedEnd = scriptEnd;
+        }
+        if (attributeEnd - parent->paragraphStart < mergedEnd) {
+            mergedEnd = attributeEnd - parent->paragraphStart;
+        }
+
+        /* Update the run information */
+        currentRun->index += currentRun->length;
+        currentRun->length = mergedEnd - runStart;
+        currentRun->level = currentLevel;
+        currentRun->script = currentScript;
+        currentRun->attributes = &iterator->items._list;
+
+        iterator->boundaryIndex = mergedEnd;
+
+        /* Check if the end of the paragraph is reached */
+        if (mergedEnd == paragraphLength) {
+            /* Prepare for the next paragraph */
+            iterator->boundaryIndex = SBInvalidIndex;
+        }
+
+        return SBTrue;
+    }
+
+    /* No more runs available */
+    return SBFalse;
+}
+
+SBUniformRunIteratorRef SBUniformRunIteratorRetain(SBUniformRunIteratorRef iterator)
+{
+    return ObjectRetain(iterator);
+}
+
+void SBUniformRunIteratorRelease(SBUniformRunIteratorRef iterator)
+{
+    ObjectRelease(iterator);
+}
+
+/* ==========================================================================
  * Visual Run Iterator Implementation
  * ========================================================================== */
 

@@ -219,6 +219,7 @@ if(BUILD_TESTS)
       ParagraphIteratorTests
       ScriptRunIteratorTests
       TextTests
+      UniformRunIteratorTests
       VisualRunIteratorTests
     )
   endif()
@@ -310,6 +311,10 @@ if(BUILD_TESTS)
   set(ThreadLocalStorageTests
     Tests/ThreadLocalStorageTests.h
     Tests/ThreadLocalStorageTests.cpp
+  )
+  set(UniformRunIteratorTests
+    Tests/UniformRunIteratorTests.h
+    Tests/UniformRunIteratorTests.cpp
   )
   set(VisualRunIteratorTests
     Tests/VisualRunIteratorTests.h

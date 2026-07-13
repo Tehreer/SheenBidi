@@ -74,6 +74,19 @@ typedef struct _SBAttributeRunIterator {
     SBAttributeScope filterScope;
 } SBAttributeRunIterator;
 
+typedef struct _SBUniformRunIterator {
+    ObjectBase _base;
+    TextIterator parent;
+    AttributeDictionary items;
+    SBUInteger rangeIndex;
+    SBUInteger rangeLength;
+    SBUInteger boundaryIndex;
+    SBAttributeID filterAttributeID;
+    SBAttributeGroup filterGroup;
+    SBAttributeScope filterScope;
+    SBUniformRun currentRun;
+} SBUniformRunIterator;
+
 typedef struct _SBVisualRunIterator {
     ObjectBase _base;
     TextIterator parent;
@@ -128,6 +141,19 @@ SB_INTERNAL SBScriptRunIteratorRef SBScriptRunIteratorCreate(SBTextRef text);
  *      A new attribute run iterator object, or NULL if creation fails.
  */
 SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef text);
+
+/**
+ * Creates and initializes an iterator that can traverse through runs of text that are
+ * simultaneously uniform in bidirectional embedding level, script, and a caller-specified attribute
+ * filter. Each run is the intersection of the corresponding logical run, script run, and attribute
+ * run, making it the finest-grained unit safe to process as one piece (e.g. for text shaping).
+ *
+ * @param text
+ *      The text to iterate through.
+ * @return
+ *      A new uniform run iterator object, or NULL if creation fails.
+ */
+SB_INTERNAL SBUniformRunIteratorRef SBUniformRunIteratorCreate(SBTextRef text);
 
 /**
  * Creates and initializes an iterator that can traverse through runs of text in visual order

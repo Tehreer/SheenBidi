@@ -28,6 +28,7 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/ScriptTests.cpp \
              $(TESTS_DIR)/TextTests.cpp \
              $(TESTS_DIR)/ThreadLocalStorageTests.cpp \
+             $(TESTS_DIR)/UniformRunIteratorTests.cpp \
              $(TESTS_DIR)/VisualRunIteratorTests.cpp \
              $(TESTS_DIR)/Utilities/Convert.cpp
 

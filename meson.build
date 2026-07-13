@@ -357,6 +357,10 @@ if build_tests
         'Tests/TextTests.h',
         'Tests/TextTests.cpp'
       ],
+      'UniformRunIteratorTests': [
+        'Tests/UniformRunIteratorTests.h',
+        'Tests/UniformRunIteratorTests.cpp'
+      ],
       'VisualRunIteratorTests': [
         'Tests/VisualRunIteratorTests.h',
         'Tests/VisualRunIteratorTests.cpp'
