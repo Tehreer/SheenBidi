@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ void ScriptRunIteratorTests::run() {
     testCommonScripts();
     testInheritedScript();
     testPartialRange();
+    testMidParagraphOffset();
     testRetainRelease();
     testEdgeCases();
     testComplexScenarios();
@@ -290,6 +291,46 @@ void ScriptRunIteratorTests::testPartialRange() {
         // Verify all text was covered
         assert(index == result.size());
     }
+
+    SBScriptRunIteratorRelease(iterator);
+    SBTextRelease(text);
+}
+
+void ScriptRunIteratorTests::testMidParagraphOffset() {
+    // Single paragraph (no embedded paragraph separators) containing multiple scripts. Resetting
+    // to a range that starts partway through the paragraph must yield the same boundaries as a
+    // full-range pass over that same suffix. Regression test for a bug where the script array
+    // wasn't offset to the clipped paragraph start, causing it to read scripts from the wrong
+    // code units whenever the iteration window didn't begin at the paragraph's own start.
+    const char32_t codeUnits[] = {
+        'H', 'e', 'l', 'l', 'o', ' ',      // Latin
+        0x05E9, 0x05DC, 0x05D5, 0x05DD,    // Hebrew
+        ' ', 'w', 'o', 'r', 'l', 'd'       // Latin
+    };
+    auto text = SBTextCreateWithString(u32string(codeUnits, 16));
+    auto iterator = SBScriptRunIteratorCreate(text);
+    auto run = SBScriptRunIteratorGetCurrent(iterator);
+
+    /* Start in the middle of the Hebrew run, well after the paragraph's own start. The trailing
+       space (a Common-script character) merges into the preceding Hebrew run. */
+    SBScriptRunIteratorReset(iterator, 6, 10);
+
+    const vector<SBScriptRun> result = {
+        {6, 5, SBScriptHEBR},
+        {11, 5, SBScriptLATN}
+    };
+
+    size_t index = 0;
+    while (SBScriptRunIteratorMoveNext(iterator)) {
+        assert(index < result.size());
+        assert(run->index == result[index].index);
+        assert(run->length == result[index].length);
+        assert(run->script == result[index].script);
+
+        index += 1;
+    }
+
+    assert(index == result.size());
 
     SBScriptRunIteratorRelease(iterator);
     SBTextRelease(text);
