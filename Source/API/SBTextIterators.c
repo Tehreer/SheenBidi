@@ -819,7 +819,7 @@ static void FinalizeVisualRunIterator(ObjectRef object)
 
 SB_INTERNAL SBVisualRunIteratorRef SBVisualRunIteratorCreate(SBTextRef text)
 {
-    const SBUInteger size = sizeof(SBText);
+    const SBUInteger size = sizeof(SBVisualRunIterator);
     void *pointer = NULL;
     SBVisualRunIteratorRef iterator;
 
