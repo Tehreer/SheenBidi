@@ -727,6 +727,10 @@ void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef it
 void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator,
     SBUInteger index, SBUInteger length)
 {
+    SBTextRef text = iterator->text;
+
+    SBUIntegerNormalizeRange(text->buffer.codeUnits.count, &index, &length);
+
     iterator->startIndex = index;
     iterator->endIndex = index + length;
     iterator->currentIndex = SBInvalidIndex;

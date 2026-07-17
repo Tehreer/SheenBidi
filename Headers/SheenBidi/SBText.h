@@ -449,8 +449,6 @@ SB_PUBLIC void SBTextReplaceCodeUnits(SBMutableTextRef text, SBUInteger index, S
  *      ID of the attribute to set.
  * @param attributeValue
  *      Value pointer to associate; retained via registry callbacks if applicable.
- * @return
- *      `SBTrue` on success, `SBFalse` on failure.
  *
  * @warning
  *      The range must be within the current text bounds.
