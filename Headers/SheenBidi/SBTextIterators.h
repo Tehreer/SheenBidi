@@ -33,7 +33,7 @@ SB_EXTERN_C_BEGIN
  * Opaque reference to a paragraph iterator.
  *
  * The iterator retains its parent `SBText` for its lifetime and must be released with
- * SBParagraphIteratorRelease() when no longer needed.
+ * `SBParagraphIteratorRelease` when no longer needed.
  *
  * @warning
  *      The parent text must not be modified during iteration. If the text is modified, the iterator
@@ -53,7 +53,7 @@ typedef struct _SBParagraphInfo {
 
 /**
  * Returns the parent text retained by the iterator.
- * 
+ *
  * @param iterator
  *      Paragraph iterator.
  * @return
@@ -63,10 +63,10 @@ SB_PUBLIC SBTextRef SBParagraphIteratorGetText(SBParagraphIteratorRef iterator);
 
 /**
  * Resets iteration to the specified code-unit range.
- * 
+ *
  * The range is automatically normalized to fit within the text bounds. If the specified range
  * extends beyond the text length, it is clamped to the valid range.
- * 
+ *
  * @param iterator
  *      Paragraph iterator.
  * @param index
@@ -79,7 +79,7 @@ SB_PUBLIC void SBParagraphIteratorReset(SBParagraphIteratorRef iterator, SBUInte
 
 /**
  * Returns a pointer to the current paragraph information owned by the iterator.
- * 
+ *
  * @param iterator
  *      Paragraph iterator.
  * @return
@@ -87,18 +87,18 @@ SB_PUBLIC void SBParagraphIteratorReset(SBParagraphIteratorRef iterator, SBUInte
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBParagraphIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call.
+ *      once and keep the reference, reading from it after each `SBParagraphIteratorMoveNext` call.
  */
 SB_PUBLIC const SBParagraphInfo *SBParagraphIteratorGetCurrent(SBParagraphIteratorRef iterator);
 
 /**
  * Advances to the next paragraph intersecting the window.
  *
- * When the end of the iteration range is reached, subsequent calls return `SBFals`e and the current
- * element becomes invalid.
+ * When the end of the iteration range is reached, subsequent calls return `SBFalse` and the
+ * current element becomes invalid.
  *
  * @param iterator
  *      Paragraph iterator.
@@ -160,7 +160,7 @@ typedef struct _SBLogicalRun {
 
 /**
  * Returns the parent text retained by the iterator.
- * 
+ *
  * @param iterator
  *      Logical run iterator.
  * @return
@@ -186,7 +186,7 @@ SB_PUBLIC void SBLogicalRunIteratorReset(SBLogicalRunIteratorRef iterator, SBUIn
 
 /**
  * Returns a pointer to the current logical run information owned by the iterator.
- * 
+ *
  * @param iterator
  *      Logical run iterator.
  * @return
@@ -194,10 +194,11 @@ SB_PUBLIC void SBLogicalRunIteratorReset(SBLogicalRunIteratorRef iterator, SBUIn
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBLogicalRunIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call.
+ *      once and keep the reference, reading from it after each `SBLogicalRunIteratorMoveNext`
+ *      call.
  */
 SB_PUBLIC const SBLogicalRun *SBLogicalRunIteratorGetCurrent(SBLogicalRunIteratorRef iterator);
 
@@ -206,7 +207,7 @@ SB_PUBLIC const SBLogicalRun *SBLogicalRunIteratorGetCurrent(SBLogicalRunIterato
  *
  * When the end of the iteration range is reached, subsequent calls return `SBFalse` and the current
  * element becomes invalid.
- * 
+ *
  * @param iterator
  *      Logical run iterator.
  * @return
@@ -267,7 +268,7 @@ typedef struct _SBScriptRun {
 
 /**
  * Returns the parent text retained by the iterator.
- * 
+ *
  * @param iterator
  *      Script run iterator.
  * @return
@@ -280,7 +281,7 @@ SB_PUBLIC SBTextRef SBScriptRunIteratorGetText(SBScriptRunIteratorRef iterator);
  *
  * The range is automatically normalized to fit within the text bounds. If the specified range
  * extends beyond the text length, it is clamped to the valid range.
- * 
+ *
  * @param iterator
  *      Script run iterator.
  * @param index
@@ -293,8 +294,8 @@ SB_PUBLIC void SBScriptRunIteratorReset(SBScriptRunIteratorRef iterator, SBUInte
 
 /**
  * Returns a pointer to the current script run information owned by the iterator. The pointer
- * remains valid until the next call to MoveNext or Reset.
- * 
+ * remains valid until the next call to `SBScriptRunIteratorMoveNext` or `SBScriptRunIteratorReset`.
+ *
  * @param iterator
  *      Script run iterator.
  * @return
@@ -302,10 +303,10 @@ SB_PUBLIC void SBScriptRunIteratorReset(SBScriptRunIteratorRef iterator, SBUInte
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBScriptRunIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call.
+ *      once and keep the reference, reading from it after each `SBScriptRunIteratorMoveNext` call.
  */
 SB_PUBLIC const SBScriptRun *SBScriptRunIteratorGetCurrent(SBScriptRunIteratorRef iterator);
 
@@ -376,7 +377,7 @@ typedef struct _SBAttributeRun {
 
 /**
  * Returns the parent text retained by the iterator.
- * 
+ *
  * @param iterator
  *      Attribute run iterator.
  * @return
@@ -387,7 +388,7 @@ SB_PUBLIC SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iter
 /**
  * Configures the iterator to only return runs that contain the specified attribute ID. Empty runs
  * (runs with no matching attributes) are automatically skipped during iteration. If no runs match
- * the filter criteria, MoveNext will return `SBFalse`.
+ * the filter criteria, `SBAttributeRunIteratorMoveNext` returns `SBFalse`.
  *
  * @param iterator
  *      Attribute run iterator.
@@ -400,7 +401,8 @@ SB_PUBLIC void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef 
 /**
  * Configures the iterator to only return runs that contain attributes matching the specified group
  * and scope. Empty runs (runs with no matching attributes) are automatically skipped during
- * iteration. If no runs match the filter criteria, MoveNext will return `SBFalse`.
+ * iteration. If no runs match the filter criteria, `SBAttributeRunIteratorMoveNext` returns
+ * `SBFalse`.
  *
  * @param iterator
  *      Attribute run iterator.
@@ -430,8 +432,9 @@ SB_PUBLIC void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator, S
 
 /**
  * Returns a pointer to the current attribute run information owned by the iterator. The pointer
- * remains valid until the next call to MoveNext or Reset.
- * 
+ * remains valid until the next call to `SBAttributeRunIteratorMoveNext` or
+ * `SBAttributeRunIteratorReset`.
+ *
  * @param iterator
  *      Attribute run iterator.
  * @return
@@ -439,11 +442,12 @@ SB_PUBLIC void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator, S
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBAttributeRunIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call. The `attributes` list
- *      within the structure is also owned by the iterator and should not be modified.
+ *      once and keep the reference, reading from it after each `SBAttributeRunIteratorMoveNext`
+ *      call. The `attributes` list within the structure is also owned by the iterator and should
+ *      not be modified.
  */
 SB_PUBLIC const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef iterator);
 
@@ -533,7 +537,7 @@ SB_PUBLIC SBTextRef SBUniformRunIteratorGetText(SBUniformRunIteratorRef iterator
 /**
  * Configures the iterator to consider only the specified attribute ID when determining the
  * attribute-uniformity boundary of each run. Equivalent in meaning to
- * SBAttributeRunIteratorSetupAttributeID(), except runs are never skipped here: a run with no
+ * `SBAttributeRunIteratorSetupAttributeID`, except runs are never skipped here: a run with no
  * matching attribute is still returned (with an empty attribute list) as long as its level and
  * script remain uniform.
  *
@@ -548,7 +552,7 @@ SB_PUBLIC void SBUniformRunIteratorSetupAttributeID(SBUniformRunIteratorRef iter
 /**
  * Configures the iterator to consider attributes matching the specified group and scope when
  * determining the attribute-uniformity boundary of each run. Equivalent in meaning to
- * SBAttributeRunIteratorSetupAttributeCollection(), except runs are never skipped here: a run with
+ * `SBAttributeRunIteratorSetupAttributeCollection`, except runs are never skipped here: a run with
  * no matching attributes is still returned (with an empty attribute list) as long as its level and
  * script remain uniform.
  *
@@ -580,7 +584,8 @@ SB_PUBLIC void SBUniformRunIteratorReset(SBUniformRunIteratorRef iterator, SBUIn
 
 /**
  * Returns a pointer to the current uniform run information owned by the iterator. The pointer
- * remains valid until the next call to MoveNext or Reset.
+ * remains valid until the next call to `SBUniformRunIteratorMoveNext` or
+ * `SBUniformRunIteratorReset`.
  *
  * @param iterator
  *      Uniform run iterator.
@@ -589,11 +594,12 @@ SB_PUBLIC void SBUniformRunIteratorReset(SBUniformRunIteratorRef iterator, SBUIn
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBUniformRunIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call. The `attributes` list
- *      within the structure is also owned by the iterator and should not be modified.
+ *      once and keep the reference, reading from it after each `SBUniformRunIteratorMoveNext`
+ *      call. The `attributes` list within the structure is also owned by the iterator and should
+ *      not be modified.
  */
 SB_PUBLIC const SBUniformRun *SBUniformRunIteratorGetCurrent(SBUniformRunIteratorRef iterator);
 
@@ -663,7 +669,7 @@ typedef struct _SBVisualRun {
 
 /**
  * Returns the parent text retained by the iterator.
- * 
+ *
  * @param iterator
  *      Visual run iterator.
  * @return
@@ -689,8 +695,8 @@ SB_PUBLIC void SBVisualRunIteratorReset(SBVisualRunIteratorRef iterator, SBUInte
 
 /**
  * Returns a pointer to the current visual run information owned by the iterator. The pointer
- * remains valid until the next call to MoveNext or Reset.
- * 
+ * remains valid until the next call to `SBVisualRunIteratorMoveNext` or `SBVisualRunIteratorReset`.
+ *
  * @param iterator
  *      Visual run iterator.
  * @return
@@ -698,10 +704,10 @@ SB_PUBLIC void SBVisualRunIteratorReset(SBVisualRunIteratorRef iterator, SBUInte
  *
  * @note
  *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to MoveNext.
+ *      the content of the structure is updated with each call to `SBVisualRunIteratorMoveNext`.
  * @warning
  *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each MoveNext call.
+ *      once and keep the reference, reading from it after each `SBVisualRunIteratorMoveNext` call.
  */
 SB_PUBLIC const SBVisualRun *SBVisualRunIteratorGetCurrent(SBVisualRunIteratorRef iterator);
 

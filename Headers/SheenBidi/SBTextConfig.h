@@ -34,9 +34,9 @@ typedef struct _SBTextConfig *SBTextConfigRef;
  * Callback function to retain a paragraph's userInfo value.
  *
  * @param userInfo
- *      Pointer of userInfo value to retain.
+ *      Pointer to the userInfo value to retain.
  * @return
- *      Pointer of retained userInfo value.
+ *      Pointer to the retained userInfo value.
  */
 typedef const void *(*SBParagraphUserInfoRetainCallback)(const void *userInfo);
 
@@ -44,7 +44,7 @@ typedef const void *(*SBParagraphUserInfoRetainCallback)(const void *userInfo);
  * Callback function to release a paragraph's userInfo value.
  *
  * @param userInfo
- *      Pointer of userInfo value to release.
+ *      Pointer to the userInfo value to release.
  */
 typedef void (*SBParagraphUserInfoReleaseCallback)(const void *userInfo);
 
@@ -79,7 +79,7 @@ typedef struct _SBParagraphUserInfoCallbacks {
  * @param length
  *      Length (in code units) of the paragraph.
  * @param context
- *      The context pointer supplied to `SBTextConfigSetParagraphUserInfoProvider()`.
+ *      The context pointer supplied to `SBTextConfigSetParagraphUserInfoProvider`.
  * @return
  *      The value to store (retained via the registered retain callback, if any).
  *
@@ -91,28 +91,30 @@ typedef const void *(*SBParagraphUserInfoProviderCallback)(SBTextRef text, SBUIn
 
 /**
  * Creates an empty text config instance.
- * 
+ *
  * @return
  *      A reference to the text config instance, or `NULL` on failure.
  * @note
- *      Must be populated with an attribute registry before text creation.
+ *      Must be populated with an attribute registry before text creation. The base level
+ *      defaults to `SBLevelDefaultLTR` until changed via `SBTextConfigSetBaseLevel`.
  */
 SB_PUBLIC SBTextConfigRef SBTextConfigCreate(void);
 
 /**
  * Sets the attribute registry used by any text created with this config.
- * 
+ *
  * @param config
  *      The text config object.
  * @param attributeRegistry
- *      Attribute registry reference; the text config retains it.
+ *      Attribute registry reference; the text config retains it, releasing any registry
+ *      previously set.
  */
 SB_PUBLIC void SBTextConfigSetAttributeRegistry(SBTextConfigRef config,
     SBAttributeRegistryRef attributeRegistry);
 
 /**
  * Sets the base paragraph level policy for newly created texts.
- * 
+ *
  * @param config
  *      The text config object.
  * @param baseLevel
@@ -137,8 +139,8 @@ SB_PUBLIC void SBTextConfigSetParagraphUserInfoCallbacks(SBTextConfigRef config,
 /**
  * Sets the callback used to (re)populate paragraph userInfo automatically whenever it's
  * invalidated, for any text created with this config. Fixed at creation so that no paragraph can
- * ever go un-provided by having a provider registered only after some edits have already happened;
- * There is no way to change the provider on an existing text.
+ * ever go un-provided by having a provider registered only after some edits have already
+ * happened. There is no way to change the provider on an existing text.
  *
  * @param config
  *      The text config object.
@@ -150,8 +152,23 @@ SB_PUBLIC void SBTextConfigSetParagraphUserInfoCallbacks(SBTextConfigRef config,
 SB_PUBLIC void SBTextConfigSetParagraphUserInfoProvider(SBTextConfigRef config,
     SBParagraphUserInfoProviderCallback provider, void *context);
 
+/**
+ * Increments the reference count of a text config object.
+ *
+ * @param config
+ *      The text config object whose reference count will be incremented.
+ * @return
+ *      The same text config object passed in as the parameter.
+ */
 SB_PUBLIC SBTextConfigRef SBTextConfigRetain(SBTextConfigRef config);
 
+/**
+ * Decrements the reference count of a text config object. The object will be deallocated when
+ * its reference count reaches zero.
+ *
+ * @param config
+ *      The text config object whose reference count will be decremented.
+ */
 SB_PUBLIC void SBTextConfigRelease(SBTextConfigRef config);
 
 SB_EXTERN_C_END

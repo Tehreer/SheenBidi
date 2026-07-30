@@ -31,14 +31,14 @@ typedef const struct _SBAttributeRegistry *SBAttributeRegistryRef;
 
 /**
  * Creates an attribute registry from an array of attribute infos.
- * 
+ *
  * @param attributeInfos
  *      Pointer to an array of `SBAttributeInfo` entries. The array content is copied internally;
  *      the caller retains ownership.
  * @param count
  *      Number of entries in the `attributeInfos` array.
  * @param valueSize
- *      The size in bytes of the value field for each attribute.
+ *      The size in bytes of the value stored for each attribute created from this registry.
  * @param valueCallbacks
  *      Optional pointer to an `SBAttributeValueCallbacks` structure defining custom value lifecycle
  *      and comparison behavior.
@@ -50,13 +50,14 @@ SB_PUBLIC SBAttributeRegistryRef SBAttributeRegistryCreate(const SBAttributeInfo
 
 /**
  * Copies the info for a given attribute ID into the `attributeInfo` parameter.
- * 
+ *
  * @param registry
  *      The attribute registry object.
  * @param attributeID
  *      Attribute ID to query.
  * @param attributeInfo
- *      Output pointer to receive a copy of the attribute info; must not be `NULL`.
+ *      Output pointer to receive a copy of the attribute info; must not be `NULL`. Left unchanged
+ *      if `attributeID` does not exist in the registry.
  * @return
  *      `SBTrue` if the attribute ID exists in the registry, `SBFalse` otherwise.
  */
@@ -65,7 +66,7 @@ SB_PUBLIC SBBoolean SBAttributeRegistryGetAttributeInfo(SBAttributeRegistryRef r
 
 /**
  * Looks up an attribute ID by name.
- * 
+ *
  * @param registry
  *      The attribute registry object.
  * @param name
@@ -78,7 +79,7 @@ SB_PUBLIC SBAttributeID SBAttributeRegistryGetAttributeID(SBAttributeRegistryRef
 
 /**
  * Increments the reference count of an attribute registry object.
- * 
+ *
  * @param registry
  *      The attribute registry object whose reference count will be incremented.
  * @return

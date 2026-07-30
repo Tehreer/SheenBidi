@@ -28,7 +28,7 @@ enum {
 };
 /**
  * Opaque numeric identifier assigned by the registry to an attribute.
- * 
+ *
  * Attribute IDs are used everywhere in the API to refer to known attributes; clients can fetch
  * metadata via the attribute registry.
  */
@@ -39,7 +39,7 @@ enum {
 };
 /**
  * Abstract grouping for attributes (e.g., shaping, paint, language).
- * 
+ *
  * Groups can be used for filtering and coalescing strategies.
  */
 typedef SBUInt8 SBAttributeGroup;
@@ -57,9 +57,9 @@ typedef SBUInt8 SBAttributeScope;
  * Callback function to compare two attribute values for equality.
  *
  * @param first
- *      First attribute value pointer.
+ *      Pointer to the first attribute value.
  * @param second
- *      Second attribute value pointer.
+ *      Pointer to the second attribute value.
  * @return
  *      `SBTrue` if equal, `SBFalse` otherwise.
  */
@@ -69,9 +69,9 @@ typedef SBBoolean (*SBAttributeValueEqualCallback)(const void *first, const void
  * Callback function to retain an attribute value.
  *
  * @param value
- *      Pointer of attribute value to retain.
+ *      Pointer to the attribute value to retain.
  * @return
- *      Pointer of retained attribute value.
+ *      Pointer to the retained attribute value.
  */
 typedef const void *(*SBAttributeValueRetainCallback)(const void *value);
 
@@ -79,7 +79,7 @@ typedef const void *(*SBAttributeValueRetainCallback)(const void *value);
  * Callback function to release an attribute value.
  *
  * @param value
- *      Pointer of attribute value to release.
+ *      Pointer to the attribute value to release.
  */
 typedef void (*SBAttributeValueReleaseCallback)(const void *value);
 
@@ -123,10 +123,15 @@ typedef struct _SBAttributeInfo {
 
 /**
  * A stored attribute item with its ID and associated value.
+ *
+ * The attribute's value is not a member of this structure; it is stored immediately after
+ * `attributeID` in memory, sized according to the `valueSize` passed to
+ * `SBAttributeRegistryCreate`. Consumers typically reinterpret a pointer to `SBAttributeItem` as
+ * a pointer to their own structure that mirrors this layout, with `attributeID` as the first
+ * member followed by a value member of the matching size and type.
  */
 typedef struct _SBAttributeItem {
     SBAttributeID attributeID;  /**< Attribute ID. */
-    /* Additional value field follows immediately after attributeID in memory */
 } SBAttributeItem;
 
 SB_EXTERN_C_END

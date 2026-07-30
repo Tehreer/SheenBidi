@@ -36,7 +36,7 @@ typedef const struct _SBAttributeList *SBAttributeListRef;
  *      The attribute list to retrieve from.
  * @param index
  *      The zero-based index of the item to retrieve. Must be less than the count returned by
- *      SBAttributeListGetCount().
+ *      `SBAttributeListGetCount`.
  * @return
  *      A pointer to the attribute item at the specified index.
  */
