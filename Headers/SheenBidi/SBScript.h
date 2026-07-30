@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -256,36 +256,38 @@ enum {
 typedef SBUInt8 SBScript;
 
 /**
- * Returns the OpenType tag of a script as UInt32 in big endian byte order. The association between
- * Unicode Script property and OpenType script tags is taken from the specification:
+ * Returns the OpenType tag of a script as a `SBUInt32` in big-endian byte order. The association
+ * between the Unicode Script property and OpenType script tags is taken from the specification:
  * https://docs.microsoft.com/en-us/typography/opentype/spec/scripttags.
  *
- * If more than one tag is associated with a script, then the latest one is retured. For example,
- * Devanagari script has two tags, `deva` and `dev2`. So in this case, `dev2` will be returned.
+ * If more than one tag is associated with a script, the latest one is returned. For example, the
+ * Devanagari script has two tags, `deva` and `dev2`; in this case, `dev2` is returned.
  *
- * If no tag is associated with a script, then `DFLT` is returned.
+ * If no tag is associated with a script, `DFLT` is returned.
  *
  * @param script
  *      The script whose OpenType tag is returned.
  * @return
- *      The OpenType tag of specified script as UInt32 in big endian byte order.
+ *      The OpenType tag of the specified script as a `SBUInt32` in big-endian byte order.
+ *
+ * @deprecated Use `SBScriptGetUnicodeTag` instead.
  */
 SB_DEPRECATED
 SB_PUBLIC SBUInt32 SBScriptGetOpenTypeTag(SBScript script);
 
 /**
- * Returns the 4-letter Unicode Script abbreviation tag for a given SBScript value.
+ * Returns the 4-letter Unicode Script property abbreviation tag for a given script.
  *
- * The tag is returned as a UInt32 value in big-endian byte order (e.g., 'Arab' is 0x41726162),
- * suitable for use in shaping engines and script tagging.
+ * The tag is returned as a `SBUInt32` value in big-endian byte order (e.g. `Arab` is
+ * 0x41726162), suitable for use in shaping engines and script tagging.
  *
- * The tag is based on the Unicode Script property aliases as defined in PropertyValueAliases.txt,
- * section: "sc" (Script).
+ * The tag is based on the Unicode Script property aliases defined in `PropertyValueAliases.txt`,
+ * under the "sc" (Script) section.
  *
  * @param script
- *      The SBScript enum value.
+ *      The script whose Unicode tag is returned.
  * @return
- *      A big-endian UInt32 representing the 4-letter script tag, or 0 if the script has no
+ *      A big-endian `SBUInt32` representing the 4-letter script tag, or 0 if the script has no
  *      associated tag.
  */
 SB_PUBLIC SBUInt32 SBScriptGetUnicodeTag(SBScript script);

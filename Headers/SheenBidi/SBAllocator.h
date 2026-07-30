@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Muhammad Tayyab Akram
+ * Copyright (C) 2025-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 
 SB_EXTERN_C_BEGIN
 
+/**
+ * A reference to an immutable object encapsulating a custom memory allocation protocol.
+ */
 typedef const struct _SBAllocator *SBAllocatorRef;
 
 /**
@@ -137,15 +140,20 @@ typedef struct _SBAllocatorProtocol {
 
 /**
  * Returns the global default allocator object.
+ *
+ * @return
+ *      A reference to the allocator previously set via `SBAllocatorSetDefault`, or `NULL` if none
+ *      has been set. When `NULL`, the library allocates memory internally using its built-in
+ *      native allocator.
  */
 SB_PUBLIC SBAllocatorRef SBAllocatorGetDefault(void);
 
 /**
  * Sets the global default allocator object.
- * 
+ *
  * @param allocator
- *      The allocator object to set as the default. If `NULL`, the default allocator will be reset
- *      to a standard implementation.
+ *      The allocator object to set as the default. If `NULL`, the library falls back to its
+ *      built-in native allocator for subsequent allocations.
  */
 SB_PUBLIC void SBAllocatorSetDefault(SBAllocatorRef allocator);
 
@@ -163,7 +171,7 @@ SB_PUBLIC SBAllocatorRef SBAllocatorCreate(const SBAllocatorProtocol *protocol, 
 
 /**
  * Increments the reference count of an allocator object.
- * 
+ *
  * @param allocator
  *      The allocator object whose reference count will be incremented.
  * @return
@@ -174,7 +182,7 @@ SB_PUBLIC SBAllocatorRef SBAllocatorRetain(SBAllocatorRef allocator);
 /**
  * Decrements the reference count of an allocator object. The object will be deallocated when its
  * reference count reaches zero.
- * 
+ *
  * @param allocator
  *      The allocator object whose reference count will be decremented.
  */

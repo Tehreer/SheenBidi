@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,37 +71,78 @@ enum {
 typedef SBUInt8 SBGeneralCategory;
 
 /**
- * Checks whether specified general category is letter.
+ * Checks whether the specified general category belongs to the Letter group (`LU`, `LL`, `LT`,
+ * `LM`, or `LO`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is a letter, zero otherwise.
  */
 #define SBGeneralCategoryIsLetter(gc)       SBUInt8InRange(gc, SBGeneralCategoryLU, SBGeneralCategoryLO)
 
 /**
- * Checks whether specified general category is mark.
+ * Checks whether the specified general category belongs to the Mark group (`MN`, `MC`, or `ME`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is a mark, zero otherwise.
  */
 #define SBGeneralCategoryIsMark(gc)         SBUInt8InRange(gc, SBGeneralCategoryMN, SBGeneralCategoryME)
 
 /**
- * Checks whether specified general category is number.
+ * Checks whether the specified general category belongs to the Number group (`ND`, `NL`, or
+ * `NO`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is a number, zero otherwise.
  */
 #define SBGeneralCategoryIsNumber(gc)       SBUInt8InRange(gc, SBGeneralCategoryND, SBGeneralCategoryNO)
 
 /**
- * Checks whether specified general category is punctuation.
+ * Checks whether the specified general category belongs to the Punctuation group (`PC`, `PD`,
+ * `PS`, `PE`, `PI`, `PF`, or `PO`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is punctuation, zero otherwise.
  */
 #define SBGeneralCategoryIsPunctuation(gc)  SBUInt8InRange(gc, SBGeneralCategoryPC, SBGeneralCategoryPO)
 
 /**
- * Checks whether specified general category is symbol.
+ * Checks whether the specified general category belongs to the Symbol group (`SM`, `SC`, `SK`,
+ * or `SO`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is a symbol, zero otherwise.
  */
 #define SBGeneralCategoryIsSymbol(gc)       SBUInt8InRange(gc, SBGeneralCategorySM, SBGeneralCategorySO)
 
 /**
- * Checks whether specified general category is separator.
+ * Checks whether the specified general category belongs to the Separator group (`ZS`, `ZL`, or
+ * `ZP`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is a separator, zero otherwise.
  */
 #define SBGeneralCategoryIsSeparator(gc)    SBUInt8InRange(gc, SBGeneralCategoryZS, SBGeneralCategoryZP)
 
 /**
- * Checks whether specified general category is other.
+ * Checks whether the specified general category belongs to the Other group (`CC`, `CF`, `CS`,
+ * `CO`, or `CN`).
+ *
+ * @param gc
+ *      The general category to check.
+ * @return
+ *      Non-zero if the category is in the Other group, zero otherwise.
  */
 #define SBGeneralCategoryIsOther(gc)        SBUInt8InRange(gc, SBGeneralCategoryCC, SBGeneralCategoryCN)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,22 +61,44 @@ enum {
 typedef SBUInt8 SBBidiType;
 
 /**
- * Checks whether specified bidirectional type is strong.
+ * Checks whether the specified bidirectional type is strong (`L`, `R`, or `AL`).
+ *
+ * @param t
+ *      The bidirectional type to check.
+ * @return
+ *      Non-zero if the type is strong, zero otherwise.
  */
 #define SBBidiTypeIsStrong(t)               SBUInt8InRange(t, SBBidiTypeL, SBBidiTypeAL)
 
 /**
- * Checks whether specified bidirectional type is weak.
+ * Checks whether the specified bidirectional type is weak (`BN`, `NSM`, `AN`, `EN`, `ET`, `ES`,
+ * or `CS`).
+ *
+ * @param t
+ *      The bidirectional type to check.
+ * @return
+ *      Non-zero if the type is weak, zero otherwise.
  */
 #define SBBidiTypeIsWeak(t)                 SBUInt8InRange(t, SBBidiTypeBN, SBBidiTypeCS)
 
 /**
- * Checks whether specified bidirectional type is neutral.
+ * Checks whether the specified bidirectional type is neutral (`WS`, `S`, `B`, or `ON`).
+ *
+ * @param t
+ *      The bidirectional type to check.
+ * @return
+ *      Non-zero if the type is neutral, zero otherwise.
  */
 #define SBBidiTypeIsNeutral(t)              SBUInt8InRange(t, SBBidiTypeWS, SBBidiTypeON)
 
 /**
- * Checks whether specified bidirectional type is format.
+ * Checks whether the specified bidirectional type is a format type (`LRI`, `RLI`, `FSI`, `PDI`,
+ * `LRE`, `RLE`, `LRO`, `RLO`, or `PDF`).
+ *
+ * @param t
+ *      The bidirectional type to check.
+ * @return
+ *      Non-zero if the type is a format type, zero otherwise.
  */
 #define SBBidiTypeIsFormat(t)               SBUInt8InRange(t, SBBidiTypeLRI, SBBidiTypePDF)
 

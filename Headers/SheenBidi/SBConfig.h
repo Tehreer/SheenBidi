@@ -17,15 +17,41 @@
 #ifndef _SB_PUBLIC_CONFIG_H
 #define _SB_PUBLIC_CONFIG_H
 
+/**
+ * Exports public symbols when building SheenBidi as a Windows DLL.
+ * Must not be combined with `SB_CONFIG_DLL_IMPORT`.
+ */
 /* #define SB_CONFIG_DLL_EXPORT */
+
+/**
+ * Imports public symbols when consuming SheenBidi as a Windows DLL.
+ * Must not be combined with `SB_CONFIG_DLL_EXPORT`.
+ */
 /* #define SB_CONFIG_DLL_IMPORT */
+
+/**
+ * Enables internal debug logging of the bidirectional algorithm to standard output.
+ * Intended for diagnosing the library itself; it has no effect on the public API.
+ */
 /* #define SB_CONFIG_LOG */
+
+/**
+ * Builds the library as a single translation unit via `Source/SheenBidi.c`, inlining all
+ * internal symbols as `static`. Recommended for consumers that compile SheenBidi directly
+ * into their own build.
+ */
 /* #define SB_CONFIG_UNITY */
+
+/**
+ * Permits the library to fall back to non-atomic, thread-unsafe reference counting when no
+ * atomic operations are available for the target platform. Without this defined, the library
+ * fails to compile in that situation rather than silently becoming thread-unsafe.
+ */
 /* #define SB_CONFIG_ALLOW_NON_ATOMIC_FALLBACK */
 
 /**
- * Disable scratch memory functionality of default allocator.
- * When defined, all scratch memory operations will return NULL/do nothing.
+ * Disables the scratch memory functionality of the default allocator.
+ * When defined, all scratch memory operations return `NULL` and do nothing.
  */
 /* #define SB_CONFIG_DISABLE_SCRATCH_MEMORY */
 
@@ -39,16 +65,16 @@
 /* #define SB_CONFIG_EXPERIMENTAL_TEXT_API */
 
 /**
- * Define the size of each scratch buffer in bytes.
- * Default is 8192 bytes (8KB) if not specified.
+ * Defines the size of each scratch buffer in bytes.
+ * Defaults to 8192 bytes (8KB) if not specified.
  */
 #ifndef SB_CONFIG_SCRATCH_BUFFER_SIZE
 #define SB_CONFIG_SCRATCH_BUFFER_SIZE 8192
 #endif
 
 /**
- * Define the number of scratch buffers in the pool.
- * Default is 3 buffers if not specified.
+ * Defines the number of scratch buffers in the pool.
+ * Defaults to 3 buffers if not specified.
  */
 #ifndef SB_CONFIG_SCRATCH_POOL_SIZE
 #define SB_CONFIG_SCRATCH_POOL_SIZE 3

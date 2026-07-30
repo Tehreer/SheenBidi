@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,14 @@
 
 SB_EXTERN_C_BEGIN
 
+/**
+ * A reference to an immutable object representing a single line, resolved by applying Rules
+ * L1-L2 of the Unicode Bidirectional Algorithm.
+ */
 typedef const struct _SBLine *SBLineRef;
 
 /**
- * Returns the index to the first code unit of the line in source string.
+ * Returns the index to the first code unit of the line in the source string.
  *
  * @param line
  *      The line whose offset is returned.
@@ -35,7 +39,7 @@ typedef const struct _SBLine *SBLineRef;
 SB_PUBLIC SBUInteger SBLineGetOffset(SBLineRef line);
 
 /**
- * Returns the number of code units coverting the length of the line.
+ * Returns the number of code units covering the length of the line.
  *
  * @param line
  *      The line whose length is returned.
@@ -60,7 +64,8 @@ SB_PUBLIC SBUInteger SBLineGetRunCount(SBLineRef line);
  * @param line
  *      The line from which to access the runs.
  * @return
- *      A valid pointer to an array of SBRun structures. 
+ *      A valid pointer to an array of `SBRun` structures, whose length is equal to the value
+ *      returned by `SBLineGetRunCount`.
  */
 SB_PUBLIC const SBRun *SBLineGetRunsPtr(SBLineRef line);
 

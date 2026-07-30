@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2014-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,14 @@
 
 SB_EXTERN_C_BEGIN
 
+/**
+ * A reference to an immutable object representing a single paragraph, resolved by applying the
+ * Unicode Bidirectional Algorithm.
+ */
 typedef const struct _SBParagraph *SBParagraphRef;
 
 /**
- * Returns the index to the first code unit of the paragraph in source string.
+ * Returns the index to the first code unit of the paragraph in the source string.
  *
  * @param paragraph
  *      The paragraph whose offset is returned.
@@ -60,23 +64,25 @@ SB_PUBLIC SBLevel SBParagraphGetBaseLevel(SBParagraphRef paragraph);
  * @param paragraph
  *      The paragraph from which to access the embedding levels.
  * @return
- *      A valid pointer to an array of SBLevel structures.
+ *      A valid pointer to an array of `SBLevel` values, whose length is equal to the length of
+ *      the paragraph.
  */
 SB_PUBLIC const SBLevel *SBParagraphGetLevelsPtr(SBParagraphRef paragraph);
 
 /**
- * Creates a line object of specified range by applying rules L1-L2 of Unicode Bidirectional
- * Algorithm.
+ * Creates a line object of the specified range by applying Rules L1-L2 of the Unicode
+ * Bidirectional Algorithm.
  *
  * @param paragraph
  *      The paragraph that creates the line.
  * @param lineOffset
- *      The index to the first code unit of the line in source string. It should occur within the
- *      range of paragraph.
+ *      The index to the first code unit of the line in the source string. It should occur within
+ *      the range of the paragraph.
  * @param lineLength
  *      The number of code units covering the length of the line.
  * @return
- *      A reference to a line object if the call was successful, NULL otherwise.
+ *      A reference to a line object if the given range is a valid, non-empty subrange of the
+ *      paragraph, `NULL` otherwise.
  */
 SB_PUBLIC SBLineRef SBParagraphCreateLine(SBParagraphRef paragraph, SBUInteger lineOffset,
     SBUInteger lineLength);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Muhammad Tayyab Akram
+ * Copyright (C) 2018-2026 Muhammad Tayyab Akram
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,28 +36,28 @@ typedef SBUInt32                    SBCodepoint;
 
 /**
  * A value representing a faulty Unicode code point.
- * 
+ *
  * This value is used as a replacement for unrecognized code points during decoding.
  */
 #define SBCodepointFaulty           0xFFFD
 
 /**
  * The maximum valid Unicode code point value.
- * 
+ *
  * Unicode code points are valid in the range [0x0000, 0x10FFFF].
  */
 #define SBCodepointMax              0x10FFFF
 
 /**
  * Checks if a code point is a UTF-16 surrogate.
- * 
+ *
  * Surrogate code points lie within the range [0xD800, 0xDFFF] and are not valid Unicode scalar
  * values.
  *
  * @param c
  *      The code point to check.
  * @return
- *      `true` if the code point is a surrogate, `false` otherwise.
+ *      Non-zero if the code point is a surrogate, zero otherwise.
  */
 #define SBCodepointIsSurrogate(c)   SBUInt32InRange(c, 0xD800, 0xDFFF)
 
@@ -65,13 +65,13 @@ typedef SBUInt32                    SBCodepoint;
  * Checks if a code point is a valid Unicode scalar value.
  *
  * A code point is considered valid if:
- * - It is not a surrogate (i.e., not in the range 0xD800 to 0xDFFF)
- * - It is less than or equal to SBCodepointMax (0x10FFFF).
+ * - It is not a surrogate (i.e., not in the range 0xD800 to 0xDFFF).
+ * - It is less than or equal to `SBCodepointMax` (0x10FFFF).
  *
  * @param c
  *      The code point to check.
  * @return
- *      `true` if the code point is valid, `false` otherwise.
+ *      Non-zero if the code point is valid, zero otherwise.
  */
 #define SBCodepointIsValid(c)       (!SBCodepointIsSurrogate(c) && (c) <= SBCodepointMax)
 
@@ -126,7 +126,8 @@ SB_PUBLIC SBScript SBCodepointGetScript(SBCodepoint codepoint);
  *      The index at which decoding starts. On output, it is updated to the start of the next code
  *      point.
  * @return
- *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
+ *      The decoded code point; `SBCodepointFaulty` if the code unit sequence at `index` is
+ *      malformed; or `SBCodepointInvalid` if `index` is out of bounds.
  */
 SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUInteger length,
     SBUInteger *index);
@@ -142,7 +143,8 @@ SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF8(const SBUInt8 *buffer, SBUIn
  *      The index before which decoding occurs. On output, it is updated to the start of the
  *      decoded code point.
  * @return
- *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
+ *      The decoded code point; `SBCodepointFaulty` if the code unit sequence before `index` is
+ *      malformed; or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
 SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, SBUInteger length,
     SBUInteger *index);
@@ -158,7 +160,8 @@ SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF8(const SBUInt8 *buffer, S
  *      The index at which decoding starts. On output, it is updated to the start of the next code
  *      point.
  * @return
- *      The decoded code point, or `SBCodepointInvalid` if `index` is out of bounds.
+ *      The decoded code point; `SBCodepointFaulty` if the code unit sequence at `index` is an
+ *      unpaired surrogate; or `SBCodepointInvalid` if `index` is out of bounds.
  */
 SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBUInteger length,
     SBUInteger *index);
@@ -174,7 +177,8 @@ SB_PUBLIC SBCodepoint SBCodepointDecodeNextFromUTF16(const SBUInt16 *buffer, SBU
  *      The index before which decoding occurs. On output, it is updated to the start of the
  *      decoded code point.
  * @return
- *      The decoded code point, or `SBCodepointInvalid` if `index` is zero or out of bounds.
+ *      The decoded code point; `SBCodepointFaulty` if the code unit sequence before `index` is an
+ *      unpaired surrogate; or `SBCodepointInvalid` if `index` is zero or out of bounds.
  */
 SB_PUBLIC SBCodepoint SBCodepointDecodePreviousFromUTF16(const SBUInt16 *buffer, SBUInteger length,
     SBUInteger *index);
