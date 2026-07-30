@@ -848,23 +848,25 @@ SB_INTERNAL void AttributeManagerRemoveAttribute(AttributeManagerRef manager,
 
         attributeInfo = SBAttributeRegistryGetInfoReference(registry, attributeID);
 
-        /* Update the range in case of paragraph scope */
-        if (attributeInfo->scope == SBAttributeScopeParagraph) {
-            SBUInteger startIndex = index;
-            SBUInteger endIndex = startIndex + length;
+        if (attributeInfo) {
+            /* Update the range in case of paragraph scope */
+            if (attributeInfo->scope == SBAttributeScopeParagraph) {
+                SBUInteger startIndex = index;
+                SBUInteger endIndex = startIndex + length;
 
-            ShrinkRangeToExcludeBoundaryParagraphs(manager, &startIndex, &endIndex);
+                ShrinkRangeToExcludeBoundaryParagraphs(manager, &startIndex, &endIndex);
 
-            index = startIndex;
-            length = endIndex - startIndex;
-        }
+                index = startIndex;
+                length = endIndex - startIndex;
+            }
 
-        if (length > 0) {
-            RemoveAttributeFromRange(manager, index, length, attributeID);
+            if (length > 0) {
+                RemoveAttributeFromRange(manager, index, length, attributeID);
 
-            /* Attribute changes affect itemization/shaping without touching paragraph
-             * boundaries, so invalidate the affected paragraphs' cached userInfo directly. */
-            TextAnalysisInvalidateParagraphUserInfo(manager->analysis, index, length);
+                /* Attribute changes affect itemization/shaping without touching paragraph
+                 * boundaries, so invalidate the affected paragraphs' cached userInfo directly. */
+                TextAnalysisInvalidateParagraphUserInfo(manager->analysis, index, length);
+            }
         }
     }
 }
