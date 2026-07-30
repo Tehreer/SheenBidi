@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_MIRROR_LOCATOR_H
-#define _SB_PUBLIC_MIRROR_LOCATOR_H
+#ifndef _SHEENBIDI_MIRROR_LOCATOR_H
+#define _SHEENBIDI_MIRROR_LOCATOR_H
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepoint.h>

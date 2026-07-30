@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_BIDI_TYPE_H
-#define _SB_PUBLIC_BIDI_TYPE_H
+#ifndef _SHEENBIDI_BIDI_TYPE_H
+#define _SHEENBIDI_BIDI_TYPE_H
 
 #include <SheenBidi/SBBase.h>
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_ALGORITHM_H
-#define _SB_PUBLIC_ALGORITHM_H
+#ifndef _SHEENBIDI_ALGORITHM_H
+#define _SHEENBIDI_ALGORITHM_H
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>

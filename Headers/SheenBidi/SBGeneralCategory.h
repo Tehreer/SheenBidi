@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_GENERAL_CATEGORY_H
-#define _SB_PUBLIC_GENERAL_CATEGORY_H
+#ifndef _SHEENBIDI_GENERAL_CATEGORY_H
+#define _SHEENBIDI_GENERAL_CATEGORY_H
 
 #include <SheenBidi/SBBase.h>
 

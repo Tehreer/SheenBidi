@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_CODEPOINT_H
-#define _SB_PUBLIC_CODEPOINT_H
+#ifndef _SHEENBIDI_CODEPOINT_H
+#define _SHEENBIDI_CODEPOINT_H
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBBidiType.h>

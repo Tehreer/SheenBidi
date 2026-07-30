@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_SCRIPT_LOCATOR_H
-#define _SB_PUBLIC_SCRIPT_LOCATOR_H
+#ifndef _SHEENBIDI_SCRIPT_LOCATOR_H
+#define _SHEENBIDI_SCRIPT_LOCATOR_H
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBCodepointSequence.h>

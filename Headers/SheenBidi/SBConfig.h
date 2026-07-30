@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_CONFIG_H
-#define _SB_PUBLIC_CONFIG_H
+#ifndef _SHEENBIDI_CONFIG_H
+#define _SHEENBIDI_CONFIG_H
 
 /**
  * Exports public symbols when building SheenBidi as a Windows DLL.

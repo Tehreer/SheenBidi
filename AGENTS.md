@@ -128,7 +128,7 @@ SB_INTERNAL void SBCodepointSkipToStart(const void *buffer, SBUInteger length,
 
 | Scope | Pattern | Example |
 |-------|---------|---------|
-| Public | `_SB_PUBLIC_<NAME>_H` | `_SB_PUBLIC_ATTRIBUTE_REGISTRY_H` |
+| Public | `_SHEENBIDI_<NAME>_H` | `_SHEENBIDI_ATTRIBUTE_REGISTRY_H` |
 | Internal | `_SB_INTERNAL_<NAME>_H` | `_SB_INTERNAL_LIST_H` |
 | Umbrella | `_SHEENBIDI_H` | `Headers/SheenBidi/SheenBidi.h` |
 

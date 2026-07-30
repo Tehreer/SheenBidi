@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_TEXT_ITERATORS_H
-#define _SB_PUBLIC_TEXT_ITERATORS_H
+#ifndef _SHEENBIDI_TEXT_ITERATORS_H
+#define _SHEENBIDI_TEXT_ITERATORS_H
 
 #include <SheenBidi/SBAttributeList.h>
 #include <SheenBidi/SBBase.h>

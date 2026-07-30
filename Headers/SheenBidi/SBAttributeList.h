@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_ATTRIBUTE_LIST_H
-#define _SB_PUBLIC_ATTRIBUTE_LIST_H
+#ifndef _SHEENBIDI_ATTRIBUTE_LIST_H
+#define _SHEENBIDI_ATTRIBUTE_LIST_H
 
 #include <SheenBidi/SBAttributeInfo.h>
 #include <SheenBidi/SBBase.h>

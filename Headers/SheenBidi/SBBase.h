@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_BASE_H
-#define _SB_PUBLIC_BASE_H
+#ifndef _SHEENBIDI_BASE_H
+#define _SHEENBIDI_BASE_H
 
 #include <stdint.h>
 

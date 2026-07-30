@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_PARAGRAPH_H
-#define _SB_PUBLIC_PARAGRAPH_H
+#ifndef _SHEENBIDI_PARAGRAPH_H
+#define _SHEENBIDI_PARAGRAPH_H
 
 #include <SheenBidi/SBBase.h>
 #include <SheenBidi/SBLine.h>

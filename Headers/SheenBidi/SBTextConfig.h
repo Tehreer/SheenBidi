@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_TEXT_CONFIG_H
-#define _SB_PUBLIC_TEXT_CONFIG_H
+#ifndef _SHEENBIDI_TEXT_CONFIG_H
+#define _SHEENBIDI_TEXT_CONFIG_H
 
 #include <SheenBidi/SBAttributeRegistry.h>
 #include <SheenBidi/SBBase.h>

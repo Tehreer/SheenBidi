@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_ALLOCATOR_H
-#define _SB_PUBLIC_ALLOCATOR_H
+#ifndef _SHEENBIDI_ALLOCATOR_H
+#define _SHEENBIDI_ALLOCATOR_H
 
 #include <SheenBidi/SBBase.h>
 

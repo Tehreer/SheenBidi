@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_TEXT_TYPE_H
-#define _SB_PUBLIC_TEXT_TYPE_H
+#ifndef _SHEENBIDI_TEXT_TYPE_H
+#define _SHEENBIDI_TEXT_TYPE_H
 
 #include <SheenBidi/SBBase.h>
 

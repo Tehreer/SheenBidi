@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SB_PUBLIC_RUN_H
-#define _SB_PUBLIC_RUN_H
+#ifndef _SHEENBIDI_RUN_H
+#define _SHEENBIDI_RUN_H
 
 #include <SheenBidi/SBBase.h>
 
