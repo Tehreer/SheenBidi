@@ -52,23 +52,55 @@ SB_INTERNAL SBAttributeListRef SBAttributeListCreate(SBAttributeRegistryRef regi
 #define SBAttributeListSize(list_)                          \
     ((list_)->_list.count)
 
-#define SBAttributeListReserveRange(list_, index_, count_)  \
-    ListReserveRange(&(list_)->_list, index_, count_)
-
-#define SBAttributeListReserveEnd(list_, count_)            \
-    ListReserveRange(&(list_)->_list, (list_)->_list.count, count_)
-
 #define SBAttributeListGetAt(list_, index_)                 \
     ListGetPtr(&(list_)->_list, index_)
 
-#define SBAttributeListGetLast(list_)                       \
-    ListGetPtr(&(list_)->_list, (list_)->_list.count - 1)
+/**
+ * Inserts a new item at `index`, retaining `value` through the list's own registry.
+ *
+ * @param list
+ *      The attribute list to modify.
+ * @param index
+ *      The index at which to insert the new item.
+ * @param attributeID
+ *      The attribute ID of the new item.
+ * @param value
+ *      The attribute value to insert; retained through `list`'s registry.
+ */
+SB_INTERNAL void SBAttributeListInsertItem(SBAttributeListRef list, SBUInteger index,
+    SBAttributeID attributeID, const void *value);
 
-#define SBAttributeListRemoveAt(list_, index_)              \
-    ListRemoveAt(&(list_)->_list, index_)
+/**
+ * Replaces the value of the item at `index`, retaining `value` and releasing the item's previous
+ * value, both through the list's own registry.
+ *
+ * @param list
+ *      The attribute list to modify.
+ * @param index
+ *      The index of the item whose value should be replaced.
+ * @param value
+ *      The new attribute value; retained through `list`'s registry.
+ */
+SB_INTERNAL void SBAttributeListReplaceItemValue(SBAttributeListRef list, SBUInteger index,
+    const void *value);
 
-#define SBAttributeListRemoveAll(list_)                     \
-    ListRemoveAll(&(list_)->_list)
+/**
+ * Removes the item at `index`, releasing its value through the list's own registry.
+ *
+ * @param list
+ *      The attribute list to modify.
+ * @param index
+ *      The index of the item to remove.
+ */
+SB_INTERNAL void SBAttributeListRemoveItem(SBAttributeListRef list, SBUInteger index);
+
+/**
+ * Removes all items, releasing each one's value through the list's own registry.
+ *
+ * @param list
+ *      The attribute list to clear.
+ */
+SB_INTERNAL void SBAttributeListClear(SBAttributeListRef list);
 
 /**
  * Finds the index where an attribute with the specified ID is located or should be inserted.

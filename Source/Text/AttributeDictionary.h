@@ -138,9 +138,10 @@ SB_INTERNAL void AttributeDictionaryMerge(AttributeDictionaryRef dictionary,
     AttributeDictionaryRef other, SBBoolean *unchanged);
 
 /**
- * Retrieves filtered attributes matching the specified scope and group. Values are shared with
- * `dictionary` (borrowed, not independently retained), matching this function's role as a
- * read-only view rather than a value transfer.
+ * Retrieves filtered attributes matching the specified scope and group. Each matching value is
+ * retained anew into `result` through its underlying list's registry, so `result` becomes an
+ * independent owner of its filtered contents and must be cleared, finalized, or destroyed
+ * normally once no longer needed -- it does not borrow from `dictionary`.
  *
  * @param dictionary
  *      The attribute dictionary to query.

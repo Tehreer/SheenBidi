@@ -34,17 +34,9 @@
 static void FinalizeAttributeList(ObjectRef object)
 {
     SBAttributeListRef list = (SBAttributeListRef)object;
-    SBUInteger index;
 
-    for (index = 0; index < list->_list.count; index++) {
-        SBAttributeItem *item = ListGetPtr(&list->_list, index);
-        SBAttributeRegistryReleaseAttribute(list->registry, SBAttributeItemGetValuePtr(item));
-    }
-
-    if (list->registry) {
-        SBAttributeRegistryRelease(list->registry);
-    }
-
+    SBAttributeListClear(list);
+    SBAttributeRegistryRelease(list->registry);
     ListFinalize(&list->_list);
 }
 
@@ -66,6 +58,52 @@ SB_INTERNAL SBAttributeListRef SBAttributeListCreate(SBAttributeRegistryRef regi
     }
 
     return list;
+}
+
+SB_INTERNAL void SBAttributeListInsertItem(SBAttributeListRef list, SBUInteger index,
+    SBAttributeID attributeID, const void *value)
+{
+    const void *retainedValue = SBAttributeRegistryRetainAttribute(list->registry, value);
+    SBAttributeItem *item;
+
+    ListReserveRange(&list->_list, index, 1);
+    item = ListGetPtr(&list->_list, index);
+    SBAttributeItemSet(item, attributeID, retainedValue);
+}
+
+SB_INTERNAL void SBAttributeListReplaceItemValue(SBAttributeListRef list, SBUInteger index,
+    const void *value)
+{
+    SBAttributeItem *item = ListGetPtr(&list->_list, index);
+    const void *previousValue;
+    const void *retainedValue;
+
+    previousValue = SBAttributeItemGetValuePtr(item);
+    retainedValue = SBAttributeRegistryRetainAttribute(list->registry, value);
+
+    SBAttributeRegistryReleaseAttribute(list->registry, previousValue);
+    SBAttributeItemSetValue(item, retainedValue);
+}
+
+SB_INTERNAL void SBAttributeListRemoveItem(SBAttributeListRef list, SBUInteger index)
+{
+    SBAttributeItem *item = ListGetPtr(&list->_list, index);
+
+    SBAttributeRegistryReleaseAttribute(list->registry, SBAttributeItemGetValuePtr(item));
+    ListRemoveAt(&list->_list, index);
+}
+
+SB_INTERNAL void SBAttributeListClear(SBAttributeListRef list)
+{
+    SBUInteger itemCount = list->_list.count;
+    SBUInteger itemIndex;
+
+    for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+        SBAttributeItem *item = ListGetPtr(&list->_list, itemIndex);
+        SBAttributeRegistryReleaseAttribute(list->registry, SBAttributeItemGetValuePtr(item));
+    }
+
+    ListRemoveAll(&list->_list);
 }
 
 SB_INTERNAL SBUInteger SBAttributeListBinarySearchIndex(SBAttributeListRef list,
