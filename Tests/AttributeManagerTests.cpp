@@ -78,9 +78,24 @@ const Color Color::Purple = Color(0xFF00FF);
 struct Font {
     const string name;
 
-    static const Font Arial, Times;
+    static Font *create(const char *name) {
+        return new Font(name);
+    }
+
+    static Font *retain(Font *font) {
+        font->retainCount += 1;
+        return font;
+    }
+
+    static void release(Font *value) {
+        if (--value->retainCount == 0) {
+            delete value;
+        }
+    }
 
 private:
+    size_t retainCount = 1;
+
     explicit Font(const char *name) : name(name) { }
 
     bool operator==(const Font &other) const {
@@ -88,15 +103,29 @@ private:
     }
 };
 
-const Font Font::Arial = Font("Arial");
-const Font Font::Times = Font("Times");
-
 struct Language {
     const string locale;
 
-    static const Language English, Urdu;
+    static const Language *English, *Urdu;
+
+    static Language *create(const char *locale) {
+        return new Language(locale);
+    }
+
+    static Language *retain(Language *language) {
+        language->retainCount += 1;
+        return language;
+    }
+
+    static void release(Language *language) {
+        if (--language->retainCount == 0) {
+            delete language;
+        }
+    }
 
 private:
+    size_t retainCount = 1;
+
     explicit Language(const char *locale): locale(locale) { }
 
     bool operator==(const Language &other) const {
@@ -104,49 +133,60 @@ private:
     }
 };
 
-const Language Language::English = Language("en");
-const Language Language::Urdu = Language("ur");
-
 struct AttributeValue {
     const AttributeType type;
     union {
+        void *pointer;
         Alignment alignment;
         Color color;
-        const Font *font;
-        const Language *language;
+        Font *font;
+        Language *language;
     };
 
     static const AttributeValue None;
 
-    static AttributeValue *create(const AttributeValue &source) {
-        return new AttributeValue(source);
-    }
-
     static AttributeValue *retain(AttributeValue *value) {
-        value->retainCount += 1;
+        switch (value->type) {
+        case AttributeType::Font:
+            value->font = Font::retain(value->font);
+            break;
+        case AttributeType::Language:
+            value->language = Language::retain(value->language);
+            break;
+        default:
+            break;
+        }
+
         return value;
     }
 
     static void release(AttributeValue *value) {
-        if (--value->retainCount == 0) {
-            delete value;
+        switch (value->type) {
+        case AttributeType::Font:
+            Font::release(value->font);
+            break;
+        case AttributeType::Language:
+            Language::release(value->language);
+            break;
+        default:
+            break;
         }
     }
 
     AttributeValue() :
         type(AttributeType::None) { }
 
-    AttributeValue(const Alignment &alignment) :
+    AttributeValue(Alignment alignment) :
         type(AttributeType::Alignment), alignment(alignment) { }
 
-    AttributeValue(const Color &color) :
+    AttributeValue(Color color) :
         type(AttributeType::Color), color(color) { }
 
-    AttributeValue(const Font &font) :
-        type(AttributeType::Font), font(&font) { }
+    AttributeValue(Font *font) :
+        type(AttributeType::Font), font(font) { }
 
-    AttributeValue(const Language &language)
-        : type(AttributeType::Language), language(&language) { }
+    AttributeValue(Language *language)
+        : type(AttributeType::Language), language(language) { }
 
     bool operator==(const AttributeValue &other) const {
         if (type == other.type) {
@@ -168,8 +208,6 @@ struct AttributeValue {
     }
 
 private:
-    size_t retainCount = 1;
-
     void *operator new(size_t size) {
         return ::operator new(size);
     }
@@ -188,19 +226,30 @@ public:
     AttributePool &operator=(const AttributePool &) = delete;
 
     ~AttributePool() {
-        for (AttributeValue *object : m_objects) {
-            AttributeValue::release(object);
+        for (Font *font : m_fonts) {
+            Font::release(font);
+        }
+
+        for (Language *language : m_languages) {
+            Language::release(language);
         }
     }
 
-    AttributeValue *add(const AttributeValue &source) {
-        auto object = AttributeValue::create(source);
-        m_objects.push_back(object);
+    Font *font(const char *name) {
+        auto object = Font::create(name);
+        m_fonts.push_back(object);
+        return object;
+    }
+
+    Language *language(const char *locale) {
+        auto object = Language::create(locale);
+        m_languages.push_back(object);
         return object;
     }
 
 private:
-    vector<AttributeValue *> m_objects;
+    vector<Font *> m_fonts;
+    vector<Language *> m_languages;
 };
 
 static const vector<SBAttributeInfo> TestAttributes = {
@@ -372,14 +421,13 @@ void AttributeManagerTests::testSetCharacterAttribute() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto blue = pool.add(Color::Blue);
+    AttributeValue blue = Color::Blue;
 
-    SBTextSetAttribute(text, 1, 3, color, blue);
+    SBTextSetAttribute(text, 1, 3, color, &blue);
 
     // Verify attributes in range
     for (size_t i = 1; i < 4; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Blue));
+        assert(verifyAttribute(manager, i, color, blue));
     }
 
     // Verify position 0 doesn't have the attribute
@@ -394,19 +442,19 @@ void AttributeManagerTests::testSetParagraphAttributeExtension() {
     SBTextInsertRandomParagraph(text, 10, 10);
     SBTextInsertRandomParagraph(text, 20, 10);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto langID = SBAttributeRegistryGetAttributeID(registry, AttributeName::Language);
-
-    AttributePool pool;
-    auto english = pool.add(Language::English);
+    AttributeValue english = pool.language("en");
 
     // Set the paragraph attribute in the middle of the first paragraph
-    SBTextSetAttribute(text, 6, 5, langID, english);
+    SBTextSetAttribute(text, 6, 5, langID, &english);
 
     // Should extend to the entire first and second paragraphs (0-19)
     for (size_t i = 0; i < 20; i++) {
-        assert(verifyAttribute(manager, i, langID, Language::English));
+        assert(verifyAttribute(manager, i, langID, english));
     }
 
     // The third paragraph should not have the attribute
@@ -423,12 +471,11 @@ void AttributeManagerTests::testRemoveAttribute() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto green = pool.add(Color::Green);
+    AttributeValue green = Color::Green;
 
     // Set and verify attribute
-    SBTextSetAttribute(text, 1, 3, color, green);
-    assert(verifyAttribute(manager, 2, color, Color::Green));
+    SBTextSetAttribute(text, 1, 3, color, &green);
+    assert(verifyAttribute(manager, 2, color, green));
 
     // Remove attribute
     SBTextRemoveAttribute(text, 2, 1, color);
@@ -441,21 +488,22 @@ void AttributeManagerTests::testMultipleAttributesSameRange() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextAppendRandomCodeUnits(text, 5);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto purple = pool.add(Color::Purple);
-    auto arial = pool.add(Font::Arial);
+    AttributeValue purple = Color::Purple;
+    AttributeValue arial = pool.font("Arial");
 
     // Set multiple attributes at the same position
-    SBTextSetAttribute(text, 2, 1, color, purple);
-    SBTextSetAttribute(text, 2, 1, font, arial);
+    SBTextSetAttribute(text, 2, 1, color, &purple);
+    SBTextSetAttribute(text, 2, 1, font, &arial);
 
-    assert(verifyAttribute(manager, 2, color, Color::Purple));
-    assert(verifyAttribute(manager, 2, font, Font::Arial));
+    assert(verifyAttribute(manager, 2, color, purple));
+    assert(verifyAttribute(manager, 2, font, arial));
 
     SBTextRelease(text);
 }
@@ -468,17 +516,16 @@ void AttributeManagerTests::testOverwriteAttributeValue() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto black = pool.add(Color::Black);
+    AttributeValue red = Color::Red;
+    AttributeValue black = Color::Black;
 
     // Set initial value
-    SBTextSetAttribute(text, 1, 1, color, red);
-    assert(verifyAttribute(manager, 1, color, Color::Red));
+    SBTextSetAttribute(text, 1, 1, color, &red);
+    assert(verifyAttribute(manager, 1, color, red));
 
     // Overwrite with new value
-    SBTextSetAttribute(text, 1, 1, color, black);
-    assert(verifyAttribute(manager, 1, color, Color::Black));
+    SBTextSetAttribute(text, 1, 1, color, &black);
+    assert(verifyAttribute(manager, 1, color, black));
 
     SBTextRelease(text);
 }
@@ -488,39 +535,40 @@ void AttributeManagerTests::testComplexAttributeOverlapping() {
     SBTextInsertRandomParagraph(text, 0, 20);
     SBTextInsertRandomParagraph(text, 20, 20);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
-    auto arial = pool.add(Font::Arial);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
+    AttributeValue times = pool.font("Times");
 
     // Create overlapping attribute regions
-    SBTextSetAttribute(text, 0, 10, color, red);
-    SBTextSetAttribute(text, 5, 10, font, arial);
-    SBTextSetAttribute(text, 10, 10, color, blue);
+    SBTextSetAttribute(text, 0, 10, color, &red);
+    SBTextSetAttribute(text, 5, 10, font, &times);
+    SBTextSetAttribute(text, 10, 10, color, &blue);
 
     // Verify overlapping regions
     for (size_t i = 0; i < 5; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
+        assert(verifyAttribute(manager, i, color, red));
         assert(verifyAttribute(manager, i, font, AttributeValue::None));
     }
 
     for (size_t i = 5; i < 10; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
-        assert(verifyAttribute(manager, i, font, Font::Arial));
+        assert(verifyAttribute(manager, i, color, red));
+        assert(verifyAttribute(manager, i, font, times));
     }
 
     for (size_t i = 10; i < 15; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Blue));
-        assert(verifyAttribute(manager, i, font, Font::Arial));
+        assert(verifyAttribute(manager, i, color, blue));
+        assert(verifyAttribute(manager, i, font, times));
     }
 
     for (size_t i = 15; i < 20; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Blue));
+        assert(verifyAttribute(manager, i, color, blue));
         assert(verifyAttribute(manager, i, font, AttributeValue::None));
     }
 
@@ -535,26 +583,25 @@ void AttributeManagerTests::testBoundaryConditions() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
-    auto green = pool.add(Color::Green);
-    auto yellow = pool.add(Color::Yellow);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
+    AttributeValue green = Color::Green;
+    AttributeValue yellow = Color::Yellow;
 
     // Test at the start boundary
-    SBTextSetAttribute(text, 0, 1, color, red);
-    assert(verifyAttribute(manager, 0, color, Color::Red));
+    SBTextSetAttribute(text, 0, 1, color, &red);
+    assert(verifyAttribute(manager, 0, color, red));
 
     // Test at the end boundary
-    SBTextSetAttribute(text, 9, 1, color, blue);
-    assert(verifyAttribute(manager, 9, color, Color::Blue));
+    SBTextSetAttribute(text, 9, 1, color, &blue);
+    assert(verifyAttribute(manager, 9, color, blue));
 
     // Test a single character in the middle
-    SBTextSetAttribute(text, 5, 1, color, green);
-    assert(verifyAttribute(manager, 5, color, Color::Green));
+    SBTextSetAttribute(text, 5, 1, color, &green);
+    assert(verifyAttribute(manager, 5, color, green));
 
     // Test zero-length range (should not crash)
-    SBTextSetAttribute(text, 5, 0, color, yellow);
+    SBTextSetAttribute(text, 5, 0, color, &yellow);
 
     SBTextRelease(text);
 }
@@ -567,27 +614,26 @@ void AttributeManagerTests::testLargeTextOperations() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
-    auto blue = pool.add(Color::Blue);
-    auto yellow = pool.add(Color::Yellow);
-    
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
+    AttributeValue blue = Color::Blue;
+    AttributeValue yellow = Color::Yellow;
+
     // Set attributes in chunks
-    SBTextSetAttribute(text, 0, 250, color, red);
-    SBTextSetAttribute(text, 250, 250, color, green);
-    SBTextSetAttribute(text, 500, 250, color, blue);
-    SBTextSetAttribute(text, 750, 250, color, yellow);
+    SBTextSetAttribute(text, 0, 250, color, &red);
+    SBTextSetAttribute(text, 250, 250, color, &green);
+    SBTextSetAttribute(text, 500, 250, color, &blue);
+    SBTextSetAttribute(text, 750, 250, color, &yellow);
 
     // Verify chunks
-    assert(verifyAttribute(manager, 0, color, Color::Red));
-    assert(verifyAttribute(manager, 249, color, Color::Red));
-    assert(verifyAttribute(manager, 250, color, Color::Green));
-    assert(verifyAttribute(manager, 499, color, Color::Green));
-    assert(verifyAttribute(manager, 500, color, Color::Blue));
-    assert(verifyAttribute(manager, 749, color, Color::Blue));
-    assert(verifyAttribute(manager, 750, color, Color::Yellow));
-    assert(verifyAttribute(manager, 999, color, Color::Yellow));
+    assert(verifyAttribute(manager, 0, color, red));
+    assert(verifyAttribute(manager, 249, color, red));
+    assert(verifyAttribute(manager, 250, color, green));
+    assert(verifyAttribute(manager, 499, color, green));
+    assert(verifyAttribute(manager, 500, color, blue));
+    assert(verifyAttribute(manager, 749, color, blue));
+    assert(verifyAttribute(manager, 750, color, yellow));
+    assert(verifyAttribute(manager, 999, color, yellow));
 
     SBTextRelease(text);
 }
@@ -599,30 +645,31 @@ void AttributeManagerTests::testMultipleParagraphAttributes() {
     SBTextInsertRandomParagraph(text, 20, 10);
     SBTextInsertRandomParagraph(text, 30, 10);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto language = SBAttributeRegistryGetAttributeID(registry, AttributeName::Language);
     auto alignment = SBAttributeRegistryGetAttributeID(registry, AttributeName::Alignment);
 
-    AttributePool pool;
-    auto english = pool.add(Language::English);
-    auto urdu = pool.add(Language::Urdu);
-    auto center = pool.add(Alignment::Center);
+    AttributeValue english = pool.language("en");
+    AttributeValue urdu = pool.language("ur");
+    AttributeValue center = Alignment::Center;
 
     // Set different paragraph attributes
-    SBTextSetAttribute(text, 5, 1, language, english);
-    SBTextSetAttribute(text, 15, 1, language, urdu);
-    SBTextSetAttribute(text, 25, 1, alignment, center);
+    SBTextSetAttribute(text, 5, 1, language, &english);
+    SBTextSetAttribute(text, 15, 1, language, &urdu);
+    SBTextSetAttribute(text, 25, 1, alignment, &center);
 
     // Verify paragraph-level extension
     for (size_t i = 0; i < 10; i++) {
-        assert(verifyAttribute(manager, i, language, Language::English));
+        assert(verifyAttribute(manager, i, language, english));
     }
     for (size_t i = 10; i < 20; i++) {
-        assert(verifyAttribute(manager, i, language, Language::Urdu));
+        assert(verifyAttribute(manager, i, language, urdu));
     }
     for (size_t i = 20; i < 30; i++) {
-        assert(verifyAttribute(manager, i, alignment, Alignment::Center));
+        assert(verifyAttribute(manager, i, alignment, center));
     }
 
     SBTextRelease(text);
@@ -636,32 +683,32 @@ void AttributeManagerTests::testAttributeRemovalEdgeCases() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
+    AttributeValue none = AttributeValue::None;
+    AttributeValue red = Color::Red;
 
     // Set attribute
-    SBTextSetAttribute(text, 0, 10, color, red);
+    SBTextSetAttribute(text, 0, 10, color, &red);
 
     // Remove from middle
     SBTextRemoveAttribute(text, 3, 4, color);
 
     // Verify boundaries
-    assert(verifyAttribute(manager, 0, color, Color::Red));
-    assert(verifyAttribute(manager, 2, color, Color::Red));
-    assert(verifyAttribute(manager, 3, color, AttributeValue::None));
-    assert(verifyAttribute(manager, 6, color, AttributeValue::None));
-    assert(verifyAttribute(manager, 7, color, Color::Red));
-    assert(verifyAttribute(manager, 9, color, Color::Red));
+    assert(verifyAttribute(manager, 0, color, red));
+    assert(verifyAttribute(manager, 2, color, red));
+    assert(verifyAttribute(manager, 3, color, none));
+    assert(verifyAttribute(manager, 6, color, none));
+    assert(verifyAttribute(manager, 7, color, red));
+    assert(verifyAttribute(manager, 9, color, red));
 
     // Remove from start
     SBTextRemoveAttribute(text, 0, 3, color);
-    assert(verifyAttribute(manager, 0, color, AttributeValue::None));
-    assert(verifyAttribute(manager, 2, color, AttributeValue::None));
+    assert(verifyAttribute(manager, 0, color, none));
+    assert(verifyAttribute(manager, 2, color, none));
 
     // Remove from end
     SBTextRemoveAttribute(text, 7, 3, color);
-    assert(verifyAttribute(manager, 7, color, AttributeValue::None));
-    assert(verifyAttribute(manager, 9, color, AttributeValue::None));
+    assert(verifyAttribute(manager, 7, color, none));
+    assert(verifyAttribute(manager, 9, color, none));
 
     SBTextRelease(text);
 }
@@ -687,11 +734,10 @@ void AttributeManagerTests::testZeroLengthOperations() {
     auto registry = text->attributeRegistry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
+    AttributeValue red = Color::Red;
 
     // Zero-length operations should be handled without crashing
-    SBTextSetAttribute(text, 2, 0, color, red);
+    SBTextSetAttribute(text, 2, 0, color, &red);
     SBTextRemoveAttribute(text, 2, 0, color);
 
     SBTextRelease(text);
@@ -705,26 +751,25 @@ void AttributeManagerTests::testReplaceRangePureInsertion() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
 
     // Set up initial attributes: [RRRRRBBBBB] where R=red, B=blue
-    SBTextSetAttribute(text, 0, 5, color, red);
-    SBTextSetAttribute(text, 5, 5, color, blue);
+    SBTextSetAttribute(text, 0, 5, color, &red);
+    SBTextSetAttribute(text, 5, 5, color, &blue);
 
     // Pure insertion at position 3 (middle of red range)
     SBTextReplaceWithRandomCodeUnits(text, 3, 0, 3);
 
     // Expected: [RRR + new3 + RRBBBBB] where new3 inherits red
-    assert(verifyAttribute(manager, 0, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 2, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 3, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 5, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 6, color, Color::Red));   // Second part of red
-    assert(verifyAttribute(manager, 7, color, Color::Red));   // Second part of red
-    assert(verifyAttribute(manager, 8, color, Color::Blue));  // Blue range shifted
-    assert(verifyAttribute(manager, 12, color, Color::Blue)); // Blue range shifted
+    assert(verifyAttribute(manager, 0, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 2, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 3, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 5, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 6, color, red));   // Second part of red
+    assert(verifyAttribute(manager, 7, color, red));   // Second part of red
+    assert(verifyAttribute(manager, 8, color, blue));  // Blue range shifted
+    assert(verifyAttribute(manager, 12, color, blue)); // Blue range shifted
 
     SBTextRelease(text);
 }
@@ -737,24 +782,23 @@ void AttributeManagerTests::testReplaceRangePureDeletion() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
+    AttributeValue blue = Color::Blue;
 
     // Set up initial attributes: [RRRGGGBBB] where R=red, G=green, B=blue
-    SBTextSetAttribute(text, 0, 3, color, red);
-    SBTextSetAttribute(text, 3, 3, color, green);
-    SBTextSetAttribute(text, 6, 3, color, blue);
+    SBTextSetAttribute(text, 0, 3, color, &red);
+    SBTextSetAttribute(text, 3, 3, color, &green);
+    SBTextSetAttribute(text, 6, 3, color, &blue);
 
     // Pure deletion of range 2-7 (overlapping all three ranges)
     SBTextReplaceWithRandomCodeUnits(text, 2, 5, 0);
 
     // Expected: [RRBB] - deletion removes parts of each range
-    assert(verifyAttribute(manager, 0, color, Color::Red));   // First part of red preserved
-    assert(verifyAttribute(manager, 1, color, Color::Red));   // First part of red preserved
-    assert(verifyAttribute(manager, 2, color, Color::Blue));  // Blue range shifted
-    assert(verifyAttribute(manager, 3, color, Color::Blue));  // Blue range shifted
+    assert(verifyAttribute(manager, 0, color, red));   // First part of red preserved
+    assert(verifyAttribute(manager, 1, color, red));   // First part of red preserved
+    assert(verifyAttribute(manager, 2, color, blue));  // Blue range shifted
+    assert(verifyAttribute(manager, 3, color, blue));  // Blue range shifted
 
     SBTextRelease(text);
 }
@@ -767,24 +811,23 @@ void AttributeManagerTests::testReplaceRangeBasicReplacement() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
 
     // Set up initial attributes: [RRRRGGGG] where R=red, G=green
-    SBTextSetAttribute(text, 0, 4, color, red);
-    SBTextSetAttribute(text, 4, 4, color, green);
+    SBTextSetAttribute(text, 0, 4, color, &red);
+    SBTextSetAttribute(text, 4, 4, color, &green);
 
     // Replace range 2-6 with 5 new characters
     SBTextReplaceWithRandomCodeUnits(text, 2, 4, 5);
 
     // Expected: [RR + new5 + GG] where new5 inherits red then green
-    assert(verifyAttribute(manager, 0, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 1, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 2, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 6, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 7, color, Color::Green)); // Switch to green
-    assert(verifyAttribute(manager, 8, color, Color::Green)); // Remaining green
+    assert(verifyAttribute(manager, 0, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 1, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 2, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 6, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 7, color, green)); // Switch to green
+    assert(verifyAttribute(manager, 8, color, green)); // Remaining green
 
     SBTextRelease(text);
 }
@@ -797,25 +840,24 @@ void AttributeManagerTests::testReplaceRangeAtTextBoundaries() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
 
     // Set attributes: first 3 red, last 2 blue
-    SBTextSetAttribute(text, 0, 3, color, red);
-    SBTextSetAttribute(text, 3, 2, color, blue);
+    SBTextSetAttribute(text, 0, 3, color, &red);
+    SBTextSetAttribute(text, 3, 2, color, &blue);
 
     // Test replacement at start boundary
     SBTextReplaceWithRandomCodeUnits(text, 0, 2, 4);
-    assert(verifyAttribute(manager, 0, color, Color::Red));  // New text inherits red
-    assert(verifyAttribute(manager, 3, color, Color::Red));  // New text inherits red
-    assert(verifyAttribute(manager, 4, color, Color::Red));  // Old text keeps red
-    assert(verifyAttribute(manager, 5, color, Color::Blue)); // Blue range shifted
+    assert(verifyAttribute(manager, 0, color, red));  // New text inherits red
+    assert(verifyAttribute(manager, 3, color, red));  // New text inherits red
+    assert(verifyAttribute(manager, 4, color, red));  // Old text keeps red
+    assert(verifyAttribute(manager, 5, color, blue)); // Blue range shifted
 
     // Test replacement at end boundary (appending)
     SBTextReplaceWithRandomCodeUnits(text, 7, 0, 3);
     for (SBUInteger i = 5; i < 10; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Blue));
+        assert(verifyAttribute(manager, i, color, blue));
     }
 
     SBTextRelease(text);
@@ -829,17 +871,16 @@ void AttributeManagerTests::testReplaceRangeWithSingleEntry() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
+    AttributeValue red = Color::Red;
 
     // Single entry covers everything (red)
-    SBTextSetAttribute(text, 0, 5, color, red);
+    SBTextSetAttribute(text, 0, 5, color, &red);
 
     // Various replacements should maintain single entry
     SBTextReplaceWithRandomCodeUnits(text, 2, 1, 2); // Replace middle
     assert(manager->_entries.count == 1);
     for (SBUInteger i = 0; i < 6; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
+        assert(verifyAttribute(manager, i, color, red));
     }
 
     SBTextReplaceWithRandomCodeUnits(text, 0, 1, 1); // Replace start
@@ -859,27 +900,26 @@ void AttributeManagerTests::testReplaceRangeSpanningMultipleEntries() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
+    AttributeValue blue = Color::Blue;
 
     // Create multiple attribute entries: [RRR GGGG BBBBB]
-    SBTextSetAttribute(text, 0, 3, color, red);
-    SBTextSetAttribute(text, 3, 4, color, green);
-    SBTextSetAttribute(text, 7, 5, color, blue);
+    SBTextSetAttribute(text, 0, 3, color, &red);
+    SBTextSetAttribute(text, 3, 4, color, &green);
+    SBTextSetAttribute(text, 7, 5, color, &blue);
 
     // Replace range spanning all entries (2-9)
     SBTextReplaceWithRandomCodeUnits(text, 2, 7, 6);
 
     // Verify resulting attributes preserve the pattern
-    assert(verifyAttribute(manager, 0, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 1, color, Color::Red));   // First red preserved
-    assert(verifyAttribute(manager, 2, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 3, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 7, color, Color::Red));   // New text inherits red
-    assert(verifyAttribute(manager, 8, color, Color::Blue));  // Remaining blue
-    assert(verifyAttribute(manager, 10, color, Color::Blue)); // Remaining blue
+    assert(verifyAttribute(manager, 0, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 1, color, red));   // First red preserved
+    assert(verifyAttribute(manager, 2, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 3, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 7, color, red));   // New text inherits red
+    assert(verifyAttribute(manager, 8, color, blue));  // Remaining blue
+    assert(verifyAttribute(manager, 10, color, blue)); // Remaining blue
 
     SBTextRelease(text);
 }
@@ -892,26 +932,25 @@ void AttributeManagerTests::testReplaceRangeRemovingEntireEntries() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
+    AttributeValue blue = Color::Blue;
 
     // Create entries: [RRR GGG BBB]
-    SBTextSetAttribute(text, 0, 3, color, red);
-    SBTextSetAttribute(text, 3, 3, color, green);
-    SBTextSetAttribute(text, 6, 3, color, blue);
+    SBTextSetAttribute(text, 0, 3, color, &red);
+    SBTextSetAttribute(text, 3, 3, color, &green);
+    SBTextSetAttribute(text, 6, 3, color, &blue);
 
     // Replace entire middle entry (positions 3-5)
     SBTextReplaceWithRandomCodeUnits(text, 3, 3, 2);
 
     // New text should inherit from first replaced character (green)
-    assert(verifyAttribute(manager, 0, color, Color::Red));   // Red preserved
-    assert(verifyAttribute(manager, 2, color, Color::Red));   // Red preserved
-    assert(verifyAttribute(manager, 3, color, Color::Green)); // New text gets green
-    assert(verifyAttribute(manager, 4, color, Color::Green)); // New text gets green
-    assert(verifyAttribute(manager, 5, color, Color::Blue));  // Blue preserved
-    assert(verifyAttribute(manager, 7, color, Color::Blue));  // Blue preserved
+    assert(verifyAttribute(manager, 0, color, red));   // Red preserved
+    assert(verifyAttribute(manager, 2, color, red));   // Red preserved
+    assert(verifyAttribute(manager, 3, color, green)); // New text gets green
+    assert(verifyAttribute(manager, 4, color, green)); // New text gets green
+    assert(verifyAttribute(manager, 5, color, blue));  // Blue preserved
+    assert(verifyAttribute(manager, 7, color, blue));  // Blue preserved
 
     SBTextRelease(text);
 }
@@ -921,27 +960,28 @@ void AttributeManagerTests::testReplaceRangeWithParagraphAttributes() {
     SBTextInsertRandomParagraph(text, 0, 6);  // First paragraph
     SBTextInsertRandomParagraph(text, 6, 6);  // Second paragraph
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto language = SBAttributeRegistryGetAttributeID(registry, AttributeName::Language);
 
-    AttributePool pool;
-    auto english = pool.add(Language::English);
-    auto urdu = pool.add(Language::Urdu);
+    AttributeValue english = pool.language("en");
+    AttributeValue urdu = pool.language("ur");
 
     // Set different paragraph attributes
-    SBTextSetAttribute(text, 0, 1, language, english); // First paragraph
-    SBTextSetAttribute(text, 6, 1, language, urdu);    // Second paragraph
+    SBTextSetAttribute(text, 0, 1, language, &english); // First paragraph
+    SBTextSetAttribute(text, 6, 1, language, &urdu);    // Second paragraph
 
     // Replace text within first paragraph (should not affect paragraph scope)
     SBTextReplaceWithRandomCodeUnits(text, 2, 2, 3);
 
     // Paragraph attributes should still cover entire paragraphs
     for (SBUInteger i = 0; i < 7; i++) { // First paragraph extended due to insertion
-        assert(verifyAttribute(manager, i, language, Language::English));
+        assert(verifyAttribute(manager, i, language, english));
     }
     for (SBUInteger i = 7; i < 13; i++) { // Second paragraph
-        assert(verifyAttribute(manager, i, language, Language::Urdu));
+        assert(verifyAttribute(manager, i, language, urdu));
     }
 
     SBTextRelease(text);
@@ -952,22 +992,23 @@ void AttributeManagerTests::testReplaceRangeParagraphMerging() {
     SBTextInsertRandomParagraph(text, 0, 6);  // "12345\n"
     SBTextInsertRandomParagraph(text, 6, 6);  // "67890\n"
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto language = SBAttributeRegistryGetAttributeID(registry, AttributeName::Language);
     auto alignment = SBAttributeRegistryGetAttributeID(registry, AttributeName::Alignment);
 
-    AttributePool pool;
-    auto english = pool.add(Language::English);
-    auto urdu = pool.add(Language::Urdu);
-    auto leading = pool.add(Alignment::Leading);
-    auto center = pool.add(Alignment::Center);
+    AttributeValue english = pool.language("en");
+    AttributeValue urdu = pool.language("ur");
+    AttributeValue leading = Alignment::Leading;
+    AttributeValue center = Alignment::Center;
 
     // Set different paragraph attributes
-    SBTextSetAttribute(text, 0, 1, language, english);
-    SBTextSetAttribute(text, 0, 1, alignment, leading);
-    SBTextSetAttribute(text, 6, 1, language, urdu);
-    SBTextSetAttribute(text, 6, 1, alignment, center);
+    SBTextSetAttribute(text, 0, 1, language, &english);
+    SBTextSetAttribute(text, 0, 1, alignment, &leading);
+    SBTextSetAttribute(text, 6, 1, language, &urdu);
+    SBTextSetAttribute(text, 6, 1, alignment, &center);
 
     // Delete the newline character that separates paragraphs
     SBTextReplaceWithRandomCodeUnits(text, 5, 2, 0); // Delete newline and first char
@@ -975,8 +1016,8 @@ void AttributeManagerTests::testReplaceRangeParagraphMerging() {
     // Paragraphs should merge with combined attributes
     for (SBUInteger i = 0; i < 10; i++) {
         // Both language and alignment attributes should be present
-        assert(verifyAttribute(manager, i, language, Language::English));
-        assert(verifyAttribute(manager, i, alignment, Alignment::Leading));
+        assert(verifyAttribute(manager, i, language, english));
+        assert(verifyAttribute(manager, i, alignment, leading));
     }
 
     SBTextRelease(text);
@@ -986,35 +1027,36 @@ void AttributeManagerTests::testReplaceRangeComplexAttributePatterns() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextAppendRandomCodeUnits(text, 15);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto green = pool.add(Color::Green);
-    auto blue = pool.add(Color::Blue);
-    auto arial = pool.add(Font::Arial);
+    AttributeValue red = Color::Red;
+    AttributeValue green = Color::Green;
+    AttributeValue blue = Color::Blue;
+    AttributeValue arial = pool.font("Arial");
 
     // Complex pattern: [RR FF RR+FF GG BB]
-    SBTextSetAttribute(text, 0, 2, color, red);
-    SBTextSetAttribute(text, 2, 2, font, arial);
-    SBTextSetAttribute(text, 4, 3, color, red);
-    SBTextSetAttribute(text, 4, 3, font, arial);
-    SBTextSetAttribute(text, 7, 3, color, green);
-    SBTextSetAttribute(text, 10, 5, color, blue);
+    SBTextSetAttribute(text, 0, 2, color, &red);
+    SBTextSetAttribute(text, 2, 2, font, &arial);
+    SBTextSetAttribute(text, 4, 3, color, &red);
+    SBTextSetAttribute(text, 4, 3, font, &arial);
+    SBTextSetAttribute(text, 7, 3, color, &green);
+    SBTextSetAttribute(text, 10, 5, color, &blue);
 
     // Complex replacement overlapping multiple regions
     SBTextReplaceWithRandomCodeUnits(text, 3, 8, 5);
 
     // Verify the complex result maintains attribute boundaries
-    assert(verifyAttribute(manager, 0, color, Color::Red));
-    assert(verifyAttribute(manager, 1, color, Color::Red));
-    assert(verifyAttribute(manager, 2, font, Font::Arial));
-    assert(verifyAttribute(manager, 7, font, Font::Arial));
-    assert(verifyAttribute(manager, 8, color, Color::Blue));
-    assert(verifyAttribute(manager, 11, color, Color::Blue));
+    assert(verifyAttribute(manager, 0, color, red));
+    assert(verifyAttribute(manager, 1, color, red));
+    assert(verifyAttribute(manager, 2, font, arial));
+    assert(verifyAttribute(manager, 7, font, arial));
+    assert(verifyAttribute(manager, 8, color, blue));
+    assert(verifyAttribute(manager, 11, color, blue));
 
     SBTextRelease(text);
 }
@@ -1023,28 +1065,29 @@ void AttributeManagerTests::testReplaceRangeMultipleAttributes() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextAppendRandomCodeUnits(text, 10);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto times = pool.add(Font::Times);
+    AttributeValue red = Color::Red;
+    AttributeValue times = pool.font("Times");
 
     // Set multiple attributes on same range
-    SBTextSetAttribute(text, 0, 10, color, red);
-    SBTextSetAttribute(text, 3, 4, font, times);
+    SBTextSetAttribute(text, 0, 10, color, &red);
+    SBTextSetAttribute(text, 3, 4, font, &times);
 
     // Replace range that overlaps font attribute
     SBTextReplaceWithRandomCodeUnits(text, 4, 2, 3);
 
     // Both attributes should be preserved
     for (size_t i = 0; i < 11; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
+        assert(verifyAttribute(manager, i, color, red));
     }
     for (size_t i = 3; i < 8; i++) {
-        assert(verifyAttribute(manager, 3, font, Font::Times));
+        assert(verifyAttribute(manager, 3, font, times));
     }
 
     SBTextRelease(text);
@@ -1058,26 +1101,25 @@ void AttributeManagerTests::testReplaceRangeAttributeInheritance() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
 
     // Test that inserted text inherits correct attributes
-    SBTextSetAttribute(text, 0, 4, color, red);
-    SBTextSetAttribute(text, 4, 4, color, blue);
+    SBTextSetAttribute(text, 0, 4, color, &red);
+    SBTextSetAttribute(text, 4, 4, color, &blue);
 
     // Insert at boundary between red and blue
     SBTextReplaceWithRandomCodeUnits(text, 4, 0, 2);
 
     // New text should inherit from left side (red)
     for (size_t i = 0; i < 6; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
+        assert(verifyAttribute(manager, i, color, red));
     }
 
     // Insert at start of blue range with deletion
     SBTextReplaceWithRandomCodeUnits(text, 6, 2, 3);
     for (size_t i = 6; i < 11; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Blue));
+        assert(verifyAttribute(manager, i, color, blue));
     }
 
     SBTextRelease(text);
@@ -1091,20 +1133,19 @@ void AttributeManagerTests::testReplaceRangeEdgeCases() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
+    AttributeValue red = Color::Red;
 
-    SBTextSetAttribute(text, 0, 5, color, red);
+    SBTextSetAttribute(text, 0, 5, color, &red);
 
     // Edge case: replace entire text
     SBTextReplaceWithRandomCodeUnits(text, 0, 5, 3);
     for (SBUInteger i = 0; i < 3; i++) {
-        assert(verifyAttribute(manager, i, color, Color::Red));
+        assert(verifyAttribute(manager, i, color, red));
     }
 
     // Edge case: replace with same length
     SBTextReplaceWithRandomCodeUnits(text, 1, 1, 1);
-    assert(verifyAttribute(manager, 1, color, Color::Red));
+    assert(verifyAttribute(manager, 1, color, red));
 
     // Edge case: replace zero characters at end (should not crash)
     SBTextReplaceWithRandomCodeUnits(text, 3, 0, 0);
@@ -1120,8 +1161,7 @@ void AttributeManagerTests::testReplaceRangeZeroLengthOperations() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
+    AttributeValue red = Color::Red;
 
     // Zero-length operations should be handled without crashing
     SBTextReplaceWithRandomCodeUnits(text, 2, 0, 0); // No-op
@@ -1129,8 +1169,8 @@ void AttributeManagerTests::testReplaceRangeZeroLengthOperations() {
     SBTextReplaceWithRandomCodeUnits(text, 5, 0, 0); // No-op at end
 
     // Setting attributes after zero-length ops should work
-    SBTextSetAttribute(text, 2, 1, color, red);
-    assert(verifyAttribute(manager, 2, color, Color::Red));
+    SBTextSetAttribute(text, 2, 1, color, &red);
+    assert(verifyAttribute(manager, 2, color, red));
 
     SBTextRelease(text);
 }
@@ -1143,11 +1183,10 @@ void AttributeManagerTests::testGetRunByIDBasic() {
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
 
-    AttributePool pool;
-    auto purple = pool.add(Color::Purple);
+    AttributeValue purple = Color::Purple;
 
     // Set attribute on first half
-    SBTextSetAttribute(text, 0, 5, color, purple);
+    SBTextSetAttribute(text, 0, 5, color, &purple);
 
     AttributeDictionary output;
     AttributeDictionaryInitialize(&output, registry);
@@ -1173,20 +1212,21 @@ void AttributeManagerTests::testGetRunByFilteredCollection() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextInsertRandomParagraph(text, 0, 10);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
-    auto arial = pool.add(Font::Arial);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
+    AttributeValue arial = pool.font("Arial");
 
     // Set different attributes in different ranges
-    SBTextSetAttribute(text, 0, 3, color, red);
-    SBTextSetAttribute(text, 0, 3, font, arial);
-    SBTextSetAttribute(text, 3, 4, color, blue);
+    SBTextSetAttribute(text, 0, 3, color, &red);
+    SBTextSetAttribute(text, 0, 3, font, &arial);
+    SBTextSetAttribute(text, 3, 4, color, &blue);
 
     AttributeDictionary output;
     AttributeDictionaryInitialize(&output, registry);
@@ -1232,21 +1272,22 @@ void AttributeManagerTests::testFilterByAttributeGroup() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextAppendRandomCodeUnits(text, 10);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
     auto language = SBAttributeRegistryGetAttributeID(registry, AttributeName::Language);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto arial = pool.add(Font::Arial);
-    auto english = pool.add(Language::English);
+    AttributeValue red = Color::Red;
+    AttributeValue arial = pool.font("Arial");
+    AttributeValue english = pool.language("en");
 
     // Set attributes from different groups
-    SBTextSetAttribute(text, 0, 5, color, red);
-    SBTextSetAttribute(text, 0, 5, font, arial);
-    SBTextSetAttribute(text, 3, 5, language, english);
+    SBTextSetAttribute(text, 0, 5, color, &red);
+    SBTextSetAttribute(text, 0, 5, font, &arial);
+    SBTextSetAttribute(text, 3, 5, language, &english);
 
     AttributeDictionary output;
     AttributeDictionaryInitialize(&output, registry);
@@ -1270,20 +1311,21 @@ void AttributeManagerTests::testRunBoundariesWithMixedAttributes() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextInsertRandomParagraph(text, 0, 30);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto arial = pool.add(Font::Arial);
+    AttributeValue red = Color::Red;
+    AttributeValue arial = pool.font("Arial");
 
     // Create a pattern: color-only, both, font-only, none
-    SBTextSetAttribute(text, 0, 5, color, red);
-    SBTextSetAttribute(text, 5, 5, color, red);
-    SBTextSetAttribute(text, 5, 5, font, arial);
-    SBTextSetAttribute(text, 10, 5, font, arial);
+    SBTextSetAttribute(text, 0, 5, color, &red);
+    SBTextSetAttribute(text, 5, 5, color, &red);
+    SBTextSetAttribute(text, 5, 5, font, &arial);
+    SBTextSetAttribute(text, 10, 5, font, &arial);
     // 15-30: no attributes
 
     AttributeDictionary output;
@@ -1308,23 +1350,24 @@ void AttributeManagerTests::testComplexRunDetectionScenarios() {
     auto text = SBTextCreateWithDefaultRegistry();
     SBTextAppendRandomCodeUnits(text, 20);
 
+    AttributePool pool;
+
     auto manager = &text->attributeManager;
     auto registry = manager->_registry;
     auto color = SBAttributeRegistryGetAttributeID(registry, AttributeName::Color);
     auto font = SBAttributeRegistryGetAttributeID(registry, AttributeName::Font);
 
-    AttributePool pool;
-    auto red = pool.add(Color::Red);
-    auto blue = pool.add(Color::Blue);
-    auto arial = pool.add(Font::Arial);
-    auto times = pool.add(Font::Times);
+    AttributeValue red = Color::Red;
+    AttributeValue blue = Color::Blue;
+    AttributeValue arial = pool.font("Arial");
+    AttributeValue times = pool.font("Times");
 
     // Create a complex pattern: A-B-A-B where A=color, B=font, AB=both
-    SBTextSetAttribute(text, 0, 5, color, red);   // 0-4: color
-    SBTextSetAttribute(text, 5, 5, font, arial);  // 5-9: font
-    SBTextSetAttribute(text, 10, 5, color, blue); // 10-14: color
-    SBTextSetAttribute(text, 10, 5, font, arial); // 10-14: both
-    SBTextSetAttribute(text, 15, 5, font, times); // 15-19: font
+    SBTextSetAttribute(text, 0, 5, color, &red);   // 0-4: color
+    SBTextSetAttribute(text, 5, 5, font, &arial);  // 5-9: font
+    SBTextSetAttribute(text, 10, 5, color, &blue); // 10-14: color
+    SBTextSetAttribute(text, 10, 5, font, &arial); // 10-14: both
+    SBTextSetAttribute(text, 15, 5, font, &times); // 15-19: font
 
     AttributeDictionary output;
     AttributeDictionaryInitialize(&output, text->attributeRegistry);
