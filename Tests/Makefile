@@ -9,7 +9,6 @@ TESTS_SRCS = $(TESTS_DIR)/AlgorithmTests.cpp \
              $(TESTS_DIR)/AllocatorTests.cpp \
              $(TESTS_DIR)/AtomicTests.cpp \
              $(TESTS_DIR)/AttributeManagerTests.cpp \
-             $(TESTS_DIR)/AttributeRunIteratorTests.cpp \
              $(TESTS_DIR)/BidiTypeLookupTests.cpp \
              $(TESTS_DIR)/BracketLookupTests.cpp \
              $(TESTS_DIR)/BracketQueueTests.cpp \

@@ -240,18 +240,25 @@ SB_PUBLIC SBLogicalRunIteratorRef SBTextCreateLogicalRunIterator(SBTextRef text)
 SB_PUBLIC SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text);
 
 /**
- * Creates a new attribute run iterator that can traverse all attribute runs in the text.
- *
- * Initially, the iterator has no filter applied and will return all attribute runs. Use
- * `SBAttributeRunIteratorSetupAttributeID` or `SBAttributeRunIteratorSetupAttributeCollection` to
- * apply filtering by attribute ID or group/scope.
+ * Retrieves the attributes matching `filter` at `index`, and the length of the run over which
+ * they apply (the extent, starting at `index`, over which the filtered attribute set stays the
+ * same — an empty run if none match).
  *
  * @param text
  *      Text object.
+ * @param filter
+ *      The filter selecting which attributes to match, constructed via `SBAttributeFilterMakeID`,
+ *      `SBAttributeFilterMakeCollection`, or `SBAttributeFilterMakeAny`.
+ * @param index
+ *      Code-unit index to query. Must be less than the text's length.
+ * @param outLength
+ *      Receives the run length in code units.
  * @return
- *      Attribute iterator on success, `NULL` on failure.
+ *      A new, retained attribute list; the caller must release it via `SBAttributeListRelease`
+ *      when done.
  */
-SB_PUBLIC SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text);
+SB_PUBLIC SBAttributeListRef SBTextGetAttributes(SBTextRef text, SBAttributeFilter filter,
+    SBUInteger index, SBUInteger *outLength);
 
 /**
  * Creates a new uniform run iterator that can traverse runs of text that are simultaneously uniform
@@ -259,9 +266,10 @@ SB_PUBLIC SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef t
  *
  * Each run is the intersection of the corresponding logical run, script run, and attribute run,
  * making it the finest-grained unit that can be safely processed as one piece (for example, handed
- * to a text shaping engine). Initially, the iterator has no attribute filter applied (matching all
- * character-scoped attributes as a single collection); use `SBUniformRunIteratorSetupAttributeID`
- * or `SBUniformRunIteratorSetupAttributeCollection` to filter by attribute ID or group/scope.
+ * to a text shaping engine). Initially, the iterator has no attribute filter applied (equivalent to
+ * `SBAttributeFilterMakeAny`); use `SBUniformRunIteratorSetupFilter` with a filter from
+ * `SBAttributeFilterMakeID` or `SBAttributeFilterMakeCollection` to filter by attribute ID or
+ * group/scope.
  *
  * @param text
  *      Text object.

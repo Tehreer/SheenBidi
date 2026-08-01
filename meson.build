@@ -337,10 +337,6 @@ if build_tests
         'Tests/AttributeManagerTests.h',
         'Tests/AttributeManagerTests.cpp'
       ],
-      'AttributeRunIteratorTests': [
-        'Tests/AttributeRunIteratorTests.h',
-        'Tests/AttributeRunIteratorTests.cpp'
-      ],
       'LogicalRunIteratorTests': [
         'Tests/LogicalRunIteratorTests.h',
         'Tests/LogicalRunIteratorTests.cpp'

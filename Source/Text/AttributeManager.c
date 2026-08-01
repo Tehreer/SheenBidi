@@ -37,17 +37,15 @@
  * The cache stores reusable attribute dictionaries to reduce memory allocations
  * when attributes are frequently added and removed.
  */
-static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache, SBUInt8 valueSize)
+static void InitializeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
 {
     ListInitialize(&cache->_attributeDicts, sizeof(AttributeDictionaryRef));
-    cache->_valueSize = valueSize;
 }
 
 /**
  * Finalizes an attribute dictionary cache and destroys all cached dictionaries.
  */
-static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache,
-    SBAttributeRegistryRef registry)
+static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache)
 {
     SBUInteger dictCount = cache->_attributeDicts.count;
     SBUInteger dictIndex;
@@ -55,7 +53,7 @@ static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache,
     /* Destroy all cached attribute dictionaries */
     for (dictIndex = 0; dictIndex < dictCount; dictIndex++) {
         AttributeDictionaryRef dictionary = ListGetVal(&cache->_attributeDicts, dictIndex);
-        AttributeDictionaryDestroy(dictionary, registry);
+        AttributeDictionaryDestroy(dictionary);
     }
 
     /* Finalize the cache list */
@@ -65,14 +63,15 @@ static void FinalizeAttributeDictionaryCache(AttributeDictionaryCacheRef cache,
 /**
  * Retrieves a cached attribute dictionary or creates a new one if the cache is empty.
  */
-static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDictionaryCacheRef cache)
+static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDictionaryCacheRef cache,
+    SBAttributeRegistryRef registry)
 {
     AttributeDictionaryRef dictionary = NULL;
     SBUInteger dictCount = cache->_attributeDicts.count;
 
     if (dictCount == 0) {
         /* Create a new dictionary if the cache is empty */
-        dictionary = AttributeDictionaryCreate(cache->_valueSize);
+        dictionary = AttributeDictionaryCreate(registry);
     } else {
         /* Reuse the last cached dictionary */
         dictionary = ListGetVal(&cache->_attributeDicts, dictCount - 1);
@@ -88,7 +87,7 @@ static AttributeDictionaryRef AcquireAttributeDictionaryFromCache(AttributeDicti
 static void StoreAttributeDictionaryInCache(AttributeDictionaryCacheRef cache,
     AttributeDictionaryRef dictionary, SBAttributeRegistryRef registry)
 {
-    AttributeDictionaryClear(dictionary, registry);
+    AttributeDictionaryClear(dictionary);
     ListAdd(&cache->_attributeDicts, &dictionary);
 }
 
@@ -282,15 +281,14 @@ static void ShiftAttributeEntryRanges(AttributeManagerRef manager,
  *      Optional output: set to SBTrue if no changes were made.
  */
 static void ApplyOperationToAttributes(AttributeDictionaryRef attributes,
-    AttributeOperationType operation, AttributeOperationParams params,
-    SBAttributeRegistryRef registry, SBBoolean *unchanged)
+    AttributeOperationType operation, AttributeOperationParams params, SBBoolean *unchanged)
 {
     switch (operation) {
     case AttributeOperationApply:
-        AttributeDictionaryMerge(attributes, params.apply.attributes, registry, unchanged);
+        AttributeDictionaryMerge(attributes, params.apply.attributes, unchanged);
         break;
     case AttributeOperationRemove:
-        AttributeDictionaryRemove(attributes, params.remove.attributeID, registry, unchanged);
+        AttributeDictionaryRemove(attributes, params.remove.attributeID, unchanged);
         break;
     }
 }
@@ -330,11 +328,11 @@ static SBBoolean SplitAttributesEntry(AttributeManagerRef manager,
         AttributeDictionaryRef modifiedAttributes;
 
         /* Create working copy of attributes for modification */
-        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache);
-        AttributeDictionarySet(modifiedAttributes, firstEntry.attributes, registry);
+        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
+        AttributeDictionarySet(modifiedAttributes, firstEntry.attributes);
 
         /* Apply operation to determine if changes would occur */
-        ApplyOperationToAttributes(modifiedAttributes, operation, params, registry, &unchanged);
+        ApplyOperationToAttributes(modifiedAttributes, operation, params, &unchanged);
 
         if (unchanged) {
             /* Operation produces no change - no split needed, cache the copy */
@@ -398,15 +396,15 @@ static void ApplyOperationOverRange(AttributeManagerRef manager,
 
     if (rangeStart == entry->index && rangeEnd == entryEnd) {
         /* CASE 1: Operation covers entire entry exactly */
-        ApplyOperationToAttributes(entry->attributes, operation, params, registry, NULL);
+        ApplyOperationToAttributes(entry->attributes, operation, params, NULL);
     } else if (rangeStart > entry->index && rangeEnd < entryEnd) {
         /* CASE 2: Operation is entirely within one entry - split into 3 */
         AttributeDictionaryRef modifiedAttributes;
         SBBoolean unchanged;
 
-        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache);
-        AttributeDictionarySet(modifiedAttributes, entry->attributes, registry);
-        ApplyOperationToAttributes(modifiedAttributes, operation, params, registry, &unchanged);
+        modifiedAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
+        AttributeDictionarySet(modifiedAttributes, entry->attributes);
+        ApplyOperationToAttributes(modifiedAttributes, operation, params, &unchanged);
 
         if (unchanged) {
             /* No changes needed - don't split */
@@ -414,8 +412,8 @@ static void ApplyOperationOverRange(AttributeManagerRef manager,
         } else {
             AttributeDictionaryRef cloneAttributes;
 
-            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache);
-            AttributeDictionarySet(cloneAttributes, entry->attributes, registry);
+            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
+            AttributeDictionarySet(cloneAttributes, entry->attributes);
 
             /* Reserve space for 2 new entries */
             ListReserveRange(&manager->_entries, entryIndex + 1, 2);
@@ -460,7 +458,7 @@ static void ApplyOperationOverRange(AttributeManagerRef manager,
 
             /* Apply operation to current entry if not already processed by split */
             if (!entryProcessed) {
-                ApplyOperationToAttributes(entry->attributes, operation, params, registry, NULL);
+                ApplyOperationToAttributes(entry->attributes, operation, params, NULL);
             }
 
             /* Advance to next entry */
@@ -521,7 +519,6 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
             && precedingParagraph == followingParagraph);
 
         if (paragraphsMerged) {
-            SBAttributeRegistryRef registry = manager->_registry;
             SBUInteger paragraphStart = precedingParagraph->index;
             SBUInteger paragraphEnd = paragraphStart + precedingParagraph->length;
             AttributeDictionaryRef paragraphAttributes;
@@ -533,7 +530,7 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
             entry = AttributeManagerFindEntry(manager, precedingIndex, NULL, NULL);
 
             AttributeDictionaryFilter(entry->attributes,
-                SBAttributeScopeParagraph, SBAttributeGroupNone, registry, paragraphAttributes);
+                SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
 
             if (!AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the second half of the merged paragraph */
@@ -545,7 +542,7 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
             entry = AttributeManagerFindEntry(manager, mergePointIndex, NULL, NULL);
 
             AttributeDictionaryFilter(entry->attributes,
-                SBAttributeScopeParagraph, SBAttributeGroupNone, registry, paragraphAttributes);
+                SBAttributeScopeParagraph, SBAttributeGroupNone, paragraphAttributes);
 
             if (!AttributeDictionaryIsEmpty(paragraphAttributes)) {
                 /* Apply to the first half of the merged paragraph */
@@ -561,12 +558,12 @@ static void AdjustParagraphAttributesAfterMerge(AttributeManagerRef manager,
  *
  * This is called during initialization to create a base entry covering the entire text.
  */
-static void InsertFirstAttributeEntry(AttributeManagerRef manager)
+static void InsertFirstAttributeEntry(AttributeManagerRef manager, SBAttributeRegistryRef registry)
 {
     AttributeEntry entry;
 
     entry.index = 0;
-    entry.attributes = AcquireAttributeDictionaryFromCache(&manager->_cache);
+    entry.attributes = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
 
     ListAdd(&manager->_entries, &entry);
 }
@@ -601,10 +598,10 @@ SB_INTERNAL void AttributeManagerInitialize(AttributeManagerRef manager,
 
     if (registry) {
         /* Initialize all structures only when a registry is provided */
-        InitializeAttributeDictionaryCache(&manager->_cache, registry->valueSize);
-        AttributeDictionaryInitialize(&manager->_tempDict, registry->valueSize);
+        InitializeAttributeDictionaryCache(&manager->_cache);
+        AttributeDictionaryInitialize(&manager->_tempDict, registry);
         ListInitialize(&manager->_entries, sizeof(AttributeEntry));
-        InsertFirstAttributeEntry(manager);
+        InsertFirstAttributeEntry(manager, registry);
     }
 }
 
@@ -616,13 +613,13 @@ SB_INTERNAL void AttributeManagerFinalize(AttributeManagerRef manager)
         SBUInteger entryCount = manager->_entries.count;
         SBUInteger entryIndex;
 
-        AttributeDictionaryFinalize(&manager->_tempDict, NULL);
-        FinalizeAttributeDictionaryCache(&manager->_cache, registry);
+        AttributeDictionaryFinalize(&manager->_tempDict);
+        FinalizeAttributeDictionaryCache(&manager->_cache);
 
         /* Finalize all entries */
         for (entryIndex = 0; entryIndex < entryCount; entryIndex++) {
             AttributeEntry *entry = ListGetRef(&manager->_entries, entryIndex);
-            AttributeDictionaryDestroy(entry->attributes, registry);
+            AttributeDictionaryDestroy(entry->attributes);
         }
 
         ListFinalize(&manager->_entries);
@@ -649,8 +646,8 @@ SB_INTERNAL void AttributeManagerCopyAttributes(AttributeManagerRef manager,
             AttributeEntry *newEntry = ListGetRef(&manager->_entries, entryIndex);
             AttributeDictionaryRef cloneAttributes;
 
-            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache);
-            AttributeDictionarySet(cloneAttributes, sourceEntry->attributes, registry);
+            cloneAttributes = AcquireAttributeDictionaryFromCache(&manager->_cache, registry);
+            AttributeDictionarySet(cloneAttributes, sourceEntry->attributes);
 
             newEntry->index = sourceEntry->index;
             newEntry->attributes = cloneAttributes;
@@ -778,7 +775,7 @@ SB_INTERNAL void AttributeManagerReplaceRange(AttributeManagerRef manager,
                         shiftStart -= 1;
                     } else {
                         /* This is the only entry - reset it to cover the empty text */
-                        AttributeDictionaryClear(entry->attributes, registry);
+                        AttributeDictionaryClear(entry->attributes);
                         entry->index = 0;
                     }
                 }
@@ -823,8 +820,8 @@ SB_INTERNAL void AttributeManagerSetAttribute(AttributeManagerRef manager,
             }
 
             /* Prepare single-item dictionary with the attribute */
-            AttributeDictionaryClear(attributes, NULL);
-            AttributeDictionaryPut(attributes, attributeID, attributeValue, NULL, NULL);
+            AttributeDictionaryClear(attributes);
+            AttributeDictionaryPut(attributes, attributeID, attributeValue, NULL);
 
             /* Apply over the (possibly expanded) range */
             ApplyAttributesOverRange(manager, index, length, attributes);
@@ -881,7 +878,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
     const void *initialValue;
 
     /* Clear output dictionary before populating */
-    AttributeDictionaryClear(output, NULL);
+    AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
@@ -896,7 +893,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringID(AttributeManager
 
     if (initialValue) {
         /* Put the initial item to the output dictionary */
-        AttributeDictionaryPut(output, attributeID, initialValue, NULL, NULL);
+        AttributeDictionaryPut(output, attributeID, initialValue, NULL);
 
         /* Iterate while the attribute value remains the same */
         while (*runStart < rangeEnd) {
@@ -949,12 +946,11 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
     SBUInteger *runStart, SBUInteger rangeEnd,
     SBAttributeScope filterScope, SBAttributeGroup filterGroup, AttributeDictionaryRef output)
 {
-    SBAttributeRegistryRef registry = manager->_registry;
     SBUInteger entryIndex;
     const AttributeEntry *entry;
 
     /* Clear the output dictionary before populating */
-    AttributeDictionaryClear(output, NULL);
+    AttributeDictionaryClear(output);
 
     /* Check for the possibility of a next run first */
     if (*runStart >= rangeEnd) {
@@ -963,7 +959,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
 
     /* Get the first entry and filter its attributes */
     entry = AttributeManagerFindEntry(manager, *runStart, &entryIndex, runStart);
-    AttributeDictionaryFilter(entry->attributes, filterScope, filterGroup, registry, output);
+    AttributeDictionaryFilter(entry->attributes, filterScope, filterGroup, output);
 
     entryIndex += 1;
 
@@ -973,7 +969,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
             entry = ListGetRef(&manager->_entries, entryIndex);
 
             /* Stop when matching attributes appear */
-            if (AttributeDictionaryMatchAny(entry->attributes, filterScope, filterGroup, registry)) {
+            if (AttributeDictionaryMatchAny(entry->attributes, filterScope, filterGroup)) {
                 break;
             }
 
@@ -986,7 +982,7 @@ SB_INTERNAL SBBoolean AttributeManagerGetOnwardRunByFilteringCollection(Attribut
             entry = ListGetRef(&manager->_entries, entryIndex);
 
             /* Stop if filtered attributes change */
-            if (!AttributeDictionaryMatchAll(entry->attributes, filterScope, filterGroup, registry, output)) {
+            if (!AttributeDictionaryMatchAll(entry->attributes, filterScope, filterGroup, output)) {
                 break;
             }
 

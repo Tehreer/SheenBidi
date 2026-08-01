@@ -348,146 +348,69 @@ SB_PUBLIC SBScriptRunIteratorRef SBScriptRunIteratorRetain(SBScriptRunIteratorRe
 SB_PUBLIC void SBScriptRunIteratorRelease(SBScriptRunIteratorRef iterator);
 
 /* ----------------------------------
- * Attribute Run Iterator
+ * Attribute Filter
  * ---------------------------------- */
 
+enum {
+    SBAttributeFilterKindAny        = 0, /**< Match any attribute, ignoring ID, group, and scope. */
+    SBAttributeFilterKindID         = 1, /**< Filter by a single attribute ID. */
+    SBAttributeFilterKindCollection = 2  /**< Filter by attribute group and scope. */
+};
 /**
- * Opaque reference to an attribute run iterator.
- *
- * Iterates over runs of text with consistent attribute properties. Supports filtering by attribute
- * ID or attribute group/scope. The iterator retains its parent `SBText` and must be released when
- * no longer needed.
- *
- * @warning
- *      The parent text must not be modified during iteration. If the text is modified, the iterator
- *      behavior becomes undefined and should be reset before further use. Multiple instances of
- *      this iterator type can be used concurrently on the same text as long as the text is not
- *      being modified.
+ * Discriminator for `SBAttributeFilter`, indicating which criteria it filters by.
  */
-typedef struct _SBAttributeRunIterator *SBAttributeRunIteratorRef;
-
- /**
- * A run representing a list of attribute items over a range.
- */
-typedef struct _SBAttributeRun {
-    SBUInteger index;              /**< Start index of the run in code units. */
-    SBUInteger length;             /**< Length of the run in code units. */
-    SBAttributeListRef attributes; /**< Attributes present on the run. */
-} SBAttributeRun;
+typedef SBUInt8 SBAttributeFilterKind;
 
 /**
- * Returns the parent text retained by the iterator.
+ * Describes how attributes should be filtered, or bounded (for `SBUniformRunIterator`): by a
+ * single attribute ID, by an attribute group/scope collection, or by a change in any attribute at
+ * all. Used by both `SBTextGetAttributes` and `SBUniformRunIterator`.
  *
- * @param iterator
- *      Attribute run iterator.
- * @return
- *      Text associated with the iterator (borrowed).
+ * Construct instances with `SBAttributeFilterMakeID`, `SBAttributeFilterMakeCollection`, or
+ * `SBAttributeFilterMakeAny` rather than initializing the fields directly.
  */
-SB_PUBLIC SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iterator);
+typedef struct _SBAttributeFilter {
+    SBAttributeFilterKind kind;
+    union {
+        SBAttributeID attributeID;
+        struct {
+            SBAttributeGroup group;
+            SBAttributeScope scope;
+        } collection;
+    } value;
+} SBAttributeFilter;
 
 /**
- * Configures the iterator to only return runs that contain the specified attribute ID. Empty runs
- * (runs with no matching attributes) are automatically skipped during iteration. If no runs match
- * the filter criteria, `SBAttributeRunIteratorMoveNext` returns `SBFalse`.
+ * Creates a filter that matches runs by the specified attribute ID.
  *
- * @param iterator
- *      Attribute run iterator.
  * @param attributeID
- *      The attribute ID by which to filter the runs.
+ *      The attribute ID by which to filter.
+ * @return
+ *      An `SBAttributeFilter` configured to filter by attribute ID.
  */
-SB_PUBLIC void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef iterator,
-    SBAttributeID attributeID);
+SB_PUBLIC SBAttributeFilter SBAttributeFilterMakeID(SBAttributeID attributeID);
 
 /**
- * Configures the iterator to only return runs that contain attributes matching the specified group
- * and scope. Empty runs (runs with no matching attributes) are automatically skipped during
- * iteration. If no runs match the filter criteria, `SBAttributeRunIteratorMoveNext` returns
- * `SBFalse`.
+ * Creates a filter that matches runs by the specified attribute group and scope.
  *
- * @param iterator
- *      Attribute run iterator.
  * @param attributeGroup
- *      The attribute group by which to filter the runs.
+ *      The attribute group by which to filter.
  * @param attributeScope
- *      The attribute scope by which to filter the runs.
- */
-SB_PUBLIC void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef iterator,
-    SBAttributeGroup attributeGroup, SBAttributeScope attributeScope);
-
-/**
- * Resets iteration to the specified code-unit range.
- *
- * The range is automatically normalized to fit within the text bounds. If the specified range
- * extends beyond the text length, it is clamped to the valid range.
- *
- * @param iterator
- *      Attribute run iterator.
- * @param index
- *      Start index of the iteration window (in code units).
- * @param length
- *      Length of the iteration window (in code units).
- */
-SB_PUBLIC void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator, SBUInteger index,
-    SBUInteger length);
-
-/**
- * Returns a pointer to the current attribute run information owned by the iterator. The pointer
- * remains valid until the next call to `SBAttributeRunIteratorMoveNext` or
- * `SBAttributeRunIteratorReset`.
- *
- * @param iterator
- *      Attribute run iterator.
+ *      The attribute scope by which to filter.
  * @return
- *      Pointer to `SBAttributeRun` owned by the iterator.
- *
- * @note
- *      This function always returns the same pointer address for a given iterator instance. Only
- *      the content of the structure is updated with each call to `SBAttributeRunIteratorMoveNext`.
- * @warning
- *      The client should never modify the returned structure. The client can call this function
- *      once and keep the reference, reading from it after each `SBAttributeRunIteratorMoveNext`
- *      call. The `attributes` list within the structure is also owned by the iterator and should
- *      not be modified.
+ *      An `SBAttributeFilter` configured to filter by attribute group/scope.
  */
-SB_PUBLIC const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC SBAttributeFilter SBAttributeFilterMakeCollection(SBAttributeGroup attributeGroup,
+    SBAttributeScope attributeScope);
 
 /**
- * Advances to the next attribute run.
+ * Creates a filter that matches runs bounded by a change in *any* attribute, regardless of ID,
+ * group, or scope (character- or paragraph-scoped alike).
  *
- * When the end of the iteration range is reached, subsequent calls return `SBFalse` and the current
- * element becomes invalid. Runs with no attributes matching the current filter are automatically
- * skipped.
- *
- * @param iterator
- *      Attribute run iterator.
  * @return
- *      `SBTrue` if advanced to a valid element; `SBFalse` if end reached.
- *
- * @warning
- *      The parent text must not be modified during iteration. If modification occurs, reset the
- *      iterator before continuing.
+ *      An `SBAttributeFilter` configured to match any attribute.
  */
-SB_PUBLIC SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator);
-
-/**
- * Increases the reference count of the iterator. Each call to retain must be balanced with a call
- * to release.
- *
- * @param iterator
- *      The attribute run iterator to retain.
- * @return
- *      The same iterator object after retention.
- */
-SB_PUBLIC SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunIteratorRef iterator);
-
-/**
- * Decreases the reference count of the iterator. When the reference count reaches zero, the
- * iterator frees its internal storage and releases the retained text.
- *
- * @param iterator
- *      The iterator to release.
- */
-SB_PUBLIC void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator);
+SB_PUBLIC SBAttributeFilter SBAttributeFilterMakeAny(void);
 
 /* ----------------------------------
  * Uniform Run Iterator
@@ -497,12 +420,13 @@ SB_PUBLIC void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator)
  * Opaque reference to a uniform run iterator.
  *
  * Iterates over runs of text that are simultaneously uniform in bidirectional embedding level,
- * Unicode script, and a caller-specified attribute filter (by attribute ID or group/scope, as with
- * `SBAttributeRunIterator`). Each run is the intersection of the corresponding logical run, script
- * run, and attribute run, making it the finest-grained unit that can be safely processed as one
- * piece (for example, handed to a text shaping engine) without crossing a level, script, or
- * filtered-attribute boundary. The iterator retains its parent `SBText` and must be released when no
- * longer needed.
+ * Unicode script, and a caller-specified attribute filter (by attribute ID, group/scope, or any
+ * attribute change; see `SBAttributeFilterMakeID`, `SBAttributeFilterMakeCollection`, and
+ * `SBAttributeFilterMakeAny`). Each run is the intersection of the corresponding logical run,
+ * script run, and attribute run, making it the finest-grained unit that can be safely processed as
+ * one piece (for example, handed to a text shaping engine) without crossing a level, script, or
+ * filtered-attribute boundary. The iterator retains its parent `SBText` and must be released when
+ * no longer needed.
  *
  * @warning
  *      The parent text must not be modified during iteration. If the text is modified, the iterator
@@ -521,7 +445,10 @@ typedef struct _SBUniformRun {
     SBUInteger length;             /**< Length of the run in code units. */
     SBLevel level;                 /**< Resolved bidi level of the run. */
     SBScript script;               /**< Script property value for the run. */
-    SBAttributeListRef attributes; /**< Attributes matching the configured filter; empty if none. */
+    SBAttributeListRef attributes; /**< Attributes matching the configured filter; empty if none.
+                                         Borrowed from the iterator; must not be retained or
+                                         released, and is invalidated by the next call to
+                                         `SBUniformRunIteratorMoveNext` or `...Reset`. */
 } SBUniformRun;
 
 /**
@@ -535,36 +462,19 @@ typedef struct _SBUniformRun {
 SB_PUBLIC SBTextRef SBUniformRunIteratorGetText(SBUniformRunIteratorRef iterator);
 
 /**
- * Configures the iterator to consider only the specified attribute ID when determining the
- * attribute-uniformity boundary of each run. Equivalent in meaning to
- * `SBAttributeRunIteratorSetupAttributeID`, except runs are never skipped here: a run with no
- * matching attribute is still returned (with an empty attribute list) as long as its level and
- * script remain uniform.
+ * Configures the iterator's attribute filter, determining the attribute-uniformity boundary of
+ * each run, replacing any previously configured filter (by default, `SBAttributeFilterMakeAny`).
+ * Runs are never skipped: a run with no matching attributes is still returned (with an empty
+ * attribute list) as long as its level and script remain uniform.
  *
  * @param iterator
  *      Uniform run iterator.
- * @param attributeID
- *      The attribute ID by which to filter the runs.
+ * @param filter
+ *      The filter to apply, constructed via `SBAttributeFilterMakeID`,
+ *      `SBAttributeFilterMakeCollection`, or `SBAttributeFilterMakeAny`.
  */
-SB_PUBLIC void SBUniformRunIteratorSetupAttributeID(SBUniformRunIteratorRef iterator,
-    SBAttributeID attributeID);
-
-/**
- * Configures the iterator to consider attributes matching the specified group and scope when
- * determining the attribute-uniformity boundary of each run. Equivalent in meaning to
- * `SBAttributeRunIteratorSetupAttributeCollection`, except runs are never skipped here: a run with
- * no matching attributes is still returned (with an empty attribute list) as long as its level and
- * script remain uniform.
- *
- * @param iterator
- *      Uniform run iterator.
- * @param attributeGroup
- *      The attribute group by which to filter the runs.
- * @param attributeScope
- *      The attribute scope by which to filter the runs.
- */
-SB_PUBLIC void SBUniformRunIteratorSetupAttributeCollection(SBUniformRunIteratorRef iterator,
-    SBAttributeGroup attributeGroup, SBAttributeScope attributeScope);
+SB_PUBLIC void SBUniformRunIteratorSetupFilter(SBUniformRunIteratorRef iterator,
+    SBAttributeFilter filter);
 
 /**
  * Resets iteration to the specified code-unit range.

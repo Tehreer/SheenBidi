@@ -136,9 +136,41 @@ SBScriptRunIteratorRef SBTextCreateScriptRunIterator(SBTextRef text)
     return SBScriptRunIteratorCreate(text);
 }
 
-SBAttributeRunIteratorRef SBTextCreateAttributeRunIterator(SBTextRef text)
+SBAttributeListRef SBTextGetAttributes(SBTextRef text, SBAttributeFilter filter,
+    SBUInteger index, SBUInteger *outLength)
 {
-    return SBAttributeRunIteratorCreate(text);
+    AttributeManagerRef manager = (AttributeManagerRef)&text->attributeManager;
+    SBAttributeRegistryRef registry = text->attributeRegistry;
+    AttributeDictionary dictionary;
+    SBAttributeListRef result;
+    SBUInteger textLength;
+    SBUInteger runEnd;
+
+    textLength = SBTextGetLength(text);
+    runEnd = index;
+
+    SBAssert(index < textLength);
+
+    AttributeDictionaryInitialize(&dictionary, registry);
+
+    if (filter.kind == SBAttributeFilterKindID) {
+        AttributeManagerGetOnwardRunByFilteringID(manager, &runEnd, textLength,
+            filter.value.attributeID, &dictionary);
+    } else {
+        SBAttributeGroup filterGroup;
+        SBAttributeScope filterScope;
+
+        GetCollectionFilterParams(filter, &filterGroup, &filterScope);
+        AttributeManagerGetOnwardRunByFilteringCollection(manager, &runEnd, textLength, filterScope,
+            filterGroup, &dictionary);
+    }
+
+    result = AttributeDictionaryRelinquish(&dictionary);
+    AttributeDictionaryFinalize(&dictionary);
+
+    *outLength = runEnd - index;
+
+    return result;
 }
 
 SBUniformRunIteratorRef SBTextCreateUniformRunIterator(SBTextRef text)

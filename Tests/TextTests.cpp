@@ -151,36 +151,44 @@ struct AttributeRun {
     map<SBAttributeID, AttributeValue> attributes;
 };
 
-static void verifyAttributeRuns(SBTextRef text, SBAttributeScope scope,
+static void verifyAttributeRuns(SBTextRef text, SBAttributeFilter filter,
     const vector<AttributeRun> &runs) {
-    auto iterator = SBTextCreateAttributeRunIterator(text);
-    auto current = SBAttributeRunIteratorGetCurrent(iterator);
-
-    SBAttributeRunIteratorSetupAttributeCollection(iterator, SBAttributeGroupNone, scope);
-
+    auto textLength = SBTextGetLength(text);
+    SBUInteger index = 0;
     size_t runIndex = 0;
-    while (SBAttributeRunIteratorMoveNext(iterator)) {
-        auto &run = runs.at(runIndex);
 
-        map<SBAttributeID, AttributeValue> attributes;
-        auto itemCount = SBAttributeListGetCount(current->attributes);
+    while (index < textLength) {
+        SBUInteger length = 0;
+        auto attributeList = SBTextGetAttributes(text, filter, index, &length);
+        auto itemCount = SBAttributeListGetCount(attributeList);
 
-        for (SBUInteger attrIndex = 0; attrIndex < itemCount; attrIndex++) {
-            auto item = reinterpret_cast<const AttributeItem *>(
-                SBAttributeListGetItem(current->attributes, attrIndex));
-            attributes[item->attributeID] = item->attributeValue;
+        if (itemCount > 0) {
+            auto &run = runs.at(runIndex);
+            map<SBAttributeID, AttributeValue> attributes;
+
+            for (SBUInteger attrIndex = 0; attrIndex < itemCount; attrIndex++) {
+                auto item = reinterpret_cast<const AttributeItem *>(
+                    SBAttributeListGetItem(attributeList, attrIndex));
+                attributes[item->attributeID] = item->attributeValue;
+            }
+
+            assert(index == run.index);
+            assert(length == run.length);
+            assert(attributes == run.attributes);
+
+            runIndex += 1;
         }
 
-        assert(current->index == run.index);
-        assert(current->length == run.length);
-        assert(attributes == run.attributes);
-
-        runIndex += 1;
+        SBAttributeListRelease(attributeList);
+        index += length;
     }
 
     assert(runIndex == runs.size());
+}
 
-    SBAttributeRunIteratorRelease(iterator);
+static void verifyAttributeRuns(SBTextRef text, SBAttributeScope scope,
+    const vector<AttributeRun> &runs) {
+    verifyAttributeRuns(text, SBAttributeFilterMakeCollection(SBAttributeGroupNone, scope), runs);
 }
 
 void TextTests::run() {
@@ -211,6 +219,8 @@ void TextTests::run() {
     testRemoveAttribute();
     testAttributeEdgeCases();
     testAttributeComplexScenarios();
+    testAttributeAnyFilter();
+    testAttributeListRetainRelease();
     testParagraphUserInfoProvider();
     testParagraphUserInfoInvalidation();
     testParagraphUserInfoCopySharing();
@@ -533,11 +543,6 @@ void TextTests::testIterators() {
     auto scriptRunIterator = SBTextCreateScriptRunIterator(text);
     assert(scriptRunIterator != nullptr);
     SBScriptRunIteratorRelease(scriptRunIterator);
-
-    // Test attribute run iterator
-    auto attributeRunIterator = SBTextCreateAttributeRunIterator(text);
-    assert(attributeRunIterator != nullptr);
-    SBAttributeRunIteratorRelease(attributeRunIterator);
 
     // Test uniform run iterator
     auto uniformRunIterator = SBTextCreateUniformRunIterator(text);
@@ -1620,6 +1625,80 @@ void TextTests::testAttributeComplexScenarios() {
         SBTextRelease(immutableCopy);
         SBTextRelease(mutableCopy);
     }
+}
+
+void TextTests::testAttributeAnyFilter() {
+    // Different character-scoped values combined with a uniform paragraph-scoped value spanning
+    // the whole text: SBAttributeFilterMakeAny() must split on the character-scope boundary while
+    // merging the paragraph-scoped value across it, combining both scopes into each run.
+    {
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
+        assert(text != nullptr);
+
+        auto content = "ABCDEF";
+        SBTextAppendCodeUnits(text, content, 6);
+
+        AttributeValue redColor = "red";
+        AttributeValue blueColor = "blue";
+        AttributeValue leftAlign = "left";
+
+        SBTextSetAttribute(text, 0, 3, AttributeID::Color, &redColor);
+        SBTextSetAttribute(text, 3, 3, AttributeID::Color, &blueColor);
+        SBTextSetAttribute(text, 0, 6, AttributeID::Alignment, &leftAlign);
+
+        verifyAttributeRuns(text, SBAttributeFilterMakeAny(), {
+            {0, 3, {{AttributeID::Color, redColor}, {AttributeID::Alignment, leftAlign}}},
+            {3, 3, {{AttributeID::Color, blueColor}, {AttributeID::Alignment, leftAlign}}}
+        });
+
+        SBTextRelease(text);
+    }
+
+    // Equal adjacent character-scoped values must merge into a single run under the Any filter,
+    // exactly as under an explicit collection filter.
+    {
+        auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
+        assert(text != nullptr);
+
+        auto content = "World";
+        SBTextAppendCodeUnits(text, content, 5);
+
+        AttributeValue greenColor = "green";
+        SBTextSetAttribute(text, 0, 2, AttributeID::Color, &greenColor);
+        SBTextSetAttribute(text, 2, 3, AttributeID::Color, &greenColor);
+
+        verifyAttributeRuns(text, SBAttributeFilterMakeAny(), {
+            {0, 5, {{AttributeID::Color, greenColor}}}
+        });
+
+        SBTextRelease(text);
+    }
+}
+
+void TextTests::testAttributeListRetainRelease() {
+    auto text = SBTextCreateMutable(SBStringEncodingUTF8, DefaultTextConfig);
+    assert(text != nullptr);
+
+    auto content = "ABC";
+    SBTextAppendCodeUnits(text, content, 3);
+
+    AttributeValue redColor = "red";
+    SBTextSetAttribute(text, 0, 3, AttributeID::Color, &redColor);
+
+    SBUInteger length = 0;
+    auto attributes = SBTextGetAttributes(text, SBAttributeFilterMakeAny(), 0, &length);
+    assert(attributes != nullptr);
+    assert(SBAttributeListGetCount(attributes) == 1);
+
+    auto retained = SBAttributeListRetain(attributes);
+    assert(retained == attributes);
+
+    // Releasing once must not free the list -- it is still reachable through the extra retain.
+    SBAttributeListRelease(attributes);
+    assert(SBAttributeListGetCount(retained) == 1);
+
+    SBAttributeListRelease(retained);
+    SBTextRelease(text);
 }
 
 void TextTests::testParagraphUserInfoProvider() {

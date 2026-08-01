@@ -27,7 +27,7 @@ SB_EXTERN_C_BEGIN
 /**
  * Opaque reference to an attribute list.
  */
-typedef const struct _SBAttributeList *SBAttributeListRef;
+typedef struct _SBAttributeList *SBAttributeListRef;
 
 /**
  * Returns a pointer to the attribute item located at the given index in the list.
@@ -51,6 +51,26 @@ SB_PUBLIC const SBAttributeItem *SBAttributeListGetItem(SBAttributeListRef list,
  *      The total count of attributes currently stored in the list.
  */
 SB_PUBLIC SBUInteger SBAttributeListGetCount(SBAttributeListRef list);
+
+/**
+ * Increases the reference count of the attribute list. Each call to retain must be balanced with a
+ * call to release.
+ *
+ * @param list
+ *      The attribute list to retain.
+ * @return
+ *      The same list, after retention.
+ */
+SB_PUBLIC SBAttributeListRef SBAttributeListRetain(SBAttributeListRef list);
+
+/**
+ * Decreases the reference count of the attribute list. When the reference count reaches zero, the
+ * list releases its attribute values and frees its internal storage.
+ *
+ * @param list
+ *      The attribute list to release.
+ */
+SB_PUBLIC void SBAttributeListRelease(SBAttributeListRef list);
 
 SB_EXTERN_C_END
 

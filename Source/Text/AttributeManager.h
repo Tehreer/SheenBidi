@@ -30,7 +30,6 @@
 
 typedef struct _AttributeDictionaryCache {
     LIST(AttributeDictionaryRef) _attributeDicts;
-    SBUInt8 _valueSize;
 } AttributeDictionaryCache, *AttributeDictionaryCacheRef;
 
 typedef struct _AttributeEntry {

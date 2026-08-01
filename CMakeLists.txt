@@ -214,7 +214,6 @@ if(BUILD_TESTS)
   if(BUILD_TEXT_API)
     list(APPEND TEST_TARGETS
       AttributeManagerTests
-      AttributeRunIteratorTests
       LogicalRunIteratorTests
       ParagraphIteratorTests
       ScriptRunIteratorTests
@@ -239,10 +238,6 @@ if(BUILD_TESTS)
   set(AttributeManagerTests
     Tests/AttributeManagerTests.h
     Tests/AttributeManagerTests.cpp
-  )
-  set(AttributeRunIteratorTests
-    Tests/AttributeRunIteratorTests.h
-    Tests/AttributeRunIteratorTests.cpp
   )
   set(BidiTypeLookupTests
     Tests/BidiTypeLookupTests.h

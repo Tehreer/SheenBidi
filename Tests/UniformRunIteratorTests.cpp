@@ -241,7 +241,7 @@ void UniformRunIteratorTests::testAttributeFiltering() {
     auto run = SBUniformRunIteratorGetCurrent(iterator);
 
     // Filtering on the typeface group must split at the attribute boundary.
-    SBUniformRunIteratorSetupAttributeID(iterator, typeface);
+    SBUniformRunIteratorSetupFilter(iterator, SBAttributeFilterMakeID(typeface));
 
     assert(SBUniformRunIteratorMoveNext(iterator));
     assert(run->index == 0);
@@ -257,7 +257,8 @@ void UniformRunIteratorTests::testAttributeFiltering() {
 
     // Filtering on a group that was never set must yield one empty-attribute run spanning
     // the whole text -- the typeface boundary is irrelevant to this filter.
-    SBUniformRunIteratorSetupAttributeCollection(iterator, 2, SBAttributeScopeCharacter);
+    SBUniformRunIteratorSetupFilter(iterator,
+        SBAttributeFilterMakeCollection(2, SBAttributeScopeCharacter));
     (void)color;
 
     assert(SBUniformRunIteratorMoveNext(iterator));
@@ -273,9 +274,9 @@ void UniformRunIteratorTests::testAttributeFiltering() {
 }
 
 void UniformRunIteratorTests::testNoAttributesStillYieldsRun() {
-    // Unlike SBAttributeRunIterator (which skips runs with no matching attributes), the uniform
-    // run iterator must still surface the run: level/script uniformity is meaningful even when no
-    // attribute matches the configured filter.
+    // Unlike SBTextGetAttributes (whose caller naturally steps over a run with no matching
+    // attributes), the uniform run iterator must still surface the run: level/script uniformity
+    // is meaningful even when no attribute matches the configured filter.
     auto text = SBTextCreateTest(u"ABC");
     auto iterator = SBTextCreateUniformRunIterator(text);
     auto run = SBUniformRunIteratorGetCurrent(iterator);
@@ -313,7 +314,7 @@ void UniformRunIteratorTests::testIntersectionOfBoundaries() {
     SBTextSetAttribute(text, 8, 8, typeface, &Typeface::SansSerif);
 
     auto iterator = SBTextCreateUniformRunIterator(text);
-    SBUniformRunIteratorSetupAttributeID(iterator, typeface);
+    SBUniformRunIteratorSetupFilter(iterator, SBAttributeFilterMakeID(typeface));
     auto run = SBUniformRunIteratorGetCurrent(iterator);
 
     struct Expected {
@@ -478,7 +479,7 @@ void UniformRunIteratorTests::testComplexScenarios() {
     SBTextSetAttribute(text, 5, 4, typeface, &Typeface::SansSerif);
 
     auto iterator = SBTextCreateUniformRunIterator(text);
-    SBUniformRunIteratorSetupAttributeID(iterator, typeface);
+    SBUniformRunIteratorSetupFilter(iterator, SBAttributeFilterMakeID(typeface));
     auto run = SBUniformRunIteratorGetCurrent(iterator);
 
     struct Expected {

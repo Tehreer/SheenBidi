@@ -34,7 +34,6 @@
 #include "AllocatorTests.h"
 #include "AtomicTests.h"
 #include "AttributeManagerTests.h"
-#include "AttributeRunIteratorTests.h"
 #include "BidiTypeLookupTests.h"
 #include "BracketLookupTests.h"
 #include "BracketQueueTests.h"
@@ -83,7 +82,6 @@ int main(int argc, const char *argv[]) {
     AllocatorTests allocatorTests;
     AtomicTests atomicTests;
     AttributeManagerTests attributeManagerTests;
-    AttributeRunIteratorTests attributeRunIteratorTests;
     BracketQueueTests bracketQueueTests;
     CodepointTests codepointTests(unicodeData, bidiBrackets);
     CodepointSequenceTests codepointSequenceTests;
@@ -111,7 +109,6 @@ int main(int argc, const char *argv[]) {
     allocatorTests.run();
     atomicTests.run();
     attributeManagerTests.run();
-    attributeRunIteratorTests.run();
     bracketQueueTests.run();
     codepointTests.run();
     codepointSequenceTests.run();

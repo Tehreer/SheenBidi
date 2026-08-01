@@ -24,22 +24,24 @@
 #include <API/SBAttributeInfo.h>
 #include <API/SBAttributeList.h>
 #include <API/SBAttributeRegistry.h>
+#include <Core/Object.h>
 
 #include "AttributeDictionary.h"
 
 /**
  * Determines whether an attribute item matches the specified filter criteria.
  *
- * Checks if the attribute's scope matches the target scope. If a specific group filter is
- * provided (not SBAttributeGroupNone), also verifies that the attribute's group matches.
- * Both conditions must be satisfied for the item to be considered a match.
+ * Checks if the attribute's scope matches the target scope, unless the target scope is the
+ * internal AttributeScopeAny sentinel, in which case every scope matches. If a specific group
+ * filter is provided (not SBAttributeGroupNone), also verifies that the attribute's group
+ * matches. Both conditions must be satisfied for the item to be considered a match.
  *
  * @param item
  *      The attribute item to check.
  * @param registry
  *      The attribute registry used to retrieve attribute metadata.
  * @param filterScope
- *      The scope to match against (character or paragraph).
+ *      The scope to match against (character, paragraph, or the internal AttributeScopeAny).
  * @param filterGroup
  *      The group to match against, or SBAttributeGroupNone to skip group filtering.
  * @return
@@ -54,7 +56,7 @@ static SBBoolean CheckAttributeMatchesFilter(SBAttributeItem *item,
     attributeInfo = SBAttributeRegistryGetInfoReference(registry, item->attributeID);
 
     /* Match the scope first */
-    matchesFilter = (attributeInfo->scope == filterScope);
+    matchesFilter = (filterScope == AttributeScopeAny || attributeInfo->scope == filterScope);
 
     /* Match the group if a specific group filter is provided */
     if (matchesFilter && filterGroup != SBAttributeGroupNone) {
@@ -64,17 +66,18 @@ static SBBoolean CheckAttributeMatchesFilter(SBAttributeItem *item,
     return matchesFilter;
 }
 
-static void ReleaseAllAttributeItems(AttributeDictionaryRef dictionary,
-    SBAttributeRegistryRef registry)
+static void ReleaseAllAttributeItems(AttributeDictionaryRef dictionary)
 {
+    SBAttributeListRef list = dictionary->_list;
+    SBAttributeRegistryRef registry = list->registry;
     SBUInteger itemIndex;
 
     if (registry) {
-        SBUInteger itemCount = SBAttributeListSize(&dictionary->_list);
+        SBUInteger itemCount = SBAttributeListSize(list);
 
         /* Release attribute values through the registry */
         for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-            SBAttributeItem *item = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+            SBAttributeItem *item = SBAttributeListGetAt(list, itemIndex);
             const void *valuePtr = SBAttributeItemGetValuePtr(item);
 
             SBAttributeRegistryReleaseAttribute(registry, valuePtr);
@@ -82,58 +85,57 @@ static void ReleaseAllAttributeItems(AttributeDictionaryRef dictionary,
     }
 }
 
-SB_INTERNAL void AttributeDictionaryInitialize(AttributeDictionaryRef dictionary, SBUInt8 valueSize)
-{
-    SBUInteger itemSize = sizeof(SBAttributeItem) + valueSize;
-
-    SBAttributeListInitialize(&dictionary->_list, itemSize);
-}
-
-SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary,
+SB_INTERNAL void AttributeDictionaryInitialize(AttributeDictionaryRef dictionary,
     SBAttributeRegistryRef registry)
 {
-    ReleaseAllAttributeItems(dictionary, registry);
-    SBAttributeListFinalize(&dictionary->_list);
+    dictionary->_list = SBAttributeListCreate(registry);
 }
 
-SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBUInt8 valueSize)
+SB_INTERNAL void AttributeDictionaryFinalize(AttributeDictionaryRef dictionary)
+{
+    ReleaseAllAttributeItems(dictionary);
+    SBAttributeListRelease(dictionary->_list);
+}
+
+SB_INTERNAL AttributeDictionaryRef AttributeDictionaryCreate(SBAttributeRegistryRef registry)
 {
     AttributeDictionaryRef dictionary;
 
     dictionary = SBAllocatorAllocateBlock(NULL, sizeof(AttributeDictionary));
 
     if (dictionary) {
-        AttributeDictionaryInitialize(dictionary, valueSize);
+        AttributeDictionaryInitialize(dictionary, registry);
     }
 
     return dictionary;
 }
 
-SB_INTERNAL void AttributeDictionaryDestroy(AttributeDictionaryRef dictionary,
-    SBAttributeRegistryRef registry)
+SB_INTERNAL void AttributeDictionaryDestroy(AttributeDictionaryRef dictionary)
 {
-    AttributeDictionaryFinalize(dictionary, registry);
+    AttributeDictionaryFinalize(dictionary);
     SBAllocatorDeallocateBlock(NULL, dictionary);
 }
 
 SB_INTERNAL SBBoolean AttributeDictionaryIsEmpty(AttributeDictionaryRef dictionary)
 {
-    return (SBAttributeListSize(&dictionary->_list) == 0);
+    return (SBAttributeListSize(dictionary->_list) == 0);
 }
 
 SB_INTERNAL void AttributeDictionarySet(AttributeDictionaryRef dictionary,
-    AttributeDictionaryRef other, SBAttributeRegistryRef registry)
+    AttributeDictionaryRef other)
 {
-    SBUInteger itemCount = SBAttributeListSize(&other->_list);
+    SBAttributeListRef otherList = other->_list;
+    SBAttributeRegistryRef registry = otherList->registry;
+    SBUInteger itemCount = SBAttributeListSize(otherList);
     SBUInteger itemIndex;
 
-    AttributeDictionaryClear(dictionary, registry);
-    SBAttributeListReserveRange(&dictionary->_list, 0, itemCount);
+    AttributeDictionaryClear(dictionary);
+    SBAttributeListReserveRange(dictionary->_list, 0, itemCount);
 
     /* Copy each attribute item, retaining values through the registry */
     for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-        const SBAttributeItem *source = SBAttributeListGetAt(&other->_list, itemIndex);
-        SBAttributeItem *destination = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        const SBAttributeItem *source = SBAttributeListGetAt(otherList, itemIndex);
+        SBAttributeItem *destination = SBAttributeListGetAt(dictionary->_list, itemIndex);
         const void *oldValue;
         const void *newValue;
 
@@ -145,15 +147,16 @@ SB_INTERNAL void AttributeDictionarySet(AttributeDictionaryRef dictionary,
 }
 
 SB_INTERNAL void AttributeDictionaryPut(AttributeDictionaryRef dictionary,
-    SBAttributeID attributeID, const void *attributeValue, SBAttributeRegistryRef registry,
-    SBBoolean *unchanged)
+    SBAttributeID attributeID, const void *attributeValue, SBBoolean *unchanged)
 {
+    SBAttributeListRef list = dictionary->_list;
+    SBAttributeRegistryRef registry = list->registry;
     SBBoolean itemFound;
     SBUInteger itemIndex;
     const void *newValue;
 
     /* Find the index where the item exists or should be inserted */
-    itemIndex = SBAttributeListBinarySearchIndex(&dictionary->_list, attributeID, &itemFound);
+    itemIndex = SBAttributeListBinarySearchIndex(list, attributeID, &itemFound);
 
     if (registry) {
         /* Retain the new attribute value upfront */
@@ -163,7 +166,7 @@ SB_INTERNAL void AttributeDictionaryPut(AttributeDictionaryRef dictionary,
     }
 
     if (itemFound) {
-        SBAttributeItem *item = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        SBAttributeItem *item = SBAttributeListGetAt(list, itemIndex);
         const void *previousValue = SBAttributeItemGetValuePtr(item);
 
         if (registry) {
@@ -185,9 +188,9 @@ SB_INTERNAL void AttributeDictionaryPut(AttributeDictionaryRef dictionary,
         SBAttributeItem *newItem;
 
         /* Insert the new item at the correct position to maintain sorted order */
-        SBAttributeListReserveRange(&dictionary->_list, itemIndex, 1);
+        SBAttributeListReserveRange(dictionary->_list, itemIndex, 1);
 
-        newItem = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        newItem = SBAttributeListGetAt(dictionary->_list, itemIndex);
         SBAttributeItemSet(newItem, attributeID, newValue);
 
         if (unchanged) {
@@ -197,9 +200,9 @@ SB_INTERNAL void AttributeDictionaryPut(AttributeDictionaryRef dictionary,
 }
 
 SB_INTERNAL void AttributeDictionaryMerge(AttributeDictionaryRef dictionary,
-    AttributeDictionaryRef other, SBAttributeRegistryRef registry, SBBoolean *unchanged)
+    AttributeDictionaryRef other, SBBoolean *unchanged)
 {
-    SBUInteger itemCount = SBAttributeListSize(&other->_list);
+    SBUInteger itemCount = SBAttributeListSize(other->_list);
     SBUInteger itemIndex;
     SBBoolean remainedUnchanged;
     SBBoolean *noImpact;
@@ -212,10 +215,10 @@ SB_INTERNAL void AttributeDictionaryMerge(AttributeDictionaryRef dictionary,
     }
 
     for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-        SBAttributeItem *currentItem = SBAttributeListGetAt(&other->_list, itemIndex);
+        SBAttributeItem *currentItem = SBAttributeListGetAt(other->_list, itemIndex);
 
         AttributeDictionaryPut(dictionary, currentItem->attributeID,
-            SBAttributeItemGetValuePtr(currentItem), registry, noImpact);
+            SBAttributeItemGetValuePtr(currentItem), noImpact);
 
         if (noImpact && !remainedUnchanged) {
             *unchanged = SBFalse;
@@ -224,18 +227,19 @@ SB_INTERNAL void AttributeDictionaryMerge(AttributeDictionaryRef dictionary,
 }
 
 SB_INTERNAL void AttributeDictionaryFilter(AttributeDictionaryRef dictionary,
-    SBAttributeScope targetScope, SBAttributeGroup targetGroup,
-    SBAttributeRegistryRef registry, AttributeDictionaryRef result)
+    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeDictionaryRef result)
 {
-    SBUInteger itemCount = SBAttributeListSize(&dictionary->_list);
+    SBAttributeListRef list = dictionary->_list;
+    SBAttributeRegistryRef registry = list->registry;
+    SBUInteger itemCount = SBAttributeListSize(list);
     SBUInteger itemIndex;
 
     /* Clear the result dictionary before populating it */
-    AttributeDictionaryClear(result, NULL);
+    AttributeDictionaryClear(result);
 
     /* Iterate through all items in the dictionary */
     for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-        SBAttributeItem *currentItem = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        SBAttributeItem *currentItem = SBAttributeListGetAt(list, itemIndex);
         SBBoolean matched;
 
         /* Check if the item matches the filter criteria */
@@ -246,8 +250,8 @@ SB_INTERNAL void AttributeDictionaryFilter(AttributeDictionaryRef dictionary,
             SBAttributeItem *newItem;
 
             /* Add matching item to the result dictionary */
-            SBAttributeListReserveEnd(&result->_list, 1);
-            newItem = SBAttributeListGetLast(&result->_list);
+            SBAttributeListReserveEnd(result->_list, 1);
+            newItem = SBAttributeListGetLast(result->_list);
 
             SBAttributeItemSet(newItem, currentItem->attributeID, valuePtr);
         }
@@ -261,10 +265,10 @@ SB_INTERNAL const void *AttributeDictionaryFindValue(
     SBUInteger itemIndex;
     SBBoolean itemFound;
 
-    itemIndex = SBAttributeListBinarySearchIndex(&dictionary->_list, attributeID, &itemFound);
+    itemIndex = SBAttributeListBinarySearchIndex(dictionary->_list, attributeID, &itemFound);
 
     if (itemFound) {
-        SBAttributeItem *item = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        SBAttributeItem *item = SBAttributeListGetAt(dictionary->_list, itemIndex);
         value = SBAttributeItemGetValuePtr(item);
     }
 
@@ -272,14 +276,16 @@ SB_INTERNAL const void *AttributeDictionaryFindValue(
 }
 
 SB_INTERNAL SBBoolean AttributeDictionaryMatchAny(AttributeDictionaryRef dictionary,
-    SBAttributeScope targetScope, SBAttributeGroup targetGroup, SBAttributeRegistryRef registry)
+    SBAttributeScope targetScope, SBAttributeGroup targetGroup)
 {
-    SBUInteger itemCount = SBAttributeListSize(&dictionary->_list);
+    SBAttributeListRef list = dictionary->_list;
+    SBAttributeRegistryRef registry = list->registry;
+    SBUInteger itemCount = SBAttributeListSize(list);
     SBUInteger itemIndex;
 
     /* Iterate through all items */
     for (itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-        SBAttributeItem *currentItem = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        SBAttributeItem *currentItem = SBAttributeListGetAt(list, itemIndex);
 
         /* Return true if there is a match */
         if (CheckAttributeMatchesFilter(currentItem, registry, targetScope, targetGroup)) {
@@ -291,11 +297,12 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAny(AttributeDictionaryRef diction
 }
 
 SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef dictionary,
-    SBAttributeScope targetScope, SBAttributeGroup targetGroup,
-    SBAttributeRegistryRef registry, AttributeDictionaryRef other)
+    SBAttributeScope targetScope, SBAttributeGroup targetGroup, AttributeDictionaryRef other)
 {
-    SBUInteger dictCount = SBAttributeListSize(&dictionary->_list);
-    SBUInteger otherCount = SBAttributeListSize(&other->_list);
+    SBAttributeListRef list = dictionary->_list;
+    SBAttributeRegistryRef registry = list->registry;
+    SBUInteger dictCount = SBAttributeListSize(list);
+    SBUInteger otherCount = SBAttributeListSize(other->_list);
     SBUInteger dictIndex;
     SBUInteger otherIndex;
 
@@ -307,8 +314,8 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef diction
         SBAttributeItem *dictItem;
         SBAttributeItem *otherItem;
 
-        dictItem = SBAttributeListGetAt(&dictionary->_list, dictIndex);
-        otherItem = SBAttributeListGetAt(&other->_list, otherIndex);
+        dictItem = SBAttributeListGetAt(list, dictIndex);
+        otherItem = SBAttributeListGetAt(other->_list, otherIndex);
 
         /* Skip non-matching items in the primary dictionary */
         if (!CheckAttributeMatchesFilter(dictItem, registry, targetScope, targetGroup)) {
@@ -335,7 +342,7 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef diction
 
     /* Verify primary dictionary has no remaining filtered elements */
     while (dictIndex < dictCount) {
-        SBAttributeItem *currentItem = SBAttributeListGetAt(&dictionary->_list, dictIndex);
+        SBAttributeItem *currentItem = SBAttributeListGetAt(dictionary->_list, dictIndex);
 
         if (CheckAttributeMatchesFilter(currentItem, registry, targetScope, targetGroup)) {
             return SBFalse;
@@ -346,7 +353,7 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef diction
 
     /* Verify other dictionary has no remaining filtered elements */
     while (otherIndex < otherCount) {
-        SBAttributeItem *currentItem = SBAttributeListGetAt(&other->_list, otherIndex);
+        SBAttributeItem *currentItem = SBAttributeListGetAt(other->_list, otherIndex);
 
         if (CheckAttributeMatchesFilter(currentItem, registry, targetScope, targetGroup)) {
             return SBFalse;
@@ -359,15 +366,17 @@ SB_INTERNAL SBBoolean AttributeDictionaryMatchAll(AttributeDictionaryRef diction
 }
 
 SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
-    SBAttributeID attributeID, SBAttributeRegistryRef registry, SBBoolean *unchanged)
+    SBAttributeID attributeID, SBBoolean *unchanged)
 {
     SBUInteger itemIndex;
     SBBoolean itemFound;
 
-    itemIndex = SBAttributeListBinarySearchIndex(&dictionary->_list, attributeID, &itemFound);
+    itemIndex = SBAttributeListBinarySearchIndex(dictionary->_list, attributeID, &itemFound);
 
     if (itemFound) {
-        SBAttributeItem *item = SBAttributeListGetAt(&dictionary->_list, itemIndex);
+        SBAttributeListRef list = dictionary->_list;
+        SBAttributeRegistryRef registry = list->registry;
+        SBAttributeItem *item = SBAttributeListGetAt(list, itemIndex);
 
         if (registry) {
             const void *valuePtr = SBAttributeItemGetValuePtr(item);
@@ -377,7 +386,7 @@ SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
         }
 
         /* Remove the item from the list */
-        SBAttributeListRemoveAt(&dictionary->_list, itemIndex);
+        SBAttributeListRemoveAt(list, itemIndex);
     }
 
     if (unchanged) {
@@ -385,11 +394,15 @@ SB_INTERNAL void AttributeDictionaryRemove(AttributeDictionaryRef dictionary,
     }
 }
 
-SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary,
-    SBAttributeRegistryRef registry)
+SB_INTERNAL void AttributeDictionaryClear(AttributeDictionaryRef dictionary)
 {
-    ReleaseAllAttributeItems(dictionary, registry);
-    SBAttributeListRemoveAll(&dictionary->_list);
+    ReleaseAllAttributeItems(dictionary);
+    SBAttributeListRemoveAll(dictionary->_list);
+}
+
+SB_INTERNAL SBAttributeListRef AttributeDictionaryRelinquish(AttributeDictionaryRef dictionary)
+{
+    return SBAttributeListRetain(dictionary->_list);
 }
 
 #endif

@@ -22,16 +22,32 @@
 #if SB_TEXT_API_SUPPORTED
 
 #include <SheenBidi/SBAttributeList.h>
+#include <SheenBidi/SBAttributeRegistry.h>
+
 #include <Core/List.h>
+#include <Core/Object.h>
 
 typedef struct _SBAttributeList {
+    ObjectBase _base;
+    SBAttributeRegistryRef registry;
     List _list;
 } SBAttributeList;
 
-SB_INTERNAL void SBAttributeListInitialize(SBAttributeListRef list, SBUInteger valueSize);
-
-#define SBAttributeListFinalize(list_)                      \
-    ListFinalize(&(list_)->_list)
+/**
+ * Creates a new, independently-retained attribute list bound to `registry`.
+ *
+ * The returned list is a genuine `ObjectCreate`-backed object (unlike, for example,
+ * `SBUniformRun.attributes`, which is a borrowed view) — callers may retain/release it via
+ * `SBAttributeListRetain`/`SBAttributeListRelease`. Its finalizer releases every remaining item's
+ * value through `registry` before freeing the underlying storage.
+ *
+ * @param registry
+ *      The attribute registry to bind to the list; retained for the list's lifetime and used to
+ *      retain/release attribute values as they are inserted or removed.
+ * @return
+ *      A new, retained attribute list, or `NULL` on allocation failure.
+ */
+SB_INTERNAL SBAttributeListRef SBAttributeListCreate(SBAttributeRegistryRef registry);
 
 #define SBAttributeListSize(list_)                          \
     ((list_)->_list.count)

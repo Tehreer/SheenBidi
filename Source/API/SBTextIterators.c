@@ -574,213 +574,56 @@ void SBScriptRunIteratorRelease(SBScriptRunIteratorRef iterator)
 }
 
 /* ==========================================================================
- * Attribute Run Iterator Implementation
+ * Attribute Filter Implementation
  * ========================================================================== */
 
-/**
- * Initializes an attribute run structure.
- *
- * Sets default values for an attribute run's properties including its position, length, and
- * attribute collection information.
- *
- * @param run
- *      Pointer to the attribute run structure to initialize.
- */
-static void InitializeAttributeRun(SBAttributeRun *run)
+SBAttributeFilter SBAttributeFilterMakeID(SBAttributeID attributeID)
 {
-    run->index = SBInvalidIndex;
-    run->length = 0;
-    run->attributes = NULL;
+    SBAttributeFilter filter;
+    filter.kind = SBAttributeFilterKindID;
+    filter.value.attributeID = attributeID;
+    return filter;
+}
+
+SBAttributeFilter SBAttributeFilterMakeCollection(SBAttributeGroup attributeGroup,
+    SBAttributeScope attributeScope)
+{
+    SBAttributeFilter filter;
+    filter.kind = SBAttributeFilterKindCollection;
+    filter.value.collection.group = attributeGroup;
+    filter.value.collection.scope = attributeScope;
+    return filter;
+}
+
+SBAttributeFilter SBAttributeFilterMakeAny(void)
+{
+    SBAttributeFilter filter;
+    filter.kind = SBAttributeFilterKindAny;
+    return filter;
 }
 
 /**
- * Cleans up resources associated with an attribute run iterator, including the text reference and
- * attribute item list.
+ * Resolves an `SBAttributeFilter` into the group/scope parameters expected by the group/scope
+ * based attribute-filtering routines, treating `SBAttributeFilterKindAny` (and any other
+ * non-collection kind) as "no group restriction, any scope."
  *
- * @param object
- *      The attribute run iterator to finalize.
+ * @param filter
+ *      The filter to resolve.
+ * @param filterGroup
+ *      Receives the attribute group to filter by.
+ * @param filterScope
+ *      Receives the attribute scope to filter by.
  */
-static void FinalizeAttributeRunIterator(ObjectRef object)
+SB_INTERNAL void GetCollectionFilterParams(SBAttributeFilter filter, SBAttributeGroup *filterGroup,
+    SBAttributeScope *filterScope)
 {
-    SBAttributeRunIteratorRef iterator = object;
-
-    SBTextRelease(iterator->text);
-    AttributeDictionaryFinalize(&iterator->items, NULL);
-}
-
-/**
- * Advances the iterator to find the next run of text that contains attributes matching the
- * specified ID filter.
- *
- * @param iterator
- *      The attribute run iterator.
- * @return
- *      `SBTrue` if a matching run was found, `SBFalse` if the end was reached.
- */
-static SBBoolean LoadOnwardAttributeRunByFilteringID(SBAttributeRunIteratorRef iterator)
-{
-    SBTextRef text = iterator->text;
-    AttributeManagerRef manager = (AttributeManagerRef)&text->attributeManager;
-    SBAttributeRun *currentRun = &iterator->currentRun;
-    SBUInteger index;
-    SBBoolean result;
-
-    index = iterator->currentIndex;
-    result = AttributeManagerGetOnwardRunByFilteringID(manager, &index, iterator->endIndex,
-        iterator->filterAttributeID, &iterator->items);
-
-    /* Populate the current run */
-    currentRun->index = iterator->currentIndex;
-    currentRun->length = index - iterator->currentIndex;
-    currentRun->attributes = &iterator->items._list;
-
-    iterator->currentIndex = index;
-
-    return result;
-}
-
-/**
- * Advances the iterator to find the next run of text that contains attributes matching the
- * specified scope and group filters.
- *
- * @param iterator
- *      The attribute run iterator.
- * @return
- *      `SBTrue` if a matching run was found, `SBFalse` if the end was reached.
- */
-static SBBoolean LoadOnwardAttributeRunByFilteringCollection(SBAttributeRunIteratorRef iterator)
-{
-    SBTextRef text = iterator->text;
-    AttributeManagerRef manager = (AttributeManagerRef)&text->attributeManager;
-    SBAttributeRun *currentRun = &iterator->currentRun;
-    SBUInteger index;
-    SBBoolean result;
-
-    index = iterator->currentIndex;
-    result = AttributeManagerGetOnwardRunByFilteringCollection(manager, &index, iterator->endIndex,
-        iterator->filterScope, iterator->filterGroup, &iterator->items);
-
-    /* Populate the current run */
-    currentRun->index = iterator->currentIndex;
-    currentRun->length = index - iterator->currentIndex;
-    currentRun->attributes = &iterator->items._list;
-
-    iterator->currentIndex = index;
-
-    return result;
-}
-
-SB_INTERNAL SBAttributeRunIteratorRef SBAttributeRunIteratorCreate(SBTextRef text)
-{
-    const SBUInteger size = sizeof(SBAttributeRunIterator);
-    void *pointer = NULL;
-    SBAttributeRunIteratorRef iterator;
-
-    /* Text MUST be available. */
-    SBAssert(text != NULL);
-
-    iterator = ObjectCreate(&size, 1, &pointer, FinalizeAttributeRunIterator);
-
-    if (iterator) {
-        iterator->text = SBTextRetain(text);
-        iterator->startIndex = 0;
-        iterator->endIndex = text->buffer.codeUnits.count;
-        iterator->currentIndex = SBInvalidIndex;
-        iterator->filterAttributeID = SBAttributeIDNone;
-        iterator->filterGroup = SBAttributeGroupNone;
-        iterator->filterScope = SBAttributeScopeCharacter;
-
-        AttributeDictionaryInitialize(&iterator->items, text->attributeRegistry->valueSize);
-        InitializeAttributeRun(&iterator->currentRun);
+    if (filter.kind == SBAttributeFilterKindCollection) {
+        *filterGroup = filter.value.collection.group;
+        *filterScope = filter.value.collection.scope;
+    } else {
+        *filterGroup = SBAttributeGroupNone;
+        *filterScope = AttributeScopeAny;
     }
-
-    return iterator;
-}
-
-SBTextRef SBAttributeRunIteratorGetText(SBAttributeRunIteratorRef iterator)
-{
-    return iterator->text;
-}
-
-void SBAttributeRunIteratorSetupAttributeID(SBAttributeRunIteratorRef iterator, SBAttributeID attributeID)
-{
-    iterator->filterAttributeID = attributeID;
-    iterator->filterGroup = SBAttributeGroupNone;
-
-    /* Reset the iterator */
-    iterator->currentIndex = SBInvalidIndex;
-    InitializeAttributeRun(&iterator->currentRun);
-}
-
-void SBAttributeRunIteratorSetupAttributeCollection(SBAttributeRunIteratorRef iterator,
-    SBAttributeGroup group, SBAttributeScope scope)
-{
-    iterator->filterAttributeID = SBAttributeIDNone;
-    iterator->filterGroup = group;
-    iterator->filterScope = scope;
-
-    /* Reset the iterator */
-    iterator->currentIndex = SBInvalidIndex;
-    InitializeAttributeRun(&iterator->currentRun);
-}
-
-void SBAttributeRunIteratorReset(SBAttributeRunIteratorRef iterator,
-    SBUInteger index, SBUInteger length)
-{
-    SBTextRef text = iterator->text;
-
-    SBUIntegerNormalizeRange(text->buffer.codeUnits.count, &index, &length);
-
-    iterator->startIndex = index;
-    iterator->endIndex = index + length;
-    iterator->currentIndex = SBInvalidIndex;
-    InitializeAttributeRun(&iterator->currentRun);
-}
-
-const SBAttributeRun *SBAttributeRunIteratorGetCurrent(SBAttributeRunIteratorRef iterator)
-{
-    return &iterator->currentRun;
-}
-
-SBBoolean SBAttributeRunIteratorMoveNext(SBAttributeRunIteratorRef iterator)
-{
-    SBBoolean hasRun = SBFalse;
-
-    if (iterator->currentIndex == SBInvalidIndex) {
-        iterator->currentIndex = iterator->startIndex;
-    }
-
-    while (iterator->currentIndex < iterator->endIndex) {
-        if (iterator->filterAttributeID != SBAttributeIDNone) {
-            hasRun = LoadOnwardAttributeRunByFilteringID(iterator);
-        } else {
-            hasRun = LoadOnwardAttributeRunByFilteringCollection(iterator);
-        }
-
-        /* Skip the empty run */
-        if (hasRun && SBAttributeListSize(iterator->currentRun.attributes) == 0) {
-            hasRun = SBFalse;
-            continue;
-        }
-
-        break;
-    }
-
-    if (!hasRun) {
-        InitializeAttributeRun(&iterator->currentRun);
-    }
-
-    return hasRun;
-}
-
-SBAttributeRunIteratorRef SBAttributeRunIteratorRetain(SBAttributeRunIteratorRef iterator)
-{
-    return ObjectRetain(iterator);
-}
-
-void SBAttributeRunIteratorRelease(SBAttributeRunIteratorRef iterator)
-{
-    ObjectRelease(iterator);
 }
 
 /* ==========================================================================
@@ -816,7 +659,7 @@ static void FinalizeUniformRunIterator(ObjectRef object)
 {
     SBUniformRunIteratorRef iterator = object;
 
-    AttributeDictionaryFinalize(&iterator->items, NULL);
+    AttributeDictionaryFinalize(&iterator->items);
     FinalizeTextIterator(&iterator->parent);
 }
 
@@ -838,11 +681,9 @@ SB_INTERNAL SBUniformRunIteratorRef SBUniformRunIteratorCreate(SBTextRef text)
         iterator->rangeIndex = 0;
         iterator->rangeLength = text->buffer.codeUnits.count;
         iterator->boundaryIndex = SBInvalidIndex;
-        iterator->filterAttributeID = SBAttributeIDNone;
-        iterator->filterGroup = SBAttributeGroupNone;
-        iterator->filterScope = SBAttributeScopeCharacter;
+        iterator->filter = SBAttributeFilterMakeAny();
 
-        AttributeDictionaryInitialize(&iterator->items, text->attributeRegistry->valueSize);
+        AttributeDictionaryInitialize(&iterator->items, text->attributeRegistry);
     }
 
     return iterator;
@@ -853,20 +694,9 @@ SBTextRef SBUniformRunIteratorGetText(SBUniformRunIteratorRef iterator)
     return iterator->parent.text;
 }
 
-void SBUniformRunIteratorSetupAttributeID(SBUniformRunIteratorRef iterator, SBAttributeID attributeID)
+void SBUniformRunIteratorSetupFilter(SBUniformRunIteratorRef iterator, SBAttributeFilter filter)
 {
-    iterator->filterAttributeID = attributeID;
-    iterator->filterGroup = SBAttributeGroupNone;
-
-    SBUniformRunIteratorReset(iterator, iterator->rangeIndex, iterator->rangeLength);
-}
-
-void SBUniformRunIteratorSetupAttributeCollection(SBUniformRunIteratorRef iterator,
-    SBAttributeGroup group, SBAttributeScope scope)
-{
-    iterator->filterAttributeID = SBAttributeIDNone;
-    iterator->filterGroup = group;
-    iterator->filterScope = scope;
+    iterator->filter = filter;
 
     SBUniformRunIteratorReset(iterator, iterator->rangeIndex, iterator->rangeLength);
 }
@@ -926,6 +756,8 @@ SBBoolean SBUniformRunIteratorMoveNext(SBUniformRunIteratorRef iterator)
         SBUInteger scriptEnd = runStart;
         SBUInteger attributeEnd = parent->paragraphStart + runStart;
         SBUInteger mergedEnd;
+        SBAttributeGroup filterGroup;
+        SBAttributeScope filterScope;
 
         /* Get bidirectional and script information for the paragraph */
         embeddingLevels = &textParagraph->bidiParagraph->fixedLevels[paragraphOffset];
@@ -942,12 +774,13 @@ SBBoolean SBUniformRunIteratorMoveNext(SBUniformRunIteratorRef iterator)
         }
 
         /* Find the end of the current attribute run, clamped to the paragraph boundary */
-        if (iterator->filterAttributeID != SBAttributeIDNone) {
+        if (iterator->filter.kind == SBAttributeFilterKindID) {
             AttributeManagerGetOnwardRunByFilteringID(manager, &attributeEnd, parent->paragraphEnd,
-                iterator->filterAttributeID, &iterator->items);
+                iterator->filter.value.attributeID, &iterator->items);
         } else {
+            GetCollectionFilterParams(iterator->filter, &filterGroup, &filterScope);
             AttributeManagerGetOnwardRunByFilteringCollection(manager, &attributeEnd, parent->paragraphEnd,
-                iterator->filterScope, iterator->filterGroup, &iterator->items);
+                filterScope, filterGroup, &iterator->items);
         }
 
         /* Take the nearest of the level, script, and attribute boundaries */
@@ -964,7 +797,7 @@ SBBoolean SBUniformRunIteratorMoveNext(SBUniformRunIteratorRef iterator)
         currentRun->length = mergedEnd - runStart;
         currentRun->level = currentLevel;
         currentRun->script = currentScript;
-        currentRun->attributes = &iterator->items._list;
+        currentRun->attributes = iterator->items._list;
 
         iterator->boundaryIndex = mergedEnd;
 

@@ -53,6 +53,8 @@ private:
     void testRemoveAttribute();
     void testAttributeEdgeCases();
     void testAttributeComplexScenarios();
+    void testAttributeAnyFilter();
+    void testAttributeListRetainRelease();
     void testParagraphUserInfoProvider();
     void testParagraphUserInfoInvalidation();
     void testParagraphUserInfoCopySharing();
