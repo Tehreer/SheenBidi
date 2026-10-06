@@ -36,6 +36,7 @@ private:
     void testThreadSafeBlockAllocation();
     void testThreadLocalScratchMemory();
     void testScratchMemoryExhaustion();
+    void testScratchPoolContention();
     void testCustomAllocatorProtocol();
     void testDefaultAllocatorChanges();
     void testThreadSafeDefaultAllocatorSwitch();

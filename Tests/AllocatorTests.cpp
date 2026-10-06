@@ -55,6 +55,7 @@ void AllocatorTests::run() {
     testThreadSafeBlockAllocation();
     testThreadLocalScratchMemory();
     testScratchMemoryExhaustion();
+    testScratchPoolContention();
     testCustomAllocatorProtocol();
     testDefaultAllocatorChanges();
     testThreadSafeDefaultAllocatorSwitch();
@@ -278,6 +279,87 @@ void AllocatorTests::testScratchMemoryExhaustion() {
     assert(pointer != nullptr);
 
     SBAllocatorResetScratch(nullptr);
+#endif
+}
+
+void AllocatorTests::testScratchPoolContention() {
+#if !defined(SB_CONFIG_UNITY) && !defined(SB_CONFIG_DISABLE_SCRATCH_MEMORY)
+    constexpr int NumThreads = 8;
+    constexpr int Rounds = 20000;
+    constexpr size_t Size = 256;
+
+    atomic<int> failures(0);
+    vector<thread> threads;
+
+    // There are more threads than buffers in the pool, so the buffers keep on changing hands. A
+    // buffer that is owned by two threads at once, or that is handed over without its contents
+    // being visible, shows up as a damaged pattern, or as a data race in a sanitizer.
+    auto worker = [&](int id) {
+        for (int round = 0; round < Rounds; round++) {
+            auto *pointer = static_cast<uint8_t *>(SBAllocatorAllocateScratch(nullptr, Size));
+            if (!pointer) {
+                continue;
+            }
+
+            const uint8_t pattern = static_cast<uint8_t>(id * 31 + round);
+            memset(pointer, pattern, Size);
+
+            for (size_t i = 0; i < Size; i++) {
+                if (pointer[i] != pattern) {
+                    failures++;
+                    break;
+                }
+            }
+
+            SBAllocatorResetScratch(nullptr);
+        }
+    };
+
+    for (int i = 0; i < NumThreads; i++) {
+        threads.emplace_back(worker, i);
+    }
+
+    for (auto &t : threads) {
+        t.join();
+    }
+
+    assert(failures == 0);
+
+    // Every buffer is back in the pool after the threads are done.
+    auto drain = [&]() {
+        int count = 0;
+        vector<thread> holders;
+        atomic<int> acquired(0);
+        atomic<bool> release(false);
+        atomic<int> ready(0);
+
+        for (int i = 0; i < SB_CONFIG_SCRATCH_POOL_SIZE; i++) {
+            holders.emplace_back([&]() {
+                if (SBAllocatorAllocateScratch(nullptr, 8)) {
+                    acquired++;
+                }
+                ready++;
+                while (!release) {
+                    this_thread::yield();
+                }
+                SBAllocatorResetScratch(nullptr);
+            });
+        }
+
+        while (ready < SB_CONFIG_SCRATCH_POOL_SIZE) {
+            this_thread::yield();
+        }
+        count = acquired;
+        release = true;
+
+        for (auto &t : holders) {
+            t.join();
+        }
+
+        return count;
+    };
+
+    assert(drain() == SB_CONFIG_SCRATCH_POOL_SIZE);
 #endif
 }
 

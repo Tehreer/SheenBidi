@@ -19,6 +19,7 @@
 
 #include <API/SBBase.h>
 #include <Core/AtomicPointer.h>
+#include <Core/AtomicUInt.h>
 #include <Core/Object.h>
 #include <Core/Once.h>
 #include <Core/ThreadLocalStorage.h>
@@ -32,7 +33,7 @@ static SBAtomicAllocatorRef DefaultAllocator = NULL;
 
 #ifndef SB_CONFIG_DISABLE_SCRATCH_MEMORY
 
-#if defined(HAS_ATOMIC_POINTER_SUPPORT) && defined(HAS_TLS_SUPPORT) && defined(HAS_ONCE_SUPPORT)
+#if defined(HAS_ATOMIC_POINTER_SUPPORT) && defined(HAS_ATOMIC_UINT_SUPPORT) && defined(HAS_TLS_SUPPORT) && defined(HAS_ONCE_SUPPORT)
 #define USE_SCRATCH_MEMORY
 #else
 #error "Scratch memory functionality requires atomic operations, thread-local, and once support. \
@@ -44,53 +45,69 @@ To proceed without scratch memory, manually define `SB_CONFIG_DISABLE_SCRATCH_ME
 #ifdef USE_SCRATCH_MEMORY
 
 typedef struct _Buffer {
-    struct _Buffer *next;
     SBUInteger offset;
     SBUInt8 data[SB_CONFIG_SCRATCH_BUFFER_SIZE];
 } Buffer, *BufferRef;
-typedef AtomicPointerType(Buffer) AtomicBufferRef;
+
+/* The pool is tracked by a bit mask, which needs a bit for each buffer. */
+#if SB_CONFIG_SCRATCH_POOL_SIZE >= 1 && SB_CONFIG_SCRATCH_POOL_SIZE < 32
+#define POOL_FULL_MASK  ((((SBUInteger)1) << SB_CONFIG_SCRATCH_POOL_SIZE) - 1)
+#else
+#error "SB_CONFIG_SCRATCH_POOL_SIZE must be between 1 and 31."
+#endif
 
 static Buffer BufferPool[SB_CONFIG_SCRATCH_POOL_SIZE];
-static AtomicBufferRef BufferStack = NULL;
+/* A set bit means that the buffer of that index is free to take. */
+static AtomicUInt FreeBuffers;
 static ThreadLocalStorage ScratchBuffer;
 
 #define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 
-static void InitializeBufferStack(void *info)
+static void InitializeBufferPool(void *info)
 {
     SBUInteger index;
 
-    for (index = 0; index < SB_CONFIG_SCRATCH_POOL_SIZE - 1; index++) {
-        BufferPool[index].next = &BufferPool[index + 1];
+    for (index = 0; index < SB_CONFIG_SCRATCH_POOL_SIZE; index++) {
         BufferPool[index].offset = 0;
     }
 
-    BufferPool[SB_CONFIG_SCRATCH_POOL_SIZE - 1].next = NULL;
-    BufferPool[SB_CONFIG_SCRATCH_POOL_SIZE - 1].offset = 0;
-    AtomicPointerStore(&BufferStack, &BufferPool[0]);
+    AtomicUIntInitialize(&FreeBuffers, POOL_FULL_MASK);
 }
 
-static SBBoolean TryLazyInitializeBufferStack(void)
+static SBBoolean TryLazyInitializeBufferPool(void)
 {
     static Once once = OnceMake();
-    return OnceTryExecute(&once, InitializeBufferStack, NULL);
+    return OnceTryExecute(&once, InitializeBufferPool, NULL);
 }
 
+/*
+ * A buffer is taken by clearing its bit and given back by setting it again. Unlike a lock-free
+ * stack of buffers, nothing is read from a buffer that another thread might own, and a buffer
+ * that is taken and returned in the meantime cannot make the exchange succeed wrongly.
+ */
 static BufferRef DetachBuffer(void)
 {
     BufferRef buffer = NULL;
 
-    if (TryLazyInitializeBufferStack()) {
-        BufferRef expected = NULL;
+    if (TryLazyInitializeBufferPool()) {
+        SBUInteger expected;
+        SBUInteger index;
 
         do {
-            buffer = AtomicPointerLoad(&BufferStack);
-            expected = buffer;
-
-            if (!buffer) {
-                break;
+            /* Not every atomic implementation updates the expected value on failure. */
+            expected = AtomicUIntLoad(&FreeBuffers);
+            if (!expected) {
+                return NULL;
             }
-        } while (!AtomicPointerCompareAndSet(&BufferStack, &expected, buffer->next));
+
+            index = 0;
+            while (((expected >> index) & 1) == 0) {
+                index += 1;
+            }
+        } while (!AtomicUIntCompareAndSet(&FreeBuffers, &expected,
+                    expected & ~(((SBUInteger)1) << index)));
+
+        buffer = &BufferPool[index];
     }
 
     return buffer;
@@ -98,16 +115,14 @@ static BufferRef DetachBuffer(void)
 
 static void RecycleBuffer(BufferRef buffer)
 {
-    BufferRef top;
-    BufferRef expected;
+    SBUInteger bit = ((SBUInteger)1) << (buffer - BufferPool);
+    SBUInteger expected;
 
     buffer->offset = 0;
 
     do {
-        top = AtomicPointerLoad(&BufferStack);
-        expected = top;
-        buffer->next = top;
-    } while (!AtomicPointerCompareAndSet(&BufferStack, &expected, buffer));
+        expected = AtomicUIntLoad(&FreeBuffers);
+    } while (!AtomicUIntCompareAndSet(&FreeBuffers, &expected, expected | bit));
 }
 
 static void InitializeScratchBuffer(void *info)
