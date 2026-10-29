@@ -103,6 +103,7 @@ static SBMutableParagraphRef AllocateParagraph(SBUInteger length)
 
     if (paragraph) {
         paragraph->fixedLevels = pointers[LEVELS];
+        paragraph->_algorithm = NULL;
     }
 
     return paragraph;
