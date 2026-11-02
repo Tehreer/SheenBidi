@@ -411,9 +411,10 @@ SB_INTERNAL void TextAnalysisFlush(TextAnalysisRef analysis, TextBufferRef buffe
             PopulateParagraphScripts(analysis, buffer, paragraph);
 
             paragraph->needsReanalysis = SBFalse;
-
-            ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
         }
+
+        /* The user info of a paragraph is invalidated by an attribute change as well. */
+        ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
     }
 }
 
@@ -514,8 +515,15 @@ SB_INTERNAL void TextAnalysisInvalidateParagraphUserInfo(TextAnalysisRef analysi
             paragraph->userInfo = NULL;
         }
 
-        ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
+        if (!analysis->isUserInfoDeferred) {
+            ProvideParagraphUserInfoIfNeeded(analysis, paragraph);
+        }
     }
+}
+
+SB_INTERNAL void TextAnalysisSetUserInfoDeferred(TextAnalysisRef analysis, SBBoolean isDeferred)
+{
+    analysis->isUserInfoDeferred = isDeferred;
 }
 
 /* =========================================================================
@@ -539,6 +547,7 @@ SB_INTERNAL void TextAnalysisInitialize(TextAnalysisRef analysis, SBTextRef owne
 
     analysis->userInfoProvider = userInfoProvider;
     analysis->userInfoProviderContext = userInfoProviderContext;
+    analysis->isUserInfoDeferred = SBFalse;
 
     ListInitialize(&analysis->paragraphs, sizeof(TextParagraph));
 }

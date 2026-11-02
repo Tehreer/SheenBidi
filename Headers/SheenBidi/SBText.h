@@ -335,7 +335,9 @@ SB_PUBLIC SBMutableTextRef SBTextCreateMutable(SBStringEncoding encoding, SBText
 /**
  * Signals the start of a batch of editing operations. While in editing mode, text analysis
  * (bidirectional processing, script identification) is deferred until `SBTextEndEditing` is
- * called. This improves performance when making multiple sequential modifications.
+ * called. This improves performance when making multiple sequential modifications. Attributes can
+ * be set and removed in the batch, and the user info of the paragraphs that they change is provided
+ * once, at the end of it, rather than after each change.
  *
  * @param text
  *      Mutable text object.

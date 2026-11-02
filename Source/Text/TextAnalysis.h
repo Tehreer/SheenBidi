@@ -56,6 +56,7 @@ typedef struct _TextAnalysis {
     SBParagraphUserInfoCallbacks userInfoCallbacks;
     SBParagraphUserInfoProviderCallback userInfoProvider;
     void *userInfoProviderContext;
+    SBBoolean isUserInfoDeferred;
 } TextAnalysis, *TextAnalysisRef;
 
 /**
@@ -196,6 +197,20 @@ SB_INTERNAL void TextAnalysisGetCodeUnitParagraphInfo(TextAnalysisRef analysis, 
  */
 SB_INTERNAL void TextAnalysisInvalidateParagraphUserInfo(TextAnalysisRef analysis, SBUInteger index,
     SBUInteger length);
+
+/**
+ * Tells whether a paragraph whose user info was invalidated gets a new one at once, or only when
+ * `TextAnalysisFlush()` is called. Deferring it keeps a batch of attribute changes from asking the
+ * provider for the same paragraph over and over, and keeps the provider from seeing a paragraph
+ * whose analysis is not up to date.
+ *
+ * @param analysis
+ *      The text analysis to update.
+ * @param isDeferred
+ *      `SBTrue` to wait for the flush, `SBFalse` to provide the user info as soon as it is
+ *      invalidated.
+ */
+SB_INTERNAL void TextAnalysisSetUserInfoDeferred(TextAnalysisRef analysis, SBBoolean isDeferred);
 
 /**
  * Notifies the analysis that a range of code units in `buffer` was replaced, re-deriving paragraph

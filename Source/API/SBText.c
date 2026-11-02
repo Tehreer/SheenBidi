@@ -289,6 +289,7 @@ void SBTextBeginEditing(SBMutableTextRef text)
     }
 
     text->isEditing = SBTrue;
+    TextAnalysisSetUserInfoDeferred(&text->analysis, SBTrue);
 }
 
 void SBTextEndEditing(SBMutableTextRef text)
@@ -299,6 +300,7 @@ void SBTextEndEditing(SBMutableTextRef text)
         return;
     }
 
+    TextAnalysisSetUserInfoDeferred(&text->analysis, SBFalse);
     TextAnalysisFlush(&text->analysis, &text->buffer, &text->bidiTypes);
     text->isEditing = SBFalse;
 }
